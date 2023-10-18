@@ -30,6 +30,9 @@ public class Map : MonoBehaviour {
     TileBase _tileGrass;
 
     [SerializeField]
+    TileBase _tileRoad;
+
+    [SerializeField]
     GameObject _tilemapPrefab;
 
     [Header("Configuration")]
