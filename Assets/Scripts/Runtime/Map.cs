@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -42,14 +43,11 @@ public class Map : MonoBehaviour {
     List<List<Tile>> _tiles;
 
     void Awake() {
-        SetupTiles();
+        RegenerateTilemap();
     }
 
-    void OnValidate() {
-        SetupTiles();
-    }
-
-    void SetupTiles() {
+    [Button("RegenerateTilemap")]
+    void RegenerateTilemap() {
         _tiles = new List<List<Tile>>();
         _tileHeights = new List<List<int>>();
 
@@ -65,10 +63,10 @@ public class Map : MonoBehaviour {
             _tileHeights.Add(tileHeights);
         }
 
-        RegenerateTilemap();
+        RegenerateTilemapGameObject();
     }
 
-    void RegenerateTilemap() {
+    void RegenerateTilemapGameObject() {
         _tilemapTerrain.ClearAllTiles();
 
         for (var y = 0; y < _mapSizeY; y++) {
