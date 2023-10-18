@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Random = UnityEngine.Random;
 
 namespace BFG.Runtime {
 public struct Tile {
@@ -9,6 +11,7 @@ public struct Tile {
 }
 
 public class Map : MonoBehaviour {
+    const string TerrainTilemapNameTemplate = "Gen-Terrain";
     // Layers:
     // 1 - Terrain (depends on height)
     // 2 - Stone, Trees, Ore, Buildings, Rails
@@ -22,15 +25,14 @@ public class Map : MonoBehaviour {
     Grid _grid;
 
     [SerializeField]
-    Tilemap _tilemapTerrain;
-
-    [SerializeField]
     TileBase _tileGrass;
 
-    [Header("Configuration")]
     [SerializeField]
-    int _randomSeed;
+    GameObject _tilemapPrefab;
 
+    [Header("Configuration")]
+    // [SerializeField]
+    // int _randomSeed;
     [SerializeField]
     [Min(1)]
     int _mapSizeX = 10;
@@ -56,22 +58,61 @@ public class Map : MonoBehaviour {
             var tileHeights = new List<int>();
 
             for (var x = 0; x < _mapSizeX; x++) {
-                // tiles.Append();
+                tiles.Add(new Tile { Name = "grass" });
+                tileHeights.Add(Random.Range(0, 1f) > .5f ? 0 : 1);
             }
 
             _tiles.Add(tiles);
             _tileHeights.Add(tileHeights);
         }
 
+        DeleteOldTilemaps();
         RegenerateTilemapGameObject();
     }
 
-    void RegenerateTilemapGameObject() {
-        _tilemapTerrain.ClearAllTiles();
+    void DeleteOldTilemaps() {
+#if UNITY_EDITOR
+        foreach (Transform child in _grid.transform) {
+            if (child.gameObject.name.StartsWith(TerrainTilemapNameTemplate)) {
+                DestroyImmediate(child.gameObject);
+            }
+        }
+#endif
+    }
 
+    void RegenerateTilemapGameObject() {
+        var maxHeight = 0;
         for (var y = 0; y < _mapSizeY; y++) {
             for (var x = 0; x < _mapSizeX; x++) {
-                _tilemapTerrain.SetTile(new Vector3Int(x, y, 0), _tileGrass);
+                maxHeight = Math.Max(maxHeight, _tileHeights[y][x]);
+            }
+        }
+
+        // Terrain 0 (y=0)
+        // Terrain 1 (y=-0.001)
+        // Terrain 2 (y=-0.002)
+        // Buildings 2 (y=-0.0021)
+        var terrainMaps = new List<Tilemap>();
+        for (var i = 0; i <= maxHeight; i++) {
+            var terrainTilemap = Instantiate(_tilemapPrefab, _grid.transform);
+            terrainTilemap.name = TerrainTilemapNameTemplate + i;
+            terrainTilemap.transform.position = new Vector3(0, -i / 1000f, 0);
+            terrainMaps.Add(terrainTilemap.GetComponent<Tilemap>());
+        }
+
+        for (var h = 0; h <= maxHeight; h++) {
+            for (var y = 0; y < _mapSizeY; y++) {
+                for (var x = 0; x < _mapSizeX; x++) {
+                    if (h == 0) {
+                        continue;
+                    }
+
+                    if (h == 0
+                        || _tileHeights[y][x] == h
+                        || (y > 0 && _tileHeights[y - 1][x] == h)) {
+                        terrainMaps[h].SetTile(new Vector3Int(x, y, 0), _tileGrass);
+                    }
+                }
             }
         }
     }
