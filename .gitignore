@@ -259,3 +259,6 @@ Assets/Wwise/Editor/ProjectData/AkWwiseProjectData.asset*
 #    then, it's OK to ignore this file.
 
 Assets/Wwise/Editor/ProjectData.meta
+
+/Assets/Scripts/Editor/Personal
+/Assets/Scripts/Editor/Personal.meta
