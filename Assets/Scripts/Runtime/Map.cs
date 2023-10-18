@@ -8,11 +8,13 @@ using UnityEngine.Tilemaps;
 namespace BFG.Runtime {
 public struct Tile {
     public string Name;
+    public bool HasForest;
 }
 
 public class Map : MonoBehaviour {
     const string TerrainTilemapNameTemplate = "Gen-Terrain";
     const string BuildingsTilemapNameTemplate = "Gen-Buildings";
+    const string ResourcesTilemapNameTemplate = "Gen-Resources";
 
     // Layers:
     // 1 - Terrain (depends on height)
@@ -24,15 +26,22 @@ public class Map : MonoBehaviour {
 
     [Header("Dependencies")]
     [SerializeField]
+    [Required]
     Grid _grid;
 
     [SerializeField]
+    [Required]
     TileBase _tileGrass;
 
     [SerializeField]
     TileBase _tileRoad;
 
     [SerializeField]
+    [Required]
+    TileBase _tileForest;
+
+    [SerializeField]
+    [Required]
     GameObject _tilemapPrefab;
 
     [Header("Configuration")]
@@ -52,7 +61,15 @@ public class Map : MonoBehaviour {
 
     [SerializeField]
     [Min(0)]
-    float _noiseScale = 1;
+    float _terrainHeightNoiseScale = 1;
+
+    [SerializeField]
+    [Min(0)]
+    float _forestNoiseScale = 1;
+
+    [SerializeField]
+    [Range(0, 1)]
+    float _forestThreshold = 1f;
 
     [SerializeField]
     [Min(0)]
@@ -81,9 +98,15 @@ public class Map : MonoBehaviour {
             var tileHeights = new List<int>();
 
             for (var x = 0; x < _mapSizeX; x++) {
-                tiles.Add(new Tile { Name = "grass" });
+                var tile = new Tile {
+                    Name = "grass",
+                    HasForest = MakeSomeNoise2D(_randomSeed, x, y, _forestNoiseScale) >
+                                _forestThreshold
+                };
+                tiles.Add(tile);
 
-                var randomH = MakeSomeNoise2D(_randomSeed, x, y, _noiseScale) * (_maxHeight + 1);
+                var randomH = MakeSomeNoise2D(_randomSeed, x, y, _terrainHeightNoiseScale) *
+                              (_maxHeight + 1);
                 tileHeights.Add(Mathf.Min(_maxHeight, (int)randomH));
             }
 
@@ -103,7 +126,8 @@ public class Map : MonoBehaviour {
     void DeleteOldTilemaps() {
         foreach (Transform child in _grid.transform) {
             if (child.gameObject.name.StartsWith(TerrainTilemapNameTemplate)
-                || child.gameObject.name.StartsWith(BuildingsTilemapNameTemplate)) {
+                || child.gameObject.name.StartsWith(BuildingsTilemapNameTemplate)
+                || child.gameObject.name.StartsWith(ResourcesTilemapNameTemplate)) {
                 child.gameObject.SetActive(false);
             }
         }
@@ -127,8 +151,13 @@ public class Map : MonoBehaviour {
             terrainMaps.Add(terrain.GetComponent<Tilemap>());
         }
 
-        var buildings = GenerateTilemap(0, -maxHeight - 1 / 1000f, BuildingsTilemapNameTemplate);
-        terrainMaps.Add(buildings.GetComponent<Tilemap>());
+        var buildings = GenerateTilemap(0, -maxHeight - 1 / 1000f, BuildingsTilemapNameTemplate)
+            .GetComponent<Tilemap>();
+        terrainMaps.Add(buildings);
+
+        var resources = GenerateTilemap(0, -maxHeight - 1 / 1000f, ResourcesTilemapNameTemplate)
+            .GetComponent<Tilemap>();
+        terrainMaps.Add(resources);
 
         for (var h = 0; h <= maxHeight; h++) {
             for (var y = 0; y < _mapSizeY; y++) {
@@ -138,9 +167,27 @@ public class Map : MonoBehaviour {
                         || (y > 0 && _tileHeights[y - 1][x] == h)) {
                         terrainMaps[h].SetTile(new Vector3Int(x, y, 0), _tileGrass);
                     }
+
+                    if (h == 0
+                        && (
+                            _tiles[y][x].HasForest
+                            || (y < _tiles.Count - 1 && _tiles[y + 1][x].HasForest)
+                        )
+                        && TileIsNotACliff(x, y)
+                       ) {
+                        resources.SetTile(new Vector3Int(x, y + 1, 0), _tileForest);
+                    }
                 }
             }
         }
+    }
+
+    bool TileIsNotACliff(int x, int y) {
+        if (y >= _tiles.Count - 1) {
+            return true;
+        }
+
+        return _tileHeights[y][x] < _tileHeights[y + 1][x];
     }
 
     GameObject GenerateTilemap(int i, float y, string nameTemplate) {
