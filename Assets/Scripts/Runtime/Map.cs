@@ -71,13 +71,11 @@ public class Map : MonoBehaviour {
     }
 
     void DeleteOldTilemaps() {
-#if UNITY_EDITOR
         foreach (Transform child in _grid.transform) {
             if (child.gameObject.name.StartsWith(TerrainTilemapNameTemplate)) {
-                DestroyImmediate(child.gameObject);
+                child.gameObject.SetActive(false);
             }
         }
-#endif
     }
 
     void RegenerateTilemapGameObject() {
