@@ -24,6 +24,18 @@ public class MapRenderer : MonoBehaviour {
     TileBase _tileGrass;
 
     [SerializeField]
+    [Required]
+    TileBase _tileCity;
+
+    [SerializeField]
+    [Required]
+    TileBase _tileWarehouse;
+
+    [SerializeField]
+    [Required]
+    TileBase _tileLumberjackHut;
+
+    [SerializeField]
     TileBase _tileRoad;
 
     [SerializeField]
