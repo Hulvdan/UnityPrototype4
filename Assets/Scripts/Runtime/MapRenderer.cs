@@ -24,18 +24,6 @@ public class MapRenderer : MonoBehaviour {
     TileBase _tileGrass;
 
     [SerializeField]
-    [Required]
-    TileBase _tileCity;
-
-    [SerializeField]
-    [Required]
-    TileBase _tileWarehouse;
-
-    [SerializeField]
-    [Required]
-    TileBase _tileLumberjackHut;
-
-    [SerializeField]
     TileBase _tileRoad;
 
     [SerializeField]
@@ -50,6 +38,10 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     GameObject _tilemapPrefab;
 
+    [SerializeField]
+    [Required]
+    GameObject _tilemapBuildingsPrefab;
+
     [Header("Debug Dependencies")]
     [SerializeField]
     [Required]
@@ -62,6 +54,37 @@ public class MapRenderer : MonoBehaviour {
     [SerializeField]
     [Required]
     TileBase _debugTileUnwalkable;
+
+    void OnDrawGizmos() {
+        Gizmos.color = Color.cyan;
+
+        foreach (var building in _map.buildings) {
+            if (building.scriptableBuilding.cellsRadius == 0) {
+                continue;
+            }
+
+            var r = building.scriptableBuilding.cellsRadius + .55f;
+            var gridOffset = _grid.transform.localPosition + transform.localPosition;
+            var points = new Vector3[] {
+                new(r, r, 0),
+                new(r, -r, 0),
+                new(r, -r, 0),
+                new(-r, -r, 0),
+                new(-r, -r, 0),
+                new(-r, r, 0),
+                new(-r, r, 0),
+                new(r, r, 0)
+            };
+            for (var i = 0; i < points.Length; i++) {
+                var point = points[i];
+                point.x += building.posX + gridOffset.x + .5f;
+                point.y += building.posY + gridOffset.y + .5f;
+                points[i] = point;
+            }
+
+            Gizmos.DrawLineList(points);
+        }
+    }
 
     public void ResetRenderer() {
         DeleteOldTilemaps();
@@ -94,7 +117,7 @@ public class MapRenderer : MonoBehaviour {
         // Buildings 2 (y=-0.0021)
         var terrainMaps = new List<Tilemap>();
         for (var i = 0; i <= maxHeight; i++) {
-            var terrain = GenerateTilemap(i, i, TerrainTilemapNameTemplate);
+            var terrain = GenerateTilemap(i, i, TerrainTilemapNameTemplate, _tilemapPrefab);
             terrainMaps.Add(terrain.GetComponent<Tilemap>());
         }
 
@@ -116,8 +139,9 @@ public class MapRenderer : MonoBehaviour {
             }
         }
 
-        var resources = GenerateTilemap(0, maxHeight + 1, ResourcesTilemapNameTemplate)
-            .GetComponent<Tilemap>();
+        var resources = GenerateTilemap(
+            0, maxHeight + 1, ResourcesTilemapNameTemplate, _tilemapPrefab
+        ).GetComponent<Tilemap>();
         for (var y = 0; y < _map.sizeY; y++) {
             for (var x = 0; x < _map.sizeX; x++) {
                 if (_map.tiles[y][x].HasForest) {
@@ -127,12 +151,13 @@ public class MapRenderer : MonoBehaviour {
             }
         }
 
-        var buildings = GenerateTilemap(0, maxHeight + 2, BuildingsTilemapNameTemplate)
-            .GetComponent<Tilemap>();
-        foreach (var building in _map.placedBuildings) {
-            buildings.SetTile(
+        var buildingsTilemap = GenerateTilemap(
+            0, maxHeight + 2, BuildingsTilemapNameTemplate, _tilemapBuildingsPrefab
+        ).GetComponent<Tilemap>();
+        foreach (var building in _map.buildings) {
+            buildingsTilemap.SetTile(
                 new Vector3Int(building.posX, building.posY, 0),
-                building.building.tile
+                building.scriptableBuilding.tile
             );
         }
     }
@@ -160,8 +185,8 @@ public class MapRenderer : MonoBehaviour {
         return _map.tiles[y][x].Name == "cliff";
     }
 
-    GameObject GenerateTilemap(int i, float order, string nameTemplate) {
-        var terrainTilemap = Instantiate(_tilemapPrefab, _grid.transform);
+    GameObject GenerateTilemap(int i, float order, string nameTemplate, GameObject prefabTemplate) {
+        var terrainTilemap = Instantiate(prefabTemplate, _grid.transform);
         terrainTilemap.name = nameTemplate + i;
         terrainTilemap.transform.localPosition = new Vector3(0, -order / 100000f, 0);
         return terrainTilemap;

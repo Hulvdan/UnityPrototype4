@@ -14,6 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _codename: LumberjacksHut
   _harvestTileCodename: forest
-  _posX: 0
-  _posY: 0
+  _cellsRadius: 2
   _tile: {fileID: 11400000, guid: 045a550af9e3e9f42b049c15cc331cbf, type: 2}

@@ -19,3 +19,4 @@
 - [Itch.io. Flat game user interface FREE](https://sungraphica.itch.io/flat-game-user-interface-free)
 - [Itch.io. 16x16 RPG Item Pack](https://alexs-assets.itch.io/16x16-rpg-item-pack)
 - [Itch.io. 16x16 RPG Assets](https://ssugmi.itch.io/16x16-rpg-assets)
+- [Itch.io. Free 16x16 Mini World Sprites](https://merchant-shade.itch.io/16x16-mini-world-sprites)
