@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using SimplexNoise;
 using Sirenix.OdinInspector;
@@ -52,12 +53,17 @@ public class Map : MonoBehaviour {
     [SerializeField]
     public UnityEvent OnTilesRegenerated;
 
+    [SerializeField]
+    List<PlacedBuilding> _placedBuildings;
+
     public int sizeY => _mapSizeY;
     public int sizeX => _mapSizeX;
 
     // NOTE(Hulvdan): Indexes start from the bottom left corner and go to the top right one
     public List<List<Tile>> tiles { get; private set; }
     public List<List<int>> tileHeights { get; private set; }
+
+    public List<PlacedBuilding> placedBuildings => _placedBuildings;
 
     void Awake() {
         RegenerateTilemap();
@@ -115,5 +121,22 @@ public class Map : MonoBehaviour {
         Noise.Seed = seed;
         return Noise.CalcPixel2D(x, y, scale) / 255f;
     }
+}
+
+[Serializable]
+public class PlacedBuilding {
+    [SerializeField]
+    [Required]
+    Building _building;
+
+    [SerializeField]
+    int _posX;
+
+    [SerializeField]
+    int _posY;
+
+    public Building building => _building;
+    public int posX => _posX;
+    public int posY => _posY;
 }
 }

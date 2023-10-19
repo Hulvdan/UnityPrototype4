@@ -98,14 +98,6 @@ public class MapRenderer : MonoBehaviour {
             terrainMaps.Add(terrain.GetComponent<Tilemap>());
         }
 
-        var buildings = GenerateTilemap(0, maxHeight + 1, BuildingsTilemapNameTemplate)
-            .GetComponent<Tilemap>();
-        terrainMaps.Add(buildings);
-
-        var resources = GenerateTilemap(0, maxHeight + 2, ResourcesTilemapNameTemplate)
-            .GetComponent<Tilemap>();
-        terrainMaps.Add(resources);
-
         for (var h = 0; h <= maxHeight; h++) {
             for (var y = 0; y < _map.sizeY; y++) {
                 if (h > 0 && y == _map.sizeY) {
@@ -124,6 +116,8 @@ public class MapRenderer : MonoBehaviour {
             }
         }
 
+        var resources = GenerateTilemap(0, maxHeight + 1, ResourcesTilemapNameTemplate)
+            .GetComponent<Tilemap>();
         for (var y = 0; y < _map.sizeY; y++) {
             for (var x = 0; x < _map.sizeX; x++) {
                 if (_map.tiles[y][x].HasForest) {
@@ -131,6 +125,15 @@ public class MapRenderer : MonoBehaviour {
                     resources.SetTile(new Vector3Int(x, y + 1, 0), _tileForestTop);
                 }
             }
+        }
+
+        var buildings = GenerateTilemap(0, maxHeight + 2, BuildingsTilemapNameTemplate)
+            .GetComponent<Tilemap>();
+        foreach (var building in _map.placedBuildings) {
+            buildings.SetTile(
+                new Vector3Int(building.posX, building.posY, 0),
+                building.building.tile
+            );
         }
     }
 
