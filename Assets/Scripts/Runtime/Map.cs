@@ -82,11 +82,12 @@ public class Map : MonoBehaviour {
             for (var x = 0; x < _mapSizeX; x++) {
                 var tile = new Tile {
                     Name = "grass",
+                    // HasForest = false
                     HasForest = MakeSomeNoise2D(_randomSeed, x, y, _forestNoiseScale) >
                                 _forestThreshold
                 };
                 tilesRow.Add(tile);
-
+                // var randomH = Random.Range(0, _maxHeight + 1);
                 var randomH = MakeSomeNoise2D(_randomSeed, x, y, _terrainHeightNoiseScale) *
                               (_maxHeight + 1);
                 tileHeightsRow.Add(Mathf.Min(_maxHeight, (int)randomH));
@@ -101,6 +102,7 @@ public class Map : MonoBehaviour {
                 if (y == 0 || tileHeights[y][x] > tileHeights[y - 1][x]) {
                     var s = tiles[y][x];
                     s.Name = "cliff";
+                    s.HasForest = false;
                     tiles[y][x] = s;
                 }
             }

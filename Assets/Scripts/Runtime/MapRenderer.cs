@@ -32,6 +32,10 @@ public class MapRenderer : MonoBehaviour {
 
     [SerializeField]
     [Required]
+    TileBase _tileForestTop;
+
+    [SerializeField]
+    [Required]
     GameObject _tilemapPrefab;
 
     [Header("Debug Dependencies")]
@@ -81,11 +85,11 @@ public class MapRenderer : MonoBehaviour {
             terrainMaps.Add(terrain.GetComponent<Tilemap>());
         }
 
-        var buildings = GenerateTilemap(0, -maxHeight - 1 / 1000f, BuildingsTilemapNameTemplate)
+        var buildings = GenerateTilemap(0, -(maxHeight + 1) / 1000f, BuildingsTilemapNameTemplate)
             .GetComponent<Tilemap>();
         terrainMaps.Add(buildings);
 
-        var resources = GenerateTilemap(0, -maxHeight - 1 / 1000f, ResourcesTilemapNameTemplate)
+        var resources = GenerateTilemap(0, -(maxHeight + 2) / 1000f, ResourcesTilemapNameTemplate)
             .GetComponent<Tilemap>();
         terrainMaps.Add(resources);
 
@@ -98,7 +102,7 @@ public class MapRenderer : MonoBehaviour {
                 for (var x = 0; x < _map.sizeX; x++) {
                     if (
                         h == 0
-                        || _map.tileHeights[y][x] == h
+                        || _map.tileHeights[y][x] >= h
                         || (y > 0 && _map.tileHeights[y - 1][x] == h)
                     ) {
                         terrainMaps[h].SetTile(new Vector3Int(x, y, 0), _tileGrass);
@@ -109,12 +113,9 @@ public class MapRenderer : MonoBehaviour {
 
         for (var y = 0; y < _map.sizeY; y++) {
             for (var x = 0; x < _map.sizeX; x++) {
-                if (
-                    (_map.tiles[y][x].HasForest ||
-                     (y < _map.sizeY - 1 && _map.tiles[y + 1][x].HasForest)) &&
-                    !TileIsACliff(x, y)
-                ) {
-                    resources.SetTile(new Vector3Int(x, y + 1, 0), _tileForest);
+                if (_map.tiles[y][x].HasForest) {
+                    resources.SetTile(new Vector3Int(x, y, 0), _tileForest);
+                    resources.SetTile(new Vector3Int(x, y + 1, 0), _tileForestTop);
                 }
             }
         }
