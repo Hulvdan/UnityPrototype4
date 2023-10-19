@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d1514134bc4fbd41bb739b1b9a49231, type: 3}
   m_Name: Forest
   m_EditorClassIdentifier: 
-  m_DefaultSprite: {fileID: 1569845285, guid: 268922aececd395439f067c408094cde, type: 3}
+  m_DefaultSprite: {fileID: 21300000, guid: c29b94dd332a78c4ca42e7dbbbc7207c, type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
   m_TilingRules:
   - m_Id: 1
     m_Sprites:
-    - {fileID: -1751007132, guid: 268922aececd395439f067c408094cde, type: 3}
+    - {fileID: 21300000, guid: c29b94dd332a78c4ca42e7dbbbc7207c, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
@@ -33,7 +33,7 @@ MonoBehaviour:
     m_RuleTransform: 0
   - m_Id: 2
     m_Sprites:
-    - {fileID: -1115923076, guid: 268922aececd395439f067c408094cde, type: 3}
+    - {fileID: 21300000, guid: ff46c7e0685d59645bb4071bb97d2307, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
@@ -48,7 +48,7 @@ MonoBehaviour:
     m_RuleTransform: 0
   - m_Id: 0
     m_Sprites:
-    - {fileID: -174976422, guid: 268922aececd395439f067c408094cde, type: 3}
+    - {fileID: 21300000, guid: ff46c7e0685d59645bb4071bb97d2307, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
@@ -59,5 +59,19 @@ MonoBehaviour:
     m_Neighbors: 0200000001000000
     m_NeighborPositions:
     - {x: 0, y: 1, z: 0}
+    - {x: 0, y: -1, z: 0}
+    m_RuleTransform: 0
+  - m_Id: 3
+    m_Sprites:
+    - {fileID: 21300000, guid: ff46c7e0685d59645bb4071bb97d2307, type: 3}
+    m_GameObject: {fileID: 0}
+    m_MinAnimationSpeed: 1
+    m_MaxAnimationSpeed: 1
+    m_PerlinScale: 0.5
+    m_Output: 0
+    m_ColliderType: 1
+    m_RandomTransform: 0
+    m_Neighbors: 01000000
+    m_NeighborPositions:
     - {x: 0, y: -1, z: 0}
     m_RuleTransform: 0

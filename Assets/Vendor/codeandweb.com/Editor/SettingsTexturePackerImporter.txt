@@ -1,11 +1,8 @@
 version: 2
 tpsheetFileNames:
-- Assets/Art/Sprites/Atlas.tpsheet
 - Assets/Vendor/codeandweb.com/Example/SpriteSheet/sprites.tpsheet
 textureFileNames:
-- Assets/Art/Sprites/Atlas.png
 - Assets/Vendor/codeandweb.com/Example/SpriteSheet/sprites.png
 normalmapFileNames:
-- 
 - Assets/Vendor/codeandweb.com/Example/SpriteSheet/sprites_n.png
 enableDebugOutput: 0
