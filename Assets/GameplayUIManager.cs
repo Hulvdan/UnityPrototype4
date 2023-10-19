@@ -5,10 +5,6 @@ using UnityEngine;
 
 public class GameplayUIManager : MonoBehaviour {
     [Header("Dependencies")]
-    [Required]
-    [SerializeField]
-    GameplayManager _gameplayManager;
-
     [SerializeField]
     [Required]
     TMP_Text _resourceWood;
@@ -21,11 +17,7 @@ public class GameplayUIManager : MonoBehaviour {
     [Required]
     TMP_Text _resourceFood;
 
-    void Awake() {
-        _gameplayManager.OnResourceChanged.AddListener(OnResourceChanged);
-    }
-
-    void OnResourceChanged(ResourceChanged data) {
+    public void OnResourceChanged(ResourceChanged data) {
         TMP_Text resource = null;
 
         switch (data.Codename) {
