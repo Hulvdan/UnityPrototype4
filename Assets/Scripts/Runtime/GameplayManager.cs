@@ -3,9 +3,9 @@ using UnityEngine;
 using UnityEngine.Events;
 
 namespace BFG.Runtime {
-public struct Resource {
-    public string Codename;
+public class Resource {
     public int Amount;
+    public string Codename;
 }
 
 public record ResourceChanged {
@@ -34,6 +34,18 @@ public class GameplayManager : MonoBehaviour {
         //     new ResourceChanged
         //         { NewAmount = 100, OldAmount = 0, Codename = _resources[0].Codename }
         // );
+    }
+
+    public void GiveResource(string codename, int amount) {
+        var resource = _resources.Find(x => x.Codename == codename);
+        resource.Amount += amount;
+        OnResourceChanged?.Invoke(
+            new ResourceChanged {
+                NewAmount = resource.Amount,
+                OldAmount = resource.Amount - amount,
+                Codename = resource.Codename
+            }
+        );
     }
 }
 }

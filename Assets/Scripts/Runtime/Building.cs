@@ -1,21 +1,22 @@
-﻿using UnityEngine;
-using UnityEngine.Tilemaps;
+﻿using System;
+using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace BFG.Runtime {
-[CreateAssetMenu(fileName = "Data", menuName = "Gameplay/Building", order = 1)]
-public class Building : ScriptableObject {
+[Serializable]
+public class Building {
     [SerializeField]
-    string _codename;
-
-    [SerializeField]
-    string _harvestTileCodename;
+    [Required]
+    ScriptableBuilding _scriptableBuilding;
 
     [SerializeField]
-    TileBase _tile;
+    int _posX;
 
-    public string codename => _codename;
-    public string harvestTileCodename => _harvestTileCodename;
+    [SerializeField]
+    int _posY;
 
-    public TileBase tile => _tile;
+    public ScriptableBuilding scriptableBuilding => _scriptableBuilding;
+    public int posX => _posX;
+    public int posY => _posY;
 }
 }
