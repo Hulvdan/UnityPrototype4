@@ -55,6 +55,7 @@ public class MapRenderer : MonoBehaviour {
         DeleteOldTilemaps();
         RegenerateTilemapGameObject();
         RegenerateDebugTilemapGameObject();
+        UpdateGridPosition();
     }
 
     void DeleteOldTilemaps() {
@@ -149,6 +150,10 @@ public class MapRenderer : MonoBehaviour {
         terrainTilemap.name = nameTemplate + i;
         terrainTilemap.transform.localPosition = new Vector3(0, y, 0);
         return terrainTilemap;
+    }
+
+    void UpdateGridPosition() {
+        _grid.transform.localPosition = new Vector3(-_map.sizeX / 2f, -_map.sizeY / 2f);
     }
 }
 }
