@@ -23,12 +23,17 @@ public class GameplayManager : MonoBehaviour {
     [SerializeField]
     public UnityEvent<ResourceChanged> OnResourceChanged;
 
-    List<Resource> _resources = new();
+    readonly List<Resource> _resources = new();
 
-    void Awake() {
-    }
+    void Start() {
+        _resources.Add(new Resource { Amount = 0, Codename = "wood" });
+        _resources.Add(new Resource { Amount = 0, Codename = "stone" });
+        _resources.Add(new Resource { Amount = 0, Codename = "food" });
 
-    void Update() {
+        // OnResourceChanged?.Invoke(
+        //     new ResourceChanged
+        //         { NewAmount = 100, OldAmount = 0, Codename = _resources[0].Codename }
+        // );
     }
 }
 }
