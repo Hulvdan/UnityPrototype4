@@ -82,15 +82,15 @@ public class MapRenderer : MonoBehaviour {
         // Buildings 2 (y=-0.0021)
         var terrainMaps = new List<Tilemap>();
         for (var i = 0; i <= maxHeight; i++) {
-            var terrain = GenerateTilemap(i, -i / 1000f, TerrainTilemapNameTemplate);
+            var terrain = GenerateTilemap(i, i, TerrainTilemapNameTemplate);
             terrainMaps.Add(terrain.GetComponent<Tilemap>());
         }
 
-        var buildings = GenerateTilemap(0, -(maxHeight + 1) / 1000f, BuildingsTilemapNameTemplate)
+        var buildings = GenerateTilemap(0, maxHeight + 1, BuildingsTilemapNameTemplate)
             .GetComponent<Tilemap>();
         terrainMaps.Add(buildings);
 
-        var resources = GenerateTilemap(0, -(maxHeight + 2) / 1000f, ResourcesTilemapNameTemplate)
+        var resources = GenerateTilemap(0, maxHeight + 2, ResourcesTilemapNameTemplate)
             .GetComponent<Tilemap>();
         terrainMaps.Add(resources);
 
@@ -145,10 +145,10 @@ public class MapRenderer : MonoBehaviour {
         return _map.tiles[y][x].Name == "cliff";
     }
 
-    GameObject GenerateTilemap(int i, float y, string nameTemplate) {
+    GameObject GenerateTilemap(int i, float order, string nameTemplate) {
         var terrainTilemap = Instantiate(_tilemapPrefab, _grid.transform);
         terrainTilemap.name = nameTemplate + i;
-        terrainTilemap.transform.localPosition = new Vector3(0, y, 0);
+        terrainTilemap.transform.localPosition = new Vector3(0, -order / 100000f, 0);
         return terrainTilemap;
     }
 
