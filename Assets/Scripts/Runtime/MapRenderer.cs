@@ -147,7 +147,7 @@ public class MapRenderer : MonoBehaviour {
     GameObject GenerateTilemap(int i, float y, string nameTemplate) {
         var terrainTilemap = Instantiate(_tilemapPrefab, _grid.transform);
         terrainTilemap.name = nameTemplate + i;
-        terrainTilemap.transform.position = new Vector3(0, y, 0);
+        terrainTilemap.transform.localPosition = new Vector3(0, y, 0);
         return terrainTilemap;
     }
 }
