@@ -52,6 +52,10 @@ PrefabInstance:
       propertyPath: m_TileAnchor.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7538359921762784403, guid: 102831fe39d96624dae6dc8fe9cc3e8c, type: 3}
+      propertyPath: m_SortingOrder
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 7769032001010058926, guid: 102831fe39d96624dae6dc8fe9cc3e8c, type: 3}
       propertyPath: m_Name
       value: BuildingsTilemap Variant

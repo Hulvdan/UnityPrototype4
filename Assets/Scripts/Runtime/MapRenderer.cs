@@ -42,6 +42,10 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     GameObject _tilemapBuildingsPrefab;
 
+    [SerializeField]
+    [Required]
+    GameObject _humanPrefab;
+
     [Header("Debug Dependencies")]
     [SerializeField]
     [Required]
@@ -54,6 +58,16 @@ public class MapRenderer : MonoBehaviour {
     [SerializeField]
     [Required]
     TileBase _debugTileUnwalkable;
+
+    readonly Dictionary<Guid, Tuple<Human, GameObject>> _humans = new();
+
+    void Awake() {
+        _map.OnHumanCreated += OnHumanCreated;
+    }
+
+    void Update() {
+        UpdateHumans();
+    }
 
     void OnDrawGizmos() {
         Gizmos.color = Color.cyan;
@@ -195,5 +209,24 @@ public class MapRenderer : MonoBehaviour {
     void UpdateGridPosition() {
         _grid.transform.localPosition = new Vector3(-_map.sizeX / 2f, -_map.sizeY / 2f);
     }
+
+    #region HumanSystem
+
+    void OnHumanCreated(HumanCreatedData data) {
+        var go = Instantiate(_humanPrefab, _grid.transform);
+        _humans.Add(data.Human.ID, Tuple.Create(data.Human, go));
+    }
+
+    Vector3 GameLogicToRenderPos(Vector2 pos) {
+        return _grid.LocalToWorld(pos) + new Vector3(.5f, .5f, 0);
+    }
+
+    void UpdateHumans() {
+        foreach (var (human, go) in _humans.Values) {
+            go.transform.position = GameLogicToRenderPos(human.position);
+        }
+    }
+
+    #endregion
 }
 }

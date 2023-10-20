@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using SimplexNoise;
 using Sirenix.OdinInspector;
@@ -18,45 +19,71 @@ public class Map : MonoBehaviour {
     // 4 - Particles (smoke, footstep dust etc)
     //
     // Stone, Tree, Ore:
-
-    [Header("Configuration")]
+    [FoldoutGroup("Map", true)]
     [SerializeField]
     [Min(1)]
     int _mapSizeX = 10;
 
+    [FoldoutGroup("Map", true)]
     [SerializeField]
     [Min(1)]
     int _mapSizeY = 10;
 
-    [Header("Random")]
+    [FoldoutGroup("Humans", true)]
+    [SerializeField]
+    [Min(0)]
+    float _humanHeadingDuration;
+
+    [FoldoutGroup("Humans", true)]
+    [SerializeField]
+    [Min(0)]
+    float _humanHarvestingDuration;
+
+    [FoldoutGroup("Humans", true)]
+    [SerializeField]
+    [Min(0)]
+    float _humanReturningBackDuration;
+
+    [FoldoutGroup("Random", true)]
     [SerializeField]
     int _randomSeed;
 
+    [FoldoutGroup("Random", true)]
     [SerializeField]
     [Min(0)]
     float _terrainHeightNoiseScale = 1;
 
+    [FoldoutGroup("Random", true)]
     [SerializeField]
     [Min(0)]
     float _forestNoiseScale = 1;
 
+    [FoldoutGroup("Random", true)]
     [SerializeField]
     [Range(0, 1)]
     float _forestThreshold = 1f;
 
+    [FoldoutGroup("Random", true)]
     [SerializeField]
     [Min(0)]
     int _maxHeight = 1;
 
-    [Header("Setup")]
+    [FoldoutGroup("Setup", true)]
     [SerializeField]
     public UnityEvent OnTilesRegenerated;
 
+    [FoldoutGroup("Setup", true)]
     [SerializeField]
     List<Building> _buildings;
 
+    [FoldoutGroup("Setup", true)]
     [SerializeField]
     List<Human> _humans;
+
+    [FoldoutGroup("Humans", true)]
+    [ShowInInspector]
+    [ReadOnly]
+    float _humanTotalHarvestingDuration;
 
     public int sizeY => _mapSizeY;
     public int sizeX => _mapSizeX;
@@ -68,9 +95,30 @@ public class Map : MonoBehaviour {
     public List<Building> buildings => _buildings;
     public List<Human> humans => _humans;
 
+    public float humanHeadingDuration => _humanHeadingDuration;
+    public float humanHarvestingDuration => _humanHarvestingDuration;
+    public float humanReturningBackDuration => _humanReturningBackDuration;
+    public float humanTotalHarvestingDuration => _humanTotalHarvestingDuration;
+
     void Awake() {
         RegenerateTilemap();
     }
+
+    void Start() {
+        CreateHuman();
+    }
+
+    void Update() {
+        UpdateHumans();
+    }
+
+    void OnValidate() {
+        _humanTotalHarvestingDuration = _humanHeadingDuration
+                                        + _humanHarvestingDuration
+                                        + _humanReturningBackDuration;
+    }
+
+    public event Action<HumanCreatedData> OnHumanCreated = delegate { };
 
     [Button("Regen With New Seed")]
     void RegenerateTilemapWithNewSeed() {
@@ -123,6 +171,74 @@ public class Map : MonoBehaviour {
     float MakeSomeNoise2D(int seed, int x, int y, float scale) {
         Noise.Seed = seed;
         return Noise.CalcPixel2D(x, y, scale) / 255f;
+    }
+
+    #region HumanSystem
+
+    void CreateHuman() {
+        var human = new Human(Guid.NewGuid(), _buildings[0], _buildings[0].position);
+        _humans.Add(human);
+        OnHumanCreated?.Invoke(new HumanCreatedData(human));
+    }
+
+    void UpdateHumans() {
+        foreach (var human in _humans) {
+            switch (human.state) {
+                case HumanState.Idle:
+                    UpdateHumanIdle(human);
+                    break;
+                case HumanState.HeadingToTheTarget:
+                    UpdateHumanHeadingToTheTarget(human);
+                    break;
+                case HumanState.Harvesting:
+                    UpdateHumanHarvesting(human);
+                    break;
+                case HumanState.HeadingBackToTheBuilding:
+                    UpdateHumanHeadingBackToTheBuilding(human);
+                    break;
+            }
+
+            if (human.state == HumanState.Idle) {
+            }
+        }
+    }
+
+    void UpdateHumanIdle(Human human) {
+        var r = human.building.scriptableBuilding.cellsRadius;
+        var leftInclusive = Math.Max(0, human.building.posX - r);
+        var rightInclusive = Math.Min(sizeX - 1, human.building.posX + r);
+        var topInclusive = Math.Min(sizeY - 1, human.building.posY + r);
+        var bottomInclusive = Math.Max(0, human.building.posY - r);
+
+        var cellName = human.building.scriptableBuilding.harvestTileCodename;
+        for (var y = bottomInclusive; y <= topInclusive; y++) {
+            for (var x = leftInclusive; x <= rightInclusive; x++) {
+                if (tiles[y][x].Name == cellName) {
+                    human.positionTarget = new Vector2Int(x, y);
+                    human.state = HumanState.HeadingToTheTarget;
+                    break;
+                }
+            }
+        }
+    }
+
+    void UpdateHumanHeadingToTheTarget(Human human) {
+    }
+
+    void UpdateHumanHarvesting(Human human) {
+    }
+
+    void UpdateHumanHeadingBackToTheBuilding(Human human) {
+    }
+
+    #endregion
+}
+
+public class HumanCreatedData {
+    public Human Human;
+
+    public HumanCreatedData(Human human) {
+        Human = human;
     }
 }
 }
