@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: StoneMine
   m_EditorClassIdentifier: 
   _codename: StoneMine
+  _type: 0
   _harvestResourceCodename: stone
   _cellsRadius: 2
   _tile: {fileID: 11400000, guid: 4d66e2b6bd8055e4a87eed435094f63c, type: 2}

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Sirenix.OdinInspector;
+using UnityEngine;
 using UnityEngine.Tilemaps;
 
 namespace BFG.Runtime {
@@ -6,6 +7,10 @@ namespace BFG.Runtime {
 public class ScriptableBuilding : ScriptableObject {
     [SerializeField]
     string _codename;
+
+    [SerializeField]
+    [EnumToggleButtons]
+    BuildingType _type;
 
     [SerializeField]
     string _harvestResourceCodename;
