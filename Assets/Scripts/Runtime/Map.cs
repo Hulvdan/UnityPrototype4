@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SimplexNoise;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
+using Random = System.Random;
 
 namespace BFG.Runtime {
 public class Resource {
@@ -106,6 +108,8 @@ public class Map : MonoBehaviour {
     public List<Human> humans => _humans;
     readonly List<Resource> _resources = new();
 
+    Random _random;
+
     public float humanHeadingDuration => _humanHeadingDuration;
     public float humanHarvestingDuration => _humanHarvestingDuration;
     public float humanReturningBackDuration => _humanReturningBackDuration;
@@ -124,6 +128,7 @@ public class Map : MonoBehaviour {
     }
 
     void Awake() {
+        _random = new Random((int)Time.time);
         RegenerateTilemap();
 
         _resources.Add(new Resource { Amount = 0, Codename = "wood" });
@@ -132,7 +137,10 @@ public class Map : MonoBehaviour {
     }
 
     void Start() {
-        CreateHuman();
+        CreateHuman(_buildings[0]);
+        CreateHuman(_buildings[0]);
+        CreateHuman(_buildings[1]);
+        CreateHuman(_buildings[1]);
     }
 
     void Update() {
@@ -205,8 +213,8 @@ public class Map : MonoBehaviour {
 
     #region HumanSystem
 
-    void CreateHuman() {
-        var human = new Human(Guid.NewGuid(), _buildings[0], _buildings[0].position);
+    void CreateHuman(Building building) {
+        var human = new Human(Guid.NewGuid(), building, building.position);
         _humans.Add(human);
         OnHumanCreated?.Invoke(new HumanCreatedData(human));
     }
@@ -281,13 +289,19 @@ public class Map : MonoBehaviour {
     void UpdateHumanIdle(Human human) {
         var r = human.building.scriptableBuilding.cellsRadius;
         var leftInclusive = Math.Max(0, human.building.posX - r);
-        var rightInclusive = Math.Min(sizeX - 1, human.building.posX + r);
-        var topInclusive = Math.Min(sizeY - 1, human.building.posY + r);
+        // var rightInclusive = Math.Min(sizeX - 1, human.building.posX + r);
+        // var topInclusive = Math.Min(sizeY - 1, human.building.posY + r);
         var bottomInclusive = Math.Max(0, human.building.posY - r);
 
         var resourceName = human.building.scriptableBuilding.harvestResourceCodename;
-        for (var y = bottomInclusive; y <= topInclusive; y++) {
-            for (var x = leftInclusive; x <= rightInclusive; x++) {
+        var yy = Enumerable.Range(bottomInclusive, 2 * r + 1).ToArray();
+        var xx = Enumerable.Range(leftInclusive, 2 * r + 1).ToArray();
+
+        Utils.Shuffle(yy, _random);
+        Utils.Shuffle(xx, _random);
+
+        foreach (var y in yy) {
+            foreach (var x in xx) {
                 if (resourceName == "forest" && tiles[y][x].HasForest) {
                     human.positionTarget = new Vector2Int(x, y);
                     ChangeHumanState(human, HumanState.HeadingToTheTarget);
