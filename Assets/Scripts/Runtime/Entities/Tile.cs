@@ -1,5 +1,5 @@
 ﻿namespace BFG.Runtime {
-public struct Tile {
+public class Tile {
     public string Name;
     public bool HasForest;
 }
