@@ -24,6 +24,10 @@ public class Human {
 
     [ShowInInspector]
     [ReadOnly]
+    public Vector2Int _movingFrom;
+
+    [ShowInInspector]
+    [ReadOnly]
     public readonly Guid ID;
 
     Vector2Int? _harvestTilePosition;
@@ -52,10 +56,6 @@ public class Human {
         get => _harvestTilePosition;
         set => _harvestTilePosition = value;
     }
-
-    [ShowInInspector]
-    [ReadOnly]
-    public Vector2Int _movingFrom;
 
     public Building harvestBuilding => _harvestBuilding;
 
