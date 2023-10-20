@@ -3048,7 +3048,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 0.875
+  orthographic size: 1.1875
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -5092,7 +5092,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1018313476}
-  - component: {fileID: 1018313477}
   m_Layer: 0
   m_Name: Gameplay
   m_TagString: Untagged
@@ -5117,34 +5116,6 @@ Transform:
   - {fileID: 1879392619}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1018313477
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1018313475}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a25e3e7b6f0a4c7f9d611accbee95e80, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _map: {fileID: 1879392620}
-  OnResourceChanged:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1458577632}
-        m_TargetAssemblyTypeName: GameplayUIManager, Assembly-CSharp
-        m_MethodName: OnResourceChanged
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!1 &1389279431
 GameObject:
   m_ObjectHideFlags: 0
@@ -6918,6 +6889,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8cd88ebd35a7af429a7ec60c1a75cf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _map: {fileID: 1879392620}
   _resourceWood: {fileID: 337626713}
   _resourceStone: {fileID: 1925955424}
   _resourceFood: {fileID: 2064452401}

@@ -6,9 +6,15 @@ using UnityEngine;
 using UnityEngine.Events;
 
 namespace BFG.Runtime {
-public struct Tile {
-    public string Name;
-    public bool HasForest;
+public class Resource {
+    public int Amount;
+    public string Codename;
+}
+
+public record ResourceChanged {
+    public string Codename;
+    public int NewAmount;
+    public int OldAmount;
 }
 
 public class Map : MonoBehaviour {
@@ -98,14 +104,31 @@ public class Map : MonoBehaviour {
 
     public List<Building> buildings => _buildings;
     public List<Human> humans => _humans;
+    readonly List<Resource> _resources = new();
 
     public float humanHeadingDuration => _humanHeadingDuration;
     public float humanHarvestingDuration => _humanHarvestingDuration;
     public float humanReturningBackDuration => _humanReturningBackDuration;
     public float humanTotalHarvestingDuration => _humanTotalHarvestingDuration;
 
+    void GiveResource(string codename, int amount) {
+        var resource = _resources.Find(x => x.Codename == codename);
+        resource.Amount += amount;
+        OnResourceChanged?.Invoke(
+            new ResourceChanged {
+                NewAmount = resource.Amount,
+                OldAmount = resource.Amount - amount,
+                Codename = resource.Codename
+            }
+        );
+    }
+
     void Awake() {
         RegenerateTilemap();
+
+        _resources.Add(new Resource { Amount = 0, Codename = "wood" });
+        _resources.Add(new Resource { Amount = 0, Codename = "stone" });
+        _resources.Add(new Resource { Amount = 0, Codename = "food" });
     }
 
     void Start() {
@@ -124,6 +147,8 @@ public class Map : MonoBehaviour {
 
     public event Action<HumanCreatedData> OnHumanCreated = delegate { };
     public event Action<HumanStateChangedData> OnHumanStateChanged = delegate { };
+    public event Action<HumanHarvestedResourceData> OnHumanHarvestedResource = delegate { };
+    public event Action<ResourceChanged> OnResourceChanged = delegate { };
 
     [Button("Regen With New Seed")]
     void RegenerateTilemapWithNewSeed() {
@@ -195,6 +220,8 @@ public class Map : MonoBehaviour {
                 if (human.harvestingElapsed >= _humanTotalHarvestingDuration) {
                     newState = HumanState.Idle;
                     human.harvestingElapsed = 0;
+
+                    HarvestResource(human);
                 }
                 else if (human.harvestingElapsed >=
                          _humanHeadingDuration + _humanHarvestingDuration) {
@@ -222,6 +249,23 @@ public class Map : MonoBehaviour {
                     break;
             }
         }
+    }
+
+    void HarvestResource(Human human) {
+        var resourceCodename = "wood";
+        var amount = 1;
+        var where = human.positionTarget.Value;
+
+        GiveResource(resourceCodename, amount);
+
+        OnHumanHarvestedResource?.Invoke(
+            new HumanHarvestedResourceData(
+                human,
+                human.building.scriptableBuilding.harvestResourceCodename,
+                amount,
+                where
+            )
+        );
     }
 
     void ChangeHumanState(Human human, HumanState newState) {
@@ -272,6 +316,26 @@ public class Map : MonoBehaviour {
     }
 
     #endregion
+}
+
+public class HumanHarvestedResourceData {
+    public Human Human;
+
+    public string ResourceCodename;
+    public int Amount;
+    public Vector2Int ResourceTilePosition;
+
+    public HumanHarvestedResourceData(
+        Human human,
+        string resourceCodename,
+        int amount,
+        Vector2Int resourceTilePosition
+    ) {
+        Human = human;
+        ResourceCodename = resourceCodename;
+        Amount = amount;
+        ResourceTilePosition = resourceTilePosition;
+    }
 }
 
 public class HumanStateChangedData {
