@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
 
-public class GameplayUIManager : MonoBehaviour {
+public class UIManager : MonoBehaviour {
     [Header("Dependencies")]
     [SerializeField]
     [Required]
