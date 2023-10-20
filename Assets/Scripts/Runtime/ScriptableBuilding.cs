@@ -8,7 +8,7 @@ public class ScriptableBuilding : ScriptableObject {
     string _codename;
 
     [SerializeField]
-    string _harvestTileCodename;
+    string _harvestResourceCodename;
 
     [SerializeField]
     [Min(0)]
@@ -18,7 +18,7 @@ public class ScriptableBuilding : ScriptableObject {
     TileBase _tile;
 
     public string codename => _codename;
-    public string harvestTileCodename => _harvestTileCodename;
+    public string harvestResourceCodename => _harvestResourceCodename;
     public int cellsRadius => _cellsRadius;
 
     public TileBase tile => _tile;
