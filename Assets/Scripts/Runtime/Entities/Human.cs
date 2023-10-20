@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -7,7 +8,12 @@ namespace BFG.Runtime {
 public class Human {
     [SerializeField]
     [ReadOnly]
-    Building _building;
+    Building _harvestBuilding;
+
+    [SerializeField]
+    [ReadOnly]
+    [CanBeNull]
+    Building _storeBuilding;
 
     [SerializeField]
     Vector2 _position;
@@ -20,11 +26,11 @@ public class Human {
     [ReadOnly]
     public readonly Guid ID;
 
-    Vector2Int? _positionTarget;
+    Vector2Int? _harvestTilePosition;
 
-    public Human(Guid id, Building building, Vector2 position) {
+    public Human(Guid id, Building harvestBuilding, Vector2 position) {
         ID = id;
-        _building = building;
+        _harvestBuilding = harvestBuilding;
         _position = position;
     }
 
@@ -42,11 +48,26 @@ public class Human {
     [ReadOnly]
     public HumanState state { get; set; } = HumanState.Idle;
 
-    public Vector2Int? positionTarget {
-        get => _positionTarget;
-        set => _positionTarget = value;
+    public Vector2Int? harvestTilePosition {
+        get => _harvestTilePosition;
+        set => _harvestTilePosition = value;
     }
 
-    public Building building => _building;
+    [ShowInInspector]
+    [ReadOnly]
+    public Vector2Int _movingFrom;
+
+    public Building harvestBuilding => _harvestBuilding;
+
+    [CanBeNull]
+    public Building storeBuilding {
+        get => _storeBuilding;
+        set => _storeBuilding = value;
+    }
+
+    public Vector2Int movingFrom {
+        get => _movingFrom;
+        set => _movingFrom = value;
+    }
 }
 }
