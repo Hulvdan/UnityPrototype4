@@ -1,3 +1,4 @@
+using System;
 using BFG.Runtime;
 using Sirenix.OdinInspector;
 using TMPro;
@@ -5,6 +6,10 @@ using UnityEngine;
 
 public class GameplayUIManager : MonoBehaviour {
     [Header("Dependencies")]
+    [SerializeField]
+    [Required]
+    Map _map;
+
     [SerializeField]
     [Required]
     TMP_Text _resourceWood;
@@ -17,7 +22,12 @@ public class GameplayUIManager : MonoBehaviour {
     [Required]
     TMP_Text _resourceFood;
 
-    public void OnResourceChanged(ResourceChanged data) {
+    void Start() {
+        _map.OnResourceChanged += OnResourceChanged;
+        _map.OnHumanHarvestedResource += OnHumanHarvestedResource;
+    }
+
+    void OnResourceChanged(ResourceChanged data) {
         TMP_Text resource = null;
 
         switch (data.Codename) {
@@ -38,5 +48,8 @@ public class GameplayUIManager : MonoBehaviour {
         if (resource != null) {
             resource.text = data.NewAmount.ToString();
         }
+    }
+
+    void OnHumanHarvestedResource(HumanHarvestedResourceData data) {
     }
 }
