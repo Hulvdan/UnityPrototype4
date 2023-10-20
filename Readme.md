@@ -5,6 +5,7 @@
 - [Itch.io. PixelHole's Overworld Tileset](https://pixelhole.itch.io/pixelholes-overworld-tileset)
 - [whtdragon's animals and running horses- now with more dragons!](https://forums.rpgmakerweb.com/index.php?threads/whtdragons-animals-and-running-horses-now-with-more-dragons.53552/)
 - [Itch.io. caves-rails-tileset](https://heyitswidmo.itch.io/caves-rails-tileset)
+- [Improved horses ( 4 colors ) for CP](https://www.nexusmods.com/stardewvalley/mods/1903?tab=description)
 
 ## More Refs
 
