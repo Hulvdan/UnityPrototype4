@@ -73,7 +73,8 @@ public class MapRenderer : MonoBehaviour {
         Gizmos.color = Color.cyan;
 
         foreach (var building in _map.buildings) {
-            if (building.scriptableBuilding.cellsRadius == 0) {
+            if (building.scriptableBuilding == null
+                || building.scriptableBuilding.cellsRadius == 0) {
                 continue;
             }
 
