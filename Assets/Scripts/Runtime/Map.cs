@@ -93,8 +93,6 @@ public class Map : MonoBehaviour {
     [SerializeField]
     List<Building> _buildings;
 
-    Random _random;
-
     [FoldoutGroup("Setup", true)]
     [SerializeField]
     List<Human> _humans;
@@ -104,10 +102,14 @@ public class Map : MonoBehaviour {
     [Required]
     ScriptableResource _logResource;
 
+    readonly List<Resource> _resources = new();
+
     [FoldoutGroup("Humans", true)]
     [ShowInInspector]
     [ReadOnly]
     float _humanTotalHarvestingDuration;
+
+    Random _random;
 
     public int sizeY => _mapSizeY;
     public int sizeX => _mapSizeX;
@@ -118,24 +120,11 @@ public class Map : MonoBehaviour {
 
     public List<Building> buildings => _buildings;
     public List<Human> humans => _humans;
-    readonly List<Resource> _resources = new();
 
     public float humanHeadingDuration => _humanHeadingDuration;
     public float humanHarvestingDuration => _humanHarvestingDuration;
     public float humanReturningBackDuration => _humanReturningBackDuration;
     public float humanTotalHarvestingDuration => _humanTotalHarvestingDuration;
-
-    void GiveResource(string codename, int amount) {
-        var resource = _resources.Find(x => x.Codename == codename);
-        resource.Amount += amount;
-        OnResourceChanged?.Invoke(
-            new ResourceChanged {
-                NewAmount = resource.Amount,
-                OldAmount = resource.Amount - amount,
-                Codename = resource.Codename
-            }
-        );
-    }
 
     void Awake() {
         _random = new Random((int)Time.time);
@@ -162,6 +151,18 @@ public class Map : MonoBehaviour {
                                         + _humanHarvestingDuration
                                         + _humanHeadingToTheStoreBuildingDuration
                                         + _humanReturningBackDuration;
+    }
+
+    void GiveResource(string codename, int amount) {
+        var resource = _resources.Find(x => x.Codename == codename);
+        resource.Amount += amount;
+        OnResourceChanged?.Invoke(
+            new ResourceChanged {
+                NewAmount = resource.Amount,
+                OldAmount = resource.Amount - amount,
+                Codename = resource.Codename
+            }
+        );
     }
 
     public event Action<HumanCreatedData> OnHumanCreated = delegate { };

@@ -2,10 +2,10 @@
 
 namespace BFG.Runtime {
 public class HumanHarvestedResourceData {
+    public int Amount;
     public Human Human;
 
     public ScriptableResource Resource;
-    public int Amount;
     public Vector2Int ResourceTilePosition;
 
     public HumanHarvestedResourceData(

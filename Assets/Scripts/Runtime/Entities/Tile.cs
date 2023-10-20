@@ -2,8 +2,8 @@
 
 namespace BFG.Runtime {
 public class Tile {
-    public string Name;
     public bool isBooked;
+    public string Name;
 
     [CanBeNull]
     public ScriptableResource resource;
