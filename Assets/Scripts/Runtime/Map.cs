@@ -88,6 +88,8 @@ public class Map : MonoBehaviour {
     [SerializeField]
     List<Building> _buildings;
 
+    Random _random;
+
     [FoldoutGroup("Setup", true)]
     [SerializeField]
     List<Human> _humans;
@@ -107,8 +109,6 @@ public class Map : MonoBehaviour {
     public List<Building> buildings => _buildings;
     public List<Human> humans => _humans;
     readonly List<Resource> _resources = new();
-
-    Random _random;
 
     public float humanHeadingDuration => _humanHeadingDuration;
     public float humanHarvestingDuration => _humanHarvestingDuration;
@@ -330,45 +330,5 @@ public class Map : MonoBehaviour {
     }
 
     #endregion
-}
-
-public class HumanHarvestedResourceData {
-    public Human Human;
-
-    public string ResourceCodename;
-    public int Amount;
-    public Vector2Int ResourceTilePosition;
-
-    public HumanHarvestedResourceData(
-        Human human,
-        string resourceCodename,
-        int amount,
-        Vector2Int resourceTilePosition
-    ) {
-        Human = human;
-        ResourceCodename = resourceCodename;
-        Amount = amount;
-        ResourceTilePosition = resourceTilePosition;
-    }
-}
-
-public class HumanStateChangedData {
-    public readonly Human Human;
-    public readonly HumanState NewState;
-    public readonly HumanState OldState;
-
-    public HumanStateChangedData(Human human, HumanState newState, HumanState oldState) {
-        Human = human;
-        NewState = newState;
-        OldState = oldState;
-    }
-}
-
-public class HumanCreatedData {
-    public readonly Human Human;
-
-    public HumanCreatedData(Human human) {
-        Human = human;
-    }
 }
 }
