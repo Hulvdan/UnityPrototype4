@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector;
+﻿using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -6,15 +7,12 @@ namespace BFG.Runtime {
 [CreateAssetMenu(fileName = "Data", menuName = "Gameplay/Building", order = 1)]
 public class ScriptableBuilding : ScriptableObject {
     [SerializeField]
-    string _codename;
-
-    [SerializeField]
     [EnumToggleButtons]
     BuildingType _type;
 
     [SerializeField]
     [ShowIf("_type", BuildingType.Harvest)]
-    string _harvestResourceCodename;
+    ScriptableResource _harvestableResource;
 
     [SerializeField]
     [ShowIf("_type", BuildingType.Harvest)]
@@ -27,13 +25,23 @@ public class ScriptableBuilding : ScriptableObject {
     int _storeItemsAmount = 1;
 
     [SerializeField]
+    [ShowIf("_type", BuildingType.Produce)]
+    List<ScriptableResource> _takes;
+
+    [SerializeField]
+    [ShowIf("_type", BuildingType.Produce)]
+    [Required]
+    ScriptableResource _produces;
+
+    [SerializeField]
     [PreviewField]
     TileBase _tile;
 
-    public string codename => _codename;
-    public string harvestResourceCodename => _harvestResourceCodename;
+    public ScriptableResource harvestableResource => _harvestableResource;
     public int cellsRadius => _cellsRadius;
     public int storeItemsAmount => _storeItemsAmount;
+    public List<ScriptableResource> takes => _takes;
+    public ScriptableResource produces => _produces;
 
     public TileBase tile => _tile;
 }

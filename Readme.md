@@ -6,6 +6,8 @@
 - [whtdragon's animals and running horses- now with more dragons!](https://forums.rpgmakerweb.com/index.php?threads/whtdragons-animals-and-running-horses-now-with-more-dragons.53552/)
 - [Itch.io. caves-rails-tileset](https://heyitswidmo.itch.io/caves-rails-tileset)
 - [Improved horses ( 4 colors ) for CP](https://www.nexusmods.com/stardewvalley/mods/1903?tab=description)
+- [Roguelike/RPG Items](https://opengameart.org/content/roguelikerpg-items)
+- [Pixel Items Inventory](https://www.deviantart.com/blackkarma3840/art/Pixel-Items-Inventory-882911608)
 
 ## More Refs
 
