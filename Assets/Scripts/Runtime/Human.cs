@@ -27,15 +27,29 @@ public class Human {
     int _buildingIndex;
 
     [SerializeField]
-    [Min(0)]
-    float _harvestingDurationSeconds = 1f;
-
-    [SerializeField]
     Vector2 _position;
 
-    HumanState _state;
+    [ReadOnly]
+    public readonly Guid ID;
 
-    Vector2 _target;
+    Vector2Int? _positionTarget;
+
+    public Human(Guid id, Building building, Vector2 position) {
+        ID = id;
+        _building = building;
+        _position = position;
+    }
+
+    public Vector2 position => _position;
+
+    public HumanState state { get; set; } = HumanState.Idle;
+
+    public Vector2Int? positionTarget {
+        get => _positionTarget;
+        set => _positionTarget = value;
+    }
+
+    public Building building => _building;
 
     void UpdateValues() {
         if (_buildingIndex >= _map.buildings.Count) {

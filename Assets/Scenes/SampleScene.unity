@@ -7062,7 +7062,7 @@ TilemapRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0.5, z: 0}
   m_MaxChunkCount: 16
@@ -7245,6 +7245,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _mapSizeX: 14
   _mapSizeY: 11
+  _humanHeadingDuration: 0
+  _humanHarvestingDuration: 0
+  _humanReturningBackDuration: 0
   _randomSeed: 817
   _terrainHeightNoiseScale: 0.04
   _forestNoiseScale: 0.16
@@ -7279,7 +7282,6 @@ MonoBehaviour:
       _posX: 5
       _posY: 8
     _buildingIndex: 0
-    _harvestingDurationSeconds: 1
     _position: {x: 4.1, y: 8.6}
 --- !u!114 &1879392621
 MonoBehaviour:
@@ -7301,6 +7303,7 @@ MonoBehaviour:
   _tileForestTop: {fileID: 11400000, guid: e39481a7068315745bb97871069b3b17, type: 2}
   _tilemapPrefab: {fileID: 7769032001010058926, guid: 102831fe39d96624dae6dc8fe9cc3e8c, type: 3}
   _tilemapBuildingsPrefab: {fileID: 6846368563622007670, guid: f68912ad1580d1d4c8a829f829763b4e, type: 3}
+  _humanPrefab: {fileID: 3002592055168235560, guid: a0701c25212629e43b39f51cf8637b3b, type: 3}
   _debugTilemap: {fileID: 869664077}
   _debugTileWalkable: {fileID: 11400000, guid: c43c83eba4466774db3ffcfd6ddadc9f, type: 2}
   _debugTileUnwalkable: {fileID: 11400000, guid: b5678ba17b4646b44a07e1b6fdf32816, type: 2}

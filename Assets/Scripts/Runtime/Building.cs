@@ -18,5 +18,6 @@ public class Building {
     public ScriptableBuilding scriptableBuilding => _scriptableBuilding;
     public int posX => _posX;
     public int posY => _posY;
+    public Vector2Int position => new(_posX, _posY);
 }
 }
