@@ -4,18 +4,18 @@ namespace BFG.Runtime {
 public class HumanHarvestedResourceData {
     public Human Human;
 
-    public string ResourceCodename;
+    public ScriptableResource Resource;
     public int Amount;
     public Vector2Int ResourceTilePosition;
 
     public HumanHarvestedResourceData(
         Human human,
-        string resourceCodename,
+        ScriptableResource resource,
         int amount,
         Vector2Int resourceTilePosition
     ) {
         Human = human;
-        ResourceCodename = resourceCodename;
+        Resource = resource;
         Amount = amount;
         ResourceTilePosition = resourceTilePosition;
     }

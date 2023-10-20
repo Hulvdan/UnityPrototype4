@@ -9,12 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9dc459d8e92948cf9d2b2b27d8efead2, type: 3}
-  m_Name: Sawmill
+  m_Script: {fileID: 11500000, guid: 6827c91d28eb45e080b98e6c44816695, type: 3}
+  m_Name: P_Planks
   m_EditorClassIdentifier: 
-  _codename: Sawmill
-  _type: 2
-  _harvestResourceCodename: 
-  _cellsRadius: 0
-  _storeItemsAmount: 1
-  _tile: {fileID: 11400000, guid: b91fc5a57a5826d459f84d5b70a4d826, type: 2}
+  _sprite: {fileID: -814847334, guid: f83e89d6153453a418b596c0692f5b12, type: 3}
+  _displayInTheRopBar: 1

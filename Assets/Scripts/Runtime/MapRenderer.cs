@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 namespace BFG.Runtime {
@@ -45,6 +46,10 @@ public class MapRenderer : MonoBehaviour {
     [SerializeField]
     [Required]
     GameObject _humanPrefab;
+
+    [SerializeField]
+    [Required]
+    ScriptableResource _logResource;
 
     [Header("Debug Dependencies")]
     [SerializeField]
@@ -159,7 +164,8 @@ public class MapRenderer : MonoBehaviour {
         ).GetComponent<Tilemap>();
         for (var y = 0; y < _map.sizeY; y++) {
             for (var x = 0; x < _map.sizeX; x++) {
-                if (_map.tiles[y][x].HasForest) {
+                if (_map.tiles[y][x].resource != null
+                    && _map.tiles[y][x].resource.name == _logResource.name) {
                     resources.SetTile(new Vector3Int(x, y, 0), _tileForest);
                     resources.SetTile(new Vector3Int(x, y + 1, 0), _tileForestTop);
                 }

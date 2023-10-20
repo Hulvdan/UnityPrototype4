@@ -94,6 +94,11 @@ public class Map : MonoBehaviour {
     [SerializeField]
     List<Human> _humans;
 
+    [FoldoutGroup("Setup", true)]
+    [SerializeField]
+    [Required]
+    ScriptableResource _logResource;
+
     [FoldoutGroup("Humans", true)]
     [ShowInInspector]
     [ReadOnly]
@@ -175,16 +180,17 @@ public class Map : MonoBehaviour {
             var tileHeightsRow = new List<int>();
 
             for (var x = 0; x < _mapSizeX; x++) {
+                var forestK = MakeSomeNoise2D(_randomSeed, x, y, _forestNoiseScale);
+                // var hasForest = false;
+                var hasForest = forestK > _forestThreshold;
                 var tile = new Tile {
                     Name = "grass",
-                    // HasForest = false
-                    HasForest = MakeSomeNoise2D(_randomSeed, x, y, _forestNoiseScale) >
-                                _forestThreshold
+                    resource = hasForest ? _logResource : null
                 };
                 tilesRow.Add(tile);
                 // var randomH = Random.Range(0, _maxHeight + 1);
-                var randomH = MakeSomeNoise2D(_randomSeed, x, y, _terrainHeightNoiseScale) *
-                              (_maxHeight + 1);
+                var heightK = MakeSomeNoise2D(_randomSeed, x, y, _terrainHeightNoiseScale);
+                var randomH = heightK * (_maxHeight + 1);
                 tileHeightsRow.Add(Mathf.Min(_maxHeight, (int)randomH));
             }
 
@@ -197,7 +203,7 @@ public class Map : MonoBehaviour {
                 if (y == 0 || tileHeights[y][x] > tileHeights[y - 1][x]) {
                     var s = tiles[y][x];
                     s.Name = "cliff";
-                    s.HasForest = false;
+                    s.resource = null;
                     tiles[y][x] = s;
                 }
             }
@@ -269,7 +275,7 @@ public class Map : MonoBehaviour {
         OnHumanHarvestedResource?.Invoke(
             new HumanHarvestedResourceData(
                 human,
-                human.building.scriptableBuilding.harvestResourceCodename,
+                human.building.scriptableBuilding.harvestableResource,
                 amount,
                 where
             )
@@ -293,7 +299,7 @@ public class Map : MonoBehaviour {
         // var topInclusive = Math.Min(sizeY - 1, human.building.posY + r);
         var bottomInclusive = Math.Max(0, human.building.posY - r);
 
-        var resourceName = human.building.scriptableBuilding.harvestResourceCodename;
+        var resource = human.building.scriptableBuilding.harvestableResource;
         var yy = Enumerable.Range(bottomInclusive, 2 * r + 1).ToArray();
         var xx = Enumerable.Range(leftInclusive, 2 * r + 1).ToArray();
 
@@ -302,7 +308,7 @@ public class Map : MonoBehaviour {
 
         foreach (var y in yy) {
             foreach (var x in xx) {
-                if (resourceName == "forest" && tiles[y][x].HasForest) {
+                if (resource == _logResource && tiles[y][x].resource == _logResource) {
                     human.positionTarget = new Vector2Int(x, y);
                     ChangeHumanState(human, HumanState.HeadingToTheTarget);
                     break;

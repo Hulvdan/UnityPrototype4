@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9dc459d8e92948cf9d2b2b27d8efead2, type: 3}
-  m_Name: LumberjacksHut
+  m_Name: P_Brickery
   m_EditorClassIdentifier: 
-  _codename: LumberjacksHut
-  _type: 0
-  _harvestResourceCodename: forest
-  _cellsRadius: 2
-  _tile: {fileID: 11400000, guid: 045a550af9e3e9f42b049c15cc331cbf, type: 2}
+  _type: 2
+  _harvestableResource: {fileID: 0}
+  _cellsRadius: 0
+  _storeItemsAmount: 1
+  _takes:
+  - {fileID: 11400000, guid: 5e7ffec402aa6424cbb3ce22cbefbe8c, type: 2}
+  _produces: {fileID: 11400000, guid: 45af1427840af3a4a98b31727bdd67b4, type: 2}
+  _tile: {fileID: 11400000, guid: b91fc5a57a5826d459f84d5b70a4d826, type: 2}

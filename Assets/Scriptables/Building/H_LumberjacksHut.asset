@@ -10,11 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9dc459d8e92948cf9d2b2b27d8efead2, type: 3}
-  m_Name: Warehouse
+  m_Name: H_LumberjacksHut
   m_EditorClassIdentifier: 
-  _codename: Warehouse
-  _type: 1
-  _harvestResourceCodename: 
-  _cellsRadius: 0
+  _type: 0
+  _harvestableResource: {fileID: 11400000, guid: 361152873045e084892d56e677d6d740, type: 2}
+  _cellsRadius: 2
   _storeItemsAmount: 1
-  _tile: {fileID: 11400000, guid: 3d93db42d17b95646bcfbf3a884a0d20, type: 2}
+  _tile: {fileID: 11400000, guid: 045a550af9e3e9f42b049c15cc331cbf, type: 2}
