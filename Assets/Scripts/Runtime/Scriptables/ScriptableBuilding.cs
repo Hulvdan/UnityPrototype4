@@ -37,6 +37,7 @@ public class ScriptableBuilding : ScriptableObject {
     [PreviewField]
     TileBase _tile;
 
+    public BuildingType type => _type;
     public ScriptableResource harvestableResource => _harvestableResource;
     public int cellsRadius => _cellsRadius;
     public int storeItemsAmount => _storeItemsAmount;

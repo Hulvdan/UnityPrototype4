@@ -1,8 +1,9 @@
 ﻿namespace BFG.Runtime {
 public enum HumanState {
     Idle,
-    HeadingToTheTarget,
+    HeadingToTheHarvestTile,
     Harvesting,
-    HeadingBackToTheBuilding
+    HeadingToTheStoreBuilding,
+    HeadingBackToTheHarvestBuilding
 }
 }

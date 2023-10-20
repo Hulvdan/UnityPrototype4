@@ -50,6 +50,11 @@ public class Map : MonoBehaviour {
     [FoldoutGroup("Humans", true)]
     [SerializeField]
     [Min(0)]
+    float _humanHeadingToTheStoreBuildingDuration;
+
+    [FoldoutGroup("Humans", true)]
+    [SerializeField]
+    [Min(0)]
     float _humanReturningBackDuration;
 
     [FoldoutGroup("Humans", true)]
@@ -155,6 +160,7 @@ public class Map : MonoBehaviour {
     void OnValidate() {
         _humanTotalHarvestingDuration = _humanHeadingDuration
                                         + _humanHarvestingDuration
+                                        + _humanHeadingToTheStoreBuildingDuration
                                         + _humanReturningBackDuration;
     }
 
@@ -238,8 +244,26 @@ public class Map : MonoBehaviour {
                     HarvestResource(human);
                 }
                 else if (human.harvestingElapsed >=
-                         _humanHeadingDuration + _humanHarvestingDuration) {
-                    newState = HumanState.HeadingBackToTheBuilding;
+                         _humanHeadingDuration
+                         + _humanHarvestingDuration
+                         + _humanHeadingToTheStoreBuildingDuration) {
+                    newState = HumanState.HeadingBackToTheHarvestBuilding;
+
+                    if (human.state != newState) {
+                        human.movingFrom = human.storeBuilding.position;
+                        human.storeBuilding.isBooked = false;
+                        human.storeBuilding = null;
+                    }
+                }
+                else if (human.harvestingElapsed >=
+                         _humanHeadingDuration
+                         + _humanHarvestingDuration) {
+                    newState = HumanState.HeadingToTheStoreBuilding;
+
+                    if (human.harvestTilePosition.HasValue) {
+                        var pos = human.harvestTilePosition.Value;
+                        tiles[pos.y][pos.x].isBooked = false;
+                    }
                 }
                 else if (human.harvestingElapsed >= _humanHeadingDuration) {
                     newState = HumanState.Harvesting;
@@ -252,14 +276,17 @@ public class Map : MonoBehaviour {
                 case HumanState.Idle:
                     UpdateHumanIdle(human);
                     break;
-                case HumanState.HeadingToTheTarget:
-                    UpdateHumanHeadingToTheTarget(human);
+                case HumanState.HeadingToTheHarvestTile:
+                    UpdateHumanHeadingToTheHarvestTile(human);
                     break;
                 case HumanState.Harvesting:
                     UpdateHumanHarvesting(human);
                     break;
-                case HumanState.HeadingBackToTheBuilding:
-                    UpdateHumanHeadingBackToTheBuilding(human);
+                case HumanState.HeadingToTheStoreBuilding:
+                    UpdateHumanHeadingToTheStoreBuilding(human);
+                    break;
+                case HumanState.HeadingBackToTheHarvestBuilding:
+                    UpdateHumanHeadingBackToTheHarvestBuilding(human);
                     break;
             }
         }
@@ -268,14 +295,14 @@ public class Map : MonoBehaviour {
     void HarvestResource(Human human) {
         var resourceCodename = "wood";
         var amount = 1;
-        var where = human.positionTarget.Value;
+        var where = human.harvestTilePosition.Value;
 
         GiveResource(resourceCodename, amount);
 
         OnHumanHarvestedResource?.Invoke(
             new HumanHarvestedResourceData(
                 human,
-                human.building.scriptableBuilding.harvestableResource,
+                human.harvestBuilding.scriptableBuilding.harvestableResource,
                 amount,
                 where
             )
@@ -293,46 +320,100 @@ public class Map : MonoBehaviour {
     }
 
     void UpdateHumanIdle(Human human) {
-        var r = human.building.scriptableBuilding.cellsRadius;
-        var leftInclusive = Math.Max(0, human.building.posX - r);
-        // var rightInclusive = Math.Min(sizeX - 1, human.building.posX + r);
-        // var topInclusive = Math.Min(sizeY - 1, human.building.posY + r);
-        var bottomInclusive = Math.Max(0, human.building.posY - r);
+        var r = human.harvestBuilding.scriptableBuilding.cellsRadius;
+        var leftInclusive = Math.Max(0, human.harvestBuilding.posX - r);
+        var rightInclusive = Math.Min(sizeX - 1, human.harvestBuilding.posX + r);
+        var topInclusive = Math.Min(sizeY - 1, human.harvestBuilding.posY + r);
+        var bottomInclusive = Math.Max(0, human.harvestBuilding.posY - r);
 
-        var resource = human.building.scriptableBuilding.harvestableResource;
+        var resource = human.harvestBuilding.scriptableBuilding.harvestableResource;
         var yy = Enumerable.Range(bottomInclusive, 2 * r + 1).ToArray();
         var xx = Enumerable.Range(leftInclusive, 2 * r + 1).ToArray();
 
         Utils.Shuffle(yy, _random);
         Utils.Shuffle(xx, _random);
 
+        Building storeBuildingCandidate = null;
+        Vector2Int? tileCandidate = null;
+
+        var shouldBreak = false;
         foreach (var y in yy) {
             foreach (var x in xx) {
-                if (resource == _logResource && tiles[y][x].resource == _logResource) {
-                    human.positionTarget = new Vector2Int(x, y);
-                    ChangeHumanState(human, HumanState.HeadingToTheTarget);
+                if (!tiles[y][x].isBooked && tiles[y][x].resource == resource) {
+                    tileCandidate = new Vector2Int(x, y);
+                    shouldBreak = true;
                     break;
                 }
             }
+
+            if (shouldBreak) {
+                break;
+            }
+        }
+
+        var buildingCopy = buildings.ToArray();
+        Utils.Shuffle(buildingCopy, _random);
+        foreach (var building in buildingCopy) {
+            if (building.scriptableBuilding.type != BuildingType.Store) {
+                continue;
+            }
+
+            if (building.isBooked) {
+                continue;
+            }
+
+            var isWithinRadius = leftInclusive <= building.position.x
+                                 && building.position.x <= rightInclusive
+                                 && bottomInclusive <= building.position.y
+                                 && building.position.y <= topInclusive;
+            if (isWithinRadius) {
+                storeBuildingCandidate = building;
+                break;
+            }
+        }
+
+        if (tileCandidate != null && storeBuildingCandidate != null) {
+            var x = tileCandidate.Value.x;
+            var y = tileCandidate.Value.y;
+            human.harvestTilePosition = new Vector2Int(x, y);
+            human.storeBuilding = storeBuildingCandidate;
+
+            tiles[y][x].isBooked = true;
+            storeBuildingCandidate.isBooked = true;
+
+            ChangeHumanState(human, HumanState.HeadingToTheHarvestTile);
         }
     }
 
-    void UpdateHumanHeadingToTheTarget(Human human) {
+    void UpdateHumanHeadingToTheHarvestTile(Human human) {
         var t = human.harvestingElapsed / _humanHeadingDuration;
         var mt = _humanMovementCurve.Evaluate(t);
-        human.position = Vector2.Lerp(human.building.position, human.positionTarget.Value, mt);
+        human.position =
+            Vector2.Lerp(human.harvestBuilding.position, human.harvestTilePosition.Value, mt);
     }
 
     void UpdateHumanHarvesting(Human human) {
     }
 
-    void UpdateHumanHeadingBackToTheBuilding(Human human) {
-        var headingBackElapsed = human.harvestingElapsed
-                                 - _humanHeadingDuration
-                                 - _humanHarvestingDuration;
-        var t = headingBackElapsed / _humanReturningBackDuration;
+    void UpdateHumanHeadingToTheStoreBuilding(Human human) {
+        var stateElapsed = human.harvestingElapsed
+                           - _humanHeadingDuration
+                           - _humanHarvestingDuration;
+        var t = stateElapsed / _humanHeadingToTheStoreBuildingDuration;
         var mt = _humanMovementCurve.Evaluate(t);
-        human.position = Vector2.Lerp(human.positionTarget.Value, human.building.position, mt);
+        human.position =
+            Vector2.Lerp(human.harvestTilePosition.Value, human.storeBuilding.position, mt);
+    }
+
+    void UpdateHumanHeadingBackToTheHarvestBuilding(Human human) {
+        var stateElapsed = human.harvestingElapsed
+                           - _humanHeadingDuration
+                           - _humanHarvestingDuration
+                           - _humanHeadingToTheStoreBuildingDuration;
+        var t = stateElapsed / _humanReturningBackDuration;
+        var mt = _humanMovementCurve.Evaluate(t);
+        human.position =
+            Vector2.Lerp(human.movingFrom, human.harvestBuilding.position, mt);
     }
 
     #endregion
