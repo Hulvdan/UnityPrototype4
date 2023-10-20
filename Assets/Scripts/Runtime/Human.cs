@@ -12,23 +12,18 @@ public enum HumanState {
 
 [Serializable]
 public class Human {
-    [Header("Dependencies")]
-    [SerializeField]
-    [Required]
-    Map _map;
-
     [SerializeField]
     [ReadOnly]
     Building _building;
 
     [SerializeField]
-    [OnValueChanged("UpdateValues")]
-    [Min(0)]
-    int _buildingIndex;
-
-    [SerializeField]
     Vector2 _position;
 
+    [SerializeField]
+    [ReadOnly]
+    float _harvestingElapsed;
+
+    [ShowInInspector]
     [ReadOnly]
     public readonly Guid ID;
 
@@ -40,8 +35,18 @@ public class Human {
         _position = position;
     }
 
-    public Vector2 position => _position;
+    public float harvestingElapsed {
+        get => _harvestingElapsed;
+        set => _harvestingElapsed = value;
+    }
 
+    public Vector2 position {
+        get => _position;
+        set => _position = value;
+    }
+
+    [ShowInInspector]
+    [ReadOnly]
     public HumanState state { get; set; } = HumanState.Idle;
 
     public Vector2Int? positionTarget {
@@ -50,14 +55,5 @@ public class Human {
     }
 
     public Building building => _building;
-
-    void UpdateValues() {
-        if (_buildingIndex >= _map.buildings.Count) {
-            Debug.LogError("Wrong _buildingIndex!");
-        }
-        else {
-            _building = _map.buildings[_buildingIndex];
-        }
-    }
 }
 }

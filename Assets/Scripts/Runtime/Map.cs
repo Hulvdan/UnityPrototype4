@@ -44,6 +44,10 @@ public class Map : MonoBehaviour {
     [Min(0)]
     float _humanReturningBackDuration;
 
+    [FoldoutGroup("Humans", true)]
+    [SerializeField]
+    AnimationCurve _humanMovementCurve = AnimationCurve.Linear(0, 0, 1, 1);
+
     [FoldoutGroup("Random", true)]
     [SerializeField]
     int _randomSeed;
@@ -119,6 +123,7 @@ public class Map : MonoBehaviour {
     }
 
     public event Action<HumanCreatedData> OnHumanCreated = delegate { };
+    public event Action<HumanStateChangedData> OnHumanStateChanged = delegate { };
 
     [Button("Regen With New Seed")]
     void RegenerateTilemapWithNewSeed() {
@@ -183,6 +188,25 @@ public class Map : MonoBehaviour {
 
     void UpdateHumans() {
         foreach (var human in _humans) {
+            if (human.state != HumanState.Idle) {
+                human.harvestingElapsed += Time.deltaTime;
+
+                var newState = human.state;
+                if (human.harvestingElapsed >= _humanTotalHarvestingDuration) {
+                    newState = HumanState.Idle;
+                    human.harvestingElapsed = 0;
+                }
+                else if (human.harvestingElapsed >=
+                         _humanHeadingDuration + _humanHarvestingDuration) {
+                    newState = HumanState.HeadingBackToTheBuilding;
+                }
+                else if (human.harvestingElapsed >= _humanHeadingDuration) {
+                    newState = HumanState.Harvesting;
+                }
+
+                ChangeHumanState(human, newState);
+            }
+
             switch (human.state) {
                 case HumanState.Idle:
                     UpdateHumanIdle(human);
@@ -197,10 +221,17 @@ public class Map : MonoBehaviour {
                     UpdateHumanHeadingBackToTheBuilding(human);
                     break;
             }
-
-            if (human.state == HumanState.Idle) {
-            }
         }
+    }
+
+    void ChangeHumanState(Human human, HumanState newState) {
+        if (newState == human.state) {
+            return;
+        }
+
+        var oldState = human.state;
+        human.state = newState;
+        OnHumanStateChanged?.Invoke(new HumanStateChangedData(human, oldState, newState));
     }
 
     void UpdateHumanIdle(Human human) {
@@ -210,12 +241,12 @@ public class Map : MonoBehaviour {
         var topInclusive = Math.Min(sizeY - 1, human.building.posY + r);
         var bottomInclusive = Math.Max(0, human.building.posY - r);
 
-        var cellName = human.building.scriptableBuilding.harvestTileCodename;
+        var resourceName = human.building.scriptableBuilding.harvestResourceCodename;
         for (var y = bottomInclusive; y <= topInclusive; y++) {
             for (var x = leftInclusive; x <= rightInclusive; x++) {
-                if (tiles[y][x].Name == cellName) {
+                if (resourceName == "forest" && tiles[y][x].HasForest) {
                     human.positionTarget = new Vector2Int(x, y);
-                    human.state = HumanState.HeadingToTheTarget;
+                    ChangeHumanState(human, HumanState.HeadingToTheTarget);
                     break;
                 }
             }
@@ -223,19 +254,40 @@ public class Map : MonoBehaviour {
     }
 
     void UpdateHumanHeadingToTheTarget(Human human) {
+        var t = human.harvestingElapsed / _humanHeadingDuration;
+        var mt = _humanMovementCurve.Evaluate(t);
+        human.position = Vector2.Lerp(human.building.position, human.positionTarget.Value, mt);
     }
 
     void UpdateHumanHarvesting(Human human) {
     }
 
     void UpdateHumanHeadingBackToTheBuilding(Human human) {
+        var headingBackElapsed = human.harvestingElapsed
+                                 - _humanHeadingDuration
+                                 - _humanHarvestingDuration;
+        var t = headingBackElapsed / _humanReturningBackDuration;
+        var mt = _humanMovementCurve.Evaluate(t);
+        human.position = Vector2.Lerp(human.positionTarget.Value, human.building.position, mt);
     }
 
     #endregion
 }
 
+public class HumanStateChangedData {
+    public readonly Human Human;
+    public readonly HumanState NewState;
+    public readonly HumanState OldState;
+
+    public HumanStateChangedData(Human human, HumanState newState, HumanState oldState) {
+        Human = human;
+        NewState = newState;
+        OldState = oldState;
+    }
+}
+
 public class HumanCreatedData {
-    public Human Human;
+    public readonly Human Human;
 
     public HumanCreatedData(Human human) {
         Human = human;
