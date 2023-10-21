@@ -64,11 +64,12 @@ public class MapRenderer : MonoBehaviour {
     TileBase _debugTileUnwalkable;
 
     Tilemap _resourceTilemap;
-    readonly Dictionary<Guid, Tuple<Human, GameObject>> _humans = new();
+    readonly Dictionary<Guid, Tuple<Human, HumanGO>> _humans = new();
 
     void Awake() {
         _map.OnHumanCreated += OnHumanCreated;
         _map.OnHumanPickedUpResource += OnHumanPickedUpResource;
+        _map.OnHumanPlacedResource += OnHumanPlacedResource;
     }
 
     void OnHumanPickedUpResource(HumanPickedUpResourceData data) {
@@ -76,6 +77,12 @@ public class MapRenderer : MonoBehaviour {
             data.ResourceTilePosition,
             data.RemainingAmountPercent
         );
+
+        _humans[data.Human.ID].Item2.OnPickedUpResource(data.Resource);
+    }
+
+    void OnHumanPlacedResource(HumanPlacedResourceData data) {
+        _humans[data.Human.ID].Item2.OnPlacedResource();
     }
 
     void UpdateTileBasedOnRemainingResourcePercent(
@@ -241,7 +248,7 @@ public class MapRenderer : MonoBehaviour {
 
     void OnHumanCreated(HumanCreatedData data) {
         var go = Instantiate(_humanPrefab, _grid.transform);
-        _humans.Add(data.Human.ID, Tuple.Create(data.Human, go));
+        _humans.Add(data.Human.ID, Tuple.Create(data.Human, go.GetComponent<HumanGO>()));
     }
 
     Vector3 GameLogicToRenderPos(Vector2 pos) {
