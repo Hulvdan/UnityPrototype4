@@ -12,9 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dc459d8e92948cf9d2b2b27d8efead2, type: 3}
   m_Name: S_Warehouse
   m_EditorClassIdentifier: 
-  _codename: Warehouse
   _type: 1
-  _harvestResourceCodename: 
+  _harvestableResource: {fileID: 0}
   _cellsRadius: 0
-  _storeItemsAmount: 1
+  _storeItemsAmount: 2
+  _storedItemPositions:
+  - {x: -0.1, y: 0.581}
+  - {x: 0.156, y: 0.391}
+  _takes: []
+  _produces: {fileID: 0}
   _tile: {fileID: 11400000, guid: 3d93db42d17b95646bcfbf3a884a0d20, type: 2}

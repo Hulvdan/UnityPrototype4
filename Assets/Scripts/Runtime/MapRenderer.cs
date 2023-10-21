@@ -50,6 +50,14 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     ScriptableResource _logResource;
 
+    [SerializeField]
+    [Required]
+    Transform _itemsLayer;
+
+    [SerializeField]
+    [Required]
+    GameObject _itemPrefab;
+
     [Header("Debug Dependencies")]
     [SerializeField]
     [Required]
@@ -83,6 +91,21 @@ public class MapRenderer : MonoBehaviour {
 
     void OnHumanPlacedResource(HumanPlacedResourceData data) {
         _humans[data.Human.ID].Item2.OnPlacedResource();
+
+        var item = Instantiate(_itemPrefab, _itemsLayer);
+
+        var building = data.StoreBuilding;
+        var scriptable = building.scriptableBuilding;
+
+        var i = building.storedResources.Count - 1;
+        if (i >= scriptable.storedItemPositions.Count) {
+            Debug.LogError("WTF i >= scriptable.storedItemPositions.Count");
+            i = scriptable.storedItemPositions.Count - 1;
+        }
+
+        var itemOffset = scriptable.storedItemPositions[i];
+        item.transform.localPosition = building.position + itemOffset + Vector2.right / 2;
+        item.GetComponent<ItemGO>().SetAs(data.Resource);
     }
 
     void UpdateTileBasedOnRemainingResourcePercent(
