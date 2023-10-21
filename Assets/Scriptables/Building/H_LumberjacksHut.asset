@@ -16,4 +16,6 @@ MonoBehaviour:
   _harvestableResource: {fileID: 11400000, guid: 361152873045e084892d56e677d6d740, type: 2}
   _cellsRadius: 2
   _storeItemsAmount: 1
+  _takes: []
+  _produces: {fileID: 0}
   _tile: {fileID: 11400000, guid: 045a550af9e3e9f42b049c15cc331cbf, type: 2}

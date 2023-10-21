@@ -75,6 +75,11 @@ public class Map : MonoBehaviour {
 
     [FoldoutGroup("Random", true)]
     [SerializeField]
+    [Min(1)]
+    public int _maxForestAmount = 1;
+
+    [FoldoutGroup("Random", true)]
+    [SerializeField]
     [Min(0)]
     int _maxHeight = 1;
 
@@ -108,7 +113,6 @@ public class Map : MonoBehaviour {
     float _humanTotalHarvestingDuration;
 
     Random _random;
-
     public int sizeY => _mapSizeY;
     public int sizeX => _mapSizeX;
 
@@ -203,7 +207,7 @@ public class Map : MonoBehaviour {
                 var tile = new Tile {
                     Name = "grass",
                     Resource = hasForest ? _logResource : null,
-                    ResourceAmount = hasForest ? 3 : 0
+                    ResourceAmount = hasForest ? _maxForestAmount : 0
                 };
                 tilesRow.Add(tile);
                 // var randomH = Random.Range(0, _maxHeight + 1);
@@ -362,8 +366,9 @@ public class Map : MonoBehaviour {
             new HumanPickedUpResourceData(
                 human,
                 human.harvestBuilding.scriptableBuilding.harvestableResource,
+                pos,
                 1,
-                pos
+                tile.ResourceAmount / (float)_maxForestAmount
             )
         );
 
@@ -421,7 +426,15 @@ public class Map : MonoBehaviour {
 
         var shouldBreak = false;
         foreach (var y in yy) {
+            if (y >= sizeY) {
+                continue;
+            }
+
             foreach (var x in xx) {
+                if (x >= sizeX) {
+                    continue;
+                }
+
                 if (!tiles[y][x].IsBooked && tiles[y][x].Resource == resource) {
                     tileCandidate = new Vector2Int(x, y);
                     shouldBreak = true;
