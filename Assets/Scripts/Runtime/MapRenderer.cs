@@ -67,6 +67,10 @@ public class MapRenderer : MonoBehaviour {
 
     void Awake() {
         _map.OnHumanCreated += OnHumanCreated;
+        _map.OnHumanPickedUpResource += OnHumanPickedUpResource;
+    }
+
+    void OnHumanPickedUpResource(HumanPickedUpResourceData data) {
     }
 
     void Update() {
@@ -163,8 +167,8 @@ public class MapRenderer : MonoBehaviour {
         ).GetComponent<Tilemap>();
         for (var y = 0; y < _map.sizeY; y++) {
             for (var x = 0; x < _map.sizeX; x++) {
-                if (_map.tiles[y][x].resource != null
-                    && _map.tiles[y][x].resource.name == _logResource.name) {
+                if (_map.tiles[y][x].Resource != null
+                    && _map.tiles[y][x].Resource.name == _logResource.name) {
                     resources.SetTile(new Vector3Int(x, y, 0), _tileForest);
                     resources.SetTile(new Vector3Int(x, y, -1), _tileForestTop);
                 }

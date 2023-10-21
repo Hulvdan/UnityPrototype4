@@ -4634,9 +4634,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _map: {fileID: 1879392620}
-  _resourceWood: {fileID: 337626713}
-  _resourceStone: {fileID: 1925955424}
-  _resourceFood: {fileID: 2064452401}
+  _resourceTextsMapping:
+  - Resource: {fileID: 11400000, guid: 10745982271be284fb0df31da327cdba, type: 2}
+    Text: {fileID: 337626713}
+  - Resource: {fileID: 11400000, guid: 45af1427840af3a4a98b31727bdd67b4, type: 2}
+    Text: {fileID: 1925955424}
+  - Resource: {fileID: 11400000, guid: ae832cc99114055458e3b3270e527dd6, type: 2}
+    Text: {fileID: 2064452401}
 --- !u!1 &1502536773
 GameObject:
   m_ObjectHideFlags: 0
@@ -6351,6 +6355,10 @@ MonoBehaviour:
     _isBooked: 0
   _humans: []
   _logResource: {fileID: 11400000, guid: 361152873045e084892d56e677d6d740, type: 2}
+  _topBarResources:
+  - {fileID: 11400000, guid: 10745982271be284fb0df31da327cdba, type: 2}
+  - {fileID: 11400000, guid: 45af1427840af3a4a98b31727bdd67b4, type: 2}
+  - {fileID: 11400000, guid: ae832cc99114055458e3b3270e527dd6, type: 2}
 --- !u!114 &1879392621
 MonoBehaviour:
   m_ObjectHideFlags: 0
