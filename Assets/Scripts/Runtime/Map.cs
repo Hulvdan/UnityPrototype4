@@ -415,8 +415,8 @@ public class Map : MonoBehaviour {
         var bottomInclusive = Math.Max(0, human.harvestBuilding.posY - r);
 
         var resource = human.harvestBuilding.scriptableBuilding.harvestableResource;
-        var yy = Enumerable.Range(bottomInclusive, 2 * r + 1).ToArray();
-        var xx = Enumerable.Range(leftInclusive, 2 * r + 1).ToArray();
+        var yy = Enumerable.Range(bottomInclusive, topInclusive - bottomInclusive + 1).ToArray();
+        var xx = Enumerable.Range(leftInclusive, rightInclusive - leftInclusive + 1).ToArray();
 
         Utils.Shuffle(yy, _random);
         Utils.Shuffle(xx, _random);
@@ -426,15 +426,7 @@ public class Map : MonoBehaviour {
 
         var shouldBreak = false;
         foreach (var y in yy) {
-            if (y >= sizeY) {
-                continue;
-            }
-
             foreach (var x in xx) {
-                if (x >= sizeX) {
-                    continue;
-                }
-
                 if (!tiles[y][x].IsBooked && tiles[y][x].Resource == resource) {
                     tileCandidate = new Vector2Int(x, y);
                     shouldBreak = true;
