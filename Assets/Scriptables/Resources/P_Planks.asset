@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: P_Planks
   m_EditorClassIdentifier: 
   _sprite: {fileID: -814847334, guid: f83e89d6153453a418b596c0692f5b12, type: 3}
+  _smallerSprite: {fileID: 1753881809, guid: a9a322698fbd36c44bd5b4cdb808dfb3, type: 3}
   _displayInTheRopBar: 1

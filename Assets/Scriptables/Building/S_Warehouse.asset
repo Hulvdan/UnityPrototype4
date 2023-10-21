@@ -17,8 +17,8 @@ MonoBehaviour:
   _cellsRadius: 0
   _storeItemsAmount: 2
   _storedItemPositions:
-  - {x: -0.1, y: 0.581}
   - {x: 0.156, y: 0.391}
+  - {x: -0.1, y: 0.581}
   _takes: []
   _produces: {fileID: 0}
   _tile: {fileID: 11400000, guid: 3d93db42d17b95646bcfbf3a884a0d20, type: 2}
