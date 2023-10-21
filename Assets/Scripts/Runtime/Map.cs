@@ -37,6 +37,8 @@ public class Map : MonoBehaviour {
     [Min(1)]
     int _mapSizeY = 10;
 
+    #region HumanSystem_Attributes
+
     [FoldoutGroup("Humans", true)]
     [SerializeField]
     [Min(0)]
@@ -60,6 +62,8 @@ public class Map : MonoBehaviour {
     [FoldoutGroup("Humans", true)]
     [SerializeField]
     AnimationCurve _humanMovementCurve = AnimationCurve.Linear(0, 0, 1, 1);
+
+    #endregion
 
     [FoldoutGroup("Random", true)]
     [SerializeField]
@@ -119,12 +123,16 @@ public class Map : MonoBehaviour {
     public List<List<int>> tileHeights { get; private set; }
 
     public List<Building> buildings => _buildings;
-    public List<Human> humans => _humans;
 
+    #region HumanSystem_Properties
+
+    public List<Human> humans => _humans;
     public float humanHeadingDuration => _humanHeadingDuration;
     public float humanHarvestingDuration => _humanHarvestingDuration;
     public float humanReturningBackDuration => _humanReturningBackDuration;
     public float humanTotalHarvestingDuration => _humanTotalHarvestingDuration;
+
+    #endregion
 
     void Awake() {
         _random = new Random((int)Time.time);
@@ -165,10 +173,16 @@ public class Map : MonoBehaviour {
         );
     }
 
+    #region Events
+
     public event Action<HumanCreatedData> OnHumanCreated = delegate { };
     public event Action<HumanStateChangedData> OnHumanStateChanged = delegate { };
     public event Action<HumanHarvestedResourceData> OnHumanHarvestedResource = delegate { };
     public event Action<ResourceChanged> OnResourceChanged = delegate { };
+
+    #endregion
+
+    #region MapGeneration
 
     [Button("Regen With New Seed")]
     void RegenerateTilemapWithNewSeed() {
@@ -224,7 +238,9 @@ public class Map : MonoBehaviour {
         return Noise.CalcPixel2D(x, y, scale) / 255f;
     }
 
-    #region HumanSystem
+    #endregion
+
+    #region HumanSystem_Behaviour
 
     void CreateHuman(Building building) {
         var human = new Human(Guid.NewGuid(), building, building.position);
