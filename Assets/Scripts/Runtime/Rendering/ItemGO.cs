@@ -8,7 +8,7 @@ public class ItemGO : MonoBehaviour {
     SpriteRenderer _spriteRenderer;
 
     public void SetAs(ScriptableResource resource) {
-        _spriteRenderer.sprite = resource.sprite;
+        _spriteRenderer.sprite = resource.smallerSprite;
     }
 }
 }

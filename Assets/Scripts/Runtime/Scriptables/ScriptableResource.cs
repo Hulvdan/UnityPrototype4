@@ -9,9 +9,14 @@ public class ScriptableResource : ScriptableObject {
     Sprite _sprite;
 
     [SerializeField]
+    [PreviewField]
+    Sprite _smallerSprite;
+
+    [SerializeField]
     bool _displayInTheRopBar;
 
     public bool displayInTheRopBar => _displayInTheRopBar;
     public Sprite sprite => _sprite;
+    public Sprite smallerSprite => _smallerSprite;
 }
 }

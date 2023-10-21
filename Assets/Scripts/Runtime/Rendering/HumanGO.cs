@@ -32,7 +32,7 @@ public class HumanGO : MonoBehaviour {
     AnimationCurve _itemPlacingCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
     public void OnPickedUpResource(ScriptableResource resource) {
-        _resourceSpriteRenderer.sprite = resource.sprite;
+        _resourceSpriteRenderer.sprite = resource.smallerSprite;
         _resourceSpriteRenderer.transform.localPosition = _placingVerticalOffset;
         DOTween.To(
             () => _resourceSpriteRenderer.transform.localPosition,

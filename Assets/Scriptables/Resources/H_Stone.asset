@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: H_Stone
   m_EditorClassIdentifier: 
   _sprite: {fileID: 21300000, guid: 65ecef3b178e5a04b9629f629f183726, type: 3}
+  _smallerSprite: {fileID: 21300000, guid: ec81c9bd24fb70a4f9a084bb9df63772, type: 3}
   _displayInTheRopBar: 0
