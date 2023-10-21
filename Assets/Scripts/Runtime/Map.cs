@@ -450,6 +450,10 @@ public class Map : MonoBehaviour {
                 continue;
             }
 
+            if (building.storedResources.Count >= building.scriptableBuilding.storeItemsAmount) {
+                continue;
+            }
+
             var isWithinRadius = leftInclusive <= building.position.x
                                  && building.position.x <= rightInclusive
                                  && bottomInclusive <= building.position.y

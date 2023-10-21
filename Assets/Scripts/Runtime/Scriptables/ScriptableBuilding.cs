@@ -25,6 +25,10 @@ public class ScriptableBuilding : ScriptableObject {
     int _storeItemsAmount = 1;
 
     [SerializeField]
+    [ShowIf("_type", BuildingType.Store)]
+    List<Vector2> _storedItemPositions = new();
+
+    [SerializeField]
     [ShowIf("_type", BuildingType.Produce)]
     List<ScriptableResource> _takes;
 
@@ -41,6 +45,7 @@ public class ScriptableBuilding : ScriptableObject {
     public ScriptableResource harvestableResource => _harvestableResource;
     public int cellsRadius => _cellsRadius;
     public int storeItemsAmount => _storeItemsAmount;
+    public List<Vector2> storedItemPositions => _storedItemPositions;
     public List<ScriptableResource> takes => _takes;
     public ScriptableResource produces => _produces;
 
