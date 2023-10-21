@@ -63,6 +63,7 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     TileBase _debugTileUnwalkable;
 
+    Tilemap _resourceTilemap;
     readonly Dictionary<Guid, Tuple<Human, GameObject>> _humans = new();
 
     void Awake() {
@@ -71,6 +72,22 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void OnHumanPickedUpResource(HumanPickedUpResourceData data) {
+        UpdateTileBasedOnRemainingResourcePercent(
+            data.ResourceTilePosition,
+            data.RemainingAmountPercent
+        );
+    }
+
+    void UpdateTileBasedOnRemainingResourcePercent(
+        Vector2Int pos,
+        float dataRemainingAmountPercent
+    ) {
+        if (dataRemainingAmountPercent > 0) {
+            return;
+        }
+
+        _resourceTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), null);
+        _resourceTilemap.SetTile(new Vector3Int(pos.x, pos.y, -1), null);
     }
 
     void Update() {
@@ -162,15 +179,15 @@ public class MapRenderer : MonoBehaviour {
             }
         }
 
-        var resources = GenerateTilemap(
+        _resourceTilemap = GenerateTilemap(
             0, maxHeight + 1, ResourcesTilemapNameTemplate, _tilemapPrefab
         ).GetComponent<Tilemap>();
         for (var y = 0; y < _map.sizeY; y++) {
             for (var x = 0; x < _map.sizeX; x++) {
                 if (_map.tiles[y][x].Resource != null
                     && _map.tiles[y][x].Resource.name == _logResource.name) {
-                    resources.SetTile(new Vector3Int(x, y, 0), _tileForest);
-                    resources.SetTile(new Vector3Int(x, y, -1), _tileForestTop);
+                    _resourceTilemap.SetTile(new Vector3Int(x, y, 0), _tileForest);
+                    _resourceTilemap.SetTile(new Vector3Int(x, y, -1), _tileForestTop);
                 }
             }
         }

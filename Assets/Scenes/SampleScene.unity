@@ -6308,6 +6308,7 @@ MonoBehaviour:
   _terrainHeightNoiseScale: 0.04
   _forestNoiseScale: 0.16
   _forestThreshold: 0.581
+  _maxForestAmount: 3
   _maxHeight: 2
   OnTilesRegenerated:
     m_PersistentCalls:
