@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -18,6 +19,9 @@ public class Building {
     [SerializeField]
     bool _isBooked;
 
+    [SerializeField]
+    List<Tuple<ScriptableResource, int>> _storedResources = new();
+
     public ScriptableBuilding scriptableBuilding => _scriptableBuilding;
     public int posX => _posX;
     public int posY => _posY;
@@ -27,5 +31,7 @@ public class Building {
         get => _isBooked;
         set => _isBooked = value;
     }
+
+    public List<Tuple<ScriptableResource, int>> storedResources => _storedResources;
 }
 }

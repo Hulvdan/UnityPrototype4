@@ -2,18 +2,12 @@
 
 namespace BFG.Runtime {
 public class Tile {
-    public bool isBooked;
     public string Name;
     public int ResourceAmount;
 
     [CanBeNull]
-    public ScriptableResource resource;
+    public ScriptableResource Resource;
 
-    void TakeResource(int amount) {
-        ResourceAmount -= amount;
-        if (ResourceAmount <= 0) {
-            resource = null;
-        }
-    }
+    public bool IsBooked;
 }
 }

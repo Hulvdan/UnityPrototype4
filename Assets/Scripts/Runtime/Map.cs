@@ -8,17 +8,6 @@ using UnityEngine.Events;
 using Random = System.Random;
 
 namespace BFG.Runtime {
-public class Resource {
-    public int Amount;
-    public string Codename;
-}
-
-public record ResourceChanged {
-    public string Codename;
-    public int NewAmount;
-    public int OldAmount;
-}
-
 public class Map : MonoBehaviour {
     // Layers:
     // 1 - Terrain (depends on height)
@@ -106,7 +95,12 @@ public class Map : MonoBehaviour {
     [Required]
     ScriptableResource _logResource;
 
-    readonly List<Resource> _resources = new();
+    [FoldoutGroup("Setup", true)]
+    [SerializeField]
+    [Required]
+    List<ScriptableResource> _topBarResources;
+
+    readonly List<TopBarResource> _resources = new();
 
     [FoldoutGroup("Humans", true)]
     [ShowInInspector]
@@ -138,9 +132,9 @@ public class Map : MonoBehaviour {
         _random = new Random((int)Time.time);
         RegenerateTilemap();
 
-        _resources.Add(new Resource { Amount = 0, Codename = "wood" });
-        _resources.Add(new Resource { Amount = 0, Codename = "stone" });
-        _resources.Add(new Resource { Amount = 0, Codename = "food" });
+        foreach (var res in _topBarResources) {
+            _resources.Add(new TopBarResource { Amount = 0, Resource = res });
+        }
     }
 
     void Start() {
@@ -161,14 +155,14 @@ public class Map : MonoBehaviour {
                                         + _humanReturningBackDuration;
     }
 
-    void GiveResource(string codename, int amount) {
-        var resource = _resources.Find(x => x.Codename == codename);
+    void GiveResource(ScriptableResource resource1, int amount) {
+        var resource = _resources.Find(x => x.Resource == resource1);
         resource.Amount += amount;
         OnResourceChanged?.Invoke(
-            new ResourceChanged {
+            new TopBarResourceChangedData {
                 NewAmount = resource.Amount,
                 OldAmount = resource.Amount - amount,
-                Codename = resource.Codename
+                Resource = resource1
             }
         );
     }
@@ -177,8 +171,10 @@ public class Map : MonoBehaviour {
 
     public event Action<HumanCreatedData> OnHumanCreated = delegate { };
     public event Action<HumanStateChangedData> OnHumanStateChanged = delegate { };
-    public event Action<HumanHarvestedResourceData> OnHumanHarvestedResource = delegate { };
-    public event Action<ResourceChanged> OnResourceChanged = delegate { };
+    public event Action<HumanPickedUpResourceData> OnHumanPickedUpResource = delegate { };
+    public event Action<HumanPlacedResourceData> OnHumanPlacedResource = delegate { };
+
+    public event Action<TopBarResourceChangedData> OnResourceChanged = delegate { };
 
     #endregion
 
@@ -206,7 +202,8 @@ public class Map : MonoBehaviour {
                 var hasForest = forestK > _forestThreshold;
                 var tile = new Tile {
                     Name = "grass",
-                    resource = hasForest ? _logResource : null
+                    Resource = hasForest ? _logResource : null,
+                    ResourceAmount = hasForest ? 3 : 0
                 };
                 tilesRow.Add(tile);
                 // var randomH = Random.Range(0, _maxHeight + 1);
@@ -224,7 +221,8 @@ public class Map : MonoBehaviour {
                 if (y == 0 || tileHeights[y][x] > tileHeights[y - 1][x]) {
                     var s = tiles[y][x];
                     s.Name = "cliff";
-                    s.resource = null;
+                    s.Resource = null;
+                    s.ResourceAmount = 0;
                     tiles[y][x] = s;
                 }
             }
@@ -256,34 +254,50 @@ public class Map : MonoBehaviour {
                 var newState = human.state;
                 if (human.harvestingElapsed >= _humanTotalHarvestingDuration) {
                     newState = HumanState.Idle;
-                    human.harvestingElapsed = 0;
+                    if (human.state != newState) {
+                        HumanFinishedHeadingBackToTheHarvestBuilding(human);
 
-                    HarvestResource(human);
+                        human.harvestingElapsed = 0;
+
+                        HumanStartedIdle(human);
+                    }
                 }
                 else if (human.harvestingElapsed >=
                          _humanHeadingDuration
                          + _humanHarvestingDuration
                          + _humanHeadingToTheStoreBuildingDuration) {
                     newState = HumanState.HeadingBackToTheHarvestBuilding;
-
                     if (human.state != newState) {
+                        HumanFinishedHeadingToTheStoreBuilding(human);
+
+                        PlaceResource(human);
                         human.movingFrom = human.storeBuilding.position;
                         human.storeBuilding.isBooked = false;
                         human.storeBuilding = null;
+
+                        HumanStartedHeadingBackToTheHarvestBuilding(human);
                     }
                 }
                 else if (human.harvestingElapsed >=
                          _humanHeadingDuration
                          + _humanHarvestingDuration) {
                     newState = HumanState.HeadingToTheStoreBuilding;
+                    if (human.state != newState) {
+                        HumanFinishedHarvesting(human);
 
-                    if (human.harvestTilePosition.HasValue) {
+                        PickUpResource(human);
                         var pos = human.harvestTilePosition.Value;
-                        tiles[pos.y][pos.x].isBooked = false;
+                        tiles[pos.y][pos.x].IsBooked = false;
+
+                        HumanStartedHeadingToTheStoreBuilding(human);
                     }
                 }
                 else if (human.harvestingElapsed >= _humanHeadingDuration) {
                     newState = HumanState.Harvesting;
+                    if (human.state != newState) {
+                        HumanFinishedHeadingToTheHarvestTile(human);
+                        HumanStartedHarvesting(human);
+                    }
                 }
 
                 ChangeHumanState(human, newState);
@@ -309,19 +323,71 @@ public class Map : MonoBehaviour {
         }
     }
 
-    void HarvestResource(Human human) {
-        var resourceCodename = "wood";
-        var amount = 1;
-        var where = human.harvestTilePosition.Value;
+    void HumanStartedIdle(Human human) {
+    }
 
-        GiveResource(resourceCodename, amount);
+    void HumanFinishedIdle(Human human) {
+    }
 
-        OnHumanHarvestedResource?.Invoke(
-            new HumanHarvestedResourceData(
+    void HumanStartedHeadingToTheHarvestTile(Human human) {
+    }
+
+    void HumanFinishedHeadingToTheHarvestTile(Human human) {
+    }
+
+    void HumanStartedHarvesting(Human human) {
+    }
+
+    void HumanFinishedHarvesting(Human human) {
+    }
+
+    void HumanStartedHeadingToTheStoreBuilding(Human human) {
+    }
+
+    void HumanFinishedHeadingToTheStoreBuilding(Human human) {
+    }
+
+    void HumanStartedHeadingBackToTheHarvestBuilding(Human human) {
+    }
+
+    void HumanFinishedHeadingBackToTheHarvestBuilding(Human human) {
+    }
+
+    void PickUpResource(Human human) {
+        var pos = human.harvestTilePosition.Value;
+        var tile = tiles[pos.y][pos.x];
+        tile.ResourceAmount -= 1;
+
+        OnHumanPickedUpResource?.Invoke(
+            new HumanPickedUpResourceData(
                 human,
                 human.harvestBuilding.scriptableBuilding.harvestableResource,
-                amount,
-                where
+                1,
+                pos
+            )
+        );
+
+        if (tile.ResourceAmount <= 0) {
+            tile.Resource = null;
+        }
+
+        if (tile.ResourceAmount < 0) {
+            Debug.LogError("WTF tile.ResourceAmount < 0 ?");
+        }
+    }
+
+    void PlaceResource(Human human) {
+        var tuple = new Tuple<ScriptableResource, int>(
+            human.harvestBuilding.scriptableBuilding.harvestableResource, 1
+        );
+        human.storeBuilding.storedResources.Add(tuple);
+
+        OnHumanPlacedResource?.Invoke(
+            new HumanPlacedResourceData(
+                1,
+                human,
+                human.storeBuilding,
+                human.harvestBuilding.scriptableBuilding.harvestableResource
             )
         );
     }
@@ -356,7 +422,7 @@ public class Map : MonoBehaviour {
         var shouldBreak = false;
         foreach (var y in yy) {
             foreach (var x in xx) {
-                if (!tiles[y][x].isBooked && tiles[y][x].resource == resource) {
+                if (!tiles[y][x].IsBooked && tiles[y][x].Resource == resource) {
                     tileCandidate = new Vector2Int(x, y);
                     shouldBreak = true;
                     break;
@@ -395,10 +461,12 @@ public class Map : MonoBehaviour {
             human.harvestTilePosition = new Vector2Int(x, y);
             human.storeBuilding = storeBuildingCandidate;
 
-            tiles[y][x].isBooked = true;
+            tiles[y][x].IsBooked = true;
             storeBuildingCandidate.isBooked = true;
 
+            HumanFinishedIdle(human);
             ChangeHumanState(human, HumanState.HeadingToTheHarvestTile);
+            HumanStartedHeadingToTheHarvestTile(human);
         }
     }
 
