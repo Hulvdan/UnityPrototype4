@@ -166,7 +166,7 @@ public class MapRenderer : MonoBehaviour {
                 if (_map.tiles[y][x].resource != null
                     && _map.tiles[y][x].resource.name == _logResource.name) {
                     resources.SetTile(new Vector3Int(x, y, 0), _tileForest);
-                    resources.SetTile(new Vector3Int(x, y + 1, 0), _tileForestTop);
+                    resources.SetTile(new Vector3Int(x, y, -1), _tileForestTop);
                 }
             }
         }
