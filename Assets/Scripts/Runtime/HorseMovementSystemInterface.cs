@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
+using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 namespace BFG.Runtime {
@@ -48,6 +48,15 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     [SerializeField]
     Vector2Int _pointB;
 
+    [SerializeField]
+    [Required]
+    Transform _movableObject;
+
+    [SerializeField]
+    AnimationCurve _curve;
+
+    List<Vector2Int> _path = new();
+
     TileBase GetTilebase(MovementGraphCell mapMovementCell) {
         if (mapMovementCell == null) {
             return null;
@@ -74,6 +83,12 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     // [TableMatrix(SquareCells = true)]
     // Texture2D[,] _cells = new Texture2D[,] { { null } };
 
+    [SerializeField]
+    [Min(0)]
+    float _moveDuration = 1f;
+
+    float _cellElapsed;
+
     MapCell[,] _cells = {
         {
             MapCell.Road, MapCell.Road, MapCell.Road, MapCell.None, MapCell.Road
@@ -82,7 +97,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         }, {
             MapCell.Road, MapCell.Road, MapCell.Road, MapCell.None, MapCell.Road
         }, {
-            MapCell.None, MapCell.Road, MapCell.None, MapCell.Road, MapCell.Road
+            MapCell.None, MapCell.None, MapCell.None, MapCell.Road, MapCell.Road
         }, {
             MapCell.Road, MapCell.Road, MapCell.Road, MapCell.Road, MapCell.Road
         }, {
@@ -91,6 +106,38 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     };
 
     MovementGraphCell[,] _movementCells;
+    int _currentPathOffset;
+
+    void Awake() {
+        GenerateTilemap();
+
+        var system = new HorseMovementSystem();
+        var path = system.FindPath(_pointA, _pointB, ref _movementCells);
+        if (!path.Success) {
+            Debug.LogError("Could not find the path");
+            return;
+        }
+
+        _path = path.Path;
+        PathTween();
+    }
+
+    void PathTween() {
+        _currentPathOffset += 1;
+        if (_currentPathOffset >= _path.Count) {
+            return;
+        }
+
+        DOTween
+            .To(
+                () => _movableObject.transform.localPosition,
+                val => _movableObject.transform.localPosition = val,
+                _path[_currentPathOffset],
+                _moveDuration
+            )
+            .SetEase(_curve)
+            .OnComplete(PathTween);
+    }
 
     [Button("Generate tilemap")]
     void GenerateTilemap() {
@@ -138,5 +185,17 @@ public class HorseMovementSystemInterface : MonoBehaviour {
             }
         }
     }
+
+    // void Update() {
+    //     if (_path == null || _path.Count <= 0) {
+    //         return;
+    //     }
+    //
+    //     _cellElapsed += Time.deltaTime;
+    //     var coef = _cellElapsed / _moveDuration;
+    //     while (coef >= 1) {
+    //         _cellElapsed -= _moveDuration;
+    //     }
+    // }
 }
 }
