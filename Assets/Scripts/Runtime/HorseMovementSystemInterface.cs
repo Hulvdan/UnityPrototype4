@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Apple.ReplayKit;
+using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 namespace BFG.Runtime {
@@ -9,137 +9,6 @@ public enum CellType {
     None,
     Road,
     Station
-}
-
-public struct Cell {
-    public CellType Type;
-    public int Rotation;
-
-    public Cell(CellType type, int rotation = 0) {
-        if ((type == CellType.Road || type == CellType.None) && rotation != 0) {
-            Debug.LogError("WTF IS GOING ON HERE?");
-            rotation = 0;
-        }
-
-        Type = type;
-        Rotation = rotation;
-    }
-
-    public static Cell None = new(CellType.None);
-    public static Cell Road = new(CellType.Road);
-}
-
-public class MCell {
-    public bool Up;
-    public bool Right;
-    public bool Down;
-    public bool Left;
-
-    public MCell(bool up, bool right, bool down, bool left) {
-        Up = up;
-        Right = right;
-        Down = down;
-        Left = left;
-    }
-
-    public int Count() {
-        var i = 0;
-        if (Up) {
-            i++;
-        }
-
-        if (Right) {
-            i++;
-        }
-
-        if (Down) {
-            i++;
-        }
-
-        if (Left) {
-            i++;
-        }
-
-        return i;
-    }
-
-    public bool TwoTypeIsVertical() {
-        return (Up && Down) || (Right && Left);
-    }
-
-    public int Rotation() {
-        switch (Count()) {
-            case 0:
-                return 0;
-            case 1:
-                if (Up) {
-                    return 0;
-                }
-
-                if (Left) {
-                    return 1;
-                }
-
-                if (Down) {
-                    return 2;
-                }
-
-                if (Right) {
-                    return 3;
-                }
-
-                break;
-            case 2:
-                if (TwoTypeIsVertical()) {
-                    return Up ? 0 : 1;
-                }
-
-                if (Up && Right) {
-                    return 0;
-                }
-
-                if (Left && Up) {
-                    return 1;
-                }
-
-                if (Down && Left) {
-                    return 2;
-                }
-
-                if (Right && Down) {
-                    return 3;
-                }
-
-                break;
-
-            case 3:
-                if (!Down) {
-                    return 0;
-                }
-
-                if (!Right) {
-                    return 1;
-                }
-
-                if (!Up) {
-                    return 2;
-                }
-
-                if (!Left) {
-                    return 3;
-                }
-
-                break;
-            case 4:
-                return 0;
-            default:
-                Debug.LogError("What the fuck is going on here?");
-                break;
-        }
-
-        Debug.LogError("What the fuck is going on here?");
-        return -1;
-    }
 }
 
 public class HorseMovementSystemInterface : MonoBehaviour {
@@ -173,19 +42,25 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     [SerializeField]
     TileBase _arrow4;
 
-    TileBase GetTilebase(MCell mCell) {
-        if (mCell == null) {
+    [SerializeField]
+    Vector2Int _pointA;
+
+    [SerializeField]
+    Vector2Int _pointB;
+
+    TileBase GetTilebase(MovementGraphCell mapMovementCell) {
+        if (mapMovementCell == null) {
             return null;
         }
 
-        var c = mCell.Count();
+        var c = mapMovementCell.Count();
         switch (c) {
             case 0:
                 return _arrow0;
             case 1:
                 return _arrow1;
             case 2:
-                return mCell.TwoTypeIsVertical() ? _arrow21 : _arrow22;
+                return mapMovementCell.TwoTypeIsVertical() ? _arrow21 : _arrow22;
             case 3:
                 return _arrow3;
             case 4:
@@ -199,23 +74,23 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     // [TableMatrix(SquareCells = true)]
     // Texture2D[,] _cells = new Texture2D[,] { { null } };
 
-    Cell[,] _cells = {
+    MapCell[,] _cells = {
         {
-            Cell.Road, Cell.Road, Cell.Road, Cell.None, Cell.Road
+            MapCell.Road, MapCell.Road, MapCell.Road, MapCell.None, MapCell.Road
         }, {
-            Cell.Road, Cell.None, Cell.Road, Cell.Road, Cell.Road
+            MapCell.Road, MapCell.None, MapCell.Road, MapCell.Road, MapCell.Road
         }, {
-            Cell.Road, Cell.Road, Cell.Road, Cell.None, Cell.Road
+            MapCell.Road, MapCell.Road, MapCell.Road, MapCell.None, MapCell.Road
         }, {
-            Cell.None, Cell.Road, Cell.None, Cell.Road, Cell.Road
+            MapCell.None, MapCell.Road, MapCell.None, MapCell.Road, MapCell.Road
         }, {
-            Cell.Road, Cell.Road, Cell.Road, Cell.Road, Cell.Road
+            MapCell.Road, MapCell.Road, MapCell.Road, MapCell.Road, MapCell.Road
         }, {
-            Cell.None, Cell.Road, Cell.None, Cell.Road, Cell.None
+            MapCell.None, MapCell.Road, MapCell.None, MapCell.Road, MapCell.None
         }
     };
 
-    MCell[,] _movementCells;
+    MovementGraphCell[,] _movementCells;
 
     [Button("Generate tilemap")]
     void GenerateTilemap() {
@@ -225,11 +100,11 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         var sizeX = _cells.GetLength(1);
         _grid.transform.position = new Vector3(-sizeX / 2f, -sizeY / 2f, 0);
 
-        _movementCells = new MCell[sizeY, sizeX];
+        _movementCells = new MovementGraphCell[sizeY, sizeX];
         for (var y = 0; y < sizeY; y++) {
             for (var x = 0; x < sizeX; x++) {
                 var cell = _cells[y, x];
-                var mCell = new MCell(false, false, false, false);
+                var mCell = new MovementGraphCell(false, false, false, false);
                 _movementCells[y, x] = cell.Type == CellType.Road ? mCell : null;
 
                 if (cell.Type == CellType.Road) {

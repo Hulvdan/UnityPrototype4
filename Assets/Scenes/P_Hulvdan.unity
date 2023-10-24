@@ -656,6 +656,8 @@ MonoBehaviour:
   _arrow22: {fileID: 11400000, guid: 082e45f37531b3948aea88a95c26da5c, type: 2}
   _arrow3: {fileID: 11400000, guid: fe1204f22a8fd7743a534641ac4a23df, type: 2}
   _arrow4: {fileID: 11400000, guid: 8f33588a2d846b44f9d8b9b5e5515726, type: 2}
+  _pointA: {x: 0, y: 0}
+  _pointB: {x: 3, y: 3}
 --- !u!1 &1717148249
 GameObject:
   m_ObjectHideFlags: 0
