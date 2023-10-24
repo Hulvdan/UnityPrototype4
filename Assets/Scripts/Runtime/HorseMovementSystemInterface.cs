@@ -1,12 +1,37 @@
 ﻿using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Apple.ReplayKit;
 using UnityEngine.Tilemaps;
 
 namespace BFG.Runtime {
 public enum CellType {
+    None,
     Road,
     Station
+}
+
+public struct Cell {
+    public CellType Type;
+    public int Rotation;
+
+    public Cell(CellType type, int rotation = 0) {
+        if ((type == CellType.Road || type == CellType.None) && rotation != 0) {
+            Debug.LogError("WTF IS GOING ON HERE?");
+            rotation = 0;
+        }
+
+        Type = type;
+        Rotation = rotation;
+    }
+
+    public static Cell None() {
+        return new Cell(CellType.None);
+    }
+
+    public static Cell Road() {
+        return new Cell(CellType.Road);
+    }
 }
 
 public class MCell {
@@ -123,6 +148,10 @@ public class MCell {
 }
 
 public class HorseMovementSystemInterface : MonoBehaviour {
+    [SerializeField]
+    [Required]
+    Grid _grid;
+
     HorseMovementSystem _system;
 
     public List<GameObject> Nodes = new();
@@ -175,26 +204,50 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     // [TableMatrix(SquareCells = true)]
     // Texture2D[,] _cells = new Texture2D[,] { { null } };
 
-    MCell[,] _movementCells = {
+    Cell[,] _cells = {
         {
-            new(true, true, false, false), new(false, true, false, true),
-            new(true, false, false, true)
+            Cell.Road(), Cell.Road(), Cell.Road()
         }, {
-            new(true, false, true, false), null, new(true, false, true, false)
+            Cell.Road(), Cell.None(), Cell.Road()
         }, {
-            new(false, true, true, false), new(false, true, false, true),
-            new(false, false, true, true)
+            Cell.Road(), Cell.Road(), Cell.Road()
+        }, {
+            Cell.None(), Cell.Road(), Cell.None()
+        }, {
+            Cell.Road(), Cell.Road(), Cell.Road()
+        }, {
+            Cell.None(), Cell.Road(), Cell.None()
         }
     };
+
+    MCell[,] _movementCells;
 
     [Button("Generate tilemap")]
     void GenerateTilemap() {
         _tilemap.ClearAllTiles();
 
-        for (var y = 0; y < 3; y++) {
-            // TODO: DAFUK IS GOING ON HERE
-            // HOW DO I access size of the inner array?
-            for (var x = 0; x < 3; x++) {
+        var sizeY = _cells.GetLength(0);
+        var sizeX = _cells.GetLength(1);
+        _grid.transform.position = new Vector3(-sizeX / 2f, -sizeY / 2f, 0);
+
+        _movementCells = new MCell[sizeY, sizeX];
+        for (var y = 0; y < sizeY; y++) {
+            for (var x = 0; x < sizeX; x++) {
+                var cell = _cells[y, x];
+                var mCell = new MCell(false, false, false, false);
+                _movementCells[y, x] = cell.Type == CellType.Road ? mCell : null;
+
+                if (cell.Type == CellType.Road) {
+                    mCell.Up = y < sizeY - 1 && _cells[y + 1, x].Type == CellType.Road;
+                    mCell.Down = y > 0 && _cells[y - 1, x].Type == CellType.Road;
+                    mCell.Left = x > 0 && _cells[y, x - 1].Type == CellType.Road;
+                    mCell.Right = x < sizeX - 1 && _cells[y, x + 1].Type == CellType.Road;
+                }
+            }
+        }
+
+        for (var y = 0; y < sizeY; y++) {
+            for (var x = 0; x < sizeX; x++) {
                 var cell = _movementCells[y, x];
                 var tb = GetTilebase(cell);
                 if (tb == null) {
