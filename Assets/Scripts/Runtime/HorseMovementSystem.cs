@@ -41,12 +41,15 @@ public class HorseMovementSystem {
         ref MovementGraphCell[,] graph
     ) {
         foreach (var node in graph) {
-            node.BFS_Parent = null;
-            node.BFS_Visited = false;
+            if (node != null) {
+                node.BFS_Parent = null;
+                node.BFS_Visited = false;
+            }
         }
 
         var queue = new Queue<Vector2Int>();
         queue.Enqueue(new Vector2Int(source.y, source.x));
+        graph[source.y, source.x].BFS_Visited = true;
 
         while (queue.Count > 0) {
             var pos = queue.Dequeue();

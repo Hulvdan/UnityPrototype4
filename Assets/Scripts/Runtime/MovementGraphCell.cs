@@ -76,7 +76,7 @@ public class MovementGraphCell {
                     return 0;
                 }
 
-                if (Right && Down) {
+                if (Left && Up) {
                     return 1;
                 }
 
@@ -84,7 +84,7 @@ public class MovementGraphCell {
                     return 2;
                 }
 
-                if (Left && Up) {
+                if (Right && Down) {
                     return 3;
                 }
 
