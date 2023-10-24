@@ -25,13 +25,8 @@ public struct Cell {
         Rotation = rotation;
     }
 
-    public static Cell None() {
-        return new Cell(CellType.None);
-    }
-
-    public static Cell Road() {
-        return new Cell(CellType.Road);
-    }
+    public static Cell None = new(CellType.None);
+    public static Cell Road = new(CellType.Road);
 }
 
 public class MCell {
@@ -206,17 +201,17 @@ public class HorseMovementSystemInterface : MonoBehaviour {
 
     Cell[,] _cells = {
         {
-            Cell.Road(), Cell.Road(), Cell.Road()
+            Cell.Road, Cell.Road, Cell.Road, Cell.None, Cell.Road
         }, {
-            Cell.Road(), Cell.None(), Cell.Road()
+            Cell.Road, Cell.None, Cell.Road, Cell.Road, Cell.Road
         }, {
-            Cell.Road(), Cell.Road(), Cell.Road()
+            Cell.Road, Cell.Road, Cell.Road, Cell.None, Cell.Road
         }, {
-            Cell.None(), Cell.Road(), Cell.None()
+            Cell.None, Cell.Road, Cell.None, Cell.Road, Cell.Road
         }, {
-            Cell.Road(), Cell.Road(), Cell.Road()
+            Cell.Road, Cell.Road, Cell.Road, Cell.Road, Cell.Road
         }, {
-            Cell.None(), Cell.Road(), Cell.None()
+            Cell.None, Cell.Road, Cell.None, Cell.Road, Cell.None
         }
     };
 
