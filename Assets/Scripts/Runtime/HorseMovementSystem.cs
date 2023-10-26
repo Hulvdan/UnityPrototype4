@@ -15,6 +15,8 @@ public class Train {
     public List<TrainNode> nodes { get; } = new();
     public List<Vector2Int> segmentVertexes { get; } = new();
 
+    public int SegmentsCount => segmentVertexes.Count - 1;
+
     public void AddLocomotive(TrainNode node, int segmentIndex, float segmentProgress) {
         nodes.Add(node);
         node.Progress = segmentProgress;
@@ -22,14 +24,7 @@ public class Train {
     }
 
     public void AddNode(TrainNode node) {
-        var lastNode = nodes[^1];
-        node.Progress = lastNode.Progress - lastNode.Width / 2 - node.Width / 2;
-        node.SegmentIndex = lastNode.SegmentIndex;
-        while (node.Progress < 0) {
-            node.Progress += 1;
-            node.SegmentIndex -= 1;
-        }
-
+        HorseMovementSystem.NormalizeNodeDistances(node, nodes[^1]);
         nodes.Add(node);
     }
 
@@ -50,6 +45,7 @@ public class TrainNode {
     public float CalculatedRotation;
     public float Progress;
     public int SegmentIndex;
+
     public float Width;
 
     public TrainNode(float width) {
@@ -68,14 +64,31 @@ public struct PathFindResult {
 }
 
 public class HorseMovementSystem {
+    public static void NormalizeNodeDistances(TrainNode node, TrainNode previousNode) {
+        node.Progress = previousNode.Progress - previousNode.Width / 2 - node.Width / 2;
+        node.SegmentIndex = previousNode.SegmentIndex;
+        while (node.Progress < 0) {
+            node.Progress += 1;
+            node.SegmentIndex -= 1;
+        }
+    }
+
     public void AdvanceTrain(Train train) {
-        var deltaProgress = Time.deltaTime * train.Speed;
-        foreach (var node in train.nodes) {
-            node.Progress += deltaProgress;
-            while (node.Progress >= 1) {
-                node.SegmentIndex += 1;
-                node.Progress -= 1;
-            }
+        var locomotive = train.nodes[0];
+
+        locomotive.Progress += Time.deltaTime * train.Speed;
+        while (locomotive.Progress >= 1) {
+            locomotive.SegmentIndex += 1;
+            locomotive.Progress -= 1;
+        }
+
+        if (locomotive.SegmentIndex >= train.SegmentsCount) {
+            locomotive.SegmentIndex = train.SegmentsCount - 1;
+            locomotive.Progress = 1;
+        }
+
+        for (var i = 0; i < train.nodes.Count - 1; i++) {
+            NormalizeNodeDistances(train.nodes[i + 1], train.nodes[i]);
         }
     }
 
