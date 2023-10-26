@@ -1,58 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
-public class Train {
-    public readonly float Speed;
-
-    public Train(float speed) {
-        Assert.IsTrue(speed >= 0);
-        Speed = speed;
-    }
-
-    public List<TrainNode> nodes { get; } = new();
-    public List<Vector2Int> segmentVertexes { get; } = new();
-
-    public int SegmentsCount => segmentVertexes.Count - 1;
-
-    public void AddLocomotive(TrainNode node, int segmentIndex, float segmentProgress) {
-        nodes.Add(node);
-        node.Progress = segmentProgress;
-        node.SegmentIndex = segmentIndex;
-    }
-
-    public void AddNode(TrainNode node) {
-        HorseMovementSystem.NormalizeNodeDistances(node, nodes[^1]);
-        nodes.Add(node);
-    }
-
-    public void AddSegmentVertex(Vector2Int vertex) {
-        segmentVertexes.Add(vertex);
-    }
-
-    void PopBackSegmentVertex() {
-        segmentVertexes.RemoveAt(0);
-        foreach (var node in nodes) {
-            node.SegmentIndex -= 1;
-        }
-    }
-}
-
-public class TrainNode {
-    public Vector2 CalculatedPosition;
-    public float CalculatedRotation;
-    public float Progress;
-    public int SegmentIndex;
-
-    public float Width;
-
-    public TrainNode(float width) {
-        Width = width;
-    }
-}
-
 public struct PathFindResult {
     public bool Success;
     public List<Vector2Int> Path;
@@ -73,32 +23,32 @@ public class HorseMovementSystem {
         }
     }
 
-    public void AdvanceTrain(Train train) {
-        var locomotive = train.nodes[0];
+    public void AdvanceTrain(HorseTrain horse) {
+        var locomotive = horse.nodes[0];
 
-        locomotive.Progress += Time.deltaTime * train.Speed;
+        locomotive.Progress += Time.deltaTime * horse.Speed;
         while (locomotive.Progress >= 1) {
             locomotive.SegmentIndex += 1;
             locomotive.Progress -= 1;
         }
 
-        if (locomotive.SegmentIndex >= train.SegmentsCount) {
-            locomotive.SegmentIndex = train.SegmentsCount - 1;
+        if (locomotive.SegmentIndex >= horse.SegmentsCount) {
+            locomotive.SegmentIndex = horse.SegmentsCount - 1;
             locomotive.Progress = 1;
         }
 
-        for (var i = 0; i < train.nodes.Count - 1; i++) {
-            NormalizeNodeDistances(train.nodes[i + 1], train.nodes[i]);
+        for (var i = 0; i < horse.nodes.Count - 1; i++) {
+            NormalizeNodeDistances(horse.nodes[i + 1], horse.nodes[i]);
         }
     }
 
-    public void RecalculateNodePositions(Train train) {
-        foreach (var node in train.nodes) {
-            var v0 = Math.Min(node.SegmentIndex, train.segmentVertexes.Count - 1);
-            var v1 = Math.Min(node.SegmentIndex + 1, train.segmentVertexes.Count - 1);
+    public void RecalculateNodePositions(HorseTrain horse) {
+        foreach (var node in horse.nodes) {
+            var v0 = Math.Min(node.SegmentIndex, horse.segmentVertexes.Count - 1);
+            var v1 = Math.Min(node.SegmentIndex + 1, horse.segmentVertexes.Count - 1);
 
-            var vertex0 = train.segmentVertexes[v0];
-            var vertex1 = train.segmentVertexes[v1];
+            var vertex0 = horse.segmentVertexes[v0];
+            var vertex1 = horse.segmentVertexes[v1];
             node.CalculatedPosition = Vector2.Lerp(vertex0, vertex1, node.Progress);
 
             // TODO: Calculate node.Rotation
