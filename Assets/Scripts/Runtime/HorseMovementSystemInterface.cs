@@ -67,19 +67,20 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         }
     };
 
+    HorseTrain _horse;
+
+    HorseMovementSystem _horseMovement;
+
     MovementGraphCell[,] _movementCells;
 
     List<Vector2Int> _path = new();
 
-    HorseMovementSystem _system;
-    Train _train;
-
     void Awake() {
         GenerateTilemap();
 
-        _system = new HorseMovementSystem();
+        _horseMovement = new HorseMovementSystem();
 
-        var path = _system.FindPath(_pointA, _pointB, ref _movementCells);
+        var path = _horseMovement.FindPath(_pointA, _pointB, ref _movementCells);
         if (!path.Success) {
             Debug.LogError("Could not find the path");
             return;
@@ -87,14 +88,14 @@ public class HorseMovementSystemInterface : MonoBehaviour {
 
         _path = path.Path;
 
-        _train = new Train(_trainSpeed);
+        _horse = new HorseTrain(_trainSpeed);
         foreach (var vertex in _path) {
-            _train.AddSegmentVertex(vertex);
+            _horse.AddSegmentVertex(vertex);
         }
 
-        _train.AddLocomotive(new TrainNode(1f), 2, 0f);
-        _train.AddNode(new TrainNode(.8f));
-        _train.AddNode(new TrainNode(.8f));
+        _horse.AddLocomotive(new TrainNode(1f), 2, 0f);
+        _horse.AddNode(new TrainNode(.8f));
+        _horse.AddNode(new TrainNode(.8f));
     }
 
     void Update() {
@@ -102,15 +103,15 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     }
 
     void UpdateTrain() {
-        if (_train == null) {
+        if (_horse == null) {
             return;
         }
 
-        _system.AdvanceTrain(_train);
-        _system.RecalculateNodePositions(_train);
+        _horseMovement.AdvanceTrain(_horse);
+        _horseMovement.RecalculateNodePositions(_horse);
 
         for (var i = 0; i < _movableObjects.Count; i++) {
-            _movableObjects[i].localPosition = _train.nodes[i].CalculatedPosition;
+            _movableObjects[i].localPosition = _horse.nodes[i].CalculatedPosition;
         }
     }
 
