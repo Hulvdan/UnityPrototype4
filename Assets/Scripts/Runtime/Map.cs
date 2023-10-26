@@ -26,34 +26,6 @@ public class Map : MonoBehaviour {
     [Min(1)]
     int _mapSizeY = 10;
 
-    #region HumanSystem_Attributes
-
-    [FoldoutGroup("Humans", true)]
-    [SerializeField]
-    [Min(0)]
-    float _humanHeadingDuration;
-
-    [FoldoutGroup("Humans", true)]
-    [SerializeField]
-    [Min(0)]
-    float _humanHarvestingDuration;
-
-    [FoldoutGroup("Humans", true)]
-    [SerializeField]
-    [Min(0)]
-    float _humanHeadingToTheStoreBuildingDuration;
-
-    [FoldoutGroup("Humans", true)]
-    [SerializeField]
-    [Min(0)]
-    float _humanReturningBackDuration;
-
-    [FoldoutGroup("Humans", true)]
-    [SerializeField]
-    AnimationCurve _humanMovementCurve = AnimationCurve.Linear(0, 0, 1, 1);
-
-    #endregion
-
     [FoldoutGroup("Random", true)]
     [SerializeField]
     int _randomSeed;
@@ -122,16 +94,6 @@ public class Map : MonoBehaviour {
 
     public List<Building> buildings => _buildings;
 
-    #region HumanSystem_Properties
-
-    public List<Human> humans => _humans;
-    public float humanHeadingDuration => _humanHeadingDuration;
-    public float humanHarvestingDuration => _humanHarvestingDuration;
-    public float humanReturningBackDuration => _humanReturningBackDuration;
-    public float humanTotalHarvestingDuration => _humanTotalHarvestingDuration;
-
-    #endregion
-
     void Awake() {
         _random = new Random((int)Time.time);
         RegenerateTilemap();
@@ -170,6 +132,44 @@ public class Map : MonoBehaviour {
             }
         );
     }
+
+    #region HumanSystem_Attributes
+
+    [FoldoutGroup("Humans", true)]
+    [SerializeField]
+    [Min(0)]
+    float _humanHeadingDuration;
+
+    [FoldoutGroup("Humans", true)]
+    [SerializeField]
+    [Min(0)]
+    float _humanHarvestingDuration;
+
+    [FoldoutGroup("Humans", true)]
+    [SerializeField]
+    [Min(0)]
+    float _humanHeadingToTheStoreBuildingDuration;
+
+    [FoldoutGroup("Humans", true)]
+    [SerializeField]
+    [Min(0)]
+    float _humanReturningBackDuration;
+
+    [FoldoutGroup("Humans", true)]
+    [SerializeField]
+    AnimationCurve _humanMovementCurve = AnimationCurve.Linear(0, 0, 1, 1);
+
+    #endregion
+
+    #region HumanSystem_Properties
+
+    public List<Human> humans => _humans;
+    public float humanHeadingDuration => _humanHeadingDuration;
+    public float humanHarvestingDuration => _humanHarvestingDuration;
+    public float humanReturningBackDuration => _humanReturningBackDuration;
+    public float humanTotalHarvestingDuration => _humanTotalHarvestingDuration;
+
+    #endregion
 
     #region Events
 

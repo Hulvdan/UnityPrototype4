@@ -4,11 +4,11 @@ namespace BFG.Runtime {
 public class HumanPickedUpResourceData {
     public Human Human;
 
-    public ScriptableResource Resource;
-    public Vector2Int ResourceTilePosition;
-
     public int PickedUpAmount;
     public float RemainingAmountPercent;
+
+    public ScriptableResource Resource;
+    public Vector2Int ResourceTilePosition;
 
     public HumanPickedUpResourceData(Human human,
         ScriptableResource resource,
