@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -15,8 +14,6 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     [SerializeField]
     [Required]
     Grid _grid;
-
-    public List<GameObject> Nodes = new();
 
     [SerializeField]
     [Required]
@@ -48,18 +45,11 @@ public class HorseMovementSystemInterface : MonoBehaviour {
 
     [SerializeField]
     [Required]
-    Transform _movableObject;
-
-    [SerializeField]
-    AnimationCurve _curve;
-
-    // [SerializeField]
-    // [TableMatrix(SquareCells = true)]
-    // Texture2D[,] _cells = new Texture2D[,] { { null } };
+    List<Transform> _movableObjects;
 
     [SerializeField]
     [Min(0)]
-    float _moveDuration = 1f;
+    float _trainSpeed = 1f;
 
     readonly MapCell[,] _cells = {
         {
@@ -77,31 +67,54 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         }
     };
 
-    float _cellElapsed;
-
-    int _currentPathOffset;
-
     MovementGraphCell[,] _movementCells;
 
     List<Vector2Int> _path = new();
 
     HorseMovementSystem _system;
+    Train _train;
 
     void Awake() {
         GenerateTilemap();
 
-        var system = new HorseMovementSystem();
-        var path = system.FindPath(_pointA, _pointB, ref _movementCells);
+        _system = new HorseMovementSystem();
+
+        var path = _system.FindPath(_pointA, _pointB, ref _movementCells);
         if (!path.Success) {
             Debug.LogError("Could not find the path");
             return;
         }
 
         _path = path.Path;
-        PathTween();
+
+        _train = new Train(_trainSpeed);
+        foreach (var vertex in _path) {
+            _train.AddSegmentVertex(vertex);
+        }
+
+        _train.AddLocomotive(new TrainNode(1f), 2, 0f);
+        _train.AddNode(new TrainNode(.8f));
+        _train.AddNode(new TrainNode(.8f));
     }
 
-    TileBase GetTilebase(MovementGraphCell mapMovementCell) {
+    void Update() {
+        UpdateTrain();
+    }
+
+    void UpdateTrain() {
+        if (_train == null) {
+            return;
+        }
+
+        _system.AdvanceTrain(_train);
+        _system.RecalculateNodePositions(_train);
+
+        for (var i = 0; i < _movableObjects.Count; i++) {
+            _movableObjects[i].localPosition = _train.nodes[i].CalculatedPosition;
+        }
+    }
+
+    TileBase GetTileBase(MovementGraphCell mapMovementCell) {
         if (mapMovementCell == null) {
             return null;
         }
@@ -121,23 +134,6 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         }
 
         return null;
-    }
-
-    void PathTween() {
-        _currentPathOffset += 1;
-        if (_currentPathOffset >= _path.Count) {
-            return;
-        }
-
-        DOTween
-            .To(
-                () => _movableObject.transform.localPosition,
-                val => _movableObject.transform.localPosition = val,
-                _path[_currentPathOffset],
-                _moveDuration
-            )
-            .SetEase(_curve)
-            .OnComplete(PathTween);
     }
 
     [Button("Generate tilemap")]
@@ -167,7 +163,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         for (var y = 0; y < sizeY; y++) {
             for (var x = 0; x < sizeX; x++) {
                 var cell = _movementCells[y, x];
-                var tb = GetTilebase(cell);
+                var tb = GetTileBase(cell);
                 if (tb == null) {
                     continue;
                 }
@@ -186,17 +182,5 @@ public class HorseMovementSystemInterface : MonoBehaviour {
             }
         }
     }
-
-    // void Update() {
-    //     if (_path == null || _path.Count <= 0) {
-    //         return;
-    //     }
-    //
-    //     _cellElapsed += Time.deltaTime;
-    //     var coef = _cellElapsed / _moveDuration;
-    //     while (coef >= 1) {
-    //         _cellElapsed -= _moveDuration;
-    //     }
-    // }
 }
 }

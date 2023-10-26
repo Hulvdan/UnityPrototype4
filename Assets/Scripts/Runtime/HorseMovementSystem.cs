@@ -1,23 +1,60 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
-public class TrainNode {
-    public Vector2 Position {
-        get => Vector2.zero;
-        set { }
+public class Train {
+    public readonly float Speed;
+
+    public Train(float speed) {
+        Assert.IsTrue(speed >= 0);
+        Speed = speed;
+    }
+
+    public List<TrainNode> nodes { get; } = new();
+    public List<Vector2Int> segmentVertexes { get; } = new();
+
+    public void AddLocomotive(TrainNode node, int segmentIndex, float segmentProgress) {
+        nodes.Add(node);
+        node.Progress = segmentProgress;
+        node.SegmentIndex = segmentIndex;
+    }
+
+    public void AddNode(TrainNode node) {
+        var lastNode = nodes[^1];
+        node.Progress = lastNode.Progress - lastNode.Width / 2 - node.Width / 2;
+        node.SegmentIndex = lastNode.SegmentIndex;
+        while (node.Progress < 0) {
+            node.Progress += 1;
+            node.SegmentIndex -= 1;
+        }
+
+        nodes.Add(node);
+    }
+
+    public void AddSegmentVertex(Vector2Int vertex) {
+        segmentVertexes.Add(vertex);
+    }
+
+    void PopBackSegmentVertex() {
+        segmentVertexes.RemoveAt(0);
+        foreach (var node in nodes) {
+            node.SegmentIndex -= 1;
+        }
     }
 }
 
-public enum ChainNodeType {
-    Horse,
-    Cart
-}
+public class TrainNode {
+    public Vector2 CalculatedPosition;
+    public float CalculatedRotation;
+    public float Progress;
+    public int SegmentIndex;
+    public float Width;
 
-public class MovementChainNode {
-    public MovementChainNode Previous;
-    public ChainNodeType Type;
-    public float Width = 0.8f; // Max is 1!
+    public TrainNode(float width) {
+        Width = width;
+    }
 }
 
 public struct PathFindResult {
@@ -31,9 +68,29 @@ public struct PathFindResult {
 }
 
 public class HorseMovementSystem {
-    float _duration = 1f;
-    float _speed = 1f;
-    List<TrainNode> _trainNodes;
+    public void AdvanceTrain(Train train) {
+        var deltaProgress = Time.deltaTime * train.Speed;
+        foreach (var node in train.nodes) {
+            node.Progress += deltaProgress;
+            while (node.Progress >= 1) {
+                node.SegmentIndex += 1;
+                node.Progress -= 1;
+            }
+        }
+    }
+
+    public void RecalculateNodePositions(Train train) {
+        foreach (var node in train.nodes) {
+            var v0 = Math.Min(node.SegmentIndex, train.segmentVertexes.Count - 1);
+            var v1 = Math.Min(node.SegmentIndex + 1, train.segmentVertexes.Count - 1);
+
+            var vertex0 = train.segmentVertexes[v0];
+            var vertex1 = train.segmentVertexes[v1];
+            node.CalculatedPosition = Vector2.Lerp(vertex0, vertex1, node.Progress);
+
+            // TODO: Calculate node.Rotation
+        }
+    }
 
     public PathFindResult FindPath(
         Vector2Int source,
@@ -100,12 +157,6 @@ public class HorseMovementSystem {
         }
 
         return new PathFindResult(false, null);
-    }
-
-    void Update() {
-        foreach (var node in _trainNodes) {
-            // node.Position +=asdasdasdasd
-        }
     }
 
     static void VisitCell(MovementGraphCell[,] graph, Vector2Int newPos, Vector2Int oldPos) {
