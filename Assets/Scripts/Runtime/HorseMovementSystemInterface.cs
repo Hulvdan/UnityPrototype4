@@ -68,11 +68,8 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     };
 
     HorseTrain _horse;
-
     HorseMovementSystem _horseMovement;
-
     MovementGraphCell[,] _movementCells;
-
     List<Vector2Int> _path = new();
 
     void Awake() {
