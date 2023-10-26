@@ -7,41 +7,34 @@ public class MovementGraphCell {
 
     // ReSharper disable once InconsistentNaming
     public bool BFS_Visited;
-    public bool Down;
-    public bool Left;
-    public bool Right;
-    public bool Up;
 
-    public MovementGraphCell(bool up, bool right, bool down, bool left) {
-        Up = up;
-        Right = right;
-        Down = down;
-        Left = left;
+    /// <summary>
+    ///     Right, Up, Left, Down
+    /// </summary>
+    public bool[] Directions;
+
+    public MovementGraphCell(bool right, bool up, bool left, bool down) {
+        Directions = new bool[4];
+        Directions[0] = right;
+        Directions[1] = up;
+        Directions[2] = left;
+        Directions[3] = down;
     }
 
     public int Count() {
         var i = 0;
-        if (Up) {
-            i++;
-        }
-
-        if (Right) {
-            i++;
-        }
-
-        if (Down) {
-            i++;
-        }
-
-        if (Left) {
-            i++;
+        // ReSharper disable once LoopCanBeConvertedToQuery
+        foreach (var d in Directions) {
+            if (d) {
+                i++;
+            }
         }
 
         return i;
     }
 
     public bool TwoTypeIsVertical() {
-        return (Up && Down) || (Right && Left);
+        return (Directions[0] && Directions[2]) || (Directions[1] && Directions[3]);
     }
 
     public int Rotation() {
@@ -49,60 +42,60 @@ public class MovementGraphCell {
             case 0:
                 return 0;
             case 1:
-                if (Up) {
+                if (Directions[0]) {
                     return 0;
                 }
 
-                if (Left) {
+                if (Directions[1]) {
                     return 1;
                 }
 
-                if (Down) {
+                if (Directions[2]) {
                     return 2;
                 }
 
-                if (Right) {
+                if (Directions[3]) {
                     return 3;
                 }
 
                 break;
             case 2:
                 if (TwoTypeIsVertical()) {
-                    return Up ? 0 : 1;
+                    return Directions[0] ? 0 : 1;
                 }
 
-                if (Up && Right) {
+                if (Directions[0] && Directions[1]) {
                     return 0;
                 }
 
-                if (Left && Up) {
+                if (Directions[1] && Directions[2]) {
                     return 1;
                 }
 
-                if (Down && Left) {
+                if (Directions[2] && Directions[3]) {
                     return 2;
                 }
 
-                if (Right && Down) {
+                if (Directions[3] && Directions[0]) {
                     return 3;
                 }
 
                 break;
 
             case 3:
-                if (!Down) {
+                if (!Directions[3]) {
                     return 0;
                 }
 
-                if (!Right) {
+                if (!Directions[0]) {
                     return 1;
                 }
 
-                if (!Up) {
+                if (!Directions[1]) {
                     return 2;
                 }
 
-                if (!Left) {
+                if (!Directions[2]) {
                     return 3;
                 }
 

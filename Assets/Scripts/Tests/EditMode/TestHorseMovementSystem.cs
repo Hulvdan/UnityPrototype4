@@ -11,10 +11,10 @@ public class TestHorseMovementSystem {
         var system = new HorseMovementSystem();
         var graph = new MovementGraphCell[,] {
             {
-                new(true, false, false, false),
+                new(false, true, false, false),
                 new(false, false, false, false)
             }, {
-                new(false, true, false, false),
+                new(true, false, false, false),
                 new(false, false, false, false)
             }
         };
@@ -32,7 +32,7 @@ public class TestHorseMovementSystem {
         var system = new HorseMovementSystem();
         var graph = new MovementGraphCell[,] {
             {
-                new(true, false, false, false),
+                new(false, true, false, false),
                 new(false, false, false, false)
             }, {
                 new(false, false, false, false),

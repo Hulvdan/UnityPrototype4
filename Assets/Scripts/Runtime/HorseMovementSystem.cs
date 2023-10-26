@@ -14,6 +14,13 @@ public struct PathFindResult {
 }
 
 public class HorseMovementSystem {
+    static readonly Vector2Int[] Directions = {
+        new(1, 0),
+        new(0, 1),
+        new(-1, 0),
+        new(0, -1)
+    };
+
     public static void NormalizeNodeDistances(TrainNode node, TrainNode previousNode) {
         node.Progress = previousNode.Progress - previousNode.Width / 2 - node.Width / 2;
         node.SegmentIndex = previousNode.SegmentIndex;
@@ -78,44 +85,22 @@ public class HorseMovementSystem {
                 continue;
             }
 
-            if (cell.Up && !graph[pos.y + 1, pos.x].BFS_Visited) {
-                var newPos = new Vector2Int(pos.x, pos.y + 1);
-                VisitCell(graph, newPos, pos);
-                if (newPos == destination) {
-                    return BuildPath(ref graph, newPos);
+            for (var i = 0; i < 4; i++) {
+                if (!cell.Directions[i]) {
+                    continue;
                 }
 
-                queue.Enqueue(newPos);
-            }
+                var dir = Directions[i];
+                var mCell = graph[pos.y + dir.y, pos.x + dir.x];
+                if (!mCell.BFS_Visited) {
+                    var newPos = new Vector2Int(pos.x + dir.x, pos.y + dir.y);
+                    VisitCell(graph, newPos, pos);
+                    if (newPos == destination) {
+                        return BuildPath(ref graph, newPos);
+                    }
 
-            if (cell.Down && !graph[pos.y - 1, pos.x].BFS_Visited) {
-                var newPos = new Vector2Int(pos.x, pos.y - 1);
-                VisitCell(graph, newPos, pos);
-                if (newPos == destination) {
-                    return BuildPath(ref graph, newPos);
+                    queue.Enqueue(newPos);
                 }
-
-                queue.Enqueue(newPos);
-            }
-
-            if (cell.Right && !graph[pos.y, pos.x + 1].BFS_Visited) {
-                var newPos = new Vector2Int(pos.x + 1, pos.y);
-                VisitCell(graph, newPos, pos);
-                if (newPos == destination) {
-                    return BuildPath(ref graph, newPos);
-                }
-
-                queue.Enqueue(newPos);
-            }
-
-            if (cell.Left && !graph[pos.y, pos.x - 1].BFS_Visited) {
-                var newPos = new Vector2Int(pos.x - 1, pos.y);
-                VisitCell(graph, newPos, pos);
-                if (newPos == destination) {
-                    return BuildPath(ref graph, newPos);
-                }
-
-                queue.Enqueue(newPos);
             }
         }
 
