@@ -150,10 +150,10 @@ public class HorseMovementSystemInterface : MonoBehaviour {
                 _movementCells[y, x] = cell.Type == CellType.Road ? mCell : null;
 
                 if (cell.Type == CellType.Road) {
-                    mCell.Up = y < sizeY - 1 && _cells[y + 1, x].Type == CellType.Road;
-                    mCell.Down = y > 0 && _cells[y - 1, x].Type == CellType.Road;
-                    mCell.Left = x > 0 && _cells[y, x - 1].Type == CellType.Road;
-                    mCell.Right = x < sizeX - 1 && _cells[y, x + 1].Type == CellType.Road;
+                    mCell.Directions[0] = x < sizeX - 1 && _cells[y, x + 1].Type == CellType.Road;
+                    mCell.Directions[2] = x > 0 && _cells[y, x - 1].Type == CellType.Road;
+                    mCell.Directions[1] = y < sizeY - 1 && _cells[y + 1, x].Type == CellType.Road;
+                    mCell.Directions[3] = y > 0 && _cells[y - 1, x].Type == CellType.Road;
                 }
             }
         }

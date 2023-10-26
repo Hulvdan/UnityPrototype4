@@ -7,42 +7,42 @@ public class TestCell {
     public void TestCellCount() {
         {
             var cell = new MovementGraphCell(false, false, false, false);
-            Assert.AreEqual(cell.Count(), 0);
+            Assert.AreEqual(0, cell.Count());
         }
 
         {
-            var cell = new MovementGraphCell(true, false, false, false);
-            Assert.AreEqual(cell.Count(), 1);
+            var cell = new MovementGraphCell(false, true, false, false);
+            Assert.AreEqual(1, cell.Count());
         }
 
         {
             var cell = new MovementGraphCell(true, true, false, false);
-            Assert.AreEqual(cell.Count(), 2);
+            Assert.AreEqual(2, cell.Count());
         }
 
         {
             var cell = new MovementGraphCell(false, false, true, true);
-            Assert.AreEqual(cell.Count(), 2);
-        }
-
-        {
-            var cell = new MovementGraphCell(true, false, true, false);
-            Assert.AreEqual(cell.Count(), 2);
+            Assert.AreEqual(2, cell.Count());
         }
 
         {
             var cell = new MovementGraphCell(false, true, false, true);
-            Assert.AreEqual(cell.Count(), 2);
+            Assert.AreEqual(2, cell.Count());
         }
 
         {
-            var cell = new MovementGraphCell(false, true, true, true);
-            Assert.AreEqual(cell.Count(), 3);
+            var cell = new MovementGraphCell(true, false, true, false);
+            Assert.AreEqual(2, cell.Count());
+        }
+
+        {
+            var cell = new MovementGraphCell(true, false, true, true);
+            Assert.AreEqual(3, cell.Count());
         }
 
         {
             var cell = new MovementGraphCell(true, true, true, true);
-            Assert.AreEqual(cell.Count(), 4);
+            Assert.AreEqual(4, cell.Count());
         }
     }
 
@@ -50,52 +50,52 @@ public class TestCell {
     public void TestCellRotation() {
         {
             var cell = new MovementGraphCell(false, false, false, false);
-            Assert.AreEqual(cell.Rotation(), 0);
+            Assert.AreEqual(0, cell.Rotation());
         }
 
         {
-            var cell = new MovementGraphCell(true, false, false, false);
-            Assert.AreEqual(cell.Rotation(), 0);
+            var cell = new MovementGraphCell(false, true, false, false);
+            Assert.AreEqual(1, cell.Rotation());
         }
 
         {
-            var cell = new MovementGraphCell(false, false, false, true);
-            Assert.AreEqual(cell.Rotation(), 1);
+            var cell = new MovementGraphCell(false, false, true, false);
+            Assert.AreEqual(2, cell.Rotation());
         }
 
         {
             var cell = new MovementGraphCell(true, true, false, false);
-            Assert.AreEqual(cell.Rotation(), 0);
+            Assert.AreEqual(0, cell.Rotation());
         }
 
         {
             var cell = new MovementGraphCell(false, false, true, true);
-            Assert.AreEqual(cell.Rotation(), 2);
+            Assert.AreEqual(2, cell.Rotation());
         }
 
         {
             var cell = new MovementGraphCell(true, false, true, false);
-            Assert.AreEqual(cell.Rotation(), 0);
+            Assert.AreEqual(0, cell.Rotation());
         }
 
         {
             var cell = new MovementGraphCell(false, true, false, true);
-            Assert.AreEqual(cell.Rotation(), 1);
+            Assert.AreEqual(1, cell.Rotation());
         }
 
         {
-            var cell = new MovementGraphCell(true, true, false, true);
-            Assert.AreEqual(cell.Rotation(), 0);
+            var cell = new MovementGraphCell(true, true, true, false);
+            Assert.AreEqual(0, cell.Rotation());
         }
 
         {
-            var cell = new MovementGraphCell(false, true, true, true);
-            Assert.AreEqual(cell.Rotation(), 2);
+            var cell = new MovementGraphCell(true, false, true, true);
+            Assert.AreEqual(2, cell.Rotation());
         }
 
         {
             var cell = new MovementGraphCell(true, true, true, true);
-            Assert.AreEqual(cell.Rotation(), 0);
+            Assert.AreEqual(0, cell.Rotation());
         }
     }
 }
