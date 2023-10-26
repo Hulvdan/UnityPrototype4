@@ -71,13 +71,50 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     TileBase _debugTileUnwalkable;
 
-    Tilemap _resourceTilemap;
     readonly Dictionary<Guid, Tuple<Human, HumanGO>> _humans = new();
+
+    Tilemap _resourceTilemap;
 
     void Awake() {
         _map.OnHumanCreated += OnHumanCreated;
         _map.OnHumanPickedUpResource += OnHumanPickedUpResource;
         _map.OnHumanPlacedResource += OnHumanPlacedResource;
+    }
+
+    void Update() {
+        UpdateHumans();
+    }
+
+    void OnDrawGizmos() {
+        Gizmos.color = Color.cyan;
+
+        foreach (var building in _map.buildings) {
+            if (building.scriptableBuilding == null
+                || building.scriptableBuilding.cellsRadius == 0) {
+                continue;
+            }
+
+            var r = building.scriptableBuilding.cellsRadius + .55f;
+            var gridOffset = _grid.transform.localPosition + transform.localPosition;
+            var points = new Vector3[] {
+                new(r, r, 0),
+                new(r, -r, 0),
+                new(r, -r, 0),
+                new(-r, -r, 0),
+                new(-r, -r, 0),
+                new(-r, r, 0),
+                new(-r, r, 0),
+                new(r, r, 0)
+            };
+            for (var i = 0; i < points.Length; i++) {
+                var point = points[i];
+                point.x += building.posX + gridOffset.x + .5f;
+                point.y += building.posY + gridOffset.y + .5f;
+                points[i] = point;
+            }
+
+            Gizmos.DrawLineList(points);
+        }
     }
 
     void OnHumanPickedUpResource(HumanPickedUpResourceData data) {
@@ -118,42 +155,6 @@ public class MapRenderer : MonoBehaviour {
 
         _resourceTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), null);
         _resourceTilemap.SetTile(new Vector3Int(pos.x, pos.y, -1), null);
-    }
-
-    void Update() {
-        UpdateHumans();
-    }
-
-    void OnDrawGizmos() {
-        Gizmos.color = Color.cyan;
-
-        foreach (var building in _map.buildings) {
-            if (building.scriptableBuilding == null
-                || building.scriptableBuilding.cellsRadius == 0) {
-                continue;
-            }
-
-            var r = building.scriptableBuilding.cellsRadius + .55f;
-            var gridOffset = _grid.transform.localPosition + transform.localPosition;
-            var points = new Vector3[] {
-                new(r, r, 0),
-                new(r, -r, 0),
-                new(r, -r, 0),
-                new(-r, -r, 0),
-                new(-r, -r, 0),
-                new(-r, r, 0),
-                new(-r, r, 0),
-                new(r, r, 0)
-            };
-            for (var i = 0; i < points.Length; i++) {
-                var point = points[i];
-                point.x += building.posX + gridOffset.x + .5f;
-                point.y += building.posY + gridOffset.y + .5f;
-                points[i] = point;
-            }
-
-            Gizmos.DrawLineList(points);
-        }
     }
 
     public void ResetRenderer() {

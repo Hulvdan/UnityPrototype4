@@ -185,7 +185,8 @@
         <member name="P:Sirenix.OdinInspector.Editor.ActionResolvers.ActionResolverContext.ParentType">
             <summary>
                 The type that is the parent of the action resolution, ie, the type that is the context. This is the same
-                as<see cref="P:Sirenix.OdinInspector.Editor.ActionResolvers.ActionResolverContext.ContextProperty"/>
+                as
+                <see cref="P:Sirenix.OdinInspector.Editor.ActionResolvers.ActionResolverContext.ContextProperty"/>
                 .ValueEntry.TypeOfValue.
             </summary>
         </member>
@@ -580,8 +581,9 @@
                     assembly, which is derived from the assigned editor type - in most cases,<see
                         cref="T:Sirenix.OdinInspector.Editor.OdinEditor"/>.
                 </para>
-                <para>You can check if an editor is compatible using<see
-                    cref="M:Sirenix.OdinInspector.Editor.InspectorTypeDrawingConfig.UnityInspectorEditorIsValidBase(System.Type,System.Type)"/>
+                <para>You can check if an editor is compatible using
+                    <see
+                        cref="M:Sirenix.OdinInspector.Editor.InspectorTypeDrawingConfig.UnityInspectorEditorIsValidBase(System.Type,System.Type)"/>
                     .
                 </para>
             </remarks>
@@ -631,7 +633,8 @@
             </param>
             <exception cref="T:System.ArgumentNullException">drawnType</exception>
             <exception cref="T:System.ArgumentException">The type " + editorType.GetNiceName() + " is not a valid base
-                editor for type " + drawnType.GetNiceName() + ". Check criteria using<see
+                editor for type " + drawnType.GetNiceName() + ". Check criteria using
+                <see
                     cref="M:Sirenix.OdinInspector.Editor.InspectorTypeDrawingConfig.UnityInspectorEditorIsValidBase(System.Type,System.Type)"/>
                 .
             </exception>
@@ -885,7 +888,8 @@
         <member name="T:Sirenix.OdinInspector.Editor.PropertyContext`1">
             <summary>
                 <para>A contextual value attached to an<see cref="T:Sirenix.OdinInspector.Editor.InspectorProperty"/>,
-                    mapped to a key, contained in a<see cref="T:Sirenix.OdinInspector.Editor.PropertyContextContainer"/>
+                    mapped to a key, contained in a
+                    <see cref="T:Sirenix.OdinInspector.Editor.PropertyContextContainer"/>
                     .
                 </para>
             </summary>
@@ -2288,7 +2292,8 @@
                     afterwards.
                 </para>
                 <para>Note that this method will throw exceptions if the property tree is not set up to be searchable;
-                    for that, see<see
+                    for that, see
+                    <see
                         cref="M:Sirenix.OdinInspector.Editor.PropertyTree.SetSearchable(System.Boolean,Sirenix.OdinInspector.SearchableAttribute)"/>
                     .
                 </para>
@@ -2463,7 +2468,8 @@
             <summary>
                 <para>Creates a new
                     <see cref="T:Sirenix.OdinInspector.Editor.PropertyTree"/>
-                    for a set of given target values, represented by a given<see cref="T:UnityEditor.SerializedObject"/>
+                    for a set of given target values, represented by a given
+                    <see cref="T:UnityEditor.SerializedObject"/>
                     .
                 </para>
                 <para>Note that the targets all need to be of the same type.</para>
@@ -2480,7 +2486,8 @@
             <summary>
                 <para>Creates a new
                     <see cref="T:Sirenix.OdinInspector.Editor.PropertyTree"/>
-                    for a set of given target values, represented by a given<see cref="T:UnityEditor.SerializedObject"/>
+                    for a set of given target values, represented by a given
+                    <see cref="T:UnityEditor.SerializedObject"/>
                     .
                 </para>
                 <para>Note that the targets all need to be of the same type.</para>
@@ -3528,7 +3535,8 @@
         </member>
         <member name="T:Sirenix.OdinInspector.Editor.IPropertyValueEntry`1">
             <summary>
-                Represents the strongly typed values of an<see cref="T:Sirenix.OdinInspector.Editor.InspectorProperty"/>
+                Represents the strongly typed values of an
+                <see cref="T:Sirenix.OdinInspector.Editor.InspectorProperty"/>
                 , and contains utilities for querying the values' type and getting and setting them.
             </summary>
         </member>
@@ -4596,7 +4604,8 @@
         <member name="P:Sirenix.OdinInspector.Editor.PropertyValueEntryAlias.TypeOfValue">
             <summary>
                 The most precise known contained type of the value entry. If polymorphism is in effect, this will be
-                some type derived from<see cref="P:Sirenix.OdinInspector.Editor.PropertyValueEntryAlias.BaseValueType"/>
+                some type derived from
+                <see cref="P:Sirenix.OdinInspector.Editor.PropertyValueEntryAlias.BaseValueType"/>
                 .
             </summary>
         </member>
@@ -8565,7 +8574,8 @@
         </member>
         <member name="F:Sirenix.OdinInspector.Editor.DrawerPriority.AttributePriority">
             <summary>
-                The attribute priority. Mostly used by<see cref="T:Sirenix.OdinInspector.Editor.OdinAttributeDrawer`2"/>
+                The attribute priority. Mostly used by
+                <see cref="T:Sirenix.OdinInspector.Editor.OdinAttributeDrawer`2"/>
                 s.
             </summary>
         </member>
@@ -8870,7 +8880,8 @@
         </member>
         <member name="F:Sirenix.OdinInspector.Editor.DrawerPriorityLevel.AttributePriority">
             <summary>
-                The attribute priority. Mostly used by<see cref="T:Sirenix.OdinInspector.Editor.OdinAttributeDrawer`2"/>
+                The attribute priority. Mostly used by
+                <see cref="T:Sirenix.OdinInspector.Editor.OdinAttributeDrawer`2"/>
                 s.
             </summary>
         </member>
@@ -9119,8 +9130,9 @@
                 Draws all properties in a given property tree; must be wrapped by a
                 <see
                     cref="M:Sirenix.OdinInspector.Editor.InspectorUtilities.BeginDrawPropertyTree(Sirenix.OdinInspector.Editor.PropertyTree,System.Boolean)"/>
-                and<see
-                cref="M:Sirenix.OdinInspector.Editor.InspectorUtilities.EndDrawPropertyTree(Sirenix.OdinInspector.Editor.PropertyTree)"/>
+                and
+                <see
+                    cref="M:Sirenix.OdinInspector.Editor.InspectorUtilities.EndDrawPropertyTree(Sirenix.OdinInspector.Editor.PropertyTree)"/>
                 .
             </summary>
             <param name="tree">The tree to be drawn.</param>
@@ -12558,7 +12570,8 @@
         <member name="P:Sirenix.OdinInspector.Editor.ValueResolvers.ValueResolverContext.ParentType">
             <summary>
                 The type that is the parent of the value resolution, ie, the type that is the context. This is the same
-                as<see cref="P:Sirenix.OdinInspector.Editor.ValueResolvers.ValueResolverContext.ContextProperty"/>
+                as
+                <see cref="P:Sirenix.OdinInspector.Editor.ValueResolvers.ValueResolverContext.ContextProperty"/>
                 .ValueEntry.TypeOfValue.
             </summary>
         </member>

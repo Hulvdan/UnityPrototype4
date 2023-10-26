@@ -1,12 +1,10 @@
-﻿using UnityEngine;
-
-namespace BFG.Runtime {
+﻿namespace BFG.Runtime {
 public class HumanPlacedResourceData {
     public int Amount;
     public Human Human;
+    public ScriptableResource Resource;
 
     public Building StoreBuilding;
-    public ScriptableResource Resource;
 
     public HumanPlacedResourceData(int amount, Human human, Building storeBuilding,
         ScriptableResource resource) {

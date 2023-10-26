@@ -2,16 +2,15 @@
 
 namespace BFG.Runtime {
 public class MovementGraphCell {
-    public bool Up;
-    public bool Right;
-    public bool Down;
-    public bool Left;
-
     // ReSharper disable once InconsistentNaming
     public Vector2Int? BFS_Parent;
 
     // ReSharper disable once InconsistentNaming
     public bool BFS_Visited;
+    public bool Down;
+    public bool Left;
+    public bool Right;
+    public bool Up;
 
     public MovementGraphCell(bool up, bool right, bool down, bool left) {
         Up = up;

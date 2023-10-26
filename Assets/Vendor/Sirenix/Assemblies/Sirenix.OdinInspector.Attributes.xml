@@ -4133,7 +4133,8 @@
                 </para>
                 <note type="note">Note that this attribute has special behaviour for "combining" several attributes into
                     one, as one group,
-                    may be declared across attributes in several members, completely out of order. See<see
+                    may be declared across attributes in several members, completely out of order. See
+                    <see
                         cref="M:Sirenix.OdinInspector.PropertyGroupAttribute.CombineValuesWith(Sirenix.OdinInspector.PropertyGroupAttribute)"/>
                     .
                 </note>
@@ -5946,7 +5947,8 @@
         <member name="F:Sirenix.OdinInspector.ToggleGroupAttribute.ToggleGroupTitle">
             <summary>
                 Title of the toggle group in the inspector.
-                If <c>null</c>
+                If
+                <c>null</c>
                 <see cref="P:Sirenix.OdinInspector.ToggleGroupAttribute.ToggleMemberName"/>
                 will be used instead.
             </summary>
@@ -5991,7 +5993,8 @@
         <member name="P:Sirenix.OdinInspector.ToggleGroupAttribute.TitleStringMemberName">
             <summary>
                 Name of any string field, property or function, to title the toggle group in the inspector.
-                If <c>null</c>
+                If
+                <c>null</c>
                 <see cref="F:Sirenix.OdinInspector.ToggleGroupAttribute.ToggleGroupTitle"/>
                 will be used instead.
             </summary>

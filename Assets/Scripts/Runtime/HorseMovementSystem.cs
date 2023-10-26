@@ -15,8 +15,8 @@ public enum ChainNodeType {
 }
 
 public class MovementChainNode {
-    public ChainNodeType Type;
     public MovementChainNode Previous;
+    public ChainNodeType Type;
     public float Width = 0.8f; // Max is 1!
 }
 
@@ -31,9 +31,9 @@ public struct PathFindResult {
 }
 
 public class HorseMovementSystem {
-    List<TrainNode> _trainNodes;
-    float _speed = 1f;
     float _duration = 1f;
+    float _speed = 1f;
+    List<TrainNode> _trainNodes;
 
     public PathFindResult FindPath(
         Vector2Int source,

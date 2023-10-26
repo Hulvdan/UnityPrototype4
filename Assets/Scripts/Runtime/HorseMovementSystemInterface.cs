@@ -16,8 +16,6 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     [Required]
     Grid _grid;
 
-    HorseMovementSystem _system;
-
     public List<GameObject> Nodes = new();
 
     [SerializeField]
@@ -55,7 +53,53 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     [SerializeField]
     AnimationCurve _curve;
 
+    // [SerializeField]
+    // [TableMatrix(SquareCells = true)]
+    // Texture2D[,] _cells = new Texture2D[,] { { null } };
+
+    [SerializeField]
+    [Min(0)]
+    float _moveDuration = 1f;
+
+    readonly MapCell[,] _cells = {
+        {
+            MapCell.Road, MapCell.Road, MapCell.Road, MapCell.None, MapCell.Road
+        }, {
+            MapCell.Road, MapCell.None, MapCell.Road, MapCell.Road, MapCell.Road
+        }, {
+            MapCell.Road, MapCell.Road, MapCell.Road, MapCell.None, MapCell.Road
+        }, {
+            MapCell.None, MapCell.None, MapCell.None, MapCell.Road, MapCell.Road
+        }, {
+            MapCell.Road, MapCell.Road, MapCell.Road, MapCell.Road, MapCell.Road
+        }, {
+            MapCell.None, MapCell.Road, MapCell.None, MapCell.Road, MapCell.None
+        }
+    };
+
+    float _cellElapsed;
+
+    int _currentPathOffset;
+
+    MovementGraphCell[,] _movementCells;
+
     List<Vector2Int> _path = new();
+
+    HorseMovementSystem _system;
+
+    void Awake() {
+        GenerateTilemap();
+
+        var system = new HorseMovementSystem();
+        var path = system.FindPath(_pointA, _pointB, ref _movementCells);
+        if (!path.Success) {
+            Debug.LogError("Could not find the path");
+            return;
+        }
+
+        _path = path.Path;
+        PathTween();
+    }
 
     TileBase GetTilebase(MovementGraphCell mapMovementCell) {
         if (mapMovementCell == null) {
@@ -77,49 +121,6 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         }
 
         return null;
-    }
-
-    // [SerializeField]
-    // [TableMatrix(SquareCells = true)]
-    // Texture2D[,] _cells = new Texture2D[,] { { null } };
-
-    [SerializeField]
-    [Min(0)]
-    float _moveDuration = 1f;
-
-    float _cellElapsed;
-
-    MapCell[,] _cells = {
-        {
-            MapCell.Road, MapCell.Road, MapCell.Road, MapCell.None, MapCell.Road
-        }, {
-            MapCell.Road, MapCell.None, MapCell.Road, MapCell.Road, MapCell.Road
-        }, {
-            MapCell.Road, MapCell.Road, MapCell.Road, MapCell.None, MapCell.Road
-        }, {
-            MapCell.None, MapCell.None, MapCell.None, MapCell.Road, MapCell.Road
-        }, {
-            MapCell.Road, MapCell.Road, MapCell.Road, MapCell.Road, MapCell.Road
-        }, {
-            MapCell.None, MapCell.Road, MapCell.None, MapCell.Road, MapCell.None
-        }
-    };
-
-    MovementGraphCell[,] _movementCells;
-    int _currentPathOffset;
-
-    void Awake() {
-        GenerateTilemap();
-
-        var system = new HorseMovementSystem();
-        var path = system.FindPath(_pointA, _pointB, ref _movementCells);
-        if (!path.Success) {
-            Debug.LogError("Could not find the path");
-            return;
-        }
-
-        _path = path.Path;
-        PathTween();
     }
 
     void PathTween() {
