@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#nullable enable
+using System;
+using UnityEngine;
 
 namespace BFG.Runtime {
 public class MovementGraphCell {
@@ -9,12 +11,11 @@ public class MovementGraphCell {
     public bool BFS_Visited;
 
     /// <summary>
-    ///     Right, Up, Left, Down
+    /// Right, Up, Left, Down
     /// </summary>
-    public bool[] Directions;
+    public readonly bool[] Directions = new bool[4];
 
     public MovementGraphCell(bool right, bool up, bool left, bool down) {
-        Directions = new bool[4];
         Directions[0] = right;
         Directions[1] = up;
         Directions[2] = left;
@@ -109,6 +110,34 @@ public class MovementGraphCell {
 
         Debug.LogError("What the fuck is going on here?");
         return -1;
+    }
+
+    public static MovementGraphCell MakeUpRight() {
+        return new MovementGraphCell(true, true, false, false);
+    }
+
+    public static MovementGraphCell MakeUpLeft() {
+        return new MovementGraphCell(false, true, true, false);
+    }
+
+    public static MovementGraphCell MakeLeftRight() {
+        return new MovementGraphCell(true, false, true, false);
+    }
+
+    public static MovementGraphCell MakeDownRight() {
+        return new MovementGraphCell(true, false, false, true);
+    }
+
+    public static MovementGraphCell MakeDownLeft() {
+        return new MovementGraphCell(false, false, true, true);
+    }
+
+    public static MovementGraphCell MakeUpDown() {
+        return new MovementGraphCell(false, true, false, true);
+    }
+
+    public static MovementGraphCell MakeUpDownRight() {
+        return new MovementGraphCell(true, true, false, true);
     }
 }
 }
