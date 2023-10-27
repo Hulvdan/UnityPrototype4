@@ -30,5 +30,8 @@ public class UIManager : MonoBehaviour {
 
     void OnHumanHarvestedResource(HumanPickedUpResourceData data) {
     }
+
+    public void OnButtonPressed() {
+    }
 }
 }
