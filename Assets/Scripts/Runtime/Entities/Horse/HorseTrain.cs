@@ -29,6 +29,10 @@ public class HorseTrain {
     }
 
     public void AddSegmentVertex(Vector2Int vertex) {
+        if (segmentVertexes.Count > 0 && segmentVertexes[^1] == vertex) {
+            Debug.LogError("Vertex duplicated!");
+        }
+
         segmentVertexes.Add(vertex);
     }
 

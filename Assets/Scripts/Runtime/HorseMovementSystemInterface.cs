@@ -74,13 +74,13 @@ public class HorseMovementSystemInterface : MonoBehaviour {
 
         _horseMovement.OnReachedTarget += (dir) => {
             (_pointA, _pointB) = (_pointB, _pointA);
-            BuildHorsePath(dir);
+            BuildHorsePath(dir, false);
         };
 
-        BuildHorsePath(Direction.Right);
+        BuildHorsePath(Direction.Right, true);
     }
 
-    void BuildHorsePath(Direction direction) {
+    void BuildHorsePath(Direction direction, bool initial) {
         var path = _horseMovement.FindPath(_pointA, _pointB, ref _movementCells, direction);
         if (!path.Success) {
             Debug.LogError("Could not find the path");
@@ -88,7 +88,13 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         }
 
         _path = path.Path;
+        var skipFirst = !initial;
         foreach (var vertex in _path) {
+            if (skipFirst) {
+                skipFirst = false;
+                continue;
+            }
+
             _horse.AddSegmentVertex(vertex);
         }
     }
