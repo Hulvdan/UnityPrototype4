@@ -57,18 +57,19 @@ public class HorseMovementSystemInterface : MonoBehaviour {
 
     HorseTrain _horse;
     HorseMovementSystem _horseMovement;
+
+    Map _map;
     MovementGraphCell[,] _movementCells;
     List<Vector2Int> _path = new();
-
-    public MapCell[,] Cells;
 
     void Update() {
         UpdateTrain();
     }
 
-    public void Init(MapCell[,] cells) {
-        Cells = cells;
-        GenerateTilemap();
+    public void Init(Map map) {
+        _map = map;
+        map.OnCellChanged += OnCellChanged;
+        GenerateMovementGraph();
 
         _horseMovement = new HorseMovementSystem();
 
@@ -84,6 +85,32 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         };
 
         BuildHorsePath(Direction.Right, true);
+    }
+
+    void OnCellChanged(Vector2Int pos) {
+        ref var cells = ref _map.cells;
+        UpdateCellAtPos(pos.x, pos.y);
+        UpdateDebugTilemapAtPos(pos.x, pos.y);
+
+        if (pos.x > 0) {
+            UpdateCellAtPos(pos.x - 1, pos.y);
+            UpdateDebugTilemapAtPos(pos.x - 1, pos.y);
+        }
+
+        if (pos.x < cells.GetLength(1) - 1) {
+            UpdateCellAtPos(pos.x + 1, pos.y);
+            UpdateDebugTilemapAtPos(pos.x + 1, pos.y);
+        }
+
+        if (pos.y > 0) {
+            UpdateCellAtPos(pos.x, pos.y - 1);
+            UpdateDebugTilemapAtPos(pos.x, pos.y - 1);
+        }
+
+        if (pos.y < cells.GetLength(0) - 1) {
+            UpdateCellAtPos(pos.x, pos.y + 1);
+            UpdateDebugTilemapAtPos(pos.x, pos.y + 1);
+        }
     }
 
     void BuildHorsePath(Direction direction, bool initial) {
@@ -118,7 +145,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         }
     }
 
-    TileBase GetTileBase(MovementGraphCell mapMovementCell) {
+    TileBase GetDebugTileBase(MovementGraphCell mapMovementCell) {
         if (mapMovementCell == null) {
             return null;
         }
@@ -140,106 +167,137 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         return null;
     }
 
-    [Button("Generate tilemap")]
-    void GenerateTilemap() {
+    [Button("Generate Movement Graph")]
+    void GenerateMovementGraph() {
         if (_debugTilemap != null) {
             _debugTilemap.ClearAllTiles();
         }
 
-        var sizeY = Cells.GetLength(0);
-        var sizeX = Cells.GetLength(1);
+        ref var cells = ref _map.cells;
+        var sizeY = cells.GetLength(0);
+        var sizeX = cells.GetLength(1);
 
         _movementCells = new MovementGraphCell[sizeY, sizeX];
         for (var y = 0; y < sizeY; y++) {
             for (var x = 0; x < sizeX; x++) {
-                var cell = Cells[y, x];
-                var mCell = new MovementGraphCell(false, false, false, false);
-                _movementCells[y, x] = cell.Type == CellType.None ? null : mCell;
-
-                if (cell.Type == CellType.Road) {
-                    mCell.Directions[0] = x < sizeX - 1
-                                          && (
-                                              Cells[y, x + 1].Type == CellType.Road
-                                              || (Cells[y, x + 1].Type == CellType.Station &&
-                                                  Cells[y, x + 1].Rotation == 0)
-                                          );
-                    mCell.Directions[2] = x > 0
-                                          && (
-                                              Cells[y, x - 1].Type == CellType.Road
-                                              || (Cells[y, x - 1].Type == CellType.Station &&
-                                                  Cells[y, x - 1].Rotation == 0)
-                                          );
-                    mCell.Directions[1] = y < sizeY - 1
-                                          && (
-                                              Cells[y + 1, x].Type == CellType.Road
-                                              || (Cells[y + 1, x].Type == CellType.Station &&
-                                                  Cells[y + 1, x].Rotation == 1)
-                                          );
-                    mCell.Directions[3] = y > 0
-                                          && (
-                                              Cells[y - 1, x].Type == CellType.Road
-                                              || (Cells[y - 1, x].Type == CellType.Station &&
-                                                  Cells[y - 1, x].Rotation == 1)
-                                          );
-                }
-                else if (cell.Type == CellType.Station) {
-                    if (cell.Rotation == 0) {
-                        mCell.Directions[0] = x < sizeX - 1
-                                              && (
-                                                  Cells[y, x + 1].Type == CellType.Road
-                                                  || (Cells[y, x + 1].Type == CellType.Station &&
-                                                      Cells[y, x + 1].Rotation == 0)
-                                              );
-                        mCell.Directions[2] = x > 0
-                                              && (
-                                                  Cells[y, x - 1].Type == CellType.Road
-                                                  || (Cells[y, x - 1].Type == CellType.Station &&
-                                                      Cells[y, x - 1].Rotation == 0)
-                                              );
-                    }
-                    else if (cell.Rotation == 1) {
-                        mCell.Directions[1] = y < sizeY - 1
-                                              && (
-                                                  Cells[y + 1, x].Type == CellType.Road
-                                                  || (Cells[y + 1, x].Type == CellType.Station &&
-                                                      Cells[y + 1, x].Rotation == 1)
-                                              );
-                        mCell.Directions[3] = y > 0
-                                              && (
-                                                  Cells[y - 1, x].Type == CellType.Road
-                                                  || (Cells[y - 1, x].Type == CellType.Station &&
-                                                      Cells[y - 1, x].Rotation == 1)
-                                              );
-                    }
-                }
+                UpdateCellAtPos(x, y);
             }
         }
 
+        GenerateDebugTilemap();
+    }
+
+    void UpdateCellAtPos(int x, int y) {
+        ref var cells = ref _map.cells;
+
+        var sizeY = cells.GetLength(0);
+        var sizeX = cells.GetLength(1);
+
+        var cell = cells[y, x];
+
+        if (cell.Type == CellType.None) {
+            _movementCells[y, x] = null;
+            return;
+        }
+
+        var mCell = _movementCells[y, x];
+        if (mCell == null) {
+            mCell = new MovementGraphCell(false, false, false, false);
+            _movementCells[y, x] = mCell;
+        }
+
+        if (cell.Type == CellType.Road) {
+            mCell.Directions[0] = x < sizeX - 1
+                                  && (
+                                      cells[y, x + 1].Type == CellType.Road
+                                      || (cells[y, x + 1].Type == CellType.Station &&
+                                          cells[y, x + 1].Rotation == 0)
+                                  );
+            mCell.Directions[2] = x > 0
+                                  && (
+                                      cells[y, x - 1].Type == CellType.Road
+                                      || (cells[y, x - 1].Type == CellType.Station &&
+                                          cells[y, x - 1].Rotation == 0)
+                                  );
+            mCell.Directions[1] = y < sizeY - 1
+                                  && (
+                                      cells[y + 1, x].Type == CellType.Road
+                                      || (cells[y + 1, x].Type == CellType.Station &&
+                                          cells[y + 1, x].Rotation == 1)
+                                  );
+            mCell.Directions[3] = y > 0
+                                  && (
+                                      cells[y - 1, x].Type == CellType.Road
+                                      || (cells[y - 1, x].Type == CellType.Station &&
+                                          cells[y - 1, x].Rotation == 1)
+                                  );
+        }
+        else if (cell.Type == CellType.Station) {
+            if (cell.Rotation == 0) {
+                mCell.Directions[0] = x < sizeX - 1
+                                      && (
+                                          cells[y, x + 1].Type == CellType.Road
+                                          || (cells[y, x + 1].Type == CellType.Station &&
+                                              cells[y, x + 1].Rotation == 0)
+                                      );
+                mCell.Directions[2] = x > 0
+                                      && (
+                                          cells[y, x - 1].Type == CellType.Road
+                                          || (cells[y, x - 1].Type == CellType.Station &&
+                                              cells[y, x - 1].Rotation == 0)
+                                      );
+            }
+            else if (cell.Rotation == 1) {
+                mCell.Directions[1] = y < sizeY - 1
+                                      && (
+                                          cells[y + 1, x].Type == CellType.Road
+                                          || (cells[y + 1, x].Type == CellType.Station &&
+                                              cells[y + 1, x].Rotation == 1)
+                                      );
+                mCell.Directions[3] = y > 0
+                                      && (
+                                          cells[y - 1, x].Type == CellType.Road
+                                          || (cells[y - 1, x].Type == CellType.Station &&
+                                              cells[y - 1, x].Rotation == 1)
+                                      );
+            }
+        }
+    }
+
+    void GenerateDebugTilemap() {
         if (_debugTilemap == null) {
             return;
         }
 
+        ref var cells = ref _map.cells;
+        var sizeY = cells.GetLength(0);
+        var sizeX = cells.GetLength(1);
+
         for (var y = 0; y < sizeY; y++) {
             for (var x = 0; x < sizeX; x++) {
-                var cell = _movementCells[y, x];
-                var tb = GetTileBase(cell);
-                if (tb == null) {
-                    continue;
-                }
-
-                var td = new TileChangeData(
-                    new Vector3Int(x, y, 0),
-                    tb,
-                    Color.white,
-                    Matrix4x4.TRS(
-                        new Vector3(0, 0, 0),
-                        Quaternion.Euler(0, 0, 90 * cell.Rotation()),
-                        Vector3.one
-                    )
-                );
-                _debugTilemap.SetTile(td, false);
+                UpdateDebugTilemapAtPos(x, y);
             }
         }
+    }
+
+    void UpdateDebugTilemapAtPos(int x, int y) {
+        var cell = _movementCells[y, x];
+        var tb = GetDebugTileBase(cell);
+        if (tb == null) {
+            return;
+        }
+
+        var td = new TileChangeData(
+            new Vector3Int(x, y, 0),
+            tb,
+            Color.white,
+            Matrix4x4.TRS(
+                new Vector3(0, 0, 0),
+                Quaternion.Euler(0, 0, 90 * cell.Rotation()),
+                Vector3.one
+            )
+        );
+        _debugTilemap.SetTile(td, false);
     }
 }
 }

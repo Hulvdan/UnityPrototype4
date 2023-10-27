@@ -165,26 +165,26 @@ public class Map : MonoBehaviour {
     }
 
     void InitializeMovementSystem() {
-        var cells = new MapCell[_mapSizeY, _mapSizeX];
+        _cells = new MapCell[_mapSizeY, _mapSizeX];
         for (var y = 0; y < _mapSizeY; y++) {
             for (var x = 0; x < _mapSizeX; x++) {
                 var tile = _movementSystemTilemap.GetTile(new Vector3Int(x, y));
                 if (tile == _roadTile) {
-                    cells[y, x] = MapCell.Road;
+                    _cells[y, x] = MapCell.Road;
                 }
                 else if (tile == _stationHorizontalTile) {
-                    cells[y, x] = new MapCell(CellType.Station, 0);
+                    _cells[y, x] = new MapCell(CellType.Station, 0);
                 }
                 else if (tile == _stationVerticalTile) {
-                    cells[y, x] = new MapCell(CellType.Station, 1);
+                    _cells[y, x] = new MapCell(CellType.Station, 1);
                 }
                 else {
-                    cells[y, x] = MapCell.None;
+                    _cells[y, x] = MapCell.None;
                 }
             }
         }
 
-        _movementSystemInterface.Init(cells);
+        _movementSystemInterface.Init(this);
     }
 
     void GiveResource(ScriptableResource resource1, int amount) {
@@ -197,6 +197,24 @@ public class Map : MonoBehaviour {
                 Resource = resource1
             }
         );
+    }
+
+    public void TryBuild(Vector2Int pos, SelectedItem item) {
+        if (pos.x < 0 || pos.y < 0 || pos.x >= sizeX || pos.y >= sizeY) {
+            return;
+        }
+
+        if (item != SelectedItem.Road) {
+            return;
+        }
+
+        if (_cells[pos.y, pos.x].Type == CellType.None) {
+            var road = _cells[pos.y, pos.x];
+            road.Type = CellType.Road;
+            _cells[pos.y, pos.x] = road;
+
+            OnCellChanged?.Invoke(pos);
+        }
     }
 
     #region HumanSystem_Attributes
@@ -224,6 +242,12 @@ public class Map : MonoBehaviour {
     [FoldoutGroup("Humans", true)]
     [SerializeField]
     AnimationCurve _humanMovementCurve = AnimationCurve.Linear(0, 0, 1, 1);
+
+    MapCell[,] _cells;
+
+    public ref MapCell[,] cells => ref _cells;
+
+    public event Action<Vector2Int> OnCellChanged = delegate { };
 
     #endregion
 
