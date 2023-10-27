@@ -22,6 +22,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleBuildableCells",
+                    "type": "Button",
+                    "id": "9ff55015-6a75-4bfc-bc37-6b10f4953770",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -39,7 +48,7 @@
                 {
                     "name": "modifier",
                     "id": "5622d1f0-652a-4f4c-968a-2b563eaae3ef",
-                    "path": "<Keyboard>/ctrl",
+                    "path": "<Keyboard>/shift",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -72,7 +81,7 @@
                 {
                     "name": "modifier",
                     "id": "73a915e4-a6dc-414d-a4fd-6bcf8c902b70",
-                    "path": "<Keyboard>/ctrl",
+                    "path": "<Keyboard>/shift",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -88,6 +97,39 @@
                     "processors": "",
                     "groups": "",
                     "action": "Toggle",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "One Modifier",
+                    "id": "2a950eaa-e520-42c1-bd99-c46a4e7113a5",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleBuildableCells",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "0c6f2145-d89f-4688-8484-a8ad5cd0d812",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleBuildableCells",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "4fd42f75-7728-41d7-9b6e-e39e7e188c11",
+                    "path": "<Keyboard>/b",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleBuildableCells",
                     "isComposite": false,
                     "isPartOfComposite": true
                 }

@@ -63,9 +63,9 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     Tilemap _debugTilemap;
 
-    [SerializeField]
-    [Required]
-    TileBase _debugTileWalkable;
+    // [SerializeField]
+    // [Required]
+    // TileBase _debugTileWalkable;
 
     [SerializeField]
     [Required]
@@ -247,8 +247,9 @@ public class MapRenderer : MonoBehaviour {
                     walkable = !TileIsACliff(x, y);
                 }
 
-                _debugTilemap.SetTile(new Vector3Int(x, y, 0),
-                    walkable ? _debugTileWalkable : _debugTileUnwalkable);
+                if (!walkable) {
+                    _debugTilemap.SetTile(new Vector3Int(x, y, 0), _debugTileUnwalkable);
+                }
             }
         }
     }
