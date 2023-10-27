@@ -147,6 +147,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Build",
+                    "type": "Button",
+                    "id": "22888657-b71f-4326-b112-104402cbfe0b",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -158,6 +167,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "PreviewMouseMove",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "40e4e822-df63-47d9-bba5-01da185c2907",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Build",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

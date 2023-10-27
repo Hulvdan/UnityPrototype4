@@ -84,6 +84,7 @@ public class MapRenderer : MonoBehaviour {
     readonly Dictionary<Guid, Tuple<Human, HumanGO>> _humans = new();
     Camera _camera;
     InputActionMap _gameplayInputMap;
+    InputAction _mouseBuildAction;
     InputAction _mouseMoveAction;
 
     Tilemap _resourceTilemap;
@@ -98,11 +99,20 @@ public class MapRenderer : MonoBehaviour {
 
         _gameplayInputMap = _inputActionAsset.FindActionMap("Gameplay");
         _mouseMoveAction = _gameplayInputMap.FindAction("PreviewMouseMove");
+        _mouseBuildAction = _gameplayInputMap.FindAction("Build");
     }
 
     void Update() {
         UpdateHumans();
         DisplayPreviewTile();
+
+        if (_mouseBuildAction.WasPressedThisFrame()) {
+            if (_map.selectedItem == SelectedItem.Road) {
+                _map.TryBuild(GetHoveredCell(), SelectedItem.Road);
+            }
+        }
+        // else if (_mouseBuildAction.WasReleasedThisFrame()) {
+        // }
     }
 
     void OnEnable() {
@@ -301,14 +311,18 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void DisplayPreviewTile() {
-        var mousePos = _mouseMoveAction.ReadValue<Vector2>();
-        var wPos = _camera.ScreenToWorldPoint(mousePos);
-        var cell = _previewTilemap.WorldToCell(wPos);
+        var cell = GetHoveredCell();
 
         _previewTilemap.ClearAllTiles();
         if (_map.selectedItem == SelectedItem.Road) {
-            _previewTilemap.SetTile(cell, _tileRoad);
+            _previewTilemap.SetTile(new Vector3Int(cell.x, cell.y, 0), _tileRoad);
         }
+    }
+
+    Vector2Int GetHoveredCell() {
+        var mousePos = _mouseMoveAction.ReadValue<Vector2>();
+        var wPos = _camera.ScreenToWorldPoint(mousePos);
+        return (Vector2Int)_previewTilemap.WorldToCell(wPos);
     }
 
     #region HumanSystem
