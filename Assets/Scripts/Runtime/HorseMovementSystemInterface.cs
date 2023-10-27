@@ -73,8 +73,10 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         _horseMovement = new HorseMovementSystem();
 
         _horse = new HorseTrain(_trainSpeed);
-        _horse.AddLocomotive(new TrainNode(1f), 2, 0f);
-        _horse.AddNode(new TrainNode(1f));
+        _horse.AddLocomotive(new TrainNode(1f), 3, 0f);
+        _horse.AddNode(new TrainNode(.8f));
+        _horse.AddNode(new TrainNode(.8f));
+        _horse.AddNode(new TrainNode(.8f));
 
         _horseMovement.OnReachedTarget += dir => {
             (_pointA, _pointB) = (_pointB, _pointA);
