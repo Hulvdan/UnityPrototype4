@@ -15,14 +15,14 @@ public struct PathFindResult {
 }
 
 public class HorseMovementSystem {
-    public event Action<Direction> OnReachedTarget = delegate { };
-
     static readonly Vector2Int[] Offsets = {
         new(1, 0),
         new(0, 1),
         new(-1, 0),
         new(0, -1)
     };
+
+    public event Action<Direction> OnReachedTarget = delegate { };
 
     public static void NormalizeNodeDistances(TrainNode node, TrainNode previousNode) {
         node.Progress = previousNode.Progress - previousNode.Width / 2 - node.Width / 2;
@@ -93,7 +93,7 @@ public class HorseMovementSystem {
     }
 
     /// <summary>
-    /// Returns a list of Vector2Int including starting and ending cells.
+    ///     Returns a list of Vector2Int including starting and ending cells.
     /// </summary>
     public PathFindResult FindPath(
         Vector2Int source,

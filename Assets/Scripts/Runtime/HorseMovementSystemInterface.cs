@@ -55,12 +55,16 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     [Min(0)]
     float _trainSpeed = 1f;
 
-    public MapCell[,] Cells;
-
     HorseTrain _horse;
     HorseMovementSystem _horseMovement;
     MovementGraphCell[,] _movementCells;
     List<Vector2Int> _path = new();
+
+    public MapCell[,] Cells;
+
+    void Update() {
+        UpdateTrain();
+    }
 
     public void Init(MapCell[,] cells) {
         Cells = cells;
@@ -72,7 +76,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         _horse.AddLocomotive(new TrainNode(1f), 2, 0f);
         _horse.AddNode(new TrainNode(1f));
 
-        _horseMovement.OnReachedTarget += (dir) => {
+        _horseMovement.OnReachedTarget += dir => {
             (_pointA, _pointB) = (_pointB, _pointA);
             BuildHorsePath(dir, false);
         };
@@ -97,10 +101,6 @@ public class HorseMovementSystemInterface : MonoBehaviour {
 
             _horse.AddSegmentVertex(vertex);
         }
-    }
-
-    void Update() {
-        UpdateTrain();
     }
 
     void UpdateTrain() {

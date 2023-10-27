@@ -79,13 +79,6 @@ public class Map : MonoBehaviour {
     [Required]
     List<ScriptableResource> _topBarResources;
 
-    readonly List<TopBarResource> _resources = new();
-
-    [FoldoutGroup("Humans", true)]
-    [ShowInInspector]
-    [ReadOnly]
-    float _humanTotalHarvestingDuration;
-
     [FoldoutGroup("Horse Movement System", true)]
     [SerializeField]
     [Required]
@@ -115,6 +108,13 @@ public class Map : MonoBehaviour {
     [Required]
     TileBase _stationVerticalTile;
 
+    readonly List<TopBarResource> _resources = new();
+
+    [FoldoutGroup("Humans", true)]
+    [ShowInInspector]
+    [ReadOnly]
+    float _humanTotalHarvestingDuration;
+
     Random _random;
     public int sizeY => _mapSizeY;
     public int sizeX => _mapSizeX;
@@ -134,6 +134,24 @@ public class Map : MonoBehaviour {
         }
 
         InitializeMovementSystem();
+    }
+
+    void Start() {
+        CreateHuman(_buildings[0]);
+        CreateHuman(_buildings[0]);
+        CreateHuman(_buildings[1]);
+        CreateHuman(_buildings[1]);
+    }
+
+    void Update() {
+        UpdateHumans();
+    }
+
+    void OnValidate() {
+        _humanTotalHarvestingDuration = _humanHeadingDuration
+                                        + _humanHarvestingDuration
+                                        + _humanHeadingToTheStoreBuildingDuration
+                                        + _humanReturningBackDuration;
     }
 
     void InitializeMovementSystem() {
@@ -157,24 +175,6 @@ public class Map : MonoBehaviour {
         }
 
         _movementSystemInterface.Init(cells);
-    }
-
-    void Start() {
-        CreateHuman(_buildings[0]);
-        CreateHuman(_buildings[0]);
-        CreateHuman(_buildings[1]);
-        CreateHuman(_buildings[1]);
-    }
-
-    void Update() {
-        UpdateHumans();
-    }
-
-    void OnValidate() {
-        _humanTotalHarvestingDuration = _humanHeadingDuration
-                                        + _humanHarvestingDuration
-                                        + _humanHeadingToTheStoreBuildingDuration
-                                        + _humanReturningBackDuration;
     }
 
     void GiveResource(ScriptableResource resource1, int amount) {
