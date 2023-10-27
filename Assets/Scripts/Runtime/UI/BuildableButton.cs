@@ -155,15 +155,21 @@ public class BuildableButton : MonoBehaviour {
     }
 
     void RecalculateState(ButtonEnum state) {
-        if (_state != state) {
-            _state = state;
-
-            if (_state == ButtonEnum.Selected) {
-                _panel.OnButtonSelected(GetInstanceID());
-            }
-
-            StartFading(GetColor(state));
+        if (_state == state) {
+            return;
         }
+
+        int? selectedButtonInstanceID = null;
+        if (state == ButtonEnum.Selected) {
+            selectedButtonInstanceID = GetInstanceID();
+        }
+
+        if (_state == ButtonEnum.Selected || state == ButtonEnum.Selected) {
+            _panel.OnButtonChangedSelectedState(selectedButtonInstanceID);
+        }
+
+        _state = state;
+        StartFading(GetColor(state));
     }
 
     Color GetColor(ButtonEnum state) {
@@ -180,7 +186,7 @@ public class BuildableButton : MonoBehaviour {
             return;
         }
 
-        _stateSelected = true;
+        _stateSelected = !_stateSelected;
         UpdateState();
     }
 
