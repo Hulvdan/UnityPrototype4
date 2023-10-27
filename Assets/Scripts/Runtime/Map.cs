@@ -5,6 +5,8 @@ using SimplexNoise;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
+using UnityEngine.Tilemaps;
 using Random = System.Random;
 
 namespace BFG.Runtime {
@@ -77,6 +79,35 @@ public class Map : MonoBehaviour {
     [Required]
     List<ScriptableResource> _topBarResources;
 
+    [FoldoutGroup("Horse Movement System", true)]
+    [SerializeField]
+    [Required]
+    HorseMovementSystemInterface _movementSystemInterface;
+
+    [FormerlySerializedAs("MovementSystemTilemap")]
+    [FoldoutGroup("Horse Movement System", true)]
+    [SerializeField]
+    [Required]
+    Tilemap _movementSystemTilemap;
+
+    [FormerlySerializedAs("RoadTile")]
+    [FoldoutGroup("Horse Movement System", true)]
+    [SerializeField]
+    [Required]
+    TileBase _roadTile;
+
+    [FormerlySerializedAs("StationHorizontalTile")]
+    [FoldoutGroup("Horse Movement System", true)]
+    [SerializeField]
+    [Required]
+    TileBase _stationHorizontalTile;
+
+    [FormerlySerializedAs("StationVerticalTile")]
+    [FoldoutGroup("Horse Movement System", true)]
+    [SerializeField]
+    [Required]
+    TileBase _stationVerticalTile;
+
     readonly List<TopBarResource> _resources = new();
 
     [FoldoutGroup("Humans", true)]
@@ -101,6 +132,8 @@ public class Map : MonoBehaviour {
         foreach (var res in _topBarResources) {
             _resources.Add(new TopBarResource { Amount = 0, Resource = res });
         }
+
+        InitializeMovementSystem();
     }
 
     void Start() {
@@ -119,6 +152,29 @@ public class Map : MonoBehaviour {
                                         + _humanHarvestingDuration
                                         + _humanHeadingToTheStoreBuildingDuration
                                         + _humanReturningBackDuration;
+    }
+
+    void InitializeMovementSystem() {
+        var cells = new MapCell[_mapSizeY, _mapSizeX];
+        for (var y = 0; y < _mapSizeY; y++) {
+            for (var x = 0; x < _mapSizeX; x++) {
+                var tile = _movementSystemTilemap.GetTile(new Vector3Int(x, y));
+                if (tile == _roadTile) {
+                    cells[y, x] = MapCell.Road;
+                }
+                else if (tile == _stationHorizontalTile) {
+                    cells[y, x] = new MapCell(CellType.Station, 0);
+                }
+                else if (tile == _stationVerticalTile) {
+                    cells[y, x] = new MapCell(CellType.Station, 1);
+                }
+                else {
+                    cells[y, x] = MapCell.None;
+                }
+            }
+        }
+
+        _movementSystemInterface.Init(cells);
     }
 
     void GiveResource(ScriptableResource resource1, int amount) {

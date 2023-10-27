@@ -1,19 +1,18 @@
 ﻿#nullable enable
-using System;
 using UnityEngine;
 
 namespace BFG.Runtime {
 public class MovementGraphCell {
+    /// <summary>
+    ///     Right, Up, Left, Down
+    /// </summary>
+    public readonly bool[] Directions = new bool[4];
+
     // ReSharper disable once InconsistentNaming
     public Vector2Int? BFS_Parent;
 
     // ReSharper disable once InconsistentNaming
     public bool BFS_Visited;
-
-    /// <summary>
-    /// Right, Up, Left, Down
-    /// </summary>
-    public readonly bool[] Directions = new bool[4];
 
     public MovementGraphCell(bool right, bool up, bool left, bool down) {
         Directions[0] = right;
