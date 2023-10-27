@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 
 namespace BFG.Runtime {
@@ -14,6 +15,10 @@ public class MapRenderer : MonoBehaviour {
     [SerializeField]
     [Required]
     Map _map;
+
+    [SerializeField]
+    [Required]
+    Tilemap _previewTilemap;
 
     [SerializeField]
     [Required]
@@ -58,6 +63,11 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     GameObject _itemPrefab;
 
+    [Header("Inputs")]
+    [SerializeField]
+    [Required]
+    InputActionAsset _inputActionAsset;
+
     [Header("Debug Dependencies")]
     [SerializeField]
     [Required]
@@ -72,17 +82,35 @@ public class MapRenderer : MonoBehaviour {
     TileBase _debugTileUnwalkable;
 
     readonly Dictionary<Guid, Tuple<Human, HumanGO>> _humans = new();
+    Camera _camera;
+    InputActionMap _gameplayInputMap;
+    InputAction _mouseMoveAction;
 
     Tilemap _resourceTilemap;
 
     void Awake() {
+        _camera = Camera.main;
         _map.OnHumanCreated += OnHumanCreated;
         _map.OnHumanPickedUpResource += OnHumanPickedUpResource;
         _map.OnHumanPlacedResource += OnHumanPlacedResource;
+
+        _map.OnSelectedItemChanged += OnSelectedItemChanged;
+
+        _gameplayInputMap = _inputActionAsset.FindActionMap("Gameplay");
+        _mouseMoveAction = _gameplayInputMap.FindAction("PreviewMouseMove");
     }
 
     void Update() {
         UpdateHumans();
+        DisplayPreviewTile();
+    }
+
+    void OnEnable() {
+        _gameplayInputMap.Enable();
+    }
+
+    void OnDisable() {
+        _gameplayInputMap.Disable();
     }
 
     void OnDrawGizmos() {
@@ -115,6 +143,9 @@ public class MapRenderer : MonoBehaviour {
 
             Gizmos.DrawLineList(points);
         }
+    }
+
+    void OnSelectedItemChanged(SelectedItem item) {
     }
 
     void OnHumanPickedUpResource(HumanPickedUpResourceData data) {
@@ -267,6 +298,17 @@ public class MapRenderer : MonoBehaviour {
 
     void UpdateGridPosition() {
         _grid.transform.localPosition = new Vector3(-_map.sizeX / 2f, -_map.sizeY / 2f);
+    }
+
+    void DisplayPreviewTile() {
+        var mousePos = _mouseMoveAction.ReadValue<Vector2>();
+        var wPos = _camera.ScreenToWorldPoint(mousePos);
+        var cell = _previewTilemap.WorldToCell(wPos);
+
+        _previewTilemap.ClearAllTiles();
+        if (_map.selectedItem == SelectedItem.Road) {
+            _previewTilemap.SetTile(cell, _tileRoad);
+        }
     }
 
     #region HumanSystem

@@ -115,9 +115,10 @@ public class Map : MonoBehaviour {
     [ReadOnly]
     float _humanTotalHarvestingDuration;
 
-    SelectedItem _item;
-
     Random _random;
+
+    public SelectedItem selectedItem { get; private set; } = SelectedItem.None;
+
     public int sizeY => _mapSizeY;
     public int sizeX => _mapSizeX;
 
@@ -156,8 +157,11 @@ public class Map : MonoBehaviour {
                                         + _humanReturningBackDuration;
     }
 
+    public event Action<SelectedItem> OnSelectedItemChanged = delegate { };
+
     public void SetSelectedItem(SelectedItem item) {
-        _item = item;
+        selectedItem = item;
+        OnSelectedItemChanged?.Invoke(item);
     }
 
     void InitializeMovementSystem() {

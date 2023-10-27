@@ -134,6 +134,34 @@
                     "isPartOfComposite": true
                 }
             ]
+        },
+        {
+            "name": "Gameplay",
+            "id": "d9ab7a06-a3f1-43af-b933-b4ba19ab784f",
+            "actions": [
+                {
+                    "name": "PreviewMouseMove",
+                    "type": "Value",
+                    "id": "bafd30c8-0f2b-4c8a-99b5-5282721635ef",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "2a5e933a-e48f-4fef-909f-780b45c8dcc1",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PreviewMouseMove",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []
