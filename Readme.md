@@ -1,5 +1,16 @@
 # UnityPrototype4
 
+## Development
+
+### Rendering. Order in Layer
+
+- -1 - Background
+- 0 - Terrain
+- 2 - Buildings, Humans
+- 4 - Horse, Wagons
+- 100 - Debug_UnwalkableCells
+- 101 - Debug_MovementSystemTilemap
+
 ## External Assets
 
 - [Itch.io. PixelHole's Overworld Tileset](https://pixelhole.itch.io/pixelholes-overworld-tileset)
