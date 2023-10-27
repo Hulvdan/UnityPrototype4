@@ -77,7 +77,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
 
         _horseMovement = new HorseMovementSystem();
 
-        var path = _horseMovement.FindPath(_pointA, _pointB, ref _movementCells);
+        var path = _horseMovement.FindPath(_pointA, _pointB, ref _movementCells, Direction.Down);
         if (!path.Success) {
             Debug.LogError("Could not find the path");
             return;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
 public struct PathFindResult {
@@ -14,7 +15,7 @@ public struct PathFindResult {
 }
 
 public class HorseMovementSystem {
-    static readonly Vector2Int[] Directions = {
+    static readonly Vector2Int[] Offsets = {
         new(1, 0),
         new(0, 1),
         new(-1, 0),
@@ -62,10 +63,14 @@ public class HorseMovementSystem {
         }
     }
 
+    /// <summary>
+    /// Returns a list of Vector2Int including starting and ending cells.
+    /// </summary>
     public PathFindResult FindPath(
         Vector2Int source,
         Vector2Int destination,
-        ref MovementGraphCell[,] graph
+        ref MovementGraphCell[,] graph,
+        Direction startingDirection
     ) {
         foreach (var node in graph) {
             if (node != null) {
@@ -75,9 +80,10 @@ public class HorseMovementSystem {
         }
 
         var queue = new Queue<Vector2Int>();
-        queue.Enqueue(new Vector2Int(source.y, source.x));
+        queue.Enqueue(new Vector2Int(source.x, source.y));
         graph[source.y, source.x].BFS_Visited = true;
 
+        var isStartingCell = true;
         while (queue.Count > 0) {
             var pos = queue.Dequeue();
             var cell = graph[pos.y, pos.x];
@@ -90,27 +96,46 @@ public class HorseMovementSystem {
                     continue;
                 }
 
-                var dir = Directions[i];
-                var mCell = graph[pos.y + dir.y, pos.x + dir.x];
-                if (!mCell.BFS_Visited) {
-                    var newPos = new Vector2Int(pos.x + dir.x, pos.y + dir.y);
-                    VisitCell(graph, newPos, pos);
-                    if (newPos == destination) {
-                        return BuildPath(ref graph, newPos);
-                    }
-
-                    queue.Enqueue(newPos);
+                if (isStartingCell && (Direction)i != startingDirection) {
+                    continue;
                 }
+
+                var offset = Offsets[i];
+                var newY = pos.y + offset.y;
+                var newX = pos.x + offset.x;
+
+                if (newX < 0
+                    || newY < 0
+                    || newY >= graph.GetLength(0)
+                    || newX >= graph.GetLength(1)) {
+                    continue;
+                }
+
+                var mCell = graph[newY, newX];
+                Assert.IsNotNull(mCell);
+
+                if (mCell.BFS_Visited) {
+                    continue;
+                }
+
+                var newPos = new Vector2Int(newX, newY);
+                VisitCell(ref mCell, pos);
+                if (newPos == destination) {
+                    return BuildPath(ref graph, newPos);
+                }
+
+                queue.Enqueue(newPos);
             }
+
+            isStartingCell = false;
         }
 
         return new PathFindResult(false, null);
     }
 
-    static void VisitCell(MovementGraphCell[,] graph, Vector2Int newPos, Vector2Int oldPos) {
-        var newCell = graph[newPos.y, newPos.x];
-        newCell.BFS_Parent = oldPos;
-        newCell.BFS_Visited = true;
+    static void VisitCell(ref MovementGraphCell cell, Vector2Int oldPos) {
+        cell.BFS_Parent = oldPos;
+        cell.BFS_Visited = true;
     }
 
     static PathFindResult BuildPath(ref MovementGraphCell[,] graph, Vector2Int destination) {
