@@ -22,6 +22,8 @@ public class HorseMovementSystem {
         new(0, -1)
     };
 
+    public event Action<Direction> OnReachedTarget = delegate { };
+
     public static void NormalizeNodeDistances(TrainNode node, TrainNode previousNode) {
         node.Progress = previousNode.Progress - previousNode.Width / 2 - node.Width / 2;
         node.SegmentIndex = previousNode.SegmentIndex;
@@ -43,11 +45,38 @@ public class HorseMovementSystem {
         if (locomotive.SegmentIndex >= horse.SegmentsCount) {
             locomotive.SegmentIndex = horse.SegmentsCount - 1;
             locomotive.Progress = 1;
+
+            var source = horse.segmentVertexes[locomotive.SegmentIndex];
+            var destination = horse.segmentVertexes[locomotive.SegmentIndex + 1];
+
+            var dir = DirectionFromCells(source, destination);
+            OnReachedTarget?.Invoke(dir);
         }
 
         for (var i = 0; i < horse.nodes.Count - 1; i++) {
             NormalizeNodeDistances(horse.nodes[i + 1], horse.nodes[i]);
         }
+    }
+
+    static Direction DirectionFromCells(Vector2Int source, Vector2Int destination) {
+        if (destination.x > source.x) {
+            return Direction.Right;
+        }
+
+        if (destination.x < source.x) {
+            return Direction.Left;
+        }
+
+        if (destination.y > source.y) {
+            return Direction.Up;
+        }
+
+        if (destination.y < source.y) {
+            return Direction.Down;
+        }
+
+        Debug.LogError("WTF?");
+        return Direction.Right;
     }
 
     public void RecalculateNodePositions(HorseTrain horse) {
@@ -64,7 +93,7 @@ public class HorseMovementSystem {
     }
 
     /// <summary>
-    /// Returns a list of Vector2Int including starting and ending cells.
+    ///     Returns a list of Vector2Int including starting and ending cells.
     /// </summary>
     public PathFindResult FindPath(
         Vector2Int source,

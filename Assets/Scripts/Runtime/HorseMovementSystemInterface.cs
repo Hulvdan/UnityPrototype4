@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 namespace BFG.Runtime {
@@ -11,29 +12,32 @@ public enum CellType {
 }
 
 public class HorseMovementSystemInterface : MonoBehaviour {
+    [FormerlySerializedAs("_tilemap")]
+    [FoldoutGroup("Debug", true)]
     [SerializeField]
-    [Required]
-    Grid _grid;
+    Tilemap _debugTilemap;
 
-    [SerializeField]
-    [Required]
-    Tilemap _tilemap;
-
+    [FoldoutGroup("Debug", true)]
     [SerializeField]
     TileBase _arrow0;
 
+    [FoldoutGroup("Debug", true)]
     [SerializeField]
     TileBase _arrow1;
 
+    [FoldoutGroup("Debug", true)]
     [SerializeField]
     TileBase _arrow21;
 
+    [FoldoutGroup("Debug", true)]
     [SerializeField]
     TileBase _arrow22;
 
+    [FoldoutGroup("Debug", true)]
     [SerializeField]
     TileBase _arrow3;
 
+    [FoldoutGroup("Debug", true)]
     [SerializeField]
     TileBase _arrow4;
 
@@ -51,52 +55,52 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     [Min(0)]
     float _trainSpeed = 1f;
 
-    readonly MapCell[,] _cells = {
-        {
-            MapCell.Road, MapCell.Road, MapCell.Road, MapCell.None, MapCell.Road
-        }, {
-            MapCell.Road, MapCell.None, MapCell.Road, MapCell.Road, MapCell.Road
-        }, {
-            MapCell.Road, MapCell.Road, MapCell.Road, MapCell.None, MapCell.Road
-        }, {
-            MapCell.None, MapCell.None, MapCell.None, MapCell.Road, MapCell.Road
-        }, {
-            MapCell.Road, MapCell.Road, MapCell.Road, MapCell.Road, MapCell.Road
-        }, {
-            MapCell.None, MapCell.Road, MapCell.None, MapCell.Road, MapCell.None
-        }
-    };
-
     HorseTrain _horse;
     HorseMovementSystem _horseMovement;
     MovementGraphCell[,] _movementCells;
     List<Vector2Int> _path = new();
 
-    void Awake() {
+    public MapCell[,] Cells;
+
+    void Update() {
+        UpdateTrain();
+    }
+
+    public void Init(MapCell[,] cells) {
+        Cells = cells;
         GenerateTilemap();
 
         _horseMovement = new HorseMovementSystem();
 
-        var path = _horseMovement.FindPath(_pointA, _pointB, ref _movementCells, Direction.Down);
+        _horse = new HorseTrain(_trainSpeed);
+        _horse.AddLocomotive(new TrainNode(1f), 2, 0f);
+        _horse.AddNode(new TrainNode(1f));
+
+        _horseMovement.OnReachedTarget += dir => {
+            (_pointA, _pointB) = (_pointB, _pointA);
+            BuildHorsePath(dir, false);
+        };
+
+        BuildHorsePath(Direction.Right, true);
+    }
+
+    void BuildHorsePath(Direction direction, bool initial) {
+        var path = _horseMovement.FindPath(_pointA, _pointB, ref _movementCells, direction);
         if (!path.Success) {
             Debug.LogError("Could not find the path");
             return;
         }
 
         _path = path.Path;
-
-        _horse = new HorseTrain(_trainSpeed);
+        var skipFirst = !initial;
         foreach (var vertex in _path) {
+            if (skipFirst) {
+                skipFirst = false;
+                continue;
+            }
+
             _horse.AddSegmentVertex(vertex);
         }
-
-        _horse.AddLocomotive(new TrainNode(1f), 2, 0f);
-        _horse.AddNode(new TrainNode(.8f));
-        _horse.AddNode(new TrainNode(.8f));
-    }
-
-    void Update() {
-        UpdateTrain();
     }
 
     void UpdateTrain() {
@@ -136,26 +140,81 @@ public class HorseMovementSystemInterface : MonoBehaviour {
 
     [Button("Generate tilemap")]
     void GenerateTilemap() {
-        _tilemap.ClearAllTiles();
+        if (_debugTilemap != null) {
+            _debugTilemap.ClearAllTiles();
+        }
 
-        var sizeY = _cells.GetLength(0);
-        var sizeX = _cells.GetLength(1);
-        _grid.transform.position = new Vector3(-sizeX / 2f, -sizeY / 2f, 0);
+        var sizeY = Cells.GetLength(0);
+        var sizeX = Cells.GetLength(1);
 
         _movementCells = new MovementGraphCell[sizeY, sizeX];
         for (var y = 0; y < sizeY; y++) {
             for (var x = 0; x < sizeX; x++) {
-                var cell = _cells[y, x];
+                var cell = Cells[y, x];
                 var mCell = new MovementGraphCell(false, false, false, false);
-                _movementCells[y, x] = cell.Type == CellType.Road ? mCell : null;
+                _movementCells[y, x] = cell.Type == CellType.None ? null : mCell;
 
                 if (cell.Type == CellType.Road) {
-                    mCell.Directions[0] = x < sizeX - 1 && _cells[y, x + 1].Type == CellType.Road;
-                    mCell.Directions[2] = x > 0 && _cells[y, x - 1].Type == CellType.Road;
-                    mCell.Directions[1] = y < sizeY - 1 && _cells[y + 1, x].Type == CellType.Road;
-                    mCell.Directions[3] = y > 0 && _cells[y - 1, x].Type == CellType.Road;
+                    mCell.Directions[0] = x < sizeX - 1
+                                          && (
+                                              Cells[y, x + 1].Type == CellType.Road
+                                              || (Cells[y, x + 1].Type == CellType.Station &&
+                                                  Cells[y, x + 1].Rotation == 0)
+                                          );
+                    mCell.Directions[2] = x > 0
+                                          && (
+                                              Cells[y, x - 1].Type == CellType.Road
+                                              || (Cells[y, x - 1].Type == CellType.Station &&
+                                                  Cells[y, x - 1].Rotation == 0)
+                                          );
+                    mCell.Directions[1] = y < sizeY - 1
+                                          && (
+                                              Cells[y + 1, x].Type == CellType.Road
+                                              || (Cells[y + 1, x].Type == CellType.Station &&
+                                                  Cells[y + 1, x].Rotation == 1)
+                                          );
+                    mCell.Directions[3] = y > 0
+                                          && (
+                                              Cells[y - 1, x].Type == CellType.Road
+                                              || (Cells[y - 1, x].Type == CellType.Station &&
+                                                  Cells[y - 1, x].Rotation == 1)
+                                          );
+                }
+                else if (cell.Type == CellType.Station) {
+                    if (cell.Rotation == 0) {
+                        mCell.Directions[0] = x < sizeX - 1
+                                              && (
+                                                  Cells[y, x + 1].Type == CellType.Road
+                                                  || (Cells[y, x + 1].Type == CellType.Station &&
+                                                      Cells[y, x + 1].Rotation == 0)
+                                              );
+                        mCell.Directions[2] = x > 0
+                                              && (
+                                                  Cells[y, x - 1].Type == CellType.Road
+                                                  || (Cells[y, x - 1].Type == CellType.Station &&
+                                                      Cells[y, x - 1].Rotation == 0)
+                                              );
+                    }
+                    else if (cell.Rotation == 1) {
+                        mCell.Directions[1] = y < sizeY - 1
+                                              && (
+                                                  Cells[y + 1, x].Type == CellType.Road
+                                                  || (Cells[y + 1, x].Type == CellType.Station &&
+                                                      Cells[y + 1, x].Rotation == 1)
+                                              );
+                        mCell.Directions[3] = y > 0
+                                              && (
+                                                  Cells[y - 1, x].Type == CellType.Road
+                                                  || (Cells[y - 1, x].Type == CellType.Station &&
+                                                      Cells[y - 1, x].Rotation == 1)
+                                              );
+                    }
                 }
             }
+        }
+
+        if (_debugTilemap == null) {
+            return;
         }
 
         for (var y = 0; y < sizeY; y++) {
@@ -176,7 +235,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
                         Vector3.one
                     )
                 );
-                _tilemap.SetTile(td, false);
+                _debugTilemap.SetTile(td, false);
             }
         }
     }
