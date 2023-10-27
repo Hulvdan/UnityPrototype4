@@ -1005,11 +1005,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1962483450866880944, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
       propertyPath: _item
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4402270601040282001, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
       propertyPath: m_Name
       value: Buildable (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4402270601040282001, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6465326995637694291, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
       propertyPath: m_Sprite
@@ -1556,7 +1560,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1962483450866880944, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
       propertyPath: _item
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4402270601040282001, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
       propertyPath: m_Name
@@ -2451,7 +2455,7 @@ Transform:
   m_GameObject: {fileID: 828968647}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 7, y: 5.77, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2497,7 +2501,7 @@ TilemapRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 6
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
   m_MaxChunkCount: 16
@@ -6263,9 +6267,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 587127331}
     m_Modifications:
+    - target: {fileID: 1962483450866880944, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
+      propertyPath: _item
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4402270601040282001, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
       propertyPath: m_Name
       value: Buildable (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4402270601040282001, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6465326995637694291, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
       propertyPath: m_Sprite
@@ -8362,6 +8374,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _map: {fileID: 1879392620}
+  _previewTilemap: {fileID: 828968650}
   _grid: {fileID: 539681139}
   _tileGrass: {fileID: 11400000, guid: 53d50839a5ac409478f0636c58cf9418, type: 2}
   _tileRoad: {fileID: 11400000, guid: 13663f7538694004680aea6c0c3053da, type: 2}
@@ -8373,6 +8386,7 @@ MonoBehaviour:
   _logResource: {fileID: 11400000, guid: 361152873045e084892d56e677d6d740, type: 2}
   _itemsLayer: {fileID: 2040351865}
   _itemPrefab: {fileID: 8175125910645311947, guid: bcf84f38c6b6e414db8990ba390ed555, type: 3}
+  _inputActionAsset: {fileID: -944628639613478452, guid: 304fc82518949fc4abc5fceb1a7ffe52, type: 3}
   _debugTilemap: {fileID: 869664077}
   _debugTileUnwalkable: {fileID: 11400000, guid: b5678ba17b4646b44a07e1b6fdf32816, type: 2}
 --- !u!224 &1911864412 stripped

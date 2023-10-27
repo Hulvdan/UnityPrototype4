@@ -19,12 +19,12 @@ public class BuildablesPanel : MonoBehaviour {
 
     public void OnButtonSelected(int buttonInstanceID) {
         foreach (var button in _buttons) {
-            if (button.GetInstanceID() != buttonInstanceID) {
-                button.SetSelected(false);
-            }
-            else {
+            if (button.GetInstanceID() == buttonInstanceID) {
                 _map.SetSelectedItem(button.item);
+                continue;
             }
+
+            button.SetSelected(false);
         }
     }
 }
