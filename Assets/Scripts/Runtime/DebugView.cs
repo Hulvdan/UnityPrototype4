@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace BFG.Runtime {
@@ -18,9 +17,9 @@ public class DebugView : MonoBehaviour {
     [SerializeField]
     GameObject _movementSystemPaths;
 
-    DebugState _prefs;
-
     InputActionMap _map;
+
+    DebugState _prefs;
     InputAction _toggleDebugAction;
     InputAction _toggleMovementSystemPaths;
 
@@ -50,6 +49,14 @@ public class DebugView : MonoBehaviour {
         }
     }
 
+    void OnEnable() {
+        _map.Enable();
+    }
+
+    void OnDisable() {
+        _map.Disable();
+    }
+
     void UpdateDebugView() {
         if (!_prefs.DebugActive) {
             _movementSystemPaths.SetActive(false);
@@ -72,14 +79,6 @@ public class DebugView : MonoBehaviour {
             MovementSystemPathsActive =
                 PlayerPrefs.GetInt(DebugState.KeyMovementSystemPathsActive, 0) > 0
         };
-    }
-
-    void OnEnable() {
-        _map.Enable();
-    }
-
-    void OnDisable() {
-        _map.Disable();
     }
 }
 }
