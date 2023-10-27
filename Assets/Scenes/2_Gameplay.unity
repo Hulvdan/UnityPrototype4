@@ -1760,7 +1760,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 64, y: 306}
+  m_SizeDelta: {x: 64, y: 168}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &587127332
 MonoBehaviour:
@@ -8253,7 +8253,6 @@ MonoBehaviour:
   _itemsLayer: {fileID: 2040351865}
   _itemPrefab: {fileID: 8175125910645311947, guid: bcf84f38c6b6e414db8990ba390ed555, type: 3}
   _debugTilemap: {fileID: 869664077}
-  _debugTileWalkable: {fileID: 11400000, guid: c43c83eba4466774db3ffcfd6ddadc9f, type: 2}
   _debugTileUnwalkable: {fileID: 11400000, guid: b5678ba17b4646b44a07e1b6fdf32816, type: 2}
 --- !u!224 &1911864412 stripped
 RectTransform:
