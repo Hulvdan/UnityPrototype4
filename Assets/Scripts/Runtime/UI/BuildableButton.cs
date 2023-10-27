@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UnityEngine;
-using Image = UnityEngine.UI.Image;
+using UnityEngine.UI;
 
 namespace BFG.Runtime {
 [Serializable]
 public struct ColorBlock : IEquatable<ColorBlock> {
+    public static ColorBlock defaultColorBlock;
+
     [SerializeField]
     Color _normalColor;
 
@@ -17,6 +20,15 @@ public struct ColorBlock : IEquatable<ColorBlock> {
 
     [SerializeField]
     Color _disabledColor;
+
+    static ColorBlock() {
+        defaultColorBlock = new ColorBlock {
+            _normalColor = new Color32(255, 255, 255, 255),
+            _highlightedColor = new Color32(245, 245, 245, 255),
+            _selectedColor = new Color32(245, 245, 245, 255),
+            _disabledColor = new Color32(200, 200, 200, 128)
+        };
+    }
 
     public Color normalColor {
         get => _normalColor;
@@ -38,15 +50,12 @@ public struct ColorBlock : IEquatable<ColorBlock> {
         set => _disabledColor = value;
     }
 
-    public static ColorBlock defaultColorBlock;
-
-    static ColorBlock() {
-        defaultColorBlock = new ColorBlock {
-            _normalColor = new Color32(255, 255, 255, 255),
-            _highlightedColor = new Color32(245, 245, 245, 255),
-            _selectedColor = new Color32(245, 245, 245, 255),
-            _disabledColor = new Color32(200, 200, 200, 128)
-        };
+    public bool Equals(ColorBlock other) {
+        return normalColor == other.normalColor &&
+               highlightedColor == other.highlightedColor &&
+               selectedColor == other.selectedColor &&
+               selectedColor == other.selectedColor &&
+               disabledColor == other.disabledColor;
     }
 
     public override bool Equals(object obj) {
@@ -55,14 +64,6 @@ public struct ColorBlock : IEquatable<ColorBlock> {
         }
 
         return Equals((ColorBlock)obj);
-    }
-
-    public bool Equals(ColorBlock other) {
-        return normalColor == other.normalColor &&
-               highlightedColor == other.highlightedColor &&
-               selectedColor == other.selectedColor &&
-               selectedColor == other.selectedColor &&
-               disabledColor == other.disabledColor;
     }
 
     public static bool operator ==(ColorBlock point1, ColorBlock point2) {
@@ -87,6 +88,10 @@ public enum ButtonEnum {
 
 public class BuildableButton : MonoBehaviour {
     [SerializeField]
+    [Required]
+    public SelectedItem _item;
+
+    [SerializeField]
     List<Image> _images;
 
     [SerializeField]
@@ -96,19 +101,39 @@ public class BuildableButton : MonoBehaviour {
     [SerializeField]
     ColorBlock _colorBlock;
 
-    Color _targetColor;
-    Color _fromColor;
-
-    bool _selected;
-    bool _interactable = true;
-
-    ButtonEnum _state = ButtonEnum.Normal;
+    float _fadeElapsed;
 
     bool _fading;
+    Color _fromColor;
 
-    float _fadeElapsed;
-    bool _hovered;
     BuildablesPanel _panel;
+
+    ButtonEnum _state = ButtonEnum.Normal;
+    bool _stateHovered;
+    bool _stateInteractable = true;
+    bool _stateSelected;
+
+    Color _targetColor;
+
+    public SelectedItem item => _item;
+
+    void Update() {
+        if (!_fading) {
+            return;
+        }
+
+        _fadeElapsed += Time.deltaTime;
+
+        var t = _fadeElapsed / _fadeDuration;
+        if (t >= 1) {
+            _fading = false;
+            t = 1;
+        }
+
+        foreach (var image in _images) {
+            image.color = Color.Lerp(_fromColor, _targetColor, t);
+        }
+    }
 
     public void Init(BuildablesPanel panel) {
         _panel = panel;
@@ -127,24 +152,6 @@ public class BuildableButton : MonoBehaviour {
         _fadeElapsed = 0;
         _targetColor = target;
         _fromColor = _images[0].color;
-    }
-
-    void Update() {
-        if (!_fading) {
-            return;
-        }
-
-        _fadeElapsed += Time.deltaTime;
-
-        var t = _fadeElapsed / _fadeDuration;
-        if (t >= 1) {
-            _fading = false;
-            t = 1;
-        }
-
-        foreach (var image in _images) {
-            image.color = Color.Lerp(_fromColor, _targetColor, t);
-        }
     }
 
     void RecalculateState(ButtonEnum state) {
@@ -169,36 +176,36 @@ public class BuildableButton : MonoBehaviour {
     }
 
     public void PointerClick() {
-        if (!_interactable) {
+        if (!_stateInteractable) {
             return;
         }
 
-        _selected = true;
+        _stateSelected = true;
         UpdateState();
     }
 
     public void PointerEnter() {
-        _hovered = true;
+        _stateHovered = true;
         UpdateState();
     }
 
     public void PointerExit() {
-        _hovered = false;
+        _stateHovered = false;
         UpdateState();
     }
 
     void UpdateState() {
-        if (!_interactable) {
+        if (!_stateInteractable) {
             RecalculateState(ButtonEnum.Disabled);
             return;
         }
 
-        if (_selected) {
+        if (_stateSelected) {
             RecalculateState(ButtonEnum.Selected);
             return;
         }
 
-        if (_hovered) {
+        if (_stateHovered) {
             RecalculateState(ButtonEnum.Hovered);
             return;
         }
@@ -207,16 +214,16 @@ public class BuildableButton : MonoBehaviour {
     }
 
     public void SetSelected(bool selected) {
-        if (!_interactable) {
+        if (!_stateInteractable) {
             return;
         }
 
-        _selected = selected;
+        _stateSelected = selected;
         UpdateState();
     }
 
     public void SetInteractable(bool interactable) {
-        _interactable = interactable;
+        _stateInteractable = interactable;
         UpdateState();
     }
 }
