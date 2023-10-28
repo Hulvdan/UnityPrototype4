@@ -123,8 +123,11 @@ public class Map : MonoBehaviour {
     public int sizeX => _mapSizeX;
 
     // NOTE(Hulvdan): Indexes start from the bottom left corner and go to the top right one
-    public List<List<Tile>> tiles { get; private set; }
-    public List<List<int>> tileHeights { get; private set; }
+
+    public event Action<Vector2Int> OnElementTileChanged = delegate { };
+
+    public List<List<ElementTile>> elementTiles { get; private set; }
+    public List<List<TerrainTile>> terrainTiles { get; private set; }
 
     public List<Building> buildings => _buildings;
 
@@ -165,23 +168,32 @@ public class Map : MonoBehaviour {
     }
 
     void InitializeMovementSystem() {
-        _cells = new MapCell[_mapSizeY, _mapSizeX];
-        for (var y = 0; y < _mapSizeY; y++) {
-            for (var x = 0; x < _mapSizeX; x++) {
-                var tile = _movementSystemTilemap.GetTile(new Vector3Int(x, y));
-                if (tile == _roadTile) {
-                    _cells[y, x] = MapCell.Road;
+        elementTiles = new List<List<ElementTile>>(sizeY);
+
+        for (var y = 0; y < sizeY; y++) {
+            var row = new List<ElementTile>(sizeX);
+
+            for (var x = 0; x < sizeX; x++) {
+                var tilemapTile = _movementSystemTilemap.GetTile(new Vector3Int(x, y));
+
+                ElementTile tile;
+                if (tilemapTile == _roadTile) {
+                    tile = ElementTile.Road;
                 }
-                else if (tile == _stationHorizontalTile) {
-                    _cells[y, x] = new MapCell(CellType.Station, 0);
+                else if (tilemapTile == _stationHorizontalTile) {
+                    tile = new ElementTile(ElementTileType.Station, 0);
                 }
-                else if (tile == _stationVerticalTile) {
-                    _cells[y, x] = new MapCell(CellType.Station, 1);
+                else if (tilemapTile == _stationVerticalTile) {
+                    tile = new ElementTile(ElementTileType.Station, 1);
                 }
                 else {
-                    _cells[y, x] = MapCell.None;
+                    tile = ElementTile.None;
                 }
+
+                row.Add(tile);
             }
+
+            elementTiles.Add(row);
         }
 
         _movementSystemInterface.Init(this);
@@ -208,12 +220,12 @@ public class Map : MonoBehaviour {
             return;
         }
 
-        if (_cells[pos.y, pos.x].Type == CellType.None) {
-            var road = _cells[pos.y, pos.x];
-            road.Type = CellType.Road;
-            _cells[pos.y, pos.x] = road;
+        if (elementTiles[pos.y][pos.x].Type == ElementTileType.None) {
+            var road = elementTiles[pos.y][pos.x];
+            road.Type = ElementTileType.Road;
+            elementTiles[pos.y][pos.x] = road;
 
-            OnCellChanged?.Invoke(pos);
+            OnElementTileChanged?.Invoke(pos);
         }
     }
 
@@ -242,12 +254,6 @@ public class Map : MonoBehaviour {
     [FoldoutGroup("Humans", true)]
     [SerializeField]
     AnimationCurve _humanMovementCurve = AnimationCurve.Linear(0, 0, 1, 1);
-
-    MapCell[,] _cells;
-
-    public ref MapCell[,] cells => ref _cells;
-
-    public event Action<Vector2Int> OnCellChanged = delegate { };
 
     #endregion
 
@@ -282,43 +288,48 @@ public class Map : MonoBehaviour {
 
     [Button("RegenerateTilemap")]
     void RegenerateTilemap() {
-        tiles = new List<List<Tile>>();
-        tileHeights = new List<List<int>>();
+        terrainTiles = new List<List<TerrainTile>>();
 
         // NOTE(Hulvdan): Generating tiles
         for (var y = 0; y < _mapSizeY; y++) {
-            var tilesRow = new List<Tile>();
-            var tileHeightsRow = new List<int>();
+            var row = new List<TerrainTile>();
 
             for (var x = 0; x < _mapSizeX; x++) {
                 var forestK = MakeSomeNoise2D(_randomSeed, x, y, _forestNoiseScale);
                 // var hasForest = false;
                 var hasForest = forestK > _forestThreshold;
-                var tile = new Tile {
+                var tile = new TerrainTile {
                     Name = "grass",
                     Resource = hasForest ? _logResource : null,
                     ResourceAmount = hasForest ? _maxForestAmount : 0
                 };
-                tilesRow.Add(tile);
+
                 // var randomH = Random.Range(0, _maxHeight + 1);
                 var heightK = MakeSomeNoise2D(_randomSeed, x, y, _terrainHeightNoiseScale);
                 var randomH = heightK * (_maxHeight + 1);
-                tileHeightsRow.Add(Mathf.Min(_maxHeight, (int)randomH));
+                tile.Height = Mathf.Min(_maxHeight, (int)randomH);
+
+                row.Add(tile);
             }
 
-            tiles.Add(tilesRow);
-            tileHeights.Add(tileHeightsRow);
+            terrainTiles.Add(row);
         }
 
         for (var y = 0; y < _mapSizeY; y++) {
             for (var x = 0; x < _mapSizeX; x++) {
-                if (y == 0 || tileHeights[y][x] > tileHeights[y - 1][x]) {
-                    var s = tiles[y][x];
-                    s.Name = "cliff";
-                    s.Resource = null;
-                    s.ResourceAmount = 0;
-                    tiles[y][x] = s;
+                var shouldMarkAsCliff =
+                    y == 0
+                    || terrainTiles[y][x].Height > terrainTiles[y - 1][x].Height;
+
+                if (!shouldMarkAsCliff) {
+                    continue;
                 }
+
+                var tile = terrainTiles[y][x];
+                tile.Name = "cliff";
+                tile.Resource = null;
+                tile.ResourceAmount = 0;
+                terrainTiles[y][x] = tile;
             }
         }
 
@@ -381,7 +392,7 @@ public class Map : MonoBehaviour {
 
                         PickUpResource(human);
                         var pos = human.harvestTilePosition.Value;
-                        tiles[pos.y][pos.x].IsBooked = false;
+                        terrainTiles[pos.y][pos.x].IsBooked = false;
 
                         HumanStartedHeadingToTheStoreBuilding(human);
                     }
@@ -449,7 +460,7 @@ public class Map : MonoBehaviour {
 
     void PickUpResource(Human human) {
         var pos = human.harvestTilePosition.Value;
-        var tile = tiles[pos.y][pos.x];
+        var tile = terrainTiles[pos.y][pos.x];
         tile.ResourceAmount -= 1;
 
         OnHumanPickedUpResource?.Invoke(
@@ -517,7 +528,7 @@ public class Map : MonoBehaviour {
         var shouldBreak = false;
         foreach (var y in yy) {
             foreach (var x in xx) {
-                if (!tiles[y][x].IsBooked && tiles[y][x].Resource == resource) {
+                if (!terrainTiles[y][x].IsBooked && terrainTiles[y][x].Resource == resource) {
                     tileCandidate = new Vector2Int(x, y);
                     shouldBreak = true;
                     break;
@@ -560,7 +571,7 @@ public class Map : MonoBehaviour {
             human.harvestTilePosition = new Vector2Int(x, y);
             human.storeBuilding = storeBuildingCandidate;
 
-            tiles[y][x].IsBooked = true;
+            terrainTiles[y][x].IsBooked = true;
             storeBuildingCandidate.isBooked = true;
 
             HumanFinishedIdle(human);

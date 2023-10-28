@@ -219,7 +219,7 @@ public class MapRenderer : MonoBehaviour {
         var maxHeight = 0;
         for (var y = 0; y < _map.sizeY; y++) {
             for (var x = 0; x < _map.sizeX; x++) {
-                maxHeight = Math.Max(maxHeight, _map.tileHeights[y][x]);
+                maxHeight = Math.Max(maxHeight, _map.terrainTiles[y][x].Height);
             }
         }
 
@@ -242,8 +242,8 @@ public class MapRenderer : MonoBehaviour {
                 for (var x = 0; x < _map.sizeX; x++) {
                     if (
                         h == 0
-                        || _map.tileHeights[y][x] >= h
-                        || (y > 0 && _map.tileHeights[y - 1][x] == h)
+                        || _map.terrainTiles[y][x].Height >= h
+                        || (y > 0 && _map.terrainTiles[y - 1][x].Height == h)
                     ) {
                         terrainMaps[h].SetTile(new Vector3Int(x, y, 0), _tileGrass);
                     }
@@ -256,8 +256,8 @@ public class MapRenderer : MonoBehaviour {
         ).GetComponent<Tilemap>();
         for (var y = 0; y < _map.sizeY; y++) {
             for (var x = 0; x < _map.sizeX; x++) {
-                if (_map.tiles[y][x].Resource != null
-                    && _map.tiles[y][x].Resource.name == _logResource.name) {
+                if (_map.terrainTiles[y][x].Resource != null
+                    && _map.terrainTiles[y][x].Resource.name == _logResource.name) {
                     _resourceTilemap.SetTile(new Vector3Int(x, y, 0), _tileForest);
                     _resourceTilemap.SetTile(new Vector3Int(x, y, -1), _tileForestTop);
                 }
@@ -296,7 +296,7 @@ public class MapRenderer : MonoBehaviour {
     }
 
     bool TileIsACliff(int x, int y) {
-        return _map.tiles[y][x].Name == "cliff";
+        return _map.terrainTiles[y][x].Name == "cliff";
     }
 
     GameObject GenerateTilemap(int i, float order, string nameTemplate, GameObject prefabTemplate) {

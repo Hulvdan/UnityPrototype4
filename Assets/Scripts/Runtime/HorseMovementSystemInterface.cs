@@ -5,7 +5,7 @@ using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 namespace BFG.Runtime {
-public enum CellType {
+public enum ElementTileType {
     None,
     Road,
     Station
@@ -68,7 +68,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
 
     public void Init(Map map) {
         _map = map;
-        map.OnCellChanged += OnCellChanged;
+        map.OnElementTileChanged += OnElementTileChanged;
         GenerateMovementGraph();
 
         _horseMovement = new HorseMovementSystem();
@@ -87,8 +87,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         BuildHorsePath(Direction.Right, true);
     }
 
-    void OnCellChanged(Vector2Int pos) {
-        ref var cells = ref _map.cells;
+    void OnElementTileChanged(Vector2Int pos) {
         UpdateCellAtPos(pos.x, pos.y);
         UpdateDebugTilemapAtPos(pos.x, pos.y);
 
@@ -97,7 +96,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
             UpdateDebugTilemapAtPos(pos.x - 1, pos.y);
         }
 
-        if (pos.x < cells.GetLength(1) - 1) {
+        if (pos.x < _map.sizeX - 1) {
             UpdateCellAtPos(pos.x + 1, pos.y);
             UpdateDebugTilemapAtPos(pos.x + 1, pos.y);
         }
@@ -107,7 +106,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
             UpdateDebugTilemapAtPos(pos.x, pos.y - 1);
         }
 
-        if (pos.y < cells.GetLength(0) - 1) {
+        if (pos.y < _map.sizeY - 1) {
             UpdateCellAtPos(pos.x, pos.y + 1);
             UpdateDebugTilemapAtPos(pos.x, pos.y + 1);
         }
@@ -173,13 +172,9 @@ public class HorseMovementSystemInterface : MonoBehaviour {
             _debugTilemap.ClearAllTiles();
         }
 
-        ref var cells = ref _map.cells;
-        var sizeY = cells.GetLength(0);
-        var sizeX = cells.GetLength(1);
-
-        _movementCells = new MovementGraphCell[sizeY, sizeX];
-        for (var y = 0; y < sizeY; y++) {
-            for (var x = 0; x < sizeX; x++) {
+        _movementCells = new MovementGraphCell[_map.sizeY, _map.sizeX];
+        for (var y = 0; y < _map.sizeY; y++) {
+            for (var x = 0; x < _map.sizeX; x++) {
                 UpdateCellAtPos(x, y);
             }
         }
@@ -188,14 +183,11 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     }
 
     void UpdateCellAtPos(int x, int y) {
-        ref var cells = ref _map.cells;
+        var elementTiles = _map.elementTiles;
 
-        var sizeY = cells.GetLength(0);
-        var sizeX = cells.GetLength(1);
+        var cell = elementTiles[y][x];
 
-        var cell = cells[y, x];
-
-        if (cell.Type == CellType.None) {
+        if (cell.Type == ElementTileType.None) {
             _movementCells[y, x] = null;
             return;
         }
@@ -206,59 +198,63 @@ public class HorseMovementSystemInterface : MonoBehaviour {
             _movementCells[y, x] = mCell;
         }
 
-        if (cell.Type == CellType.Road) {
-            mCell.Directions[0] = x < sizeX - 1
+        if (cell.Type == ElementTileType.Road) {
+            mCell.Directions[0] = x < _map.sizeX - 1
                                   && (
-                                      cells[y, x + 1].Type == CellType.Road
-                                      || (cells[y, x + 1].Type == CellType.Station &&
-                                          cells[y, x + 1].Rotation == 0)
+                                      elementTiles[y][x + 1].Type == ElementTileType.Road
+                                      || (elementTiles[y][x + 1].Type == ElementTileType.Station &&
+                                          elementTiles[y][x + 1].Rotation == 0)
                                   );
             mCell.Directions[2] = x > 0
                                   && (
-                                      cells[y, x - 1].Type == CellType.Road
-                                      || (cells[y, x - 1].Type == CellType.Station &&
-                                          cells[y, x - 1].Rotation == 0)
+                                      elementTiles[y][x - 1].Type == ElementTileType.Road
+                                      || (elementTiles[y][x - 1].Type == ElementTileType.Station &&
+                                          elementTiles[y][x - 1].Rotation == 0)
                                   );
-            mCell.Directions[1] = y < sizeY - 1
+            mCell.Directions[1] = y < _map.sizeY - 1
                                   && (
-                                      cells[y + 1, x].Type == CellType.Road
-                                      || (cells[y + 1, x].Type == CellType.Station &&
-                                          cells[y + 1, x].Rotation == 1)
+                                      elementTiles[y + 1][x].Type == ElementTileType.Road
+                                      || (elementTiles[y + 1][x].Type == ElementTileType.Station &&
+                                          elementTiles[y + 1][x].Rotation == 1)
                                   );
             mCell.Directions[3] = y > 0
                                   && (
-                                      cells[y - 1, x].Type == CellType.Road
-                                      || (cells[y - 1, x].Type == CellType.Station &&
-                                          cells[y - 1, x].Rotation == 1)
+                                      elementTiles[y - 1][x].Type == ElementTileType.Road
+                                      || (elementTiles[y - 1][x].Type == ElementTileType.Station &&
+                                          elementTiles[y - 1][x].Rotation == 1)
                                   );
         }
-        else if (cell.Type == CellType.Station) {
+        else if (cell.Type == ElementTileType.Station) {
             if (cell.Rotation == 0) {
-                mCell.Directions[0] = x < sizeX - 1
+                mCell.Directions[0] = x < _map.sizeX - 1
                                       && (
-                                          cells[y, x + 1].Type == CellType.Road
-                                          || (cells[y, x + 1].Type == CellType.Station &&
-                                              cells[y, x + 1].Rotation == 0)
+                                          elementTiles[y][x + 1].Type == ElementTileType.Road
+                                          || (elementTiles[y][x + 1].Type ==
+                                              ElementTileType.Station &&
+                                              elementTiles[y][x + 1].Rotation == 0)
                                       );
                 mCell.Directions[2] = x > 0
                                       && (
-                                          cells[y, x - 1].Type == CellType.Road
-                                          || (cells[y, x - 1].Type == CellType.Station &&
-                                              cells[y, x - 1].Rotation == 0)
+                                          elementTiles[y][x - 1].Type == ElementTileType.Road
+                                          || (elementTiles[y][x - 1].Type ==
+                                              ElementTileType.Station &&
+                                              elementTiles[y][x - 1].Rotation == 0)
                                       );
             }
             else if (cell.Rotation == 1) {
-                mCell.Directions[1] = y < sizeY - 1
+                mCell.Directions[1] = y < _map.sizeY - 1
                                       && (
-                                          cells[y + 1, x].Type == CellType.Road
-                                          || (cells[y + 1, x].Type == CellType.Station &&
-                                              cells[y + 1, x].Rotation == 1)
+                                          elementTiles[y + 1][x].Type == ElementTileType.Road
+                                          || (elementTiles[y + 1][x].Type ==
+                                              ElementTileType.Station &&
+                                              elementTiles[y + 1][x].Rotation == 1)
                                       );
                 mCell.Directions[3] = y > 0
                                       && (
-                                          cells[y - 1, x].Type == CellType.Road
-                                          || (cells[y - 1, x].Type == CellType.Station &&
-                                              cells[y - 1, x].Rotation == 1)
+                                          elementTiles[y - 1][x].Type == ElementTileType.Road
+                                          || (elementTiles[y - 1][x].Type ==
+                                              ElementTileType.Station &&
+                                              elementTiles[y - 1][x].Rotation == 1)
                                       );
             }
         }
@@ -269,12 +265,8 @@ public class HorseMovementSystemInterface : MonoBehaviour {
             return;
         }
 
-        ref var cells = ref _map.cells;
-        var sizeY = cells.GetLength(0);
-        var sizeX = cells.GetLength(1);
-
-        for (var y = 0; y < sizeY; y++) {
-            for (var x = 0; x < sizeX; x++) {
+        for (var y = 0; y < _map.sizeY; y++) {
+            for (var x = 0; x < _map.sizeX; x++) {
                 UpdateDebugTilemapAtPos(x, y);
             }
         }
