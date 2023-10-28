@@ -1495,7 +1495,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5.34375
+  orthographic size: 5.3359375
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2170,6 +2170,54 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &795772556
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 795772557}
+  - component: {fileID: 795772558}
+  m_Layer: 0
+  m_Name: InitialMapProvider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &795772557
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 795772556}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879392619}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &795772558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 795772556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4944a50acbe4a72bfb9e9b1483ce25e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _movementSystemTilemap: {fileID: 278003677}
+  _roadTile: {fileID: 11400000, guid: 13663f7538694004680aea6c0c3053da, type: 2}
+  _stationHorizontalTile: {fileID: 11400000, guid: 43b5609540341be46a5301c769024c5f, type: 2}
+  _stationVerticalTile: {fileID: 11400000, guid: cab357ae5a134df4e83dedfbcbf177d2, type: 2}
 --- !u!1 &826533642
 GameObject:
   m_ObjectHideFlags: 0
@@ -4390,7 +4438,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _inputActionAsset: {fileID: -944628639613478452, guid: 304fc82518949fc4abc5fceb1a7ffe52, type: 3}
   _movementSystemPaths: {fileID: 446218254}
-  _buildableCells: {fileID: 869664074}
+  _unwalkableCells: {fileID: 869664074}
 --- !u!1 &1182745793
 GameObject:
   m_ObjectHideFlags: 0
@@ -8246,6 +8294,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 795772557}
   - {fileID: 539681138}
   m_Father: {fileID: 1018313476}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -8269,7 +8318,7 @@ MonoBehaviour:
   _forestThreshold: 0.581
   _maxForestAmount: 3
   _maxHeight: 2
-  OnTilesRegenerated:
+  OnTerrainTilesRegenerated:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1879392621}
@@ -8319,11 +8368,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 10745982271be284fb0df31da327cdba, type: 2}
   - {fileID: 11400000, guid: 45af1427840af3a4a98b31727bdd67b4, type: 2}
   - {fileID: 11400000, guid: ae832cc99114055458e3b3270e527dd6, type: 2}
+  _initialMapProvider: {fileID: 795772558}
   _movementSystemInterface: {fileID: 1706615548}
-  _movementSystemTilemap: {fileID: 278003677}
-  _roadTile: {fileID: 11400000, guid: 13663f7538694004680aea6c0c3053da, type: 2}
-  _stationHorizontalTile: {fileID: 11400000, guid: 43b5609540341be46a5301c769024c5f, type: 2}
-  _stationVerticalTile: {fileID: 11400000, guid: cab357ae5a134df4e83dedfbcbf177d2, type: 2}
   _humanHeadingDuration: 1
   _humanHarvestingDuration: 1
   _humanHeadingToTheStoreBuildingDuration: 1

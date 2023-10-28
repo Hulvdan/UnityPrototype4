@@ -5,18 +5,18 @@ using SimplexNoise;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Tilemaps;
 using Random = System.Random;
 
 namespace BFG.Runtime {
 public class Map : MonoBehaviour {
     // Layers:
     // 1 - Terrain (depends on height)
-    // 2 - Stone, Trees, Ore, Buildings, Rails
-    // 3 - Animated (carts, trains, people, horses)
-    // 4 - Particles (smoke, footstep dust etc)
-    //
-    // Stone, Tree, Ore:
+    // 2 - Trees, Stone, Ore
+    // 3 - Roads, Rails
+    // 4 - Humans, Stations, Buildings
+    // 5 - Horses
+    // 6 - To Be Implemented: Particles (smoke, footstep dust etc)
+
     [FoldoutGroup("Map", true)]
     [SerializeField]
     [Min(1)]
@@ -58,7 +58,7 @@ public class Map : MonoBehaviour {
 
     [FoldoutGroup("Setup", true)]
     [SerializeField]
-    public UnityEvent OnTilesRegenerated;
+    public UnityEvent OnTerrainTilesRegenerated;
 
     [FoldoutGroup("Setup", true)]
     [SerializeField]
@@ -78,30 +78,15 @@ public class Map : MonoBehaviour {
     [Required]
     List<ScriptableResource> _topBarResources;
 
+    [FoldoutGroup("Setup", true)]
+    [SerializeField]
+    [Required]
+    InitialMapProvider _initialMapProvider;
+
     [FoldoutGroup("Horse Movement System", true)]
     [SerializeField]
     [Required]
     HorseMovementSystemInterface _movementSystemInterface;
-
-    [FoldoutGroup("Horse Movement System", true)]
-    [SerializeField]
-    [Required]
-    Tilemap _movementSystemTilemap;
-
-    [FoldoutGroup("Horse Movement System", true)]
-    [SerializeField]
-    [Required]
-    TileBase _roadTile;
-
-    [FoldoutGroup("Horse Movement System", true)]
-    [SerializeField]
-    [Required]
-    TileBase _stationHorizontalTile;
-
-    [FoldoutGroup("Horse Movement System", true)]
-    [SerializeField]
-    [Required]
-    TileBase _stationVerticalTile;
 
     readonly List<TopBarResource> _resources = new();
 
@@ -125,6 +110,8 @@ public class Map : MonoBehaviour {
 
     void Awake() {
         _random = new Random((int)Time.time);
+
+        _initialMapProvider.Init(this);
         RegenerateTilemap();
 
         foreach (var res in _topBarResources) {
@@ -161,33 +148,7 @@ public class Map : MonoBehaviour {
     }
 
     void InitializeMovementSystem() {
-        elementTiles = new List<List<ElementTile>>(sizeY);
-
-        for (var y = 0; y < sizeY; y++) {
-            var row = new List<ElementTile>(sizeX);
-
-            for (var x = 0; x < sizeX; x++) {
-                var tilemapTile = _movementSystemTilemap.GetTile(new Vector3Int(x, y));
-
-                ElementTile tile;
-                if (tilemapTile == _roadTile) {
-                    tile = ElementTile.Road;
-                }
-                else if (tilemapTile == _stationHorizontalTile) {
-                    tile = new ElementTile(ElementTileType.Station, 0);
-                }
-                else if (tilemapTile == _stationVerticalTile) {
-                    tile = new ElementTile(ElementTileType.Station, 1);
-                }
-                else {
-                    tile = ElementTile.None;
-                }
-
-                row.Add(tile);
-            }
-
-            elementTiles.Add(row);
-        }
+        elementTiles = _initialMapProvider.LoadElementTiles();
 
         _movementSystemInterface.Init(this);
     }
@@ -334,7 +295,7 @@ public class Map : MonoBehaviour {
             }
         }
 
-        OnTilesRegenerated?.Invoke();
+        OnTerrainTilesRegenerated?.Invoke();
     }
 
     float MakeSomeNoise2D(int seed, int x, int y, float scale) {
