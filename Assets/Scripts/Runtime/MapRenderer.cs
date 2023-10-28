@@ -18,6 +18,10 @@ public class MapRenderer : MonoBehaviour {
 
     [SerializeField]
     [Required]
+    Tilemap _movementSystemTilemap;
+
+    [SerializeField]
+    [Required]
     Tilemap _previewTilemap;
 
     [SerializeField]
@@ -91,15 +95,17 @@ public class MapRenderer : MonoBehaviour {
 
     void Awake() {
         _camera = Camera.main;
-        _map.OnHumanCreated += OnHumanCreated;
-        _map.OnHumanPickedUpResource += OnHumanPickedUpResource;
-        _map.OnHumanPlacedResource += OnHumanPlacedResource;
-
-        _map.OnSelectedItemChanged += OnSelectedItemChanged;
 
         _gameplayInputMap = _inputActionAsset.FindActionMap("Gameplay");
         _mouseMoveAction = _gameplayInputMap.FindAction("PreviewMouseMove");
         _mouseBuildAction = _gameplayInputMap.FindAction("Build");
+
+        _map.OnSelectedItemChanged += OnSelectedItemChanged;
+        _map.OnElementTileChanged += OnElementTileChanged;
+
+        _map.OnHumanCreated += OnHumanCreated;
+        _map.OnHumanPickedUpResource += OnHumanPickedUpResource;
+        _map.OnHumanPlacedResource += OnHumanPlacedResource;
     }
 
     void Update() {
@@ -163,32 +169,11 @@ public class MapRenderer : MonoBehaviour {
     void OnSelectedItemChanged(SelectedItem item) {
     }
 
-    void OnHumanPickedUpResource(HumanPickedUpResourceData data) {
-        UpdateTileBasedOnRemainingResourcePercent(
-            data.ResourceTilePosition,
-            data.RemainingAmountPercent
-        );
-
-        _humans[data.Human.ID].Item2.OnPickedUpResource(data.Resource);
-    }
-
-    void OnHumanPlacedResource(HumanPlacedResourceData data) {
-        _humans[data.Human.ID].Item2.OnPlacedResource();
-
-        var item = Instantiate(_itemPrefab, _itemsLayer);
-
-        var building = data.StoreBuilding;
-        var scriptable = building.scriptableBuilding;
-
-        var i = building.storedResources.Count - 1;
-        if (i >= scriptable.storedItemPositions.Count) {
-            Debug.LogError("WTF i >= scriptable.storedItemPositions.Count");
-            i = scriptable.storedItemPositions.Count - 1;
+    void OnElementTileChanged(Vector2Int pos) {
+        var tile = _map.elementTiles[pos.y][pos.x];
+        if (tile.Type == ElementTileType.Road) {
+            _movementSystemTilemap.SetTile(new Vector3Int(pos.x, pos.y), _tileRoad);
         }
-
-        var itemOffset = scriptable.storedItemPositions[i];
-        item.transform.localPosition = building.position + itemOffset + Vector2.right / 2;
-        item.GetComponent<ItemGO>().SetAs(data.Resource);
     }
 
     void UpdateTileBasedOnRemainingResourcePercent(
@@ -339,6 +324,34 @@ public class MapRenderer : MonoBehaviour {
     void OnHumanCreated(HumanCreatedData data) {
         var go = Instantiate(_humanPrefab, _grid.transform);
         _humans.Add(data.Human.ID, Tuple.Create(data.Human, go.GetComponent<HumanGO>()));
+    }
+
+    void OnHumanPickedUpResource(HumanPickedUpResourceData data) {
+        UpdateTileBasedOnRemainingResourcePercent(
+            data.ResourceTilePosition,
+            data.RemainingAmountPercent
+        );
+
+        _humans[data.Human.ID].Item2.OnPickedUpResource(data.Resource);
+    }
+
+    void OnHumanPlacedResource(HumanPlacedResourceData data) {
+        _humans[data.Human.ID].Item2.OnPlacedResource();
+
+        var item = Instantiate(_itemPrefab, _itemsLayer);
+
+        var building = data.StoreBuilding;
+        var scriptable = building.scriptableBuilding;
+
+        var i = building.storedResources.Count - 1;
+        if (i >= scriptable.storedItemPositions.Count) {
+            Debug.LogError("WTF i >= scriptable.storedItemPositions.Count");
+            i = scriptable.storedItemPositions.Count - 1;
+        }
+
+        var itemOffset = scriptable.storedItemPositions[i];
+        item.transform.localPosition = building.position + itemOffset + Vector2.right / 2;
+        item.GetComponent<ItemGO>().SetAs(data.Resource);
     }
 
     Vector3 GameLogicToRenderPos(Vector2 pos) {
