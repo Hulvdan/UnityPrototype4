@@ -273,6 +273,7 @@ MonoBehaviour:
   _map: {fileID: 1879392620}
   _mapRenderer: {fileID: 1879392621}
   _buildablesPanel: {fileID: 1600136909}
+  _inputActionAsset: {fileID: -944628639613478452, guid: 304fc82518949fc4abc5fceb1a7ffe52, type: 3}
 --- !u!1001 &237059753
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8470,6 +8471,8 @@ MonoBehaviour:
   _grid: {fileID: 539681139}
   _tileGrass: {fileID: 11400000, guid: 53d50839a5ac409478f0636c58cf9418, type: 2}
   _tileRoad: {fileID: 11400000, guid: 13663f7538694004680aea6c0c3053da, type: 2}
+  _tileStationHorizontal: {fileID: 11400000, guid: 43b5609540341be46a5301c769024c5f, type: 2}
+  _tileStationVertical: {fileID: 11400000, guid: cab357ae5a134df4e83dedfbcbf177d2, type: 2}
   _tileForest: {fileID: 11400000, guid: eedf2f35d2863c847b3e482af4541ea7, type: 2}
   _tileForestTop: {fileID: 11400000, guid: e39481a7068315745bb97871069b3b17, type: 2}
   _tilemapPrefab: {fileID: 7769032001010058926, guid: 102831fe39d96624dae6dc8fe9cc3e8c, type: 3}
