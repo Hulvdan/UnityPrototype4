@@ -2,7 +2,7 @@
 
 namespace BFG.Runtime {
 /// <summary>
-/// Is it a road or lumberjack's hut?
+///     Is it a road or lumberjack's hut?
 /// </summary>
 public struct ElementTile {
     public ElementTileType Type;
