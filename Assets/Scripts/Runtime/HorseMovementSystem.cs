@@ -15,13 +15,6 @@ public struct PathFindResult {
 }
 
 public class HorseMovementSystem {
-    static readonly Vector2Int[] Offsets = {
-        new(1, 0),
-        new(0, 1),
-        new(-1, 0),
-        new(0, -1)
-    };
-
     public event Action<Direction> OnReachedTarget = delegate { };
 
     public static void NormalizeNodeDistances(TrainNode node, TrainNode previousNode) {
@@ -129,7 +122,7 @@ public class HorseMovementSystem {
                     continue;
                 }
 
-                var offset = Offsets[i];
+                var offset = DirectionOffsets.Offsets[i];
                 var newY = pos.y + offset.y;
                 var newX = pos.x + offset.x;
 
