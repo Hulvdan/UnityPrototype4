@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -13,7 +14,7 @@ public class UIManager : MonoBehaviour {
     List<ResourceTMPTextMapping> _resourceTextsMapping;
 
     void Start() {
-        _map.OnResourceChanged += OnResourceChanged;
+        _map.OnResourceChanged.Subscribe(OnResourceChanged);
         // _map.OnHumanHarvestedResource += OnHumanHarvestedResource;
     }
 
