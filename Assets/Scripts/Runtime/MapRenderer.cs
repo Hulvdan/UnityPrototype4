@@ -14,10 +14,6 @@ public class MapRenderer : MonoBehaviour {
     [Header("Dependencies")]
     [SerializeField]
     [Required]
-    Map _map;
-
-    [SerializeField]
-    [Required]
     Tilemap _movementSystemTilemap;
 
     [SerializeField]
@@ -85,9 +81,14 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     TileBase _debugTileUnwalkable;
 
+    readonly List<IDisposable> _dependencyHooks = new();
+
     readonly Dictionary<Guid, Tuple<Human, HumanGO>> _humans = new();
     Camera _camera;
+
+    GameManager _gameManager;
     InputActionMap _gameplayInputMap;
+    Map _map;
     InputAction _mouseBuildAction;
     InputAction _mouseMoveAction;
 
@@ -99,13 +100,6 @@ public class MapRenderer : MonoBehaviour {
         _gameplayInputMap = _inputActionAsset.FindActionMap("Gameplay");
         _mouseMoveAction = _gameplayInputMap.FindAction("PreviewMouseMove");
         _mouseBuildAction = _gameplayInputMap.FindAction("Build");
-
-        _map.OnSelectedItemChanged += OnSelectedItemChanged;
-        _map.OnElementTileChanged += OnElementTileChanged;
-
-        _map.OnHumanCreated += OnHumanCreated;
-        _map.OnHumanPickedUpResource += OnHumanPickedUpResource;
-        _map.OnHumanPlacedResource += OnHumanPlacedResource;
     }
 
     void Update() {
@@ -113,7 +107,7 @@ public class MapRenderer : MonoBehaviour {
         DisplayPreviewTile();
 
         if (_mouseBuildAction.WasPressedThisFrame()) {
-            if (_map.selectedItem == SelectedItem.Road) {
+            if (_gameManager.selectedItem == SelectedItem.Road) {
                 var hoveredCell = GetHoveredCell();
                 if (!_map.Contains(hoveredCell)) {
                     return;
@@ -164,6 +158,22 @@ public class MapRenderer : MonoBehaviour {
 
             Gizmos.DrawLineList(points);
         }
+    }
+
+    public void InitDependencies(GameManager gameManager, Map map) {
+        _map = map;
+        _gameManager = gameManager;
+
+        foreach (var hook in _dependencyHooks) {
+            hook.Dispose();
+        }
+
+        _dependencyHooks.Clear();
+        _dependencyHooks.Add(_gameManager.OnSelectedItemChanged.Subscribe(OnSelectedItemChanged));
+        _dependencyHooks.Add(_map.OnElementTileChanged.Subscribe(OnElementTileChanged));
+        _dependencyHooks.Add(_map.OnHumanCreated.Subscribe(OnHumanCreated));
+        _dependencyHooks.Add(_map.OnHumanPickedUpResource.Subscribe(OnHumanPickedUpResource));
+        _dependencyHooks.Add(_map.OnHumanPlacedResource.Subscribe(OnHumanPlacedResource));
     }
 
     void OnSelectedItemChanged(SelectedItem item) {
@@ -308,7 +318,7 @@ public class MapRenderer : MonoBehaviour {
             return;
         }
 
-        if (_map.selectedItem == SelectedItem.Road) {
+        if (_gameManager.selectedItem == SelectedItem.Road) {
             _previewTilemap.SetTile(new Vector3Int(cell.x, cell.y, 0), _tileRoad);
         }
     }

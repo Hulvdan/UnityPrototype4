@@ -7,8 +7,6 @@ using UnityEngine.UI;
 namespace BFG.Runtime {
 [Serializable]
 public struct ColorBlock : IEquatable<ColorBlock> {
-    public static ColorBlock defaultColorBlock;
-
     [SerializeField]
     Color _normalColor;
 
@@ -20,15 +18,6 @@ public struct ColorBlock : IEquatable<ColorBlock> {
 
     [SerializeField]
     Color _disabledColor;
-
-    static ColorBlock() {
-        defaultColorBlock = new ColorBlock {
-            _normalColor = new Color32(255, 255, 255, 255),
-            _highlightedColor = new Color32(245, 245, 245, 255),
-            _selectedColor = new Color32(245, 245, 245, 255),
-            _disabledColor = new Color32(200, 200, 200, 128)
-        };
-    }
 
     public Color normalColor {
         get => _normalColor;
@@ -72,10 +61,6 @@ public struct ColorBlock : IEquatable<ColorBlock> {
 
     public static bool operator !=(ColorBlock point1, ColorBlock point2) {
         return !point1.Equals(point2);
-    }
-
-    public override int GetHashCode() {
-        return base.GetHashCode();
     }
 }
 

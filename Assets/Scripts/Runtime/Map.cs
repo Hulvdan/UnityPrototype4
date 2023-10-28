@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Subjects;
 using SimplexNoise;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -49,7 +50,7 @@ public class Map : MonoBehaviour {
     [FoldoutGroup("Random", true)]
     [SerializeField]
     [Min(1)]
-    public int _maxForestAmount = 1;
+    int _maxForestAmount = 1;
 
     [FoldoutGroup("Random", true)]
     [SerializeField]
@@ -90,14 +91,14 @@ public class Map : MonoBehaviour {
 
     readonly List<TopBarResource> _resources = new();
 
+    public readonly Subject<Vector2Int> OnElementTileChanged = new();
+
     [FoldoutGroup("Humans", true)]
     [ShowInInspector]
     [ReadOnly]
     float _humanTotalHarvestingDuration;
 
     Random _random;
-
-    public SelectedItem selectedItem { get; private set; } = SelectedItem.None;
 
     public int sizeY => _mapSizeY;
     public int sizeX => _mapSizeX;
@@ -107,26 +108,6 @@ public class Map : MonoBehaviour {
     public List<List<TerrainTile>> terrainTiles { get; private set; }
 
     public List<Building> buildings => _buildings;
-
-    void Awake() {
-        _random = new Random((int)Time.time);
-
-        _initialMapProvider.Init(this);
-        RegenerateTilemap();
-
-        foreach (var res in _topBarResources) {
-            _resources.Add(new TopBarResource { Amount = 0, Resource = res });
-        }
-
-        InitializeMovementSystem();
-    }
-
-    void Start() {
-        CreateHuman(_buildings[0]);
-        CreateHuman(_buildings[0]);
-        CreateHuman(_buildings[1]);
-        CreateHuman(_buildings[1]);
-    }
 
     void Update() {
         UpdateHumans();
@@ -139,12 +120,24 @@ public class Map : MonoBehaviour {
                                         + _humanReturningBackDuration;
     }
 
-    public event Action<Vector2Int> OnElementTileChanged = delegate { };
-    public event Action<SelectedItem> OnSelectedItemChanged = delegate { };
+    public void InitDependencies() {
+        _random = new Random((int)Time.time);
+    }
 
-    public void SetSelectedItem(SelectedItem item) {
-        selectedItem = item;
-        OnSelectedItemChanged?.Invoke(item);
+    public void Init() {
+        _initialMapProvider.Init(this);
+        RegenerateTilemap();
+
+        foreach (var res in _topBarResources) {
+            _resources.Add(new TopBarResource { Amount = 0, Resource = res });
+        }
+
+        InitializeMovementSystem();
+
+        CreateHuman(_buildings[0]);
+        CreateHuman(_buildings[0]);
+        CreateHuman(_buildings[1]);
+        CreateHuman(_buildings[1]);
     }
 
     void InitializeMovementSystem() {
@@ -156,7 +149,7 @@ public class Map : MonoBehaviour {
     void GiveResource(ScriptableResource resource1, int amount) {
         var resource = _resources.Find(x => x.Resource == resource1);
         resource.Amount += amount;
-        OnResourceChanged?.Invoke(
+        OnResourceChanged.OnNext(
             new TopBarResourceChangedData {
                 NewAmount = resource.Amount,
                 OldAmount = resource.Amount - amount,
@@ -187,7 +180,7 @@ public class Map : MonoBehaviour {
             road.Type = ElementTileType.Road;
             elementTiles[pos.y][pos.x] = road;
 
-            OnElementTileChanged?.Invoke(pos);
+            OnElementTileChanged.OnNext(pos);
         }
     }
 
@@ -231,12 +224,12 @@ public class Map : MonoBehaviour {
 
     #region Events
 
-    public event Action<HumanCreatedData> OnHumanCreated = delegate { };
-    public event Action<HumanStateChangedData> OnHumanStateChanged = delegate { };
-    public event Action<HumanPickedUpResourceData> OnHumanPickedUpResource = delegate { };
-    public event Action<HumanPlacedResourceData> OnHumanPlacedResource = delegate { };
+    public readonly Subject<HumanCreatedData> OnHumanCreated = new();
+    public readonly Subject<HumanStateChangedData> OnHumanStateChanged = new();
+    public readonly Subject<HumanPickedUpResourceData> OnHumanPickedUpResource = new();
+    public readonly Subject<HumanPlacedResourceData> OnHumanPlacedResource = new();
 
-    public event Action<TopBarResourceChangedData> OnResourceChanged = delegate { };
+    public readonly Subject<TopBarResourceChangedData> OnResourceChanged = new();
 
     #endregion
 
@@ -310,7 +303,8 @@ public class Map : MonoBehaviour {
     void CreateHuman(Building building) {
         var human = new Human(Guid.NewGuid(), building, building.position);
         _humans.Add(human);
-        OnHumanCreated?.Invoke(new HumanCreatedData(human));
+        // OnHumanCreated?.Invoke(new HumanCreatedData(human));
+        OnHumanCreated.OnNext(new HumanCreatedData(human));
     }
 
     void UpdateHumans() {
@@ -425,7 +419,7 @@ public class Map : MonoBehaviour {
         var tile = terrainTiles[pos.y][pos.x];
         tile.ResourceAmount -= 1;
 
-        OnHumanPickedUpResource?.Invoke(
+        OnHumanPickedUpResource.OnNext(
             new HumanPickedUpResourceData(
                 human,
                 human.harvestBuilding.scriptableBuilding.harvestableResource,
@@ -450,7 +444,7 @@ public class Map : MonoBehaviour {
         );
         human.storeBuilding.storedResources.Add(tuple);
 
-        OnHumanPlacedResource?.Invoke(
+        OnHumanPlacedResource.OnNext(
             new HumanPlacedResourceData(
                 1,
                 human,
@@ -467,7 +461,7 @@ public class Map : MonoBehaviour {
 
         var oldState = human.state;
         human.state = newState;
-        OnHumanStateChanged?.Invoke(new HumanStateChangedData(human, oldState, newState));
+        OnHumanStateChanged.OnNext(new HumanStateChangedData(human, oldState, newState));
     }
 
     void UpdateHumanIdle(Human human) {

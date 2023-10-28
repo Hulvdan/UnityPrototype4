@@ -12,7 +12,7 @@ public class DebugState {
     public bool IsActive_UnwalkableCells;
 }
 
-public class DebugView : MonoBehaviour {
+public class DebugManager : MonoBehaviour {
     [SerializeField]
     InputActionAsset _inputActionAsset;
 

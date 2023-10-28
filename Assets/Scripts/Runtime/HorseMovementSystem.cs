@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Subjects;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -15,7 +16,7 @@ public struct PathFindResult {
 }
 
 public class HorseMovementSystem {
-    public event Action<Direction> OnReachedTarget = delegate { };
+    public readonly Subject<Direction> OnReachedTarget = new();
 
     public static void NormalizeNodeDistances(TrainNode node, TrainNode previousNode) {
         node.Progress = previousNode.Progress - previousNode.Width / 2 - node.Width / 2;
@@ -43,7 +44,7 @@ public class HorseMovementSystem {
             var destination = horse.segmentVertexes[locomotive.SegmentIndex + 1];
 
             var dir = DirectionFromCells(source, destination);
-            OnReachedTarget?.Invoke(dir);
+            OnReachedTarget.OnNext(dir);
         }
 
         for (var i = 0; i < horse.nodes.Count - 1; i++) {

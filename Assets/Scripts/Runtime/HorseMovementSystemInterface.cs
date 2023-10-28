@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -68,7 +69,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
 
     public void Init(Map map) {
         _map = map;
-        map.OnElementTileChanged += OnElementTileChanged;
+        map.OnElementTileChanged.Subscribe(OnElementTileChanged);
         GenerateMovementGraph();
 
         _horseMovement = new HorseMovementSystem();
@@ -79,10 +80,10 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         _horse.AddNode(new TrainNode(.8f));
         _horse.AddNode(new TrainNode(.8f));
 
-        _horseMovement.OnReachedTarget += dir => {
+        _horseMovement.OnReachedTarget.Subscribe(dir => {
             (_pointA, _pointB) = (_pointB, _pointA);
             BuildHorsePath(dir, false);
-        };
+        });
 
         BuildHorsePath(Direction.Right, true);
     }

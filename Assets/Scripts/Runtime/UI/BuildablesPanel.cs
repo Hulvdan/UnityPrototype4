@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace BFG.Runtime {
@@ -7,13 +6,14 @@ public class BuildablesPanel : MonoBehaviour {
     [SerializeField]
     List<BuildableButton> _buttons;
 
-    [SerializeField]
-    [Required]
-    Map _map;
-
+    GameManager _gameManager;
     bool _ignoreButtonStateChanges;
 
-    void Start() {
+    public void InitDependencies(GameManager gameManager) {
+        _gameManager = gameManager;
+    }
+
+    public void Init() {
         foreach (var button in _buttons) {
             button.Init(this);
         }
@@ -27,7 +27,7 @@ public class BuildablesPanel : MonoBehaviour {
         _ignoreButtonStateChanges = true;
         foreach (var button in _buttons) {
             if (button.GetInstanceID() == selectedButtonInstanceID) {
-                _map.SetSelectedItem(button.item);
+                _gameManager.SetSelectedItem(button.item);
                 continue;
             }
 
@@ -37,7 +37,7 @@ public class BuildablesPanel : MonoBehaviour {
         _ignoreButtonStateChanges = false;
 
         if (selectedButtonInstanceID == null) {
-            _map.SetSelectedItem(SelectedItem.None);
+            _gameManager.SetSelectedItem(SelectedItem.None);
         }
     }
 }
