@@ -108,7 +108,12 @@ public class MapRenderer : MonoBehaviour {
 
         if (_mouseBuildAction.WasPressedThisFrame()) {
             if (_map.selectedItem == SelectedItem.Road) {
-                _map.TryBuild(GetHoveredCell(), SelectedItem.Road);
+                var hoveredCell = GetHoveredCell();
+                if (!_map.Contains(hoveredCell)) {
+                    return;
+                }
+
+                _map.TryBuild(hoveredCell, SelectedItem.Road);
             }
         }
         // else if (_mouseBuildAction.WasReleasedThisFrame()) {
@@ -311,9 +316,13 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void DisplayPreviewTile() {
-        var cell = GetHoveredCell();
-
         _previewTilemap.ClearAllTiles();
+
+        var cell = GetHoveredCell();
+        if (!_map.Contains(cell)) {
+            return;
+        }
+
         if (_map.selectedItem == SelectedItem.Road) {
             _previewTilemap.SetTile(new Vector3Int(cell.x, cell.y, 0), _tileRoad);
         }
