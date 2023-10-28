@@ -5,7 +5,6 @@ using SimplexNoise;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 using Random = System.Random;
 
@@ -84,25 +83,21 @@ public class Map : MonoBehaviour {
     [Required]
     HorseMovementSystemInterface _movementSystemInterface;
 
-    [FormerlySerializedAs("MovementSystemTilemap")]
     [FoldoutGroup("Horse Movement System", true)]
     [SerializeField]
     [Required]
     Tilemap _movementSystemTilemap;
 
-    [FormerlySerializedAs("RoadTile")]
     [FoldoutGroup("Horse Movement System", true)]
     [SerializeField]
     [Required]
     TileBase _roadTile;
 
-    [FormerlySerializedAs("StationHorizontalTile")]
     [FoldoutGroup("Horse Movement System", true)]
     [SerializeField]
     [Required]
     TileBase _stationHorizontalTile;
 
-    [FormerlySerializedAs("StationVerticalTile")]
     [FoldoutGroup("Horse Movement System", true)]
     [SerializeField]
     [Required]
@@ -123,9 +118,6 @@ public class Map : MonoBehaviour {
     public int sizeX => _mapSizeX;
 
     // NOTE(Hulvdan): Indexes start from the bottom left corner and go to the top right one
-
-    public event Action<Vector2Int> OnElementTileChanged = delegate { };
-
     public List<List<ElementTile>> elementTiles { get; private set; }
     public List<List<TerrainTile>> terrainTiles { get; private set; }
 
@@ -160,6 +152,7 @@ public class Map : MonoBehaviour {
                                         + _humanReturningBackDuration;
     }
 
+    public event Action<Vector2Int> OnElementTileChanged = delegate { };
     public event Action<SelectedItem> OnSelectedItemChanged = delegate { };
 
     public void SetSelectedItem(SelectedItem item) {

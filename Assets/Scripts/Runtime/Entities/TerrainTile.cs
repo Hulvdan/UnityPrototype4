@@ -2,13 +2,12 @@
 
 namespace BFG.Runtime {
 /// <summary>
-/// Is it a grass, a cliff?
+///     Is it a grass, a cliff?
 /// </summary>
 public class TerrainTile {
+    public int Height;
     public bool IsBooked;
     public string Name;
-
-    public int Height;
 
     [CanBeNull]
     public ScriptableResource Resource;
