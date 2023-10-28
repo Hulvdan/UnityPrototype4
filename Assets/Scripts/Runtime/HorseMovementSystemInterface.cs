@@ -88,27 +88,15 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     }
 
     void OnElementTileChanged(Vector2Int pos) {
-        UpdateCellAtPos(pos.x, pos.y);
-        UpdateDebugTilemapAtPos(pos.x, pos.y);
+        UpdateCellAtPos(pos);
+        UpdateDebugTilemapAtPos(pos);
 
-        if (pos.x > 0) {
-            UpdateCellAtPos(pos.x - 1, pos.y);
-            UpdateDebugTilemapAtPos(pos.x - 1, pos.y);
-        }
-
-        if (pos.x < _map.sizeX - 1) {
-            UpdateCellAtPos(pos.x + 1, pos.y);
-            UpdateDebugTilemapAtPos(pos.x + 1, pos.y);
-        }
-
-        if (pos.y > 0) {
-            UpdateCellAtPos(pos.x, pos.y - 1);
-            UpdateDebugTilemapAtPos(pos.x, pos.y - 1);
-        }
-
-        if (pos.y < _map.sizeY - 1) {
-            UpdateCellAtPos(pos.x, pos.y + 1);
-            UpdateDebugTilemapAtPos(pos.x, pos.y + 1);
+        foreach (var offset in DirectionOffsets.Offsets) {
+            var newPos = pos + offset;
+            if (_map.Contains(newPos)) {
+                UpdateCellAtPos(newPos);
+                UpdateDebugTilemapAtPos(newPos);
+            }
         }
     }
 
@@ -180,6 +168,10 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         }
 
         GenerateDebugTilemap();
+    }
+
+    void UpdateCellAtPos(Vector2Int pos) {
+        UpdateCellAtPos(pos.x, pos.y);
     }
 
     void UpdateCellAtPos(int x, int y) {
@@ -270,6 +262,10 @@ public class HorseMovementSystemInterface : MonoBehaviour {
                 UpdateDebugTilemapAtPos(x, y);
             }
         }
+    }
+
+    void UpdateDebugTilemapAtPos(Vector2Int pos) {
+        UpdateDebugTilemapAtPos(pos.x, pos.y);
     }
 
     void UpdateDebugTilemapAtPos(int x, int y) {

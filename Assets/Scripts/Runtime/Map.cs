@@ -211,8 +211,16 @@ public class Map : MonoBehaviour {
         );
     }
 
+    public bool Contains(Vector2Int pos) {
+        return Contains(pos.x, pos.y);
+    }
+
+    public bool Contains(int x, int y) {
+        return x >= 0 && x < sizeX && y >= 0 && y < sizeY;
+    }
+
     public void TryBuild(Vector2Int pos, SelectedItem item) {
-        if (pos.x < 0 || pos.y < 0 || pos.x >= sizeX || pos.y >= sizeY) {
+        if (!Contains(pos)) {
             return;
         }
 
