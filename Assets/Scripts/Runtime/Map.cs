@@ -100,7 +100,18 @@ public class Map : MonoBehaviour {
     [ReadOnly]
     float _humanTotalHarvestingDuration;
 
+    Direction _lastTrainDirection;
+
     Random _random;
+
+    bool trainLoading;
+    float trainLoadingDuration = 1f;
+    float trainLoadingElapsed;
+
+    bool trainUnloading;
+    float trainUnloadingElapsed;
+
+    bool trainWasLoading;
 
     public int sizeY => _mapSizeY;
     public int sizeX => _mapSizeX;
@@ -108,16 +119,49 @@ public class Map : MonoBehaviour {
     // NOTE(Hulvdan): Indexes start from the bottom left corner and go to the top right one
     public List<List<ElementTile>> elementTiles { get; private set; }
     public List<List<TerrainTile>> terrainTiles { get; private set; }
-
     public List<Building> buildings => _buildings;
 
     void Awake() {
-        _random = new Random((int)Time.time);
+        _random = new((int)Time.time);
     }
 
     void Update() {
         UpdateHumans();
+        // UpdateTrains();
     }
+
+    // void UpdateTrains() {
+    //     if (trainLoading) {
+    //         trainLoadingElapsed += Time.deltaTime;
+    //
+    //         if (trainLoadingElapsed >= trainLoadingDuration) {
+    //             FinishTrainLoading();
+    //             trainLoading = false;
+    //             trainWasLoading = true;
+    //         }
+    //     }
+    //     else if (trainUnloading) {
+    //         trainUnloadingElapsed += Time.deltaTime;
+    //
+    //         if (trainUnloadingElapsed >= trainLoadingDuration) {
+    //             FinishTrainUnloading();
+    //             trainUnloading = false;
+    //             trainWasLoading = false;
+    //         }
+    //     }
+    // }
+
+    // void FinishTrainLoading() {
+    //     (_movementSystemInterface._pointA, _movementSystemInterface._pointB) = (
+    //         _movementSystemInterface._pointB, _movementSystemInterface._pointA);
+    //     _movementSystemInterface.BuildHorsePath(_lastTrainDirection, false);
+    // }
+    //
+    // void FinishTrainUnloading() {
+    //     (_movementSystemInterface._pointA, _movementSystemInterface._pointB) = (
+    //         _movementSystemInterface._pointB, _movementSystemInterface._pointA);
+    //     _movementSystemInterface.BuildHorsePath(_lastTrainDirection, false);
+    // }
 
     void OnValidate() {
         _humanTotalHarvestingDuration = _humanHeadingDuration
@@ -128,6 +172,21 @@ public class Map : MonoBehaviour {
 
     public void InitDependencies(GameManager gameManager) {
         _gameManager = gameManager;
+
+        _movementSystemInterface.OnTrainReachedTarget.Subscribe(OnTrainReachedTarget);
+    }
+
+    void OnTrainReachedTarget(Direction direction) {
+        _lastTrainDirection = direction;
+
+        if (trainWasLoading) {
+            trainUnloading = true;
+            trainUnloadingElapsed = 0;
+        }
+        else {
+            trainLoading = true;
+            trainLoadingElapsed = 0;
+        }
     }
 
     public void Init() {
@@ -135,7 +194,7 @@ public class Map : MonoBehaviour {
         RegenerateTilemap();
 
         foreach (var res in _topBarResources) {
-            _resources.Add(new TopBarResource { Amount = 0, Resource = res });
+            _resources.Add(new() { Amount = 0, Resource = res });
         }
 
         InitializeMovementSystem();
@@ -156,7 +215,7 @@ public class Map : MonoBehaviour {
         var resource = _resources.Find(x => x.Resource == resource1);
         resource.Amount += amount;
         OnResourceChanged.OnNext(
-            new TopBarResourceChangedData {
+            new() {
                 NewAmount = resource.Amount,
                 OldAmount = resource.Amount - amount,
                 Resource = resource1
@@ -258,7 +317,7 @@ public class Map : MonoBehaviour {
 
     [Button("RegenerateTilemap")]
     void RegenerateTilemap() {
-        terrainTiles = new List<List<TerrainTile>>();
+        terrainTiles = new();
 
         // NOTE(Hulvdan): Generating tiles
         for (var y = 0; y < _mapSizeY; y++) {
@@ -319,7 +378,7 @@ public class Map : MonoBehaviour {
         var human = new Human(Guid.NewGuid(), building, building.position);
         _humans.Add(human);
         // OnHumanCreated?.Invoke(new HumanCreatedData(human));
-        OnHumanCreated.OnNext(new HumanCreatedData(human));
+        OnHumanCreated.OnNext(new(human));
     }
 
     void UpdateHumans() {
@@ -435,7 +494,7 @@ public class Map : MonoBehaviour {
         tile.ResourceAmount -= 1;
 
         OnHumanPickedUpResource.OnNext(
-            new HumanPickedUpResourceData(
+            new(
                 human,
                 human.harvestBuilding.scriptableBuilding.harvestableResource,
                 pos,
@@ -460,7 +519,7 @@ public class Map : MonoBehaviour {
         human.storeBuilding.storedResources.Add(tuple);
 
         OnHumanPlacedResource.OnNext(
-            new HumanPlacedResourceData(
+            new(
                 1,
                 human,
                 human.storeBuilding,
@@ -476,7 +535,7 @@ public class Map : MonoBehaviour {
 
         var oldState = human.state;
         human.state = newState;
-        OnHumanStateChanged.OnNext(new HumanStateChangedData(human, oldState, newState));
+        OnHumanStateChanged.OnNext(new(human, oldState, newState));
     }
 
     void UpdateHumanIdle(Human human) {

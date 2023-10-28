@@ -112,31 +112,31 @@ public class MovementGraphCell {
     }
 
     public static MovementGraphCell MakeUpRight() {
-        return new MovementGraphCell(true, true, false, false);
+        return new(true, true, false, false);
     }
 
     public static MovementGraphCell MakeUpLeft() {
-        return new MovementGraphCell(false, true, true, false);
+        return new(false, true, true, false);
     }
 
     public static MovementGraphCell MakeLeftRight() {
-        return new MovementGraphCell(true, false, true, false);
+        return new(true, false, true, false);
     }
 
     public static MovementGraphCell MakeDownRight() {
-        return new MovementGraphCell(true, false, false, true);
+        return new(true, false, false, true);
     }
 
     public static MovementGraphCell MakeDownLeft() {
-        return new MovementGraphCell(false, false, true, true);
+        return new(false, false, true, true);
     }
 
     public static MovementGraphCell MakeUpDown() {
-        return new MovementGraphCell(false, true, false, true);
+        return new(false, true, false, true);
     }
 
     public static MovementGraphCell MakeUpDownRight() {
-        return new MovementGraphCell(true, true, false, true);
+        return new(true, true, false, true);
     }
 }
 }

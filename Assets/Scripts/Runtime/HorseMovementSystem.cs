@@ -16,7 +16,7 @@ public struct PathFindResult {
 }
 
 public class HorseMovementSystem {
-    public readonly Subject<Direction> OnReachedTarget = new();
+    public readonly Subject<Tuple<Direction, TrainDestination>> OnReachedDestination = new();
 
     public static void NormalizeNodeDistances(TrainNode node, TrainNode previousNode) {
         node.Progress = previousNode.Progress - previousNode.Width / 2 - node.Width / 2;
@@ -40,11 +40,20 @@ public class HorseMovementSystem {
             locomotive.SegmentIndex = horse.SegmentsCount - 1;
             locomotive.Progress = 1;
 
-            var source = horse.segmentVertexes[locomotive.SegmentIndex];
-            var destination = horse.segmentVertexes[locomotive.SegmentIndex + 1];
+            var v0 = horse.segmentVertexes[locomotive.SegmentIndex];
+            var v1 = horse.segmentVertexes[locomotive.SegmentIndex + 1];
 
-            var dir = DirectionFromCells(source, destination);
-            OnReachedTarget.OnNext(dir);
+            var dir = DirectionFromCells(v0, v1);
+
+            var pair = new Tuple<Vector2Int, Vector2Int>(v0, v1);
+            if (!Equals(horse.LastReachedSegmentVertexes, pair)) {
+                horse.LastReachedSegmentVertexes = pair;
+
+                var destination = horse.CurrentDestination;
+                if (destination.HasValue && destination.Value.Pos == v1) {
+                    OnReachedDestination.OnNext(new(dir, destination.Value));
+                }
+            }
         }
 
         for (var i = 0; i < horse.nodes.Count - 1; i++) {
@@ -103,7 +112,7 @@ public class HorseMovementSystem {
         }
 
         var queue = new Queue<Vector2Int>();
-        queue.Enqueue(new Vector2Int(source.x, source.y));
+        queue.Enqueue(new(source.x, source.y));
         graph[source.y, source.x].BFS_Visited = true;
 
         var isStartingCell = true;
@@ -153,7 +162,7 @@ public class HorseMovementSystem {
             isStartingCell = false;
         }
 
-        return new PathFindResult(false, null);
+        return new(false, null);
     }
 
     static void VisitCell(ref MovementGraphCell cell, Vector2Int oldPos) {
@@ -170,7 +179,7 @@ public class HorseMovementSystem {
         }
 
         res.Reverse();
-        return new PathFindResult(true, res);
+        return new(true, res);
     }
 }
 }

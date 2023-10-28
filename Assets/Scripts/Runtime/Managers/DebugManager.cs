@@ -91,7 +91,7 @@ public class DebugManager : MonoBehaviour {
     }
 
     DebugState LoadPrefs() {
-        return new DebugState {
+        return new() {
             IsActive_Debug = PlayerPrefs.GetInt(DebugState.Key_IsActive_Debug, 0) > 0,
             IsActive_MovementSystemPaths =
                 PlayerPrefs.GetInt(DebugState.Key_IsActive_MovementSystemPaths, 0) > 0,

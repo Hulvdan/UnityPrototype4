@@ -38,17 +38,17 @@ public class InitialMapProvider : MonoBehaviour {
             var row = new List<ElementTile>(_map.sizeX);
 
             for (var x = 0; x < _map.sizeX; x++) {
-                var tilemapTile = _movementSystemTilemap.GetTile(new Vector3Int(x, y));
+                var tilemapTile = _movementSystemTilemap.GetTile(new(x, y));
 
                 ElementTile tile;
                 if (tilemapTile == _roadTile) {
                     tile = ElementTile.Road;
                 }
                 else if (tilemapTile == _stationHorizontalTile) {
-                    tile = new ElementTile(ElementTileType.Station, 0);
+                    tile = new(ElementTileType.Station, 0);
                 }
                 else if (tilemapTile == _stationVerticalTile) {
-                    tile = new ElementTile(ElementTileType.Station, 1);
+                    tile = new(ElementTileType.Station, 1);
                 }
                 else {
                     tile = ElementTile.None;

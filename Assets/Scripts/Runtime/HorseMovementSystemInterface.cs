@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Subjects;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -56,6 +57,8 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     [Min(0)]
     float _trainSpeed = 1f;
 
+    public readonly Subject<Direction> OnTrainReachedTarget = new();
+
     HorseTrain _horse;
     HorseMovementSystem _horseMovement;
 
@@ -72,18 +75,24 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         map.OnElementTileChanged.Subscribe(OnElementTileChanged);
         GenerateMovementGraph();
 
-        _horseMovement = new HorseMovementSystem();
+        _horseMovement = new();
 
-        _horse = new HorseTrain(_trainSpeed);
-        _horse.AddLocomotive(new TrainNode(1f), 3, 0f);
-        _horse.AddNode(new TrainNode(.8f));
-        _horse.AddNode(new TrainNode(.8f));
-        _horse.AddNode(new TrainNode(.8f));
+        _horse = new(_trainSpeed);
+        _horse.AddLocomotive(new(1f), 3, 0f);
+        _horse.AddNode(new(.8f));
+        _horse.AddNode(new(.8f));
+        _horse.AddNode(new(.8f));
 
-        _horseMovement.OnReachedTarget.Subscribe(dir => {
-            (_pointA, _pointB) = (_pointB, _pointA);
-            BuildHorsePath(dir, false);
+        _horse.AddDestination(new() {
+            Type = TrainDestinationType.Load,
+            Pos = _pointA
         });
+        _horse.AddDestination(new() {
+            Type = TrainDestinationType.Unload,
+            Pos = _pointB
+        });
+
+        // _horseMovement.OnReachedTarget.Subscribe(dir => OnTrainReachedTarget.OnNext(dir));
 
         BuildHorsePath(Direction.Right, true);
     }
@@ -101,7 +110,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         }
     }
 
-    void BuildHorsePath(Direction direction, bool initial) {
+    public void BuildHorsePath(Direction direction, bool initial) {
         var path = _horseMovement.FindPath(_pointA, _pointB, ref _movementCells, direction);
         if (!path.Success) {
             Debug.LogError("Could not find the path");
@@ -187,7 +196,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
 
         var mCell = _movementCells[y, x];
         if (mCell == null) {
-            mCell = new MovementGraphCell(false, false, false, false);
+            mCell = new(false, false, false, false);
             _movementCells[y, x] = mCell;
         }
 
@@ -277,7 +286,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         }
 
         var td = new TileChangeData(
-            new Vector3Int(x, y, 0),
+            new(x, y, 0),
             tb,
             Color.white,
             Matrix4x4.TRS(

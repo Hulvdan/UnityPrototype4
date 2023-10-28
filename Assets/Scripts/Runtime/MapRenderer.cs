@@ -204,7 +204,7 @@ public class MapRenderer : MonoBehaviour {
                 return;
         }
 
-        _movementSystemTilemap.SetTile(new Vector3Int(pos.x, pos.y), tile);
+        _movementSystemTilemap.SetTile(new(pos.x, pos.y), tile);
     }
 
     void UpdateTileBasedOnRemainingResourcePercent(
@@ -215,8 +215,8 @@ public class MapRenderer : MonoBehaviour {
             return;
         }
 
-        _resourceTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), null);
-        _resourceTilemap.SetTile(new Vector3Int(pos.x, pos.y, -1), null);
+        _resourceTilemap.SetTile(new(pos.x, pos.y, 0), null);
+        _resourceTilemap.SetTile(new(pos.x, pos.y, -1), null);
     }
 
     public void ResetRenderer() {
@@ -266,7 +266,7 @@ public class MapRenderer : MonoBehaviour {
                         || _map.terrainTiles[y][x].Height >= h
                         || (y > 0 && _map.terrainTiles[y - 1][x].Height == h)
                     ) {
-                        terrainMaps[h].SetTile(new Vector3Int(x, y, 0), _tileGrass);
+                        terrainMaps[h].SetTile(new(x, y, 0), _tileGrass);
                     }
                 }
             }
@@ -279,8 +279,8 @@ public class MapRenderer : MonoBehaviour {
             for (var x = 0; x < _map.sizeX; x++) {
                 if (_map.terrainTiles[y][x].Resource != null
                     && _map.terrainTiles[y][x].Resource.name == _logResource.name) {
-                    _resourceTilemap.SetTile(new Vector3Int(x, y, 0), _tileForest);
-                    _resourceTilemap.SetTile(new Vector3Int(x, y, -1), _tileForestTop);
+                    _resourceTilemap.SetTile(new(x, y, 0), _tileForest);
+                    _resourceTilemap.SetTile(new(x, y, -1), _tileForestTop);
                 }
             }
         }
@@ -290,7 +290,7 @@ public class MapRenderer : MonoBehaviour {
         ).GetComponent<Tilemap>();
         foreach (var building in _map.buildings) {
             buildingsTilemap.SetTile(
-                new Vector3Int(building.posX, building.posY, 0),
+                new(building.posX, building.posY, 0),
                 building.scriptableBuilding.tile
             );
         }
@@ -310,7 +310,7 @@ public class MapRenderer : MonoBehaviour {
                 }
 
                 if (!walkable) {
-                    _debugTilemap.SetTile(new Vector3Int(x, y, 0), _debugTileUnwalkable);
+                    _debugTilemap.SetTile(new(x, y, 0), _debugTileUnwalkable);
                 }
             }
         }
@@ -323,12 +323,12 @@ public class MapRenderer : MonoBehaviour {
     GameObject GenerateTilemap(int i, float order, string nameTemplate, GameObject prefabTemplate) {
         var terrainTilemap = Instantiate(prefabTemplate, _grid.transform);
         terrainTilemap.name = nameTemplate + i;
-        terrainTilemap.transform.localPosition = new Vector3(0, -order / 100000f, 0);
+        terrainTilemap.transform.localPosition = new(0, -order / 100000f, 0);
         return terrainTilemap;
     }
 
     void UpdateGridPosition() {
-        _grid.transform.localPosition = new Vector3(-_map.sizeX / 2f, -_map.sizeY / 2f);
+        _grid.transform.localPosition = new(-_map.sizeX / 2f, -_map.sizeY / 2f);
     }
 
     void DisplayPreviewTile() {
@@ -353,13 +353,7 @@ public class MapRenderer : MonoBehaviour {
         }
 
         _previewTilemap.SetTile(
-            new TileChangeData(
-                new Vector3Int(cell.x, cell.y, 0),
-                tile,
-                Color.white,
-                _previewMatrix
-            ),
-            false
+            new(new(cell.x, cell.y, 0), tile, Color.white, _previewMatrix), false
         );
     }
 

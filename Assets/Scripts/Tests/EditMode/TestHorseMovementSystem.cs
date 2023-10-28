@@ -48,12 +48,7 @@ public class TestHorseMovementSystem {
                 new(false, false, false, false)
             }
         };
-        var result = system.FindPath(
-            new Vector2Int(2, 0),
-            new Vector2Int(3, 1),
-            ref graph,
-            Direction.Left
-        );
+        var result = system.FindPath(new(2, 0), new(3, 1), ref graph, Direction.Left);
 
         Assert.IsTrue(result.Success);
         Assert.AreEqual(
