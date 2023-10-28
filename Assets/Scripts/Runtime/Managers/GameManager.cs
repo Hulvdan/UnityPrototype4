@@ -1,6 +1,7 @@
 ﻿using System.Reactive.Subjects;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace BFG.Runtime {
 public class GameManager : MonoBehaviour {
@@ -17,12 +18,45 @@ public class GameManager : MonoBehaviour {
     [Required]
     BuildablesPanel _buildablesPanel;
 
-    public readonly Subject<SelectedItem> OnSelectedItemChanged = new();
+    [SerializeField]
+    [Required]
+    InputActionAsset _inputActionAsset;
 
-    public SelectedItem selectedItem { get; private set; } = SelectedItem.None;
+    public readonly Subject<SelectedItem> OnSelectedItemChanged = new();
+    public readonly Subject<int> OnSelectedItemRotationChanged = new();
+    InputAction _actionRotate;
+
+    InputActionMap _inputActionMap;
+
+    SelectedItem _selectedItem = SelectedItem.None;
+
+    int _selectedItemRotation;
+
+    public int selectedItemRotation {
+        get => _selectedItemRotation;
+        private set {
+            _selectedItemRotation = value;
+            OnSelectedItemRotationChanged.OnNext(value);
+        }
+    }
+
+    public SelectedItem selectedItem {
+        get => _selectedItem;
+        set {
+            _selectedItem = value;
+            OnSelectedItemChanged.OnNext(value);
+
+            selectedItemRotation = 0;
+        }
+    }
+
+    void Awake() {
+        _inputActionMap = _inputActionAsset.FindActionMap("Gameplay");
+        _actionRotate = _inputActionMap.FindAction("Rotate");
+    }
 
     void Start() {
-        _map.InitDependencies();
+        _map.InitDependencies(this);
         _mapRenderer.InitDependencies(this, _map);
         _buildablesPanel.InitDependencies(this);
 
@@ -30,13 +64,28 @@ public class GameManager : MonoBehaviour {
         _buildablesPanel.Init();
     }
 
+    void Update() {
+        if (_actionRotate.WasPressedThisFrame()) {
+            selectedItemRotation += Mathf.RoundToInt(_actionRotate.ReadValue<float>());
+        }
+    }
+
+    void OnEnable() {
+        _inputActionMap.Enable();
+    }
+
+    void OnDisable() {
+        _inputActionMap.Disable();
+    }
+
     void OnValidate() {
         _mapRenderer.InitDependencies(this, _map);
     }
 
-    public void SetSelectedItem(SelectedItem item) {
-        selectedItem = item;
-        OnSelectedItemChanged.OnNext(item);
+    public void RotateSelectedItemCW() {
+    }
+
+    public void RotateSelectedItemCCW() {
     }
 }
 }

@@ -33,6 +33,14 @@ public class MapRenderer : MonoBehaviour {
 
     [SerializeField]
     [Required]
+    TileBase _tileStationHorizontal;
+
+    [SerializeField]
+    [Required]
+    TileBase _tileStationVertical;
+
+    [SerializeField]
+    [Required]
     TileBase _tileForest;
 
     [SerializeField]
@@ -91,6 +99,7 @@ public class MapRenderer : MonoBehaviour {
     Map _map;
     InputAction _mouseBuildAction;
     InputAction _mouseMoveAction;
+    Matrix4x4 _previewMatrix;
 
     Tilemap _resourceTilemap;
 
@@ -106,15 +115,14 @@ public class MapRenderer : MonoBehaviour {
         UpdateHumans();
         DisplayPreviewTile();
 
+        // TODO: Move inputs to GameManager
         if (_mouseBuildAction.WasPressedThisFrame()) {
-            if (_gameManager.selectedItem == SelectedItem.Road) {
-                var hoveredCell = GetHoveredCell();
-                if (!_map.Contains(hoveredCell)) {
-                    return;
-                }
-
-                _map.TryBuild(hoveredCell, SelectedItem.Road);
+            var hoveredCell = GetHoveredCell();
+            if (!_map.Contains(hoveredCell)) {
+                return;
             }
+
+            _map.TryBuild(hoveredCell, _gameManager.selectedItem);
         }
         // else if (_mouseBuildAction.WasReleasedThisFrame()) {
         // }
@@ -180,10 +188,23 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void OnElementTileChanged(Vector2Int pos) {
-        var tile = _map.elementTiles[pos.y][pos.x];
-        if (tile.Type == ElementTileType.Road) {
-            _movementSystemTilemap.SetTile(new Vector3Int(pos.x, pos.y), _tileRoad);
+        var elementTile = _map.elementTiles[pos.y][pos.x];
+
+        TileBase tile;
+        switch (elementTile.Type) {
+            case ElementTileType.Road:
+                tile = _tileRoad;
+                break;
+            case ElementTileType.Station:
+                tile = elementTile.Rotation == 0 ? _tileStationHorizontal : _tileStationVertical;
+                break;
+            case ElementTileType.None:
+                return;
+            default:
+                return;
         }
+
+        _movementSystemTilemap.SetTile(new Vector3Int(pos.x, pos.y), tile);
     }
 
     void UpdateTileBasedOnRemainingResourcePercent(
@@ -318,9 +339,28 @@ public class MapRenderer : MonoBehaviour {
             return;
         }
 
+        TileBase tile;
         if (_gameManager.selectedItem == SelectedItem.Road) {
-            _previewTilemap.SetTile(new Vector3Int(cell.x, cell.y, 0), _tileRoad);
+            tile = _tileRoad;
         }
+        else if (_gameManager.selectedItem == SelectedItem.Station) {
+            tile = _gameManager.selectedItemRotation % 2 == 0
+                ? _tileStationVertical
+                : _tileStationHorizontal;
+        }
+        else {
+            return;
+        }
+
+        _previewTilemap.SetTile(
+            new TileChangeData(
+                new Vector3Int(cell.x, cell.y, 0),
+                tile,
+                Color.white,
+                _previewMatrix
+            ),
+            false
+        );
     }
 
     Vector2Int GetHoveredCell() {

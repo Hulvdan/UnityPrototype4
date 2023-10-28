@@ -93,6 +93,8 @@ public class Map : MonoBehaviour {
 
     public readonly Subject<Vector2Int> OnElementTileChanged = new();
 
+    GameManager _gameManager;
+
     [FoldoutGroup("Humans", true)]
     [ShowInInspector]
     [ReadOnly]
@@ -109,6 +111,10 @@ public class Map : MonoBehaviour {
 
     public List<Building> buildings => _buildings;
 
+    void Awake() {
+        _random = new Random((int)Time.time);
+    }
+
     void Update() {
         UpdateHumans();
     }
@@ -120,8 +126,8 @@ public class Map : MonoBehaviour {
                                         + _humanReturningBackDuration;
     }
 
-    public void InitDependencies() {
-        _random = new Random((int)Time.time);
+    public void InitDependencies(GameManager gameManager) {
+        _gameManager = gameManager;
     }
 
     public void Init() {
@@ -171,17 +177,26 @@ public class Map : MonoBehaviour {
             return;
         }
 
-        if (item != SelectedItem.Road) {
+        if (elementTiles[pos.y][pos.x].Type != ElementTileType.None) {
             return;
         }
 
-        if (elementTiles[pos.y][pos.x].Type == ElementTileType.None) {
+        if (item == SelectedItem.Road) {
             var road = elementTiles[pos.y][pos.x];
             road.Type = ElementTileType.Road;
             elementTiles[pos.y][pos.x] = road;
-
-            OnElementTileChanged.OnNext(pos);
         }
+        else if (item == SelectedItem.Station) {
+            var tile = elementTiles[pos.y][pos.x];
+            tile.Type = ElementTileType.Station;
+            tile.Rotation = _gameManager.selectedItemRotation == 0 ? 1 : 0;
+            elementTiles[pos.y][pos.x] = tile;
+        }
+        else {
+            return;
+        }
+
+        OnElementTileChanged.OnNext(pos);
     }
 
     #region HumanSystem_Attributes

@@ -281,7 +281,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
             tb,
             Color.white,
             Matrix4x4.TRS(
-                new Vector3(0, 0, 0),
+                Vector3.zero,
                 Quaternion.Euler(0, 0, 90 * cell.Rotation()),
                 Vector3.one
             )
