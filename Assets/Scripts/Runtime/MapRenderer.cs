@@ -155,7 +155,7 @@ public class MapRenderer : MonoBehaviour {
                 new(-r, -r, 0),
                 new(-r, r, 0),
                 new(-r, r, 0),
-                new(r, r, 0)
+                new(r, r, 0),
             };
             for (var i = 0; i < points.Length; i++) {
                 var point = points[i];

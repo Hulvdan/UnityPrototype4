@@ -96,7 +96,7 @@ public class DebugManager : MonoBehaviour {
             IsActive_MovementSystemPaths =
                 PlayerPrefs.GetInt(DebugState.Key_IsActive_MovementSystemPaths, 0) > 0,
             IsActive_UnwalkableCells =
-                PlayerPrefs.GetInt(DebugState.Key_IsActive_UnwalkableCells, 0) > 0
+                PlayerPrefs.GetInt(DebugState.Key_IsActive_UnwalkableCells, 0) > 0,
         };
     }
 }

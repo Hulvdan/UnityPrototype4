@@ -12,11 +12,11 @@ public class TestHorseMovementSystem {
         var graph = new MovementGraphCell[,] {
             {
                 new(false, true, false, false),
-                new(false, false, false, false)
+                new(false, false, false, false),
             }, {
                 new(true, false, false, false),
-                new(false, false, false, false)
-            }
+                new(false, false, false, false),
+            },
         };
         var result = system.FindPath(Vector2Int.zero, Vector2Int.one, ref graph, Direction.Up);
         Assert.IsTrue(result.Success);
@@ -35,18 +35,18 @@ public class TestHorseMovementSystem {
                 MovementGraphCell.MakeUpRight(),
                 MovementGraphCell.MakeLeftRight(),
                 MovementGraphCell.MakeUpLeft(),
-                new(false, false, false, false)
+                new(false, false, false, false),
             }, {
                 MovementGraphCell.MakeUpDown(),
                 new(false, false, false, false),
                 MovementGraphCell.MakeUpDownRight(),
-                MovementGraphCell.MakeLeftRight()
+                MovementGraphCell.MakeLeftRight(),
             }, {
                 MovementGraphCell.MakeDownRight(),
                 MovementGraphCell.MakeLeftRight(),
                 MovementGraphCell.MakeDownLeft(),
-                new(false, false, false, false)
-            }
+                new(false, false, false, false),
+            },
         };
         var result = system.FindPath(new(2, 0), new(3, 1), ref graph, Direction.Left);
 
@@ -61,7 +61,7 @@ public class TestHorseMovementSystem {
                 new(1, 2),
                 new(2, 2),
                 new(2, 1),
-                new(3, 1)
+                new(3, 1),
             },
             result.Path
         );
@@ -121,11 +121,11 @@ public class TestHorseMovementSystem {
         var graph = new MovementGraphCell[,] {
             {
                 new(false, true, false, false),
-                new(false, false, false, false)
+                new(false, false, false, false),
             }, {
                 new(false, false, false, false),
-                new(false, false, false, false)
-            }
+                new(false, false, false, false),
+            },
         };
         var result = system.FindPath(Vector2Int.zero, Vector2Int.one, ref graph, Direction.Up);
         Assert.IsFalse(result.Success);

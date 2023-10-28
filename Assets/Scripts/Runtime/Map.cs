@@ -218,7 +218,7 @@ public class Map : MonoBehaviour {
             new() {
                 NewAmount = resource.Amount,
                 OldAmount = resource.Amount - amount,
-                Resource = resource1
+                Resource = resource1,
             }
         );
     }
@@ -330,7 +330,7 @@ public class Map : MonoBehaviour {
                 var tile = new TerrainTile {
                     Name = "grass",
                     Resource = hasForest ? _logResource : null,
-                    ResourceAmount = hasForest ? _maxForestAmount : 0
+                    ResourceAmount = hasForest ? _maxForestAmount : 0,
                 };
 
                 // var randomH = Random.Range(0, _maxHeight + 1);
@@ -397,10 +397,12 @@ public class Map : MonoBehaviour {
                         HumanStartedIdle(human);
                     }
                 }
-                else if (human.harvestingElapsed >=
-                         _humanHeadingDuration
-                         + _humanHarvestingDuration
-                         + _humanHeadingToTheStoreBuildingDuration) {
+                else if (
+                    human.harvestingElapsed >=
+                    _humanHeadingDuration
+                    + _humanHarvestingDuration
+                    + _humanHeadingToTheStoreBuildingDuration
+                ) {
                     newState = HumanState.HeadingBackToTheHarvestBuilding;
                     if (human.state != newState) {
                         HumanFinishedHeadingToTheStoreBuilding(human);
@@ -413,9 +415,11 @@ public class Map : MonoBehaviour {
                         HumanStartedHeadingBackToTheHarvestBuilding(human);
                     }
                 }
-                else if (human.harvestingElapsed >=
-                         _humanHeadingDuration
-                         + _humanHarvestingDuration) {
+                else if (
+                    human.harvestingElapsed >=
+                    _humanHeadingDuration
+                    + _humanHarvestingDuration
+                ) {
                     newState = HumanState.HeadingToTheStoreBuilding;
                     if (human.state != newState) {
                         HumanFinishedHarvesting(human);

@@ -10,7 +10,7 @@ namespace BFG.Runtime {
 public enum ElementTileType {
     None,
     Road,
-    Station
+    Station,
 }
 
 public class HorseMovementSystemInterface : MonoBehaviour {
@@ -85,11 +85,11 @@ public class HorseMovementSystemInterface : MonoBehaviour {
 
         _horse.AddDestination(new() {
             Type = TrainDestinationType.Load,
-            Pos = _pointA
+            Pos = _pointA,
         });
         _horse.AddDestination(new() {
             Type = TrainDestinationType.Unload,
-            Pos = _pointB
+            Pos = _pointB,
         });
 
         // _horseMovement.OnReachedTarget.Subscribe(dir => OnTrainReachedTarget.OnNext(dir));
