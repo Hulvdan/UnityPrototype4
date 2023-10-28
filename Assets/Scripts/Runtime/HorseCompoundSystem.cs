@@ -13,7 +13,7 @@ public enum ElementTileType {
     Station,
 }
 
-public class HorseMovementSystemInterface : MonoBehaviour {
+public class HorseCompoundSystem : MonoBehaviour {
     [FormerlySerializedAs("_tilemap")]
     [FoldoutGroup("Debug", true)]
     [SerializeField]
@@ -50,51 +50,83 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     Vector2Int _pointB;
 
     [SerializeField]
-    [Required]
-    List<Transform> _movableObjects;
+    [Min(0)]
+    float _trainItemLoadingDuration = 1f;
 
     [SerializeField]
     [Min(0)]
-    float _trainSpeed = 1f;
+    float _trainItemUnloadingDuration = 1f;
 
-    public readonly Subject<Direction> OnTrainReachedTarget = new();
+    [SerializeField]
+    [Min(1)]
+    int _horsesGatheringAroundStationRadius = 2;
+
+    [SerializeField]
+    [Required]
+    List<Transform> _movableObjects;
+
+    [FormerlySerializedAs("_trainSpeed")]
+    [SerializeField]
+    [Min(0)]
+    float _horseSpeed = 1f;
+
+    public readonly Subject<Direction> OnHorseReachedTarget = new();
 
     HorseTrain _horse;
-    HorseMovementSystem _horseMovement;
 
     Map _map;
-    MovementGraphCell[,] _movementCells;
+    List<List<MovementGraphCell>> _movementCells;
+    HorseMovementSystem _movementSystem;
     List<Vector2Int> _path = new();
 
     void Update() {
-        UpdateTrain();
+        if (_horse != null) {
+            UpdateHorse(_horse);
+        }
     }
 
     public void Init(Map map) {
         _map = map;
-        map.OnElementTileChanged.Subscribe(OnElementTileChanged);
+        _map.OnElementTileChanged.Subscribe(OnElementTileChanged);
+
         GenerateMovementGraph();
 
-        _horseMovement = new();
+        _movementSystem = new();
+        _movementSystem.Init(_map, _movementCells);
+        _movementSystem.OnReachedDestination.Subscribe(OnHorseReachedDestination);
 
-        _horse = new(_trainSpeed);
+        _horse = new(_horseSpeed, Direction.Right);
+        _horse.AddSegmentVertex(_pointA);
+        _horse.AddSegmentVertex(_pointA);
+        _horse.AddSegmentVertex(_pointA);
+        _horse.AddSegmentVertex(_pointA);
         _horse.AddLocomotive(new(1f), 3, 0f);
         _horse.AddNode(new(.8f));
         _horse.AddNode(new(.8f));
         _horse.AddNode(new(.8f));
 
         _horse.AddDestination(new() {
-            Type = TrainDestinationType.Load,
-            Pos = _pointA,
-        });
-        _horse.AddDestination(new() {
-            Type = TrainDestinationType.Unload,
+            Type = HorseDestinationType.Load,
             Pos = _pointB,
         });
+        _horse.AddDestination(new() {
+            Type = HorseDestinationType.Unload,
+            Pos = _pointA,
+        });
+
+        _movementSystem.TrySetNextDestinationAndBuildPath(_horse);
 
         // _horseMovement.OnReachedTarget.Subscribe(dir => OnTrainReachedTarget.OnNext(dir));
+        // BuildHorsePath(Direction.Right, true);
+    }
 
-        BuildHorsePath(Direction.Right, true);
+    void OnHorseReachedDestination(OnReachedDestinationData data) {
+        if (data.destination.Type == HorseDestinationType.Load) {
+            data.train.State = TrainState.Loading;
+        }
+        else if (data.destination.Type == HorseDestinationType.Load) {
+            data.train.State = TrainState.Unloading;
+        }
     }
 
     void OnElementTileChanged(Vector2Int pos) {
@@ -110,35 +142,55 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         }
     }
 
-    public void BuildHorsePath(Direction direction, bool initial) {
-        var path = _horseMovement.FindPath(_pointA, _pointB, ref _movementCells, direction);
-        if (!path.Success) {
-            Debug.LogError("Could not find the path");
-            return;
+    // public void BuildHorsePath(Direction direction, bool initial) {
+    //     var path = _movementSystem.FindPath(_pointA, _pointB, ref _movementCells, direction);
+    //     if (!path.Success) {
+    //         Debug.LogError("Could not find the path");
+    //         return;
+    //     }
+    //
+    //     _path = path.Path;
+    //     var skipFirst = !initial;
+    //     foreach (var vertex in _path) {
+    //         if (skipFirst) {
+    //             skipFirst = false;
+    //             continue;
+    //         }
+    //
+    //         _horse.AddSegmentVertex(vertex);
+    //     }
+    // }
+
+    void UpdateHorse(HorseTrain horse) {
+        switch (horse.State) {
+            case TrainState.Idle:
+                break;
+            case TrainState.Moving:
+                _movementSystem.AdvanceHorse(horse);
+                _movementSystem.RecalculateNodePositions(horse);
+                break;
+            case TrainState.Loading:
+                horse.TrainLoadingUnloadingElapsed += Time.deltaTime;
+                if (horse.TrainLoadingUnloadingElapsed >= _trainItemLoadingDuration) {
+                    horse.TrainLoadingUnloadingElapsed -= _trainItemLoadingDuration;
+
+                    if (_map.AreThereAvailableResourcesForTheTrain(horse)) {
+                        _map.PickRandomItemForTheTrain(horse);
+                    }
+                    else {
+                        horse.State = TrainState.Moving;
+                        _movementSystem.TrySetNextDestinationAndBuildPath(horse);
+                    }
+                }
+
+                break;
+            case TrainState.Unloading:
+                horse.TrainLoadingUnloadingElapsed += Time.deltaTime;
+                break;
         }
-
-        _path = path.Path;
-        var skipFirst = !initial;
-        foreach (var vertex in _path) {
-            if (skipFirst) {
-                skipFirst = false;
-                continue;
-            }
-
-            _horse.AddSegmentVertex(vertex);
-        }
-    }
-
-    void UpdateTrain() {
-        if (_horse == null) {
-            return;
-        }
-
-        _horseMovement.AdvanceTrain(_horse);
-        _horseMovement.RecalculateNodePositions(_horse);
 
         for (var i = 0; i < _movableObjects.Count; i++) {
-            _movableObjects[i].localPosition = _horse.nodes[i].CalculatedPosition;
+            _movableObjects[i].localPosition = horse.nodes[i].CalculatedPosition;
         }
     }
 
@@ -170,7 +222,16 @@ public class HorseMovementSystemInterface : MonoBehaviour {
             _debugTilemap.ClearAllTiles();
         }
 
-        _movementCells = new MovementGraphCell[_map.sizeY, _map.sizeX];
+        _movementCells = new(_map.sizeY);
+        for (var y = 0; y < _map.sizeY; y++) {
+            var row = new List<MovementGraphCell>(_map.sizeX);
+            for (var x = 0; x < _map.sizeX; x++) {
+                row.Add(null);
+            }
+
+            _movementCells.Add(row);
+        }
+
         for (var y = 0; y < _map.sizeY; y++) {
             for (var x = 0; x < _map.sizeX; x++) {
                 UpdateCellAtPos(x, y);
@@ -190,14 +251,14 @@ public class HorseMovementSystemInterface : MonoBehaviour {
         var cell = elementTiles[y][x];
 
         if (cell.Type == ElementTileType.None) {
-            _movementCells[y, x] = null;
+            _movementCells[y][x] = null;
             return;
         }
 
-        var mCell = _movementCells[y, x];
+        var mCell = _movementCells[y][x];
         if (mCell == null) {
             mCell = new(false, false, false, false);
-            _movementCells[y, x] = mCell;
+            _movementCells[y][x] = mCell;
         }
 
         if (cell.Type == ElementTileType.Road) {
@@ -279,7 +340,7 @@ public class HorseMovementSystemInterface : MonoBehaviour {
     }
 
     void UpdateDebugTilemapAtPos(int x, int y) {
-        var cell = _movementCells[y, x];
+        var cell = _movementCells[y][x];
         var tb = GetDebugTileBase(cell);
         if (tb == null) {
             return;

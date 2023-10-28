@@ -4,7 +4,7 @@ using UnityEngine;
 namespace BFG.Runtime {
 [Serializable]
 public struct TrainDestination {
-    public TrainDestinationType Type;
+    public HorseDestinationType Type;
     public Vector2Int Pos;
 }
 }

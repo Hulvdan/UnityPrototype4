@@ -6,6 +6,7 @@ using SimplexNoise;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 using Random = System.Random;
 
 namespace BFG.Runtime {
@@ -84,10 +85,11 @@ public class Map : MonoBehaviour {
     [Required]
     InitialMapProvider _initialMapProvider;
 
+    [FormerlySerializedAs("_movementSystemInterface")]
     [FoldoutGroup("Horse Movement System", true)]
     [SerializeField]
     [Required]
-    HorseMovementSystemInterface _movementSystemInterface;
+    HorseCompoundSystem _compoundSystem;
 
     readonly List<TopBarResource> _resources = new();
 
@@ -127,41 +129,7 @@ public class Map : MonoBehaviour {
 
     void Update() {
         UpdateHumans();
-        // UpdateTrains();
     }
-
-    // void UpdateTrains() {
-    //     if (trainLoading) {
-    //         trainLoadingElapsed += Time.deltaTime;
-    //
-    //         if (trainLoadingElapsed >= trainLoadingDuration) {
-    //             FinishTrainLoading();
-    //             trainLoading = false;
-    //             trainWasLoading = true;
-    //         }
-    //     }
-    //     else if (trainUnloading) {
-    //         trainUnloadingElapsed += Time.deltaTime;
-    //
-    //         if (trainUnloadingElapsed >= trainLoadingDuration) {
-    //             FinishTrainUnloading();
-    //             trainUnloading = false;
-    //             trainWasLoading = false;
-    //         }
-    //     }
-    // }
-
-    // void FinishTrainLoading() {
-    //     (_movementSystemInterface._pointA, _movementSystemInterface._pointB) = (
-    //         _movementSystemInterface._pointB, _movementSystemInterface._pointA);
-    //     _movementSystemInterface.BuildHorsePath(_lastTrainDirection, false);
-    // }
-    //
-    // void FinishTrainUnloading() {
-    //     (_movementSystemInterface._pointA, _movementSystemInterface._pointB) = (
-    //         _movementSystemInterface._pointB, _movementSystemInterface._pointA);
-    //     _movementSystemInterface.BuildHorsePath(_lastTrainDirection, false);
-    // }
 
     void OnValidate() {
         _humanTotalHarvestingDuration = _humanHeadingDuration
@@ -173,7 +141,7 @@ public class Map : MonoBehaviour {
     public void InitDependencies(GameManager gameManager) {
         _gameManager = gameManager;
 
-        _movementSystemInterface.OnTrainReachedTarget.Subscribe(OnTrainReachedTarget);
+        _compoundSystem.OnHorseReachedTarget.Subscribe(OnTrainReachedTarget);
     }
 
     void OnTrainReachedTarget(Direction direction) {
@@ -208,7 +176,7 @@ public class Map : MonoBehaviour {
     void InitializeMovementSystem() {
         elementTiles = _initialMapProvider.LoadElementTiles();
 
-        _movementSystemInterface.Init(this);
+        _compoundSystem.Init(this);
     }
 
     void GiveResource(ScriptableResource resource1, int amount) {
@@ -643,6 +611,17 @@ public class Map : MonoBehaviour {
         var mt = _humanMovementCurve.Evaluate(t);
         human.position =
             Vector2.Lerp(human.movingFrom, human.harvestBuilding.position, mt);
+    }
+
+    #endregion
+
+    #region TrainSystem_Behaviour
+
+    public bool AreThereAvailableResourcesForTheTrain(HorseTrain train) {
+        return false;
+    }
+
+    public void PickRandomItemForTheTrain(HorseTrain train) {
     }
 
     #endregion

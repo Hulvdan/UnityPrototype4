@@ -6,7 +6,18 @@ using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
 public class HorseMovementSystem {
-    public readonly Subject<Tuple<Direction, TrainDestination>> OnReachedDestination = new();
+    public readonly Subject<OnReachedDestinationData> OnReachedDestination = new();
+    Map _map;
+
+    List<List<MovementGraphCell>> _movementGraph;
+
+    float TrainLoadingDuration = 1f;
+    float TrainUnloadingDuration = 1f;
+
+    public void Init(Map map, List<List<MovementGraphCell>> movementGraph) {
+        _map = map;
+        _movementGraph = movementGraph;
+    }
 
     public static void NormalizeNodeDistances(TrainNode node, TrainNode previousNode) {
         node.Progress = previousNode.Progress - previousNode.Width / 2 - node.Width / 2;
@@ -17,7 +28,7 @@ public class HorseMovementSystem {
         }
     }
 
-    public void AdvanceTrain(HorseTrain horse) {
+    public void AdvanceHorse(HorseTrain horse) {
         var locomotive = horse.nodes[0];
 
         locomotive.Progress += Time.deltaTime * horse.Speed;
@@ -26,22 +37,27 @@ public class HorseMovementSystem {
             locomotive.Progress -= 1;
         }
 
+        var couldReachTheEnd = false;
         if (locomotive.SegmentIndex >= horse.SegmentsCount) {
             locomotive.SegmentIndex = horse.SegmentsCount - 1;
             locomotive.Progress = 1;
 
-            var v0 = horse.segmentVertexes[locomotive.SegmentIndex];
-            var v1 = horse.segmentVertexes[locomotive.SegmentIndex + 1];
+            couldReachTheEnd = true;
+        }
 
-            var dir = DirectionFromCells(v0, v1);
+        var v0 = horse.segmentVertexes[locomotive.SegmentIndex];
+        var v1 = horse.segmentVertexes[locomotive.SegmentIndex + 1];
+        var dir = DirectionFromCells(v0, v1);
+        horse.Direction = dir;
 
+        if (couldReachTheEnd) {
             var pair = new Tuple<Vector2Int, Vector2Int>(v0, v1);
             if (!Equals(horse.LastReachedSegmentVertexes, pair)) {
                 horse.LastReachedSegmentVertexes = pair;
 
                 var destination = horse.CurrentDestination;
                 if (destination.HasValue && destination.Value.Pos == v1) {
-                    OnReachedDestination.OnNext(new(dir, destination.Value));
+                    TrainReachedDestination(horse, destination.Value);
                 }
             }
         }
@@ -49,6 +65,13 @@ public class HorseMovementSystem {
         for (var i = 0; i < horse.nodes.Count - 1; i++) {
             NormalizeNodeDistances(horse.nodes[i + 1], horse.nodes[i]);
         }
+    }
+
+    void TrainReachedDestination(HorseTrain train, TrainDestination destination) {
+        OnReachedDestination.OnNext(new() {
+            train = train,
+            destination = destination,
+        });
     }
 
     static Direction DirectionFromCells(Vector2Int source, Vector2Int destination) {
@@ -91,24 +114,26 @@ public class HorseMovementSystem {
     public PathFindResult FindPath(
         Vector2Int source,
         Vector2Int destination,
-        ref MovementGraphCell[,] graph,
+        List<List<MovementGraphCell>> graph,
         Direction startingDirection
     ) {
-        foreach (var node in graph) {
-            if (node != null) {
-                node.BFS_Parent = null;
-                node.BFS_Visited = false;
+        foreach (var row in graph) {
+            foreach (var node in row) {
+                if (node != null) {
+                    node.BFS_Parent = null;
+                    node.BFS_Visited = false;
+                }
             }
         }
 
         var queue = new Queue<Vector2Int>();
         queue.Enqueue(new(source.x, source.y));
-        graph[source.y, source.x].BFS_Visited = true;
+        graph[source.y][source.x].BFS_Visited = true;
 
         var isStartingCell = true;
         while (queue.Count > 0) {
             var pos = queue.Dequeue();
-            var cell = graph[pos.y, pos.x];
+            var cell = graph[pos.y][pos.x];
             if (cell == null) {
                 continue;
             }
@@ -126,14 +151,11 @@ public class HorseMovementSystem {
                 var newY = pos.y + offset.y;
                 var newX = pos.x + offset.x;
 
-                if (newX < 0
-                    || newY < 0
-                    || newY >= graph.GetLength(0)
-                    || newX >= graph.GetLength(1)) {
+                if (!_map.Contains(newX, newY)) {
                     continue;
                 }
 
-                var mCell = graph[newY, newX];
+                var mCell = graph[newY][newX];
                 Assert.IsNotNull(mCell);
 
                 if (mCell.BFS_Visited) {
@@ -143,7 +165,7 @@ public class HorseMovementSystem {
                 var newPos = new Vector2Int(newX, newY);
                 VisitCell(ref mCell, pos);
                 if (newPos == destination) {
-                    return BuildPath(ref graph, newPos);
+                    return BuildPath(graph, newPos);
                 }
 
                 queue.Enqueue(newPos);
@@ -160,16 +182,38 @@ public class HorseMovementSystem {
         cell.BFS_Visited = true;
     }
 
-    static PathFindResult BuildPath(ref MovementGraphCell[,] graph, Vector2Int destination) {
+    static PathFindResult BuildPath(List<List<MovementGraphCell>> graph, Vector2Int destination) {
         var res = new List<Vector2Int> { destination };
 
-        while (graph[destination.y, destination.x].BFS_Parent != null) {
-            res.Add(graph[destination.y, destination.x].BFS_Parent.Value);
-            destination = graph[destination.y, destination.x].BFS_Parent.Value;
+        while (graph[destination.y][destination.x].BFS_Parent != null) {
+            res.Add(graph[destination.y][destination.x].BFS_Parent.Value);
+            destination = graph[destination.y][destination.x].BFS_Parent.Value;
         }
 
         res.Reverse();
         return new(true, res);
+    }
+
+    public void TrySetNextDestinationAndBuildPath(HorseTrain horse) {
+        horse.SwitchToTheNextDestination();
+        var newDestination = horse.CurrentDestination;
+        if (newDestination == null) {
+            Debug.LogError("No new destination found");
+            return;
+        }
+
+        var path = FindPath(
+            horse.segmentVertexes[^1], newDestination.Value.Pos, _movementGraph, horse.Direction
+        );
+
+        if (!path.Success) {
+            Debug.LogError("Could not find the path");
+            return;
+        }
+
+        foreach (var vertex in path.Path) {
+            horse.AddSegmentVertex(vertex);
+        }
     }
 }
 }

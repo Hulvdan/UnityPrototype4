@@ -9,16 +9,17 @@ public class TestHorseMovementSystem {
     [Timeout(1)]
     public void TestFindPath() {
         var system = new HorseMovementSystem();
-        var graph = new MovementGraphCell[,] {
-            {
+        var graph = new List<List<MovementGraphCell>> {
+            new() {
                 new(false, true, false, false),
                 new(false, false, false, false),
-            }, {
+            },
+            new() {
                 new(true, false, false, false),
                 new(false, false, false, false),
             },
         };
-        var result = system.FindPath(Vector2Int.zero, Vector2Int.one, ref graph, Direction.Up);
+        var result = system.FindPath(Vector2Int.zero, Vector2Int.one, graph, Direction.Up);
         Assert.IsTrue(result.Success);
         Assert.AreEqual(
             result.Path,
@@ -30,25 +31,27 @@ public class TestHorseMovementSystem {
     [Timeout(1)]
     public void TestFindPath_Bigger() {
         var system = new HorseMovementSystem();
-        var graph = new[,] {
-            {
+        var graph = new List<List<MovementGraphCell>> {
+            new() {
                 MovementGraphCell.MakeUpRight(),
                 MovementGraphCell.MakeLeftRight(),
                 MovementGraphCell.MakeUpLeft(),
                 new(false, false, false, false),
-            }, {
+            },
+            new() {
                 MovementGraphCell.MakeUpDown(),
                 new(false, false, false, false),
                 MovementGraphCell.MakeUpDownRight(),
                 MovementGraphCell.MakeLeftRight(),
-            }, {
+            },
+            new() {
                 MovementGraphCell.MakeDownRight(),
                 MovementGraphCell.MakeLeftRight(),
                 MovementGraphCell.MakeDownLeft(),
                 new(false, false, false, false),
             },
         };
-        var result = system.FindPath(new(2, 0), new(3, 1), ref graph, Direction.Left);
+        var result = system.FindPath(new(2, 0), new(3, 1), graph, Direction.Left);
 
         Assert.IsTrue(result.Success);
         Assert.AreEqual(
@@ -118,16 +121,17 @@ public class TestHorseMovementSystem {
     [Timeout(1)]
     public void TestFindPath_ShouldFail() {
         var system = new HorseMovementSystem();
-        var graph = new MovementGraphCell[,] {
-            {
+        var graph = new List<List<MovementGraphCell>> {
+            new() {
                 new(false, true, false, false),
                 new(false, false, false, false),
-            }, {
+            },
+            new() {
                 new(false, false, false, false),
                 new(false, false, false, false),
             },
         };
-        var result = system.FindPath(Vector2Int.zero, Vector2Int.one, ref graph, Direction.Up);
+        var result = system.FindPath(Vector2Int.zero, Vector2Int.one, graph, Direction.Up);
         Assert.IsFalse(result.Success);
         Assert.AreEqual(result.Path, null);
     }

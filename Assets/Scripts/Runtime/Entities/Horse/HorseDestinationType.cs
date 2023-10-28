@@ -1,5 +1,5 @@
 ﻿namespace BFG.Runtime {
-public enum TrainDestinationType {
+public enum HorseDestinationType {
     Load,
     Unload,
 }
