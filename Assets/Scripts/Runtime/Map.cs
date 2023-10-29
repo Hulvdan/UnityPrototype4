@@ -97,6 +97,14 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [Min(1)]
     int _horsesGatheringAroundStationRadius = 2;
 
+    #region TrainSystem_Attributes
+
+    [SerializeField]
+    [Min(1)]
+    int _trainItemsGatheringRadius = 2;
+
+    #endregion
+
     readonly List<TopBarResource> _resources = new();
 
     GameManager _gameManager;
@@ -237,14 +245,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public float humanHarvestingDuration => _humanHarvestingDuration;
     public float humanReturningBackDuration => _humanReturningBackDuration;
     public float humanTotalHarvestingDuration => _humanTotalHarvestingDuration;
-
-    #endregion
-
-    #region TrainSystem_Attributes
-
-    [SerializeField]
-    [Min(1)]
-    int _trainItemsGatheringRadius = 2;
 
     #endregion
 
@@ -704,7 +704,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     public void PickRandomItemForTheTrain(HorseTrain train) {
-        TrainNode? node1 = null;
+        TrainNode node1 = null;
         foreach (var node in train.nodes) {
             if (node.canStoreResourceCount > node.storedResources.Count) {
                 node1 = node;
@@ -774,9 +774,9 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 }
 
 internal record StationDimensions {
-    public int MinX;
-    public int MinY;
     public int MaxX;
     public int MaxY;
+    public int MinX;
+    public int MinY;
 }
 }

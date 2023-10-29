@@ -8,10 +8,10 @@ namespace BFG.Runtime {
 public class HorseMovementSystem {
     public readonly Subject<OnReachedDestinationData> OnReachedDestination = new();
 
-    public bool debugMode;
-
     List<List<MovementGraphTile>> _graph;
     IMapSize _mapSize;
+
+    public bool debugMode;
 
     float TrainLoadingDuration = 1f;
     float TrainUnloadingDuration = 1f;
