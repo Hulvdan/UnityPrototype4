@@ -92,18 +92,11 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [Required]
     HorseCompoundSystem _horseCompoundSystem;
 
+    [FormerlySerializedAs("_horsesGatheringAroundStationRadius")]
     [FoldoutGroup("Horse Movement System", true)]
     [SerializeField]
     [Min(1)]
-    int _horsesGatheringAroundStationRadius = 2;
-
-    #region TrainSystem_Attributes
-
-    [SerializeField]
-    [Min(1)]
-    int _trainItemsGatheringRadius = 2;
-
-    #endregion
+    int _horsesStationItemsGatheringRadius = 2;
 
     readonly List<TopBarResource> _resources = new();
 
@@ -616,7 +609,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var expandedDimensions = ExpandStationDimensions(dimensions);
 
         foreach (var building in buildings) {
-            if (!expandedDimensions.Contains(building.position)) {
+            if (!BetterContains(expandedDimensions, building.position)) {
                 continue;
             }
 
@@ -628,12 +621,19 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         return false;
     }
 
+    bool BetterContains(RectInt rect, Vector2Int pos) {
+        return rect.xMin <= pos.x
+               && rect.yMin <= pos.y
+               && pos.x <= rect.xMax
+               && pos.y <= rect.yMax;
+    }
+
     RectInt ExpandStationDimensions(RectInt dimensions) {
         return new() {
-            xMin = Math.Max(0, dimensions.xMin - _trainItemsGatheringRadius),
-            yMin = Math.Max(0, dimensions.yMin - _trainItemsGatheringRadius),
-            xMax = Math.Min(sizeX - 1, dimensions.xMax + _trainItemsGatheringRadius),
-            yMax = Math.Min(sizeY - 1, dimensions.yMax + _trainItemsGatheringRadius),
+            xMin = Math.Max(0, dimensions.xMin - _horsesStationItemsGatheringRadius),
+            yMin = Math.Max(0, dimensions.yMin - _horsesStationItemsGatheringRadius),
+            xMax = Math.Min(sizeX - 1, dimensions.xMax + _horsesStationItemsGatheringRadius),
+            yMax = Math.Min(sizeY - 1, dimensions.yMax + _horsesStationItemsGatheringRadius),
         };
     }
 
@@ -733,7 +733,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         ScriptableResource res = null;
         var resIndex = -1;
         foreach (var building in shuffledBuildings) {
-            if (!expandedDimensions.Contains(building.position)) {
+            if (!BetterContains(expandedDimensions, building.position)) {
                 continue;
             }
 

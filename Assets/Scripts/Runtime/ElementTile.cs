@@ -20,5 +20,9 @@ public struct ElementTile {
 
     public static ElementTile None = new(ElementTileType.None, 0);
     public static ElementTile Road = new(ElementTileType.Road, 0);
+
+    public override string ToString() {
+        return $"ElementTile({Type}, {Rotation})";
+    }
 }
 }
