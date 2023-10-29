@@ -68,7 +68,7 @@ public enum ButtonEnum {
     Disabled,
     Selected,
     Hovered,
-    Normal
+    Normal,
 }
 
 public class BuildableButton : MonoBehaviour {
@@ -162,7 +162,7 @@ public class BuildableButton : MonoBehaviour {
             ButtonEnum.Disabled => _colorBlock.disabledColor,
             ButtonEnum.Selected => _colorBlock.selectedColor,
             ButtonEnum.Hovered => _colorBlock.highlightedColor,
-            ButtonEnum.Normal => _colorBlock.normalColor
+            ButtonEnum.Normal => _colorBlock.normalColor,
         };
     }
 

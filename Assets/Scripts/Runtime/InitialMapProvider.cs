@@ -25,30 +25,32 @@ public class InitialMapProvider : MonoBehaviour {
     [Required]
     TileBase _stationVerticalTile;
 
-    Map _map;
+    IMap _map;
+    IMapSize _mapSize;
 
-    public void Init(Map map) {
+    public void Init(IMap map, IMapSize mapSize) {
         _map = map;
+        _mapSize = mapSize;
     }
 
     public List<List<ElementTile>> LoadElementTiles() {
-        var elementTiles = new List<List<ElementTile>>(_map.sizeY);
+        var elementTiles = new List<List<ElementTile>>(_mapSize.sizeY);
 
-        for (var y = 0; y < _map.sizeY; y++) {
-            var row = new List<ElementTile>(_map.sizeX);
+        for (var y = 0; y < _mapSize.sizeY; y++) {
+            var row = new List<ElementTile>(_mapSize.sizeX);
 
-            for (var x = 0; x < _map.sizeX; x++) {
-                var tilemapTile = _movementSystemTilemap.GetTile(new Vector3Int(x, y));
+            for (var x = 0; x < _mapSize.sizeX; x++) {
+                var tilemapTile = _movementSystemTilemap.GetTile(new(x, y));
 
                 ElementTile tile;
                 if (tilemapTile == _roadTile) {
                     tile = ElementTile.Road;
                 }
                 else if (tilemapTile == _stationHorizontalTile) {
-                    tile = new ElementTile(ElementTileType.Station, 0);
+                    tile = new(ElementTileType.Station, 0);
                 }
                 else if (tilemapTile == _stationVerticalTile) {
-                    tile = new ElementTile(ElementTileType.Station, 1);
+                    tile = new(ElementTileType.Station, 1);
                 }
                 else {
                     tile = ElementTile.None;

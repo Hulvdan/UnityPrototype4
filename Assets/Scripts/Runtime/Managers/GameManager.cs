@@ -20,6 +20,10 @@ public class GameManager : MonoBehaviour {
 
     [SerializeField]
     [Required]
+    UIManager _uiManager;
+
+    [SerializeField]
+    [Required]
     InputActionAsset _inputActionAsset;
 
     public readonly Subject<SelectedItem> OnSelectedItemChanged = new();
@@ -57,8 +61,9 @@ public class GameManager : MonoBehaviour {
 
     void Start() {
         _map.InitDependencies(this);
-        _mapRenderer.InitDependencies(this, _map);
+        _mapRenderer.InitDependencies(this, _map, _map);
         _buildablesPanel.InitDependencies(this);
+        _uiManager.InitDependencies(_map);
 
         _map.Init();
         _buildablesPanel.Init();
@@ -79,7 +84,7 @@ public class GameManager : MonoBehaviour {
     }
 
     void OnValidate() {
-        _mapRenderer.InitDependencies(this, _map);
+        _mapRenderer.InitDependencies(this, _map, _map);
     }
 
     public void RotateSelectedItemCW() {

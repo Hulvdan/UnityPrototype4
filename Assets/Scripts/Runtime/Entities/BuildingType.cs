@@ -2,6 +2,6 @@
 public enum BuildingType {
     Harvest,
     Store,
-    Produce
+    Produce,
 }
 }

@@ -5,18 +5,21 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
-public struct PathFindResult {
-    public bool Success;
-    public List<Vector2Int> Path;
-
-    public PathFindResult(bool success, List<Vector2Int> path) {
-        Success = success;
-        Path = path;
-    }
-}
-
 public class HorseMovementSystem {
-    public readonly Subject<Direction> OnReachedTarget = new();
+    public readonly Subject<OnReachedDestinationData> OnReachedDestination = new();
+
+    public bool debugMode;
+
+    List<List<MovementGraphTile>> _graph;
+    IMapSize _mapSize;
+
+    float TrainLoadingDuration = 1f;
+    float TrainUnloadingDuration = 1f;
+
+    public void Init(IMapSize mapSize, List<List<MovementGraphTile>> movementGraph) {
+        _mapSize = mapSize;
+        _graph = movementGraph;
+    }
 
     public static void NormalizeNodeDistances(TrainNode node, TrainNode previousNode) {
         node.Progress = previousNode.Progress - previousNode.Width / 2 - node.Width / 2;
@@ -27,7 +30,7 @@ public class HorseMovementSystem {
         }
     }
 
-    public void AdvanceTrain(HorseTrain horse) {
+    public void AdvanceHorse(HorseTrain horse) {
         var locomotive = horse.nodes[0];
 
         locomotive.Progress += Time.deltaTime * horse.Speed;
@@ -36,15 +39,30 @@ public class HorseMovementSystem {
             locomotive.Progress -= 1;
         }
 
+        var couldReachTheEnd = false;
         if (locomotive.SegmentIndex >= horse.SegmentsCount) {
             locomotive.SegmentIndex = horse.SegmentsCount - 1;
             locomotive.Progress = 1;
 
-            var source = horse.segmentVertexes[locomotive.SegmentIndex];
-            var destination = horse.segmentVertexes[locomotive.SegmentIndex + 1];
+            couldReachTheEnd = true;
+        }
 
-            var dir = DirectionFromCells(source, destination);
-            OnReachedTarget.OnNext(dir);
+        var v0 = horse.segmentVertexes[locomotive.SegmentIndex];
+        var v1 = horse.segmentVertexes[locomotive.SegmentIndex + 1];
+        if (v0 != v1) {
+            horse.Direction = DirectionFromTiles(v0, v1);
+        }
+
+        if (couldReachTheEnd) {
+            var pair = new Tuple<Vector2Int, Vector2Int>(v0, v1);
+            if (!Equals(horse.LastReachedSegmentVertexes, pair)) {
+                horse.LastReachedSegmentVertexes = pair;
+
+                var destination = horse.CurrentDestination;
+                if (destination.HasValue && destination.Value.Pos == v1) {
+                    TrainReachedDestination(horse, destination.Value);
+                }
+            }
         }
 
         for (var i = 0; i < horse.nodes.Count - 1; i++) {
@@ -52,7 +70,18 @@ public class HorseMovementSystem {
         }
     }
 
-    static Direction DirectionFromCells(Vector2Int source, Vector2Int destination) {
+    void TrainReachedDestination(HorseTrain train, TrainDestination destination) {
+        if (debugMode) {
+            Debug.Log($"TrainReachedDestination {destination}");
+        }
+
+        OnReachedDestination.OnNext(new() {
+            train = train,
+            destination = destination,
+        });
+    }
+
+    static Direction DirectionFromTiles(Vector2Int source, Vector2Int destination) {
         if (destination.x > source.x) {
             return Direction.Right;
         }
@@ -92,34 +121,35 @@ public class HorseMovementSystem {
     public PathFindResult FindPath(
         Vector2Int source,
         Vector2Int destination,
-        ref MovementGraphCell[,] graph,
         Direction startingDirection
     ) {
-        foreach (var node in graph) {
-            if (node != null) {
-                node.BFS_Parent = null;
-                node.BFS_Visited = false;
+        foreach (var row in _graph) {
+            foreach (var node in row) {
+                if (node != null) {
+                    node.BFS_Parent = null;
+                    node.BFS_Visited = false;
+                }
             }
         }
 
         var queue = new Queue<Vector2Int>();
-        queue.Enqueue(new Vector2Int(source.x, source.y));
-        graph[source.y, source.x].BFS_Visited = true;
+        queue.Enqueue(new(source.x, source.y));
+        _graph[source.y][source.x].BFS_Visited = true;
 
-        var isStartingCell = true;
+        var isStartingTile = true;
         while (queue.Count > 0) {
             var pos = queue.Dequeue();
-            var cell = graph[pos.y, pos.x];
-            if (cell == null) {
+            var tile = _graph[pos.y][pos.x];
+            if (tile == null) {
                 continue;
             }
 
             for (var i = 0; i < 4; i++) {
-                if (!cell.Directions[i]) {
+                if (!tile.Directions[i]) {
                     continue;
                 }
 
-                if (isStartingCell && (Direction)i != startingDirection) {
+                if (isStartingTile && (Direction)i != startingDirection) {
                     continue;
                 }
 
@@ -127,50 +157,73 @@ public class HorseMovementSystem {
                 var newY = pos.y + offset.y;
                 var newX = pos.x + offset.x;
 
-                if (newX < 0
-                    || newY < 0
-                    || newY >= graph.GetLength(0)
-                    || newX >= graph.GetLength(1)) {
+                if (!_mapSize.Contains(newX, newY)) {
                     continue;
                 }
 
-                var mCell = graph[newY, newX];
-                Assert.IsNotNull(mCell);
+                var mTile = _graph[newY][newX];
+                Assert.IsNotNull(mTile);
 
-                if (mCell.BFS_Visited) {
+                if (mTile.BFS_Visited) {
                     continue;
                 }
 
                 var newPos = new Vector2Int(newX, newY);
-                VisitCell(ref mCell, pos);
+                VisitTile(ref mTile, pos);
                 if (newPos == destination) {
-                    return BuildPath(ref graph, newPos);
+                    return BuildPath(_graph, newPos);
                 }
 
                 queue.Enqueue(newPos);
             }
 
-            isStartingCell = false;
+            isStartingTile = false;
         }
 
-        return new PathFindResult(false, null);
+        return new(false, null);
     }
 
-    static void VisitCell(ref MovementGraphCell cell, Vector2Int oldPos) {
-        cell.BFS_Parent = oldPos;
-        cell.BFS_Visited = true;
+    static void VisitTile(ref MovementGraphTile tile, Vector2Int oldPos) {
+        tile.BFS_Parent = oldPos;
+        tile.BFS_Visited = true;
     }
 
-    static PathFindResult BuildPath(ref MovementGraphCell[,] graph, Vector2Int destination) {
+    static PathFindResult BuildPath(List<List<MovementGraphTile>> graph, Vector2Int destination) {
         var res = new List<Vector2Int> { destination };
 
-        while (graph[destination.y, destination.x].BFS_Parent != null) {
-            res.Add(graph[destination.y, destination.x].BFS_Parent.Value);
-            destination = graph[destination.y, destination.x].BFS_Parent.Value;
+        while (graph[destination.y][destination.x].BFS_Parent != null) {
+            res.Add(graph[destination.y][destination.x].BFS_Parent.Value);
+            destination = graph[destination.y][destination.x].BFS_Parent.Value;
         }
 
         res.Reverse();
-        return new PathFindResult(true, res);
+        return new(true, res);
+    }
+
+    public void TrySetNextDestinationAndBuildPath(HorseTrain horse) {
+        horse.SwitchToTheNextDestination();
+        var newDestination = horse.CurrentDestination;
+        if (newDestination == null) {
+            Debug.LogError("No new destination found");
+            return;
+        }
+
+        var path = FindPath(horse.segmentVertexes[^1], newDestination.Value.Pos, horse.Direction);
+
+        if (!path.Success) {
+            Debug.LogError("Could not find the path");
+            return;
+        }
+
+        var first = true;
+        foreach (var vertex in path.Path) {
+            if (first) {
+                first = false;
+                continue;
+            }
+
+            horse.AddSegmentVertex(vertex);
+        }
     }
 }
 }

@@ -96,7 +96,8 @@ public class MapRenderer : MonoBehaviour {
 
     GameManager _gameManager;
     InputActionMap _gameplayInputMap;
-    Map _map;
+    IMap _map;
+    IMapSize _mapSize;
     InputAction _mouseBuildAction;
     InputAction _mouseMoveAction;
     Matrix4x4 _previewMatrix;
@@ -117,12 +118,12 @@ public class MapRenderer : MonoBehaviour {
 
         // TODO: Move inputs to GameManager
         if (_mouseBuildAction.WasPressedThisFrame()) {
-            var hoveredCell = GetHoveredCell();
-            if (!_map.Contains(hoveredCell)) {
+            var hoveredTile = GetHoveredTile();
+            if (!_mapSize.Contains(hoveredTile)) {
                 return;
             }
 
-            _map.TryBuild(hoveredCell, _gameManager.selectedItem);
+            _map.TryBuild(hoveredTile, _gameManager.selectedItem);
         }
         // else if (_mouseBuildAction.WasReleasedThisFrame()) {
         // }
@@ -141,11 +142,11 @@ public class MapRenderer : MonoBehaviour {
 
         foreach (var building in _map.buildings) {
             if (building.scriptableBuilding == null
-                || building.scriptableBuilding.cellsRadius == 0) {
+                || building.scriptableBuilding.tilesRadius == 0) {
                 continue;
             }
 
-            var r = building.scriptableBuilding.cellsRadius + .55f;
+            var r = building.scriptableBuilding.tilesRadius + .55f;
             var gridOffset = _grid.transform.localPosition + transform.localPosition;
             var points = new Vector3[] {
                 new(r, r, 0),
@@ -155,7 +156,7 @@ public class MapRenderer : MonoBehaviour {
                 new(-r, -r, 0),
                 new(-r, r, 0),
                 new(-r, r, 0),
-                new(r, r, 0)
+                new(r, r, 0),
             };
             for (var i = 0; i < points.Length; i++) {
                 var point = points[i];
@@ -168,8 +169,9 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    public void InitDependencies(GameManager gameManager, Map map) {
+    public void InitDependencies(GameManager gameManager, IMap map, IMapSize mapSize) {
         _map = map;
+        _mapSize = mapSize;
         _gameManager = gameManager;
 
         foreach (var hook in _dependencyHooks) {
@@ -204,7 +206,7 @@ public class MapRenderer : MonoBehaviour {
                 return;
         }
 
-        _movementSystemTilemap.SetTile(new Vector3Int(pos.x, pos.y), tile);
+        _movementSystemTilemap.SetTile(new(pos.x, pos.y), tile);
     }
 
     void UpdateTileBasedOnRemainingResourcePercent(
@@ -215,8 +217,8 @@ public class MapRenderer : MonoBehaviour {
             return;
         }
 
-        _resourceTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), null);
-        _resourceTilemap.SetTile(new Vector3Int(pos.x, pos.y, -1), null);
+        _resourceTilemap.SetTile(new(pos.x, pos.y, 0), null);
+        _resourceTilemap.SetTile(new(pos.x, pos.y, -1), null);
     }
 
     public void ResetRenderer() {
@@ -238,8 +240,8 @@ public class MapRenderer : MonoBehaviour {
 
     void RegenerateTilemapGameObject() {
         var maxHeight = 0;
-        for (var y = 0; y < _map.sizeY; y++) {
-            for (var x = 0; x < _map.sizeX; x++) {
+        for (var y = 0; y < _mapSize.sizeY; y++) {
+            for (var x = 0; x < _mapSize.sizeX; x++) {
                 maxHeight = Math.Max(maxHeight, _map.terrainTiles[y][x].Height);
             }
         }
@@ -255,18 +257,18 @@ public class MapRenderer : MonoBehaviour {
         }
 
         for (var h = 0; h <= maxHeight; h++) {
-            for (var y = 0; y < _map.sizeY; y++) {
-                if (h > 0 && y == _map.sizeY) {
+            for (var y = 0; y < _mapSize.sizeY; y++) {
+                if (h > 0 && y == _mapSize.sizeY) {
                     continue;
                 }
 
-                for (var x = 0; x < _map.sizeX; x++) {
+                for (var x = 0; x < _mapSize.sizeX; x++) {
                     if (
                         h == 0
                         || _map.terrainTiles[y][x].Height >= h
                         || (y > 0 && _map.terrainTiles[y - 1][x].Height == h)
                     ) {
-                        terrainMaps[h].SetTile(new Vector3Int(x, y, 0), _tileGrass);
+                        terrainMaps[h].SetTile(new(x, y, 0), _tileGrass);
                     }
                 }
             }
@@ -275,12 +277,12 @@ public class MapRenderer : MonoBehaviour {
         _resourceTilemap = GenerateTilemap(
             0, maxHeight + 1, ResourcesTilemapNameTemplate, _tilemapPrefab
         ).GetComponent<Tilemap>();
-        for (var y = 0; y < _map.sizeY; y++) {
-            for (var x = 0; x < _map.sizeX; x++) {
+        for (var y = 0; y < _mapSize.sizeY; y++) {
+            for (var x = 0; x < _mapSize.sizeX; x++) {
                 if (_map.terrainTiles[y][x].Resource != null
                     && _map.terrainTiles[y][x].Resource.name == _logResource.name) {
-                    _resourceTilemap.SetTile(new Vector3Int(x, y, 0), _tileForest);
-                    _resourceTilemap.SetTile(new Vector3Int(x, y, -1), _tileForestTop);
+                    _resourceTilemap.SetTile(new(x, y, 0), _tileForest);
+                    _resourceTilemap.SetTile(new(x, y, -1), _tileForestTop);
                 }
             }
         }
@@ -290,7 +292,7 @@ public class MapRenderer : MonoBehaviour {
         ).GetComponent<Tilemap>();
         foreach (var building in _map.buildings) {
             buildingsTilemap.SetTile(
-                new Vector3Int(building.posX, building.posY, 0),
+                new(building.posX, building.posY, 0),
                 building.scriptableBuilding.tile
             );
         }
@@ -299,10 +301,10 @@ public class MapRenderer : MonoBehaviour {
     void RegenerateDebugTilemapGameObject() {
         _debugTilemap.ClearAllTiles();
 
-        for (var y = 0; y < _map.sizeY; y++) {
-            for (var x = 0; x < _map.sizeX; x++) {
+        for (var y = 0; y < _mapSize.sizeY; y++) {
+            for (var x = 0; x < _mapSize.sizeX; x++) {
                 bool walkable;
-                if (y >= _map.sizeY) {
+                if (y >= _mapSize.sizeY) {
                     walkable = false;
                 }
                 else {
@@ -310,7 +312,7 @@ public class MapRenderer : MonoBehaviour {
                 }
 
                 if (!walkable) {
-                    _debugTilemap.SetTile(new Vector3Int(x, y, 0), _debugTileUnwalkable);
+                    _debugTilemap.SetTile(new(x, y, 0), _debugTileUnwalkable);
                 }
             }
         }
@@ -323,28 +325,28 @@ public class MapRenderer : MonoBehaviour {
     GameObject GenerateTilemap(int i, float order, string nameTemplate, GameObject prefabTemplate) {
         var terrainTilemap = Instantiate(prefabTemplate, _grid.transform);
         terrainTilemap.name = nameTemplate + i;
-        terrainTilemap.transform.localPosition = new Vector3(0, -order / 100000f, 0);
+        terrainTilemap.transform.localPosition = new(0, -order / 100000f, 0);
         return terrainTilemap;
     }
 
     void UpdateGridPosition() {
-        _grid.transform.localPosition = new Vector3(-_map.sizeX / 2f, -_map.sizeY / 2f);
+        _grid.transform.localPosition = new(-_mapSize.sizeX / 2f, -_mapSize.sizeY / 2f);
     }
 
     void DisplayPreviewTile() {
         _previewTilemap.ClearAllTiles();
 
-        var cell = GetHoveredCell();
-        if (!_map.Contains(cell)) {
+        var tile = GetHoveredTile();
+        if (!_mapSize.Contains(tile)) {
             return;
         }
 
-        TileBase tile;
+        TileBase tilemapTile;
         if (_gameManager.selectedItem == SelectedItem.Road) {
-            tile = _tileRoad;
+            tilemapTile = _tileRoad;
         }
         else if (_gameManager.selectedItem == SelectedItem.Station) {
-            tile = _gameManager.selectedItemRotation % 2 == 0
+            tilemapTile = _gameManager.selectedItemRotation % 2 == 0
                 ? _tileStationVertical
                 : _tileStationHorizontal;
         }
@@ -353,17 +355,11 @@ public class MapRenderer : MonoBehaviour {
         }
 
         _previewTilemap.SetTile(
-            new TileChangeData(
-                new Vector3Int(cell.x, cell.y, 0),
-                tile,
-                Color.white,
-                _previewMatrix
-            ),
-            false
+            new(new(tile.x, tile.y, 0), tilemapTile, Color.white, _previewMatrix), false
         );
     }
 
-    Vector2Int GetHoveredCell() {
+    Vector2Int GetHoveredTile() {
         var mousePos = _mouseMoveAction.ReadValue<Vector2>();
         var wPos = _camera.ScreenToWorldPoint(mousePos);
         return (Vector2Int)_previewTilemap.WorldToCell(wPos);

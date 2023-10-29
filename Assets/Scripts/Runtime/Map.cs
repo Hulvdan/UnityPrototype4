@@ -6,10 +6,11 @@ using SimplexNoise;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 using Random = System.Random;
 
 namespace BFG.Runtime {
-public class Map : MonoBehaviour {
+public class Map : MonoBehaviour, IMap, IMapSize {
     // Layers:
     // 1 - Terrain (depends on height)
     // 2 - Trees, Stone, Ore
@@ -84,14 +85,19 @@ public class Map : MonoBehaviour {
     [Required]
     InitialMapProvider _initialMapProvider;
 
+    [FormerlySerializedAs("_compoundSystem")]
+    [FormerlySerializedAs("_movementSystemInterface")]
     [FoldoutGroup("Horse Movement System", true)]
     [SerializeField]
     [Required]
-    HorseMovementSystemInterface _movementSystemInterface;
+    HorseCompoundSystem _horseCompoundSystem;
+
+    [FoldoutGroup("Horse Movement System", true)]
+    [SerializeField]
+    [Min(1)]
+    int _horsesGatheringAroundStationRadius = 2;
 
     readonly List<TopBarResource> _resources = new();
-
-    public readonly Subject<Vector2Int> OnElementTileChanged = new();
 
     GameManager _gameManager;
 
@@ -102,17 +108,8 @@ public class Map : MonoBehaviour {
 
     Random _random;
 
-    public int sizeY => _mapSizeY;
-    public int sizeX => _mapSizeX;
-
-    // NOTE(Hulvdan): Indexes start from the bottom left corner and go to the top right one
-    public List<List<ElementTile>> elementTiles { get; private set; }
-    public List<List<TerrainTile>> terrainTiles { get; private set; }
-
-    public List<Building> buildings => _buildings;
-
     void Awake() {
-        _random = new Random((int)Time.time);
+        _random = new((int)Time.time);
     }
 
     void Update() {
@@ -126,51 +123,12 @@ public class Map : MonoBehaviour {
                                         + _humanReturningBackDuration;
     }
 
-    public void InitDependencies(GameManager gameManager) {
-        _gameManager = gameManager;
-    }
+    public Subject<Vector2Int> OnElementTileChanged { get; } = new();
 
-    public void Init() {
-        _initialMapProvider.Init(this);
-        RegenerateTilemap();
-
-        foreach (var res in _topBarResources) {
-            _resources.Add(new TopBarResource { Amount = 0, Resource = res });
-        }
-
-        InitializeMovementSystem();
-
-        CreateHuman(_buildings[0]);
-        CreateHuman(_buildings[0]);
-        CreateHuman(_buildings[1]);
-        CreateHuman(_buildings[1]);
-    }
-
-    void InitializeMovementSystem() {
-        elementTiles = _initialMapProvider.LoadElementTiles();
-
-        _movementSystemInterface.Init(this);
-    }
-
-    void GiveResource(ScriptableResource resource1, int amount) {
-        var resource = _resources.Find(x => x.Resource == resource1);
-        resource.Amount += amount;
-        OnResourceChanged.OnNext(
-            new TopBarResourceChangedData {
-                NewAmount = resource.Amount,
-                OldAmount = resource.Amount - amount,
-                Resource = resource1
-            }
-        );
-    }
-
-    public bool Contains(Vector2Int pos) {
-        return Contains(pos.x, pos.y);
-    }
-
-    public bool Contains(int x, int y) {
-        return x >= 0 && x < sizeX && y >= 0 && y < sizeY;
-    }
+    // NOTE(Hulvdan): Indexes start from the bottom left corner and go to the top right one
+    public List<List<ElementTile>> elementTiles { get; private set; }
+    public List<List<TerrainTile>> terrainTiles { get; private set; }
+    public List<Building> buildings => _buildings;
 
     public void TryBuild(Vector2Int pos, SelectedItem item) {
         if (!Contains(pos)) {
@@ -197,6 +155,51 @@ public class Map : MonoBehaviour {
         }
 
         OnElementTileChanged.OnNext(pos);
+    }
+
+    public int sizeY => _mapSizeY;
+    public int sizeX => _mapSizeX;
+
+    public bool Contains(Vector2Int pos) {
+        return Contains(pos.x, pos.y);
+    }
+
+    public bool Contains(int x, int y) {
+        return x >= 0 && x < sizeX && y >= 0 && y < sizeY;
+    }
+
+    public void InitDependencies(GameManager gameManager) {
+        _gameManager = gameManager;
+    }
+
+    public void Init() {
+        _initialMapProvider.Init(this, this);
+
+        RegenerateTilemap();
+
+        foreach (var res in _topBarResources) {
+            _resources.Add(new() { Amount = 0, Resource = res });
+        }
+
+        elementTiles = _initialMapProvider.LoadElementTiles();
+        _horseCompoundSystem.Init(this, this);
+
+        CreateHuman(_buildings[0]);
+        CreateHuman(_buildings[0]);
+        CreateHuman(_buildings[1]);
+        CreateHuman(_buildings[1]);
+    }
+
+    void GiveResource(ScriptableResource resource1, int amount) {
+        var resource = _resources.Find(x => x.Resource == resource1);
+        resource.Amount += amount;
+        OnResourceChanged.OnNext(
+            new() {
+                NewAmount = resource.Amount,
+                OldAmount = resource.Amount - amount,
+                Resource = resource1,
+            }
+        );
     }
 
     #region HumanSystem_Attributes
@@ -239,12 +242,11 @@ public class Map : MonoBehaviour {
 
     #region Events
 
-    public readonly Subject<HumanCreatedData> OnHumanCreated = new();
-    public readonly Subject<HumanStateChangedData> OnHumanStateChanged = new();
-    public readonly Subject<HumanPickedUpResourceData> OnHumanPickedUpResource = new();
-    public readonly Subject<HumanPlacedResourceData> OnHumanPlacedResource = new();
-
-    public readonly Subject<TopBarResourceChangedData> OnResourceChanged = new();
+    public Subject<HumanCreatedData> OnHumanCreated { get; } = new();
+    public Subject<HumanStateChangedData> OnHumanStateChanged { get; } = new();
+    public Subject<HumanPickedUpResourceData> OnHumanPickedUpResource { get; } = new();
+    public Subject<HumanPlacedResourceData> OnHumanPlacedResource { get; } = new();
+    public Subject<TopBarResourceChangedData> OnResourceChanged { get; } = new();
 
     #endregion
 
@@ -258,7 +260,7 @@ public class Map : MonoBehaviour {
 
     [Button("RegenerateTilemap")]
     void RegenerateTilemap() {
-        terrainTiles = new List<List<TerrainTile>>();
+        terrainTiles = new();
 
         // NOTE(Hulvdan): Generating tiles
         for (var y = 0; y < _mapSizeY; y++) {
@@ -271,7 +273,7 @@ public class Map : MonoBehaviour {
                 var tile = new TerrainTile {
                     Name = "grass",
                     Resource = hasForest ? _logResource : null,
-                    ResourceAmount = hasForest ? _maxForestAmount : 0
+                    ResourceAmount = hasForest ? _maxForestAmount : 0,
                 };
 
                 // var randomH = Random.Range(0, _maxHeight + 1);
@@ -319,7 +321,7 @@ public class Map : MonoBehaviour {
         var human = new Human(Guid.NewGuid(), building, building.position);
         _humans.Add(human);
         // OnHumanCreated?.Invoke(new HumanCreatedData(human));
-        OnHumanCreated.OnNext(new HumanCreatedData(human));
+        OnHumanCreated.OnNext(new(human));
     }
 
     void UpdateHumans() {
@@ -338,10 +340,12 @@ public class Map : MonoBehaviour {
                         HumanStartedIdle(human);
                     }
                 }
-                else if (human.harvestingElapsed >=
-                         _humanHeadingDuration
-                         + _humanHarvestingDuration
-                         + _humanHeadingToTheStoreBuildingDuration) {
+                else if (
+                    human.harvestingElapsed >=
+                    _humanHeadingDuration
+                    + _humanHarvestingDuration
+                    + _humanHeadingToTheStoreBuildingDuration
+                ) {
                     newState = HumanState.HeadingBackToTheHarvestBuilding;
                     if (human.state != newState) {
                         HumanFinishedHeadingToTheStoreBuilding(human);
@@ -354,9 +358,11 @@ public class Map : MonoBehaviour {
                         HumanStartedHeadingBackToTheHarvestBuilding(human);
                     }
                 }
-                else if (human.harvestingElapsed >=
-                         _humanHeadingDuration
-                         + _humanHarvestingDuration) {
+                else if (
+                    human.harvestingElapsed >=
+                    _humanHeadingDuration
+                    + _humanHarvestingDuration
+                ) {
                     newState = HumanState.HeadingToTheStoreBuilding;
                     if (human.state != newState) {
                         HumanFinishedHarvesting(human);
@@ -435,7 +441,7 @@ public class Map : MonoBehaviour {
         tile.ResourceAmount -= 1;
 
         OnHumanPickedUpResource.OnNext(
-            new HumanPickedUpResourceData(
+            new(
                 human,
                 human.harvestBuilding.scriptableBuilding.harvestableResource,
                 pos,
@@ -460,7 +466,7 @@ public class Map : MonoBehaviour {
         human.storeBuilding.storedResources.Add(tuple);
 
         OnHumanPlacedResource.OnNext(
-            new HumanPlacedResourceData(
+            new(
                 1,
                 human,
                 human.storeBuilding,
@@ -476,11 +482,11 @@ public class Map : MonoBehaviour {
 
         var oldState = human.state;
         human.state = newState;
-        OnHumanStateChanged.OnNext(new HumanStateChangedData(human, oldState, newState));
+        OnHumanStateChanged.OnNext(new(human, oldState, newState));
     }
 
     void UpdateHumanIdle(Human human) {
-        var r = human.harvestBuilding.scriptableBuilding.cellsRadius;
+        var r = human.harvestBuilding.scriptableBuilding.tilesRadius;
         var leftInclusive = Math.Max(0, human.harvestBuilding.posX - r);
         var rightInclusive = Math.Min(sizeX - 1, human.harvestBuilding.posX + r);
         var topInclusive = Math.Min(sizeY - 1, human.harvestBuilding.posY + r);
@@ -580,6 +586,24 @@ public class Map : MonoBehaviour {
         var mt = _humanMovementCurve.Evaluate(t);
         human.position =
             Vector2.Lerp(human.movingFrom, human.harvestBuilding.position, mt);
+    }
+
+    #endregion
+
+    #region TrainSystem_Behaviour
+
+    public bool AreThereAvailableResourcesForTheTrain(HorseTrain train) {
+        return false;
+    }
+
+    public void PickRandomItemForTheTrain(HorseTrain train) {
+    }
+
+    public bool AreThereAvailableSlotsTheTrainCanPassResourcesTo(HorseTrain horse) {
+        return false;
+    }
+
+    public void PickRandomSlotForTheTrainToPassItemTo(HorseTrain horse) {
     }
 
     #endregion

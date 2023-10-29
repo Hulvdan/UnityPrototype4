@@ -4,6 +4,6 @@ public enum HumanState {
     HeadingToTheHarvestTile,
     Harvesting,
     HeadingToTheStoreBuilding,
-    HeadingBackToTheHarvestBuilding
+    HeadingBackToTheHarvestBuilding,
 }
 }

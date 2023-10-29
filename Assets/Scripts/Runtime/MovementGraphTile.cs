@@ -2,7 +2,7 @@
 using UnityEngine;
 
 namespace BFG.Runtime {
-public class MovementGraphCell {
+public class MovementGraphTile {
     /// <summary>
     ///     Right, Up, Left, Down
     /// </summary>
@@ -14,7 +14,7 @@ public class MovementGraphCell {
     // ReSharper disable once InconsistentNaming
     public bool BFS_Visited;
 
-    public MovementGraphCell(bool right, bool up, bool left, bool down) {
+    public MovementGraphTile(bool right, bool up, bool left, bool down) {
         Directions[0] = right;
         Directions[1] = up;
         Directions[2] = left;
@@ -111,32 +111,32 @@ public class MovementGraphCell {
         return -1;
     }
 
-    public static MovementGraphCell MakeUpRight() {
-        return new MovementGraphCell(true, true, false, false);
+    public static MovementGraphTile MakeUpRight() {
+        return new(true, true, false, false);
     }
 
-    public static MovementGraphCell MakeUpLeft() {
-        return new MovementGraphCell(false, true, true, false);
+    public static MovementGraphTile MakeUpLeft() {
+        return new(false, true, true, false);
     }
 
-    public static MovementGraphCell MakeLeftRight() {
-        return new MovementGraphCell(true, false, true, false);
+    public static MovementGraphTile MakeLeftRight() {
+        return new(true, false, true, false);
     }
 
-    public static MovementGraphCell MakeDownRight() {
-        return new MovementGraphCell(true, false, false, true);
+    public static MovementGraphTile MakeDownRight() {
+        return new(true, false, false, true);
     }
 
-    public static MovementGraphCell MakeDownLeft() {
-        return new MovementGraphCell(false, false, true, true);
+    public static MovementGraphTile MakeDownLeft() {
+        return new(false, false, true, true);
     }
 
-    public static MovementGraphCell MakeUpDown() {
-        return new MovementGraphCell(false, true, false, true);
+    public static MovementGraphTile MakeUpDown() {
+        return new(false, true, false, true);
     }
 
-    public static MovementGraphCell MakeUpDownRight() {
-        return new MovementGraphCell(true, true, false, true);
+    public static MovementGraphTile MakeUpDownRight() {
+        return new(true, true, false, true);
     }
 }
 }
