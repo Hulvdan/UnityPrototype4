@@ -149,7 +149,8 @@ public class HorseMovementSystem {
                     continue;
                 }
 
-                if (isStartingTile && (Direction)i != startingDirection) {
+                if (isStartingTile && (Direction)i !=
+                    startingDirection) {
                     continue;
                 }
 

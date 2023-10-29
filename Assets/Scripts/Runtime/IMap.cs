@@ -9,10 +9,16 @@ public interface IMap {
     List<List<TerrainTile>> terrainTiles { get; }
 
     Subject<Vector2Int> OnElementTileChanged { get; }
+
     Subject<HumanCreatedData> OnHumanCreated { get; }
     Subject<HumanStateChangedData> OnHumanStateChanged { get; }
     Subject<HumanPickedUpResourceData> OnHumanPickedUpResource { get; }
     Subject<HumanPlacedResourceData> OnHumanPlacedResource { get; }
+
+    Subject<TrainCreatedData> OnTrainCreated { get; }
+    Subject<TrainNodeCreatedData> OnTrainNodeCreated { get; }
+    Subject<TrainNodePickedUpResourceData> OnTrainPickedUpResource { get; }
+
     Subject<TopBarResourceChangedData> OnResourceChanged { get; }
 
     void TryBuild(Vector2Int hoveredTile, SelectedItem gameManagerSelectedItem);
@@ -21,5 +27,15 @@ public interface IMap {
     void PickRandomItemForTheTrain(HorseTrain horse);
     bool AreThereAvailableSlotsTheTrainCanPassResourcesTo(HorseTrain horse);
     void PickRandomSlotForTheTrainToPassItemTo(HorseTrain horse);
+}
+
+public class TrainCreatedData {
+    public HorseTrain Horse;
+}
+
+public class TrainNodeCreatedData {
+    public HorseTrain Horse;
+    public TrainNode Node;
+    public bool IsLocomotive;
 }
 }

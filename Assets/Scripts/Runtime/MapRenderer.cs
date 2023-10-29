@@ -87,11 +87,21 @@ public class MapRenderer : MonoBehaviour {
 
     [SerializeField]
     [Required]
+    GameObject _locomotivePrefab;
+
+    [SerializeField]
+    [Required]
+    GameObject _wagonPrefab;
+
+    [SerializeField]
+    [Required]
     TileBase _debugTileUnwalkable;
 
     readonly List<IDisposable> _dependencyHooks = new();
 
     readonly Dictionary<Guid, Tuple<Human, HumanGO>> _humans = new();
+    readonly Dictionary<Guid, Tuple<TrainNode, TrainNodeGO>> _trainNodes = new();
+    readonly Dictionary<Tuple<Guid, int>, ItemGO> _storedItems = new();
     Camera _camera;
 
     GameManager _gameManager;
@@ -103,6 +113,9 @@ public class MapRenderer : MonoBehaviour {
     Matrix4x4 _previewMatrix;
 
     Tilemap _resourceTilemap;
+    // Dictionary<Building, List<>>
+    //     Map
+    // <Building> _items;
 
     void Awake() {
         _camera = Camera.main;
@@ -114,6 +127,7 @@ public class MapRenderer : MonoBehaviour {
 
     void Update() {
         UpdateHumans();
+        UpdateTrains();
         DisplayPreviewTile();
 
         // TODO: Move inputs to GameManager
@@ -181,9 +195,14 @@ public class MapRenderer : MonoBehaviour {
         _dependencyHooks.Clear();
         _dependencyHooks.Add(_gameManager.OnSelectedItemChanged.Subscribe(OnSelectedItemChanged));
         _dependencyHooks.Add(_map.OnElementTileChanged.Subscribe(OnElementTileChanged));
+
         _dependencyHooks.Add(_map.OnHumanCreated.Subscribe(OnHumanCreated));
         _dependencyHooks.Add(_map.OnHumanPickedUpResource.Subscribe(OnHumanPickedUpResource));
         _dependencyHooks.Add(_map.OnHumanPlacedResource.Subscribe(OnHumanPlacedResource));
+
+        _dependencyHooks.Add(_map.OnTrainCreated.Subscribe(OnTrainCreated));
+        _dependencyHooks.Add(_map.OnTrainNodeCreated.Subscribe(OnTrainNodeCreated));
+        _dependencyHooks.Add(_map.OnTrainPickedUpResource.Subscribe(OnTrainPickedUpResource));
     }
 
     void OnSelectedItemChanged(SelectedItem item) {
@@ -397,7 +416,12 @@ public class MapRenderer : MonoBehaviour {
 
         var itemOffset = scriptable.storedItemPositions[i];
         item.transform.localPosition = building.position + itemOffset + Vector2.right / 2;
-        item.GetComponent<ItemGO>().SetAs(data.Resource);
+        var itemGo = item.GetComponent<ItemGO>();
+        itemGo.SetAs(data.Resource);
+
+        var resIdx = data.StoreBuilding.storedResources.Count - 1;
+
+        _storedItems.Add(new(data.StoreBuilding.ID, resIdx), itemGo);
     }
 
     Vector3 GameLogicToRenderPos(Vector2 pos) {
@@ -407,6 +431,35 @@ public class MapRenderer : MonoBehaviour {
     void UpdateHumans() {
         foreach (var (human, go) in _humans.Values) {
             go.transform.position = GameLogicToRenderPos(human.position);
+        }
+    }
+
+    #endregion
+
+    #region TrainSystem
+
+    void OnTrainCreated(TrainCreatedData data) {
+    }
+
+    void OnTrainNodeCreated(TrainNodeCreatedData data) {
+        var go = Instantiate(data.IsLocomotive ? _locomotivePrefab : _wagonPrefab, _grid.transform);
+        var trainNodeGo = go.GetComponent<TrainNodeGO>();
+        _trainNodes.Add(data.Node.ID, new(data.Node, trainNodeGo));
+    }
+
+    void OnTrainPickedUpResource(TrainNodePickedUpResourceData data) {
+        var key = new Tuple<Guid, int>(data.Building.ID, data.ResourceIndex);
+        Destroy(_storedItems[key].gameObject);
+        _storedItems.Remove(key);
+
+        _trainNodes[data.TrainNode.ID].Item2.OnPickedUpResource(
+            data.Resource, data.Building.position
+        );
+    }
+
+    void UpdateTrains() {
+        foreach (var (trainNode, go) in _trainNodes.Values) {
+            go.transform.position = GameLogicToRenderPos(trainNode.CalculatedPosition);
         }
     }
 

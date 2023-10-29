@@ -254,6 +254,11 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public Subject<HumanStateChangedData> OnHumanStateChanged { get; } = new();
     public Subject<HumanPickedUpResourceData> OnHumanPickedUpResource { get; } = new();
     public Subject<HumanPlacedResourceData> OnHumanPlacedResource { get; } = new();
+
+    public Subject<TrainCreatedData> OnTrainCreated { get; } = new();
+    public Subject<TrainNodeCreatedData> OnTrainNodeCreated { get; } = new();
+
+    public Subject<TrainNodePickedUpResourceData> OnTrainPickedUpResource { get; } = new();
     public Subject<TopBarResourceChangedData> OnResourceChanged { get; } = new();
 
     #endregion
@@ -699,6 +704,63 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     public void PickRandomItemForTheTrain(HorseTrain train) {
+        TrainNode? node1 = null;
+        foreach (var node in train.nodes) {
+            if (node.canStoreResourceCount > node.storedResources.Count) {
+                node1 = node;
+                break;
+            }
+        }
+
+        if (node1 == null) {
+            Debug.LogError("WTF?");
+            return;
+        }
+
+        if (train.CurrentDestination.HasValue == false) {
+            Debug.LogError("WTF?");
+            return;
+        }
+
+        var pos = train.CurrentDestination.Value.Pos;
+        var dimensions = GetStationDimensions(pos);
+        var expandedDimensions = ExpandStationDimensions(dimensions);
+
+        var shuffledBuildings = buildings.ToArray();
+        Utils.Shuffle(shuffledBuildings, _random);
+
+        Building building1 = null;
+        ScriptableResource res = null;
+        var resIndex = -1;
+        foreach (var building in shuffledBuildings) {
+            if (!expandedDimensions.Contains(building.position)) {
+                continue;
+            }
+
+            if (building.storedResources.Count > 0) {
+                resIndex = building.storedResources.Count - 1;
+                building1 = building;
+                res = building.storedResources[resIndex].Item1;
+                building.storedResources.RemoveAt(resIndex);
+                break;
+            }
+        }
+
+        node1.storedResources.Add(new(res, 1));
+
+        if (res == null) {
+            Debug.LogError("WTF?");
+            return;
+        }
+
+        OnTrainPickedUpResource.OnNext(new() {
+            Train = train,
+            TrainNode = node1,
+            PickedUpAmount = 1,
+            Building = building1,
+            Resource = res,
+            ResourceIndex = resIndex,
+        });
     }
 
     public bool AreThereAvailableSlotsTheTrainCanPassResourcesTo(HorseTrain horse) {
