@@ -117,12 +117,12 @@ public class MapRenderer : MonoBehaviour {
 
         // TODO: Move inputs to GameManager
         if (_mouseBuildAction.WasPressedThisFrame()) {
-            var hoveredCell = GetHoveredCell();
-            if (!_map.Contains(hoveredCell)) {
+            var hoveredTile = GetHoveredTile();
+            if (!_map.Contains(hoveredTile)) {
                 return;
             }
 
-            _map.TryBuild(hoveredCell, _gameManager.selectedItem);
+            _map.TryBuild(hoveredTile, _gameManager.selectedItem);
         }
         // else if (_mouseBuildAction.WasReleasedThisFrame()) {
         // }
@@ -141,11 +141,11 @@ public class MapRenderer : MonoBehaviour {
 
         foreach (var building in _map.buildings) {
             if (building.scriptableBuilding == null
-                || building.scriptableBuilding.cellsRadius == 0) {
+                || building.scriptableBuilding.tilesRadius == 0) {
                 continue;
             }
 
-            var r = building.scriptableBuilding.cellsRadius + .55f;
+            var r = building.scriptableBuilding.tilesRadius + .55f;
             var gridOffset = _grid.transform.localPosition + transform.localPosition;
             var points = new Vector3[] {
                 new(r, r, 0),
@@ -334,17 +334,17 @@ public class MapRenderer : MonoBehaviour {
     void DisplayPreviewTile() {
         _previewTilemap.ClearAllTiles();
 
-        var cell = GetHoveredCell();
-        if (!_map.Contains(cell)) {
+        var tile = GetHoveredTile();
+        if (!_map.Contains(tile)) {
             return;
         }
 
-        TileBase tile;
+        TileBase tilemapTile;
         if (_gameManager.selectedItem == SelectedItem.Road) {
-            tile = _tileRoad;
+            tilemapTile = _tileRoad;
         }
         else if (_gameManager.selectedItem == SelectedItem.Station) {
-            tile = _gameManager.selectedItemRotation % 2 == 0
+            tilemapTile = _gameManager.selectedItemRotation % 2 == 0
                 ? _tileStationVertical
                 : _tileStationHorizontal;
         }
@@ -353,11 +353,11 @@ public class MapRenderer : MonoBehaviour {
         }
 
         _previewTilemap.SetTile(
-            new(new(cell.x, cell.y, 0), tile, Color.white, _previewMatrix), false
+            new(new(tile.x, tile.y, 0), tilemapTile, Color.white, _previewMatrix), false
         );
     }
 
-    Vector2Int GetHoveredCell() {
+    Vector2Int GetHoveredTile() {
         var mousePos = _mouseMoveAction.ReadValue<Vector2>();
         var wPos = _camera.ScreenToWorldPoint(mousePos);
         return (Vector2Int)_previewTilemap.WorldToCell(wPos);

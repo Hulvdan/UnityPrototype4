@@ -85,11 +85,17 @@ public class Map : MonoBehaviour {
     [Required]
     InitialMapProvider _initialMapProvider;
 
+    [FormerlySerializedAs("_compoundSystem")]
     [FormerlySerializedAs("_movementSystemInterface")]
     [FoldoutGroup("Horse Movement System", true)]
     [SerializeField]
     [Required]
-    HorseCompoundSystem _compoundSystem;
+    HorseCompoundSystem _horseCompoundSystem;
+
+    [FoldoutGroup("Horse Movement System", true)]
+    [SerializeField]
+    [Min(1)]
+    int _horsesGatheringAroundStationRadius = 2;
 
     readonly List<TopBarResource> _resources = new();
 
@@ -102,18 +108,7 @@ public class Map : MonoBehaviour {
     [ReadOnly]
     float _humanTotalHarvestingDuration;
 
-    Direction _lastTrainDirection;
-
     Random _random;
-
-    bool trainLoading;
-    float trainLoadingDuration = 1f;
-    float trainLoadingElapsed;
-
-    bool trainUnloading;
-    float trainUnloadingElapsed;
-
-    bool trainWasLoading;
 
     public int sizeY => _mapSizeY;
     public int sizeX => _mapSizeX;
@@ -140,21 +135,6 @@ public class Map : MonoBehaviour {
 
     public void InitDependencies(GameManager gameManager) {
         _gameManager = gameManager;
-
-        _compoundSystem.OnHorseReachedTarget.Subscribe(OnTrainReachedTarget);
-    }
-
-    void OnTrainReachedTarget(Direction direction) {
-        _lastTrainDirection = direction;
-
-        if (trainWasLoading) {
-            trainUnloading = true;
-            trainUnloadingElapsed = 0;
-        }
-        else {
-            trainLoading = true;
-            trainLoadingElapsed = 0;
-        }
     }
 
     public void Init() {
@@ -165,18 +145,13 @@ public class Map : MonoBehaviour {
             _resources.Add(new() { Amount = 0, Resource = res });
         }
 
-        InitializeMovementSystem();
-
-        CreateHuman(_buildings[0]);
-        CreateHuman(_buildings[0]);
-        CreateHuman(_buildings[1]);
-        CreateHuman(_buildings[1]);
-    }
-
-    void InitializeMovementSystem() {
         elementTiles = _initialMapProvider.LoadElementTiles();
+        _horseCompoundSystem.Init(this);
 
-        _compoundSystem.Init(this);
+        CreateHuman(_buildings[0]);
+        CreateHuman(_buildings[0]);
+        CreateHuman(_buildings[1]);
+        CreateHuman(_buildings[1]);
     }
 
     void GiveResource(ScriptableResource resource1, int amount) {
@@ -511,7 +486,7 @@ public class Map : MonoBehaviour {
     }
 
     void UpdateHumanIdle(Human human) {
-        var r = human.harvestBuilding.scriptableBuilding.cellsRadius;
+        var r = human.harvestBuilding.scriptableBuilding.tilesRadius;
         var leftInclusive = Math.Max(0, human.harvestBuilding.posX - r);
         var rightInclusive = Math.Min(sizeX - 1, human.harvestBuilding.posX + r);
         var topInclusive = Math.Min(sizeY - 1, human.harvestBuilding.posY + r);

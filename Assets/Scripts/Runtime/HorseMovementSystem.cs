@@ -9,12 +9,12 @@ public class HorseMovementSystem {
     public readonly Subject<OnReachedDestinationData> OnReachedDestination = new();
     Map _map;
 
-    List<List<MovementGraphCell>> _movementGraph;
+    List<List<MovementGraphTile>> _movementGraph;
 
     float TrainLoadingDuration = 1f;
     float TrainUnloadingDuration = 1f;
 
-    public void Init(Map map, List<List<MovementGraphCell>> movementGraph) {
+    public void Init(Map map, List<List<MovementGraphTile>> movementGraph) {
         _map = map;
         _movementGraph = movementGraph;
     }
@@ -47,7 +47,7 @@ public class HorseMovementSystem {
 
         var v0 = horse.segmentVertexes[locomotive.SegmentIndex];
         var v1 = horse.segmentVertexes[locomotive.SegmentIndex + 1];
-        var dir = DirectionFromCells(v0, v1);
+        var dir = DirectionFromTiles(v0, v1);
         horse.Direction = dir;
 
         if (couldReachTheEnd) {
@@ -74,7 +74,7 @@ public class HorseMovementSystem {
         });
     }
 
-    static Direction DirectionFromCells(Vector2Int source, Vector2Int destination) {
+    static Direction DirectionFromTiles(Vector2Int source, Vector2Int destination) {
         if (destination.x > source.x) {
             return Direction.Right;
         }
@@ -114,7 +114,7 @@ public class HorseMovementSystem {
     public PathFindResult FindPath(
         Vector2Int source,
         Vector2Int destination,
-        List<List<MovementGraphCell>> graph,
+        List<List<MovementGraphTile>> graph,
         Direction startingDirection
     ) {
         foreach (var row in graph) {
@@ -130,20 +130,20 @@ public class HorseMovementSystem {
         queue.Enqueue(new(source.x, source.y));
         graph[source.y][source.x].BFS_Visited = true;
 
-        var isStartingCell = true;
+        var isStartingTile = true;
         while (queue.Count > 0) {
             var pos = queue.Dequeue();
-            var cell = graph[pos.y][pos.x];
-            if (cell == null) {
+            var tile = graph[pos.y][pos.x];
+            if (tile == null) {
                 continue;
             }
 
             for (var i = 0; i < 4; i++) {
-                if (!cell.Directions[i]) {
+                if (!tile.Directions[i]) {
                     continue;
                 }
 
-                if (isStartingCell && (Direction)i != startingDirection) {
+                if (isStartingTile && (Direction)i != startingDirection) {
                     continue;
                 }
 
@@ -155,15 +155,15 @@ public class HorseMovementSystem {
                     continue;
                 }
 
-                var mCell = graph[newY][newX];
-                Assert.IsNotNull(mCell);
+                var mTile = graph[newY][newX];
+                Assert.IsNotNull(mTile);
 
-                if (mCell.BFS_Visited) {
+                if (mTile.BFS_Visited) {
                     continue;
                 }
 
                 var newPos = new Vector2Int(newX, newY);
-                VisitCell(ref mCell, pos);
+                VisitTile(ref mTile, pos);
                 if (newPos == destination) {
                     return BuildPath(graph, newPos);
                 }
@@ -171,18 +171,18 @@ public class HorseMovementSystem {
                 queue.Enqueue(newPos);
             }
 
-            isStartingCell = false;
+            isStartingTile = false;
         }
 
         return new(false, null);
     }
 
-    static void VisitCell(ref MovementGraphCell cell, Vector2Int oldPos) {
-        cell.BFS_Parent = oldPos;
-        cell.BFS_Visited = true;
+    static void VisitTile(ref MovementGraphTile tile, Vector2Int oldPos) {
+        tile.BFS_Parent = oldPos;
+        tile.BFS_Visited = true;
     }
 
-    static PathFindResult BuildPath(List<List<MovementGraphCell>> graph, Vector2Int destination) {
+    static PathFindResult BuildPath(List<List<MovementGraphTile>> graph, Vector2Int destination) {
         var res = new List<Vector2Int> { destination };
 
         while (graph[destination.y][destination.x].BFS_Parent != null) {

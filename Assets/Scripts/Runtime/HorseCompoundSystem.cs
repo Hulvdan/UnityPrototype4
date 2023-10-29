@@ -58,10 +58,6 @@ public class HorseCompoundSystem : MonoBehaviour {
     float _trainItemUnloadingDuration = 1f;
 
     [SerializeField]
-    [Min(1)]
-    int _horsesGatheringAroundStationRadius = 2;
-
-    [SerializeField]
     [Required]
     List<Transform> _movableObjects;
 
@@ -75,8 +71,8 @@ public class HorseCompoundSystem : MonoBehaviour {
     HorseTrain _horse;
 
     Map _map;
-    List<List<MovementGraphCell>> _movementCells;
     HorseMovementSystem _movementSystem;
+    List<List<MovementGraphTile>> _movementTiles;
     List<Vector2Int> _path = new();
 
     void Update() {
@@ -92,7 +88,7 @@ public class HorseCompoundSystem : MonoBehaviour {
         GenerateMovementGraph();
 
         _movementSystem = new();
-        _movementSystem.Init(_map, _movementCells);
+        _movementSystem.Init(_map, _movementTiles);
         _movementSystem.OnReachedDestination.Subscribe(OnHorseReachedDestination);
 
         _horse = new(_horseSpeed, Direction.Right);
@@ -115,9 +111,6 @@ public class HorseCompoundSystem : MonoBehaviour {
         });
 
         _movementSystem.TrySetNextDestinationAndBuildPath(_horse);
-
-        // _horseMovement.OnReachedTarget.Subscribe(dir => OnTrainReachedTarget.OnNext(dir));
-        // BuildHorsePath(Direction.Right, true);
     }
 
     void OnHorseReachedDestination(OnReachedDestinationData data) {
@@ -130,36 +123,17 @@ public class HorseCompoundSystem : MonoBehaviour {
     }
 
     void OnElementTileChanged(Vector2Int pos) {
-        UpdateCellAtPos(pos);
+        UpdateTileAtPos(pos);
         UpdateDebugTilemapAtPos(pos);
 
         foreach (var offset in DirectionOffsets.Offsets) {
             var newPos = pos + offset;
             if (_map.Contains(newPos)) {
-                UpdateCellAtPos(newPos);
+                UpdateTileAtPos(newPos);
                 UpdateDebugTilemapAtPos(newPos);
             }
         }
     }
-
-    // public void BuildHorsePath(Direction direction, bool initial) {
-    //     var path = _movementSystem.FindPath(_pointA, _pointB, ref _movementCells, direction);
-    //     if (!path.Success) {
-    //         Debug.LogError("Could not find the path");
-    //         return;
-    //     }
-    //
-    //     _path = path.Path;
-    //     var skipFirst = !initial;
-    //     foreach (var vertex in _path) {
-    //         if (skipFirst) {
-    //             skipFirst = false;
-    //             continue;
-    //         }
-    //
-    //         _horse.AddSegmentVertex(vertex);
-    //     }
-    // }
 
     void UpdateHorse(HorseTrain horse) {
         switch (horse.State) {
@@ -194,19 +168,19 @@ public class HorseCompoundSystem : MonoBehaviour {
         }
     }
 
-    TileBase GetDebugTileBase(MovementGraphCell mapMovementCell) {
-        if (mapMovementCell == null) {
+    TileBase GetDebugTileBase(MovementGraphTile mapMovementTile) {
+        if (mapMovementTile == null) {
             return null;
         }
 
-        var c = mapMovementCell.Count();
+        var c = mapMovementTile.Count();
         switch (c) {
             case 0:
                 return _arrow0;
             case 1:
                 return _arrow1;
             case 2:
-                return mapMovementCell.TwoTypeIsVertical() ? _arrow21 : _arrow22;
+                return mapMovementTile.TwoTypeIsVertical() ? _arrow21 : _arrow22;
             case 3:
                 return _arrow3;
             case 4:
@@ -222,104 +196,136 @@ public class HorseCompoundSystem : MonoBehaviour {
             _debugTilemap.ClearAllTiles();
         }
 
-        _movementCells = new(_map.sizeY);
+        _movementTiles = new(_map.sizeY);
         for (var y = 0; y < _map.sizeY; y++) {
-            var row = new List<MovementGraphCell>(_map.sizeX);
+            var row = new List<MovementGraphTile>(_map.sizeX);
             for (var x = 0; x < _map.sizeX; x++) {
                 row.Add(null);
             }
 
-            _movementCells.Add(row);
+            _movementTiles.Add(row);
         }
 
         for (var y = 0; y < _map.sizeY; y++) {
             for (var x = 0; x < _map.sizeX; x++) {
-                UpdateCellAtPos(x, y);
+                UpdateTileAtPos(x, y);
             }
         }
 
         GenerateDebugTilemap();
     }
 
-    void UpdateCellAtPos(Vector2Int pos) {
-        UpdateCellAtPos(pos.x, pos.y);
+    void UpdateTileAtPos(Vector2Int pos) {
+        UpdateTileAtPos(pos.x, pos.y);
     }
 
-    void UpdateCellAtPos(int x, int y) {
+    void UpdateTileAtPos(int x, int y) {
         var elementTiles = _map.elementTiles;
 
-        var cell = elementTiles[y][x];
+        var tile = elementTiles[y][x];
 
-        if (cell.Type == ElementTileType.None) {
-            _movementCells[y][x] = null;
+        if (tile.Type == ElementTileType.None) {
+            _movementTiles[y][x] = null;
             return;
         }
 
-        var mCell = _movementCells[y][x];
-        if (mCell == null) {
-            mCell = new(false, false, false, false);
-            _movementCells[y][x] = mCell;
+        var mTile = _movementTiles[y][x];
+        if (mTile == null) {
+            mTile = new(false, false, false, false);
+            _movementTiles[y][x] = mTile;
         }
 
-        if (cell.Type == ElementTileType.Road) {
-            mCell.Directions[0] = x < _map.sizeX - 1
+        if (tile.Type == ElementTileType.Road) {
+            UpdateRoadTile(x, y, tile, mTile, elementTiles);
+        }
+        else if (tile.Type == ElementTileType.Station) {
+            UpdateStationTile(x, y, tile, mTile, elementTiles);
+        }
+    }
+
+    void UpdateRoadTile(
+        int x,
+        int y,
+        ElementTile tile,
+        MovementGraphTile mTile,
+        List<List<ElementTile>> tiles
+    ) {
+        mTile.Directions[0] = x < _map.sizeX - 1
+                              && (
+                                  tiles[y][x + 1].Type == ElementTileType.Road
+                                  || (
+                                      tiles[y][x + 1].Type == ElementTileType.Station
+                                      && tiles[y][x + 1].Rotation == 0
+                                  )
+                              );
+        mTile.Directions[2] = x > 0
+                              && (
+                                  tiles[y][x - 1].Type == ElementTileType.Road
+                                  || (
+                                      tiles[y][x - 1].Type == ElementTileType.Station
+                                      && tiles[y][x - 1].Rotation == 0
+                                  )
+                              );
+        mTile.Directions[1] = y < _map.sizeY - 1
+                              && (
+                                  tiles[y + 1][x].Type == ElementTileType.Road
+                                  || (
+                                      tiles[y + 1][x].Type == ElementTileType.Station
+                                      && tiles[y + 1][x].Rotation == 1
+                                  )
+                              );
+        mTile.Directions[3] = y > 0
+                              && (
+                                  tiles[y - 1][x].Type == ElementTileType.Road
+                                  || (
+                                      tiles[y - 1][x].Type == ElementTileType.Station
+                                      && tiles[y - 1][x].Rotation == 1
+                                  )
+                              );
+    }
+
+    void UpdateStationTile(
+        int x,
+        int y,
+        ElementTile tile,
+        MovementGraphTile mTile,
+        List<List<ElementTile>> tiles
+    ) {
+        if (tile.Rotation == 0) {
+            mTile.Directions[0] = x < _map.sizeX - 1
                                   && (
-                                      elementTiles[y][x + 1].Type == ElementTileType.Road
-                                      || (elementTiles[y][x + 1].Type == ElementTileType.Station &&
-                                          elementTiles[y][x + 1].Rotation == 0)
+                                      tiles[y][x + 1].Type == ElementTileType.Road
+                                      || (
+                                          tiles[y][x + 1].Type == ElementTileType.Station
+                                          && tiles[y][x + 1].Rotation == 0
+                                      )
                                   );
-            mCell.Directions[2] = x > 0
+            mTile.Directions[2] = x > 0
                                   && (
-                                      elementTiles[y][x - 1].Type == ElementTileType.Road
-                                      || (elementTiles[y][x - 1].Type == ElementTileType.Station &&
-                                          elementTiles[y][x - 1].Rotation == 0)
-                                  );
-            mCell.Directions[1] = y < _map.sizeY - 1
-                                  && (
-                                      elementTiles[y + 1][x].Type == ElementTileType.Road
-                                      || (elementTiles[y + 1][x].Type == ElementTileType.Station &&
-                                          elementTiles[y + 1][x].Rotation == 1)
-                                  );
-            mCell.Directions[3] = y > 0
-                                  && (
-                                      elementTiles[y - 1][x].Type == ElementTileType.Road
-                                      || (elementTiles[y - 1][x].Type == ElementTileType.Station &&
-                                          elementTiles[y - 1][x].Rotation == 1)
+                                      tiles[y][x - 1].Type == ElementTileType.Road
+                                      || (
+                                          tiles[y][x - 1].Type == ElementTileType.Station
+                                          && tiles[y][x - 1].Rotation == 0
+                                      )
                                   );
         }
-        else if (cell.Type == ElementTileType.Station) {
-            if (cell.Rotation == 0) {
-                mCell.Directions[0] = x < _map.sizeX - 1
-                                      && (
-                                          elementTiles[y][x + 1].Type == ElementTileType.Road
-                                          || (elementTiles[y][x + 1].Type ==
-                                              ElementTileType.Station &&
-                                              elementTiles[y][x + 1].Rotation == 0)
-                                      );
-                mCell.Directions[2] = x > 0
-                                      && (
-                                          elementTiles[y][x - 1].Type == ElementTileType.Road
-                                          || (elementTiles[y][x - 1].Type ==
-                                              ElementTileType.Station &&
-                                              elementTiles[y][x - 1].Rotation == 0)
-                                      );
-            }
-            else if (cell.Rotation == 1) {
-                mCell.Directions[1] = y < _map.sizeY - 1
-                                      && (
-                                          elementTiles[y + 1][x].Type == ElementTileType.Road
-                                          || (elementTiles[y + 1][x].Type ==
-                                              ElementTileType.Station &&
-                                              elementTiles[y + 1][x].Rotation == 1)
-                                      );
-                mCell.Directions[3] = y > 0
-                                      && (
-                                          elementTiles[y - 1][x].Type == ElementTileType.Road
-                                          || (elementTiles[y - 1][x].Type ==
-                                              ElementTileType.Station &&
-                                              elementTiles[y - 1][x].Rotation == 1)
-                                      );
-            }
+        else if (tile.Rotation == 1) {
+            mTile.Directions[1] = y < _map.sizeY - 1
+                                  && (
+                                      tiles[y + 1][x].Type == ElementTileType.Road
+                                      || (
+                                          tiles[y + 1][x].Type == ElementTileType.Station
+                                          && tiles[y + 1][x].Rotation == 1
+                                      )
+                                  );
+            mTile.Directions[3] = y > 0
+                                  && (
+                                      tiles[y - 1][x].Type == ElementTileType.Road
+                                      || (
+                                          tiles[y - 1][x].Type == ElementTileType.Station
+                                          && tiles[y - 1][x].Rotation == 1
+                                      )
+                                  );
         }
     }
 
@@ -340,8 +346,8 @@ public class HorseCompoundSystem : MonoBehaviour {
     }
 
     void UpdateDebugTilemapAtPos(int x, int y) {
-        var cell = _movementCells[y][x];
-        var tb = GetDebugTileBase(cell);
+        var tile = _movementTiles[y][x];
+        var tb = GetDebugTileBase(tile);
         if (tb == null) {
             return;
         }
@@ -352,7 +358,7 @@ public class HorseCompoundSystem : MonoBehaviour {
             Color.white,
             Matrix4x4.TRS(
                 Vector3.zero,
-                Quaternion.Euler(0, 0, 90 * cell.Rotation()),
+                Quaternion.Euler(0, 0, 90 * tile.Rotation()),
                 Vector3.one
             )
         );

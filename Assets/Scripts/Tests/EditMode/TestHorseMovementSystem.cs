@@ -9,7 +9,7 @@ public class TestHorseMovementSystem {
     [Timeout(1)]
     public void TestFindPath() {
         var system = new HorseMovementSystem();
-        var graph = new List<List<MovementGraphCell>> {
+        var graph = new List<List<MovementGraphTile>> {
             new() {
                 new(false, true, false, false),
                 new(false, false, false, false),
@@ -31,23 +31,23 @@ public class TestHorseMovementSystem {
     [Timeout(1)]
     public void TestFindPath_Bigger() {
         var system = new HorseMovementSystem();
-        var graph = new List<List<MovementGraphCell>> {
+        var graph = new List<List<MovementGraphTile>> {
             new() {
-                MovementGraphCell.MakeUpRight(),
-                MovementGraphCell.MakeLeftRight(),
-                MovementGraphCell.MakeUpLeft(),
+                MovementGraphTile.MakeUpRight(),
+                MovementGraphTile.MakeLeftRight(),
+                MovementGraphTile.MakeUpLeft(),
                 new(false, false, false, false),
             },
             new() {
-                MovementGraphCell.MakeUpDown(),
+                MovementGraphTile.MakeUpDown(),
                 new(false, false, false, false),
-                MovementGraphCell.MakeUpDownRight(),
-                MovementGraphCell.MakeLeftRight(),
+                MovementGraphTile.MakeUpDownRight(),
+                MovementGraphTile.MakeLeftRight(),
             },
             new() {
-                MovementGraphCell.MakeDownRight(),
-                MovementGraphCell.MakeLeftRight(),
-                MovementGraphCell.MakeDownLeft(),
+                MovementGraphTile.MakeDownRight(),
+                MovementGraphTile.MakeLeftRight(),
+                MovementGraphTile.MakeDownLeft(),
                 new(false, false, false, false),
             },
         };
@@ -121,7 +121,7 @@ public class TestHorseMovementSystem {
     [Timeout(1)]
     public void TestFindPath_ShouldFail() {
         var system = new HorseMovementSystem();
-        var graph = new List<List<MovementGraphCell>> {
+        var graph = new List<List<MovementGraphTile>> {
             new() {
                 new(false, true, false, false),
                 new(false, false, false, false),

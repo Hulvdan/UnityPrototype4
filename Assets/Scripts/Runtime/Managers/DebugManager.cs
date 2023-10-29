@@ -1,15 +1,16 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 namespace BFG.Runtime {
 public class DebugState {
     public const string Key_IsActive_Debug = "Debug_IsActive_Debug";
     public const string Key_IsActive_MovementSystemPaths = "Debug_IsActive_MovementSystemPaths";
-    public const string Key_IsActive_UnwalkableCells = "Debug_IsActive_UnwalkableCells";
+    public const string Key_IsActive_UnwalkableTiles = "Debug_IsActive_UnwalkableTiles";
 
     public bool IsActive_Debug;
     public bool IsActive_MovementSystemPaths;
-    public bool IsActive_UnwalkableCells;
+    public bool IsActive_UnwalkableTiles;
 }
 
 public class DebugManager : MonoBehaviour {
@@ -19,13 +20,14 @@ public class DebugManager : MonoBehaviour {
     [SerializeField]
     GameObject _movementSystemPaths;
 
+    [FormerlySerializedAs("_unwalkableCells")]
     [SerializeField]
-    GameObject _unwalkableCells;
+    GameObject _unwalkableTiles;
 
     InputActionMap _map;
 
     DebugState _prefs;
-    InputAction _toggleBuildableCellsAction;
+    InputAction _toggleBuildableTilesAction;
     InputAction _toggleDebugAction;
     InputAction _toggleMovementSystemPathsAction;
 
@@ -35,7 +37,7 @@ public class DebugManager : MonoBehaviour {
         _map = _inputActionAsset.FindActionMap("Debug");
         _toggleDebugAction = _map.FindAction("Toggle");
         _toggleMovementSystemPathsAction = _map.FindAction("ToggleMovementSystem");
-        _toggleBuildableCellsAction = _map.FindAction("ToggleBuildableCells");
+        _toggleBuildableTilesAction = _map.FindAction("ToggleBuildableCells");
     }
 
     void Start() {
@@ -55,8 +57,8 @@ public class DebugManager : MonoBehaviour {
             UpdateDebugView();
         }
 
-        if (_toggleBuildableCellsAction.WasReleasedThisFrame()) {
-            _prefs.IsActive_UnwalkableCells = !_prefs.IsActive_UnwalkableCells;
+        if (_toggleBuildableTilesAction.WasReleasedThisFrame()) {
+            _prefs.IsActive_UnwalkableTiles = !_prefs.IsActive_UnwalkableTiles;
             DumpPrefs(_prefs);
             UpdateDebugView();
         }
@@ -73,20 +75,20 @@ public class DebugManager : MonoBehaviour {
     void UpdateDebugView() {
         if (!_prefs.IsActive_Debug) {
             _movementSystemPaths.SetActive(false);
-            _unwalkableCells.SetActive(false);
+            _unwalkableTiles.SetActive(false);
             return;
         }
 
         _movementSystemPaths.SetActive(_prefs.IsActive_MovementSystemPaths);
-        _unwalkableCells.SetActive(_prefs.IsActive_UnwalkableCells);
+        _unwalkableTiles.SetActive(_prefs.IsActive_UnwalkableTiles);
     }
 
     void DumpPrefs(DebugState prefs) {
         PlayerPrefs.SetInt(DebugState.Key_IsActive_Debug, prefs.IsActive_Debug ? 1 : 0);
         PlayerPrefs.SetInt(DebugState.Key_IsActive_MovementSystemPaths,
             prefs.IsActive_MovementSystemPaths ? 1 : 0);
-        PlayerPrefs.SetInt(DebugState.Key_IsActive_UnwalkableCells,
-            prefs.IsActive_UnwalkableCells ? 1 : 0);
+        PlayerPrefs.SetInt(DebugState.Key_IsActive_UnwalkableTiles,
+            prefs.IsActive_UnwalkableTiles ? 1 : 0);
         PlayerPrefs.Save();
     }
 
@@ -95,8 +97,8 @@ public class DebugManager : MonoBehaviour {
             IsActive_Debug = PlayerPrefs.GetInt(DebugState.Key_IsActive_Debug, 0) > 0,
             IsActive_MovementSystemPaths =
                 PlayerPrefs.GetInt(DebugState.Key_IsActive_MovementSystemPaths, 0) > 0,
-            IsActive_UnwalkableCells =
-                PlayerPrefs.GetInt(DebugState.Key_IsActive_UnwalkableCells, 0) > 0,
+            IsActive_UnwalkableTiles =
+                PlayerPrefs.GetInt(DebugState.Key_IsActive_UnwalkableTiles, 0) > 0,
         };
     }
 }
