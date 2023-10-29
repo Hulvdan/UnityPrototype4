@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 namespace BFG.Runtime {
@@ -14,10 +15,11 @@ public class ScriptableBuilding : ScriptableObject {
     [ShowIf("_type", BuildingType.Harvest)]
     ScriptableResource _harvestableResource;
 
+    [FormerlySerializedAs("_cellsRadius")]
     [SerializeField]
     [ShowIf("_type", BuildingType.Harvest)]
     [Min(0)]
-    int _cellsRadius;
+    int _tilesRadius;
 
     [SerializeField]
     [ShowIf("_type", BuildingType.Store)]
@@ -43,7 +45,7 @@ public class ScriptableBuilding : ScriptableObject {
 
     public BuildingType type => _type;
     public ScriptableResource harvestableResource => _harvestableResource;
-    public int cellsRadius => _cellsRadius;
+    public int tilesRadius => _tilesRadius;
     public int storeItemsAmount => _storeItemsAmount;
     public List<Vector2> storedItemPositions => _storedItemPositions;
     public List<ScriptableResource> takes => _takes;

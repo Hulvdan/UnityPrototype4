@@ -273,6 +273,7 @@ MonoBehaviour:
   _map: {fileID: 1879392620}
   _mapRenderer: {fileID: 1879392621}
   _buildablesPanel: {fileID: 1600136909}
+  _uiManager: {fileID: 1458577632}
   _inputActionAsset: {fileID: -944628639613478452, guid: 304fc82518949fc4abc5fceb1a7ffe52, type: 3}
 --- !u!1001 &237059753
 PrefabInstance:
@@ -1543,7 +1544,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5.3359375
+  orthographic size: 5.2734375
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -4486,7 +4487,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _inputActionAsset: {fileID: -944628639613478452, guid: 304fc82518949fc4abc5fceb1a7ffe52, type: 3}
   _movementSystemPaths: {fileID: 446218254}
-  _unwalkableCells: {fileID: 869664074}
+  _unwalkableTiles: {fileID: 869664074}
 --- !u!1 &1182745793
 GameObject:
   m_ObjectHideFlags: 0
@@ -6557,7 +6558,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8cd88ebd35a7af429a7ec60c1a75cf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _map: {fileID: 1879392620}
   _resourceTextsMapping:
   - Resource: {fileID: 11400000, guid: 10745982271be284fb0df31da327cdba, type: 2}
     Text: {fileID: 337626713}
@@ -8284,6 +8284,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9676e93c1f044e8a490ed494df6f818, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _debugMode: 1
   _debugTilemap: {fileID: 446218257}
   _arrow0: {fileID: 11400000, guid: c324f74d79f7bee47865b72555ad9530, type: 2}
   _arrow1: {fileID: 11400000, guid: 7925f0cd6b7f2f74c915b934fc4ce807, type: 2}
@@ -8292,13 +8293,15 @@ MonoBehaviour:
   _arrow3: {fileID: 11400000, guid: fe1204f22a8fd7743a534641ac4a23df, type: 2}
   _arrow4: {fileID: 11400000, guid: 8f33588a2d846b44f9d8b9b5e5515726, type: 2}
   _pointA: {x: 8, y: 3}
-  _pointB: {x: 4, y: 5}
+  _pointB: {x: 3, y: 5}
+  _trainItemLoadingDuration: 1
+  _trainItemUnloadingDuration: 1
   _movableObjects:
   - {fileID: 1996120309}
   - {fileID: 1382497530}
   - {fileID: 1037514576}
   - {fileID: 1027845996}
-  _trainSpeed: 3
+  _horseSpeed: 3
 --- !u!114 &1871855534 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1962483450866880944, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
@@ -8416,7 +8419,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 45af1427840af3a4a98b31727bdd67b4, type: 2}
   - {fileID: 11400000, guid: ae832cc99114055458e3b3270e527dd6, type: 2}
   _initialMapProvider: {fileID: 795772558}
-  _movementSystemInterface: {fileID: 1706615548}
+  _horseCompoundSystem: {fileID: 1706615548}
+  _horsesGatheringAroundStationRadius: 2
   _humanHeadingDuration: 1
   _humanHarvestingDuration: 1
   _humanHeadingToTheStoreBuildingDuration: 1
