@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 5700830237030551654}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.85999966, y: 0.66999984, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -107,11 +107,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5521203136289244689, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 8.8
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5521203136289244689, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.61
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5521203136289244689, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
       propertyPath: m_LocalPosition.z
@@ -147,7 +147,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6852838267408035928, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
       propertyPath: m_Name
-      value: Wagon Variant
+      value: Locomotive
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
