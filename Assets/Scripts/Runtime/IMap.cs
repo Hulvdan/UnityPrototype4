@@ -35,7 +35,7 @@ public class TrainCreatedData {
 
 public class TrainNodeCreatedData {
     public HorseTrain Horse;
-    public TrainNode Node;
     public bool IsLocomotive;
+    public TrainNode Node;
 }
 }

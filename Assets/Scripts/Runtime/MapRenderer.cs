@@ -100,8 +100,8 @@ public class MapRenderer : MonoBehaviour {
     readonly List<IDisposable> _dependencyHooks = new();
 
     readonly Dictionary<Guid, Tuple<Human, HumanGO>> _humans = new();
-    readonly Dictionary<Guid, Tuple<TrainNode, TrainNodeGO>> _trainNodes = new();
     readonly Dictionary<Tuple<Guid, int>, ItemGO> _storedItems = new();
+    readonly Dictionary<Guid, Tuple<TrainNode, TrainNodeGO>> _trainNodes = new();
     Camera _camera;
 
     GameManager _gameManager;
