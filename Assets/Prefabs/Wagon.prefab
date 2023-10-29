@@ -203,7 +203,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 7524924543403809702}
   _itemOffset: {fileID: 1822842438786602458}
-  _itemPickupDuration: 0.3
+  _itemPickupDuration: 0.5
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:

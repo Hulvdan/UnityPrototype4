@@ -8044,8 +8044,8 @@ MonoBehaviour:
   _arrow4: {fileID: 11400000, guid: 8f33588a2d846b44f9d8b9b5e5515726, type: 2}
   _pointA: {x: 8, y: 3}
   _pointB: {x: 3, y: 5}
-  _trainItemLoadingDuration: 1
-  _trainItemUnloadingDuration: 1
+  _trainItemLoadingDuration: 0.15
+  _trainItemUnloadingDuration: 0.15
   _horseSpeed: 2
 --- !u!114 &1871855534 stripped
 MonoBehaviour:
@@ -8165,7 +8165,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ae832cc99114055458e3b3270e527dd6, type: 2}
   _initialMapProvider: {fileID: 795772558}
   _horseCompoundSystem: {fileID: 1706615548}
-  _horsesGatheringAroundStationRadius: 2
+  _horsesStationItemsGatheringRadius: 2
   _humanHeadingDuration: 1
   _humanHarvestingDuration: 1
   _humanHeadingToTheStoreBuildingDuration: 1
@@ -8203,7 +8203,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  _trainItemsGatheringRadius: 2
 --- !u!114 &1879392621
 MonoBehaviour:
   m_ObjectHideFlags: 0
