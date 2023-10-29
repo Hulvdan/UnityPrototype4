@@ -240,6 +240,14 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     #endregion
 
+    #region TrainSystem_Attributes
+
+    [SerializeField]
+    [Min(1)]
+    int _trainItemsGatheringRadius = 2;
+
+    #endregion
+
     #region Events
 
     public Subject<HumanCreatedData> OnHumanCreated { get; } = new();
@@ -593,7 +601,101 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     #region TrainSystem_Behaviour
 
     public bool AreThereAvailableResourcesForTheTrain(HorseTrain train) {
+        if (train.CurrentDestination.HasValue == false) {
+            Debug.LogError("WTF?");
+            return false;
+        }
+
+        var pos = train.CurrentDestination.Value.Pos;
+        var dimensions = GetStationDimensions(pos);
+        var expandedDimensions = ExpandStationDimensions(dimensions);
+
+        foreach (var building in buildings) {
+            if (!expandedDimensions.Contains(building.position)) {
+                continue;
+            }
+
+            if (building.storedResources.Count > 0) {
+                return true;
+            }
+        }
+
         return false;
+    }
+
+    RectInt ExpandStationDimensions(RectInt dimensions) {
+        return new() {
+            xMin = Math.Max(0, dimensions.xMin - _trainItemsGatheringRadius),
+            yMin = Math.Max(0, dimensions.yMin - _trainItemsGatheringRadius),
+            xMax = Math.Min(sizeX - 1, dimensions.xMax + _trainItemsGatheringRadius),
+            yMax = Math.Min(sizeY - 1, dimensions.yMax + _trainItemsGatheringRadius),
+        };
+    }
+
+    RectInt GetStationDimensions(Vector2Int pos) {
+        var tile = elementTiles[pos.y][pos.x];
+        if (tile.Type != ElementTileType.Station) {
+            Debug.LogError("WTF?");
+            return new() {
+                xMin = pos.x,
+                yMin = pos.y,
+                xMax = pos.x,
+                yMax = pos.y,
+            };
+        }
+
+        var minStationX = pos.x;
+        var maxStationX = pos.x;
+        var minStationY = pos.y;
+        var maxStationY = pos.y;
+        if (tile.Rotation == 0) {
+            for (var x = pos.x - 1; x >= 0; x--) {
+                var newTile = elementTiles[pos.y][x];
+                if (newTile.Type != ElementTileType.Station || newTile.Rotation != 0) {
+                    break;
+                }
+
+                minStationX = x;
+            }
+
+            for (var x = pos.x + 1; x < sizeX; x++) {
+                var newTile = elementTiles[pos.y][x];
+                if (newTile.Type != ElementTileType.Station || newTile.Rotation != 0) {
+                    break;
+                }
+
+                maxStationX = x;
+            }
+        }
+        else if (tile.Rotation == 1) {
+            for (var y = pos.y - 1; y >= 0; y--) {
+                var newTile = elementTiles[y][pos.x];
+                if (newTile.Type != ElementTileType.Station || newTile.Rotation != 0) {
+                    break;
+                }
+
+                minStationY = y;
+            }
+
+            for (var y = pos.y + 1; y < sizeY; y++) {
+                var newTile = elementTiles[y][pos.x];
+                if (newTile.Type != ElementTileType.Station || newTile.Rotation != 0) {
+                    break;
+                }
+
+                maxStationY = y;
+            }
+        }
+        else {
+            Debug.LogError("WTF?");
+        }
+
+        return new() {
+            xMin = minStationX,
+            yMin = minStationY,
+            xMax = maxStationX,
+            yMax = maxStationY,
+        };
     }
 
     public void PickRandomItemForTheTrain(HorseTrain train) {
@@ -607,5 +709,12 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     #endregion
+}
+
+internal record StationDimensions {
+    public int MinX;
+    public int MinY;
+    public int MaxX;
+    public int MaxY;
 }
 }

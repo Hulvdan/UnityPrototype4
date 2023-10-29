@@ -10,11 +10,13 @@ public class HumanPickedUpResourceData {
     public ScriptableResource Resource;
     public Vector2Int ResourceTilePosition;
 
-    public HumanPickedUpResourceData(Human human,
+    public HumanPickedUpResourceData(
+        Human human,
         ScriptableResource resource,
         Vector2Int resourceTilePosition,
         int pickedUpAmount,
-        float remainingAmountPercent) {
+        float remainingAmountPercent
+    ) {
         Human = human;
         Resource = resource;
         PickedUpAmount = pickedUpAmount;
