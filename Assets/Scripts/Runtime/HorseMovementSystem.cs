@@ -7,16 +7,16 @@ using UnityEngine.Assertions;
 namespace BFG.Runtime {
 public class HorseMovementSystem {
     public readonly Subject<OnReachedDestinationData> OnReachedDestination = new();
-    Map _map;
 
-    List<List<MovementGraphTile>> _movementGraph;
+    List<List<MovementGraphTile>> _graph;
+    IMapContains _mapContains;
 
     float TrainLoadingDuration = 1f;
     float TrainUnloadingDuration = 1f;
 
-    public void Init(Map map, List<List<MovementGraphTile>> movementGraph) {
-        _map = map;
-        _movementGraph = movementGraph;
+    public void Init(IMapContains mapContains, List<List<MovementGraphTile>> movementGraph) {
+        _mapContains = mapContains;
+        _graph = movementGraph;
     }
 
     public static void NormalizeNodeDistances(TrainNode node, TrainNode previousNode) {
@@ -114,10 +114,9 @@ public class HorseMovementSystem {
     public PathFindResult FindPath(
         Vector2Int source,
         Vector2Int destination,
-        List<List<MovementGraphTile>> graph,
         Direction startingDirection
     ) {
-        foreach (var row in graph) {
+        foreach (var row in _graph) {
             foreach (var node in row) {
                 if (node != null) {
                     node.BFS_Parent = null;
@@ -128,12 +127,12 @@ public class HorseMovementSystem {
 
         var queue = new Queue<Vector2Int>();
         queue.Enqueue(new(source.x, source.y));
-        graph[source.y][source.x].BFS_Visited = true;
+        _graph[source.y][source.x].BFS_Visited = true;
 
         var isStartingTile = true;
         while (queue.Count > 0) {
             var pos = queue.Dequeue();
-            var tile = graph[pos.y][pos.x];
+            var tile = _graph[pos.y][pos.x];
             if (tile == null) {
                 continue;
             }
@@ -151,11 +150,11 @@ public class HorseMovementSystem {
                 var newY = pos.y + offset.y;
                 var newX = pos.x + offset.x;
 
-                if (!_map.Contains(newX, newY)) {
+                if (!_mapContains.Contains(newX, newY)) {
                     continue;
                 }
 
-                var mTile = graph[newY][newX];
+                var mTile = _graph[newY][newX];
                 Assert.IsNotNull(mTile);
 
                 if (mTile.BFS_Visited) {
@@ -165,7 +164,7 @@ public class HorseMovementSystem {
                 var newPos = new Vector2Int(newX, newY);
                 VisitTile(ref mTile, pos);
                 if (newPos == destination) {
-                    return BuildPath(graph, newPos);
+                    return BuildPath(_graph, newPos);
                 }
 
                 queue.Enqueue(newPos);
@@ -202,9 +201,7 @@ public class HorseMovementSystem {
             return;
         }
 
-        var path = FindPath(
-            horse.segmentVertexes[^1], newDestination.Value.Pos, _movementGraph, horse.Direction
-        );
+        var path = FindPath(horse.segmentVertexes[^1], newDestination.Value.Pos, horse.Direction);
 
         if (!path.Success) {
             Debug.LogError("Could not find the path");

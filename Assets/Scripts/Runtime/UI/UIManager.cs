@@ -1,21 +1,18 @@
 using System;
 using System.Collections.Generic;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace BFG.Runtime {
 public class UIManager : MonoBehaviour {
     [Header("Dependencies")]
     [SerializeField]
-    [Required]
-    Map _map;
-
-    [SerializeField]
     List<ResourceTMPTextMapping> _resourceTextsMapping;
 
-    void Start() {
+    IMap _map;
+
+    public void InitDependencies(IMap map) {
+        _map = map;
         _map.OnResourceChanged.Subscribe(OnResourceChanged);
-        // _map.OnHumanHarvestedResource += OnHumanHarvestedResource;
     }
 
     void OnResourceChanged(TopBarResourceChangedData data) {

@@ -96,7 +96,8 @@ public class MapRenderer : MonoBehaviour {
 
     GameManager _gameManager;
     InputActionMap _gameplayInputMap;
-    Map _map;
+    IMap _map;
+    IMapContains _mapContains;
     InputAction _mouseBuildAction;
     InputAction _mouseMoveAction;
     Matrix4x4 _previewMatrix;
@@ -118,7 +119,7 @@ public class MapRenderer : MonoBehaviour {
         // TODO: Move inputs to GameManager
         if (_mouseBuildAction.WasPressedThisFrame()) {
             var hoveredTile = GetHoveredTile();
-            if (!_map.Contains(hoveredTile)) {
+            if (!_mapContains.Contains(hoveredTile)) {
                 return;
             }
 
@@ -168,8 +169,9 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    public void InitDependencies(GameManager gameManager, Map map) {
+    public void InitDependencies(GameManager gameManager, IMap map, IMapContains mapContains) {
         _map = map;
+        _mapContains = mapContains;
         _gameManager = gameManager;
 
         foreach (var hook in _dependencyHooks) {
@@ -238,8 +240,8 @@ public class MapRenderer : MonoBehaviour {
 
     void RegenerateTilemapGameObject() {
         var maxHeight = 0;
-        for (var y = 0; y < _map.sizeY; y++) {
-            for (var x = 0; x < _map.sizeX; x++) {
+        for (var y = 0; y < _mapContains.sizeY; y++) {
+            for (var x = 0; x < _mapContains.sizeX; x++) {
                 maxHeight = Math.Max(maxHeight, _map.terrainTiles[y][x].Height);
             }
         }
@@ -255,12 +257,12 @@ public class MapRenderer : MonoBehaviour {
         }
 
         for (var h = 0; h <= maxHeight; h++) {
-            for (var y = 0; y < _map.sizeY; y++) {
-                if (h > 0 && y == _map.sizeY) {
+            for (var y = 0; y < _mapContains.sizeY; y++) {
+                if (h > 0 && y == _mapContains.sizeY) {
                     continue;
                 }
 
-                for (var x = 0; x < _map.sizeX; x++) {
+                for (var x = 0; x < _mapContains.sizeX; x++) {
                     if (
                         h == 0
                         || _map.terrainTiles[y][x].Height >= h
@@ -275,8 +277,8 @@ public class MapRenderer : MonoBehaviour {
         _resourceTilemap = GenerateTilemap(
             0, maxHeight + 1, ResourcesTilemapNameTemplate, _tilemapPrefab
         ).GetComponent<Tilemap>();
-        for (var y = 0; y < _map.sizeY; y++) {
-            for (var x = 0; x < _map.sizeX; x++) {
+        for (var y = 0; y < _mapContains.sizeY; y++) {
+            for (var x = 0; x < _mapContains.sizeX; x++) {
                 if (_map.terrainTiles[y][x].Resource != null
                     && _map.terrainTiles[y][x].Resource.name == _logResource.name) {
                     _resourceTilemap.SetTile(new(x, y, 0), _tileForest);
@@ -299,10 +301,10 @@ public class MapRenderer : MonoBehaviour {
     void RegenerateDebugTilemapGameObject() {
         _debugTilemap.ClearAllTiles();
 
-        for (var y = 0; y < _map.sizeY; y++) {
-            for (var x = 0; x < _map.sizeX; x++) {
+        for (var y = 0; y < _mapContains.sizeY; y++) {
+            for (var x = 0; x < _mapContains.sizeX; x++) {
                 bool walkable;
-                if (y >= _map.sizeY) {
+                if (y >= _mapContains.sizeY) {
                     walkable = false;
                 }
                 else {
@@ -328,14 +330,14 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void UpdateGridPosition() {
-        _grid.transform.localPosition = new(-_map.sizeX / 2f, -_map.sizeY / 2f);
+        _grid.transform.localPosition = new(-_mapContains.sizeX / 2f, -_mapContains.sizeY / 2f);
     }
 
     void DisplayPreviewTile() {
         _previewTilemap.ClearAllTiles();
 
         var tile = GetHoveredTile();
-        if (!_map.Contains(tile)) {
+        if (!_mapContains.Contains(tile)) {
             return;
         }
 

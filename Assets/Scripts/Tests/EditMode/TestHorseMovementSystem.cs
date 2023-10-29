@@ -3,6 +3,25 @@ using BFG.Runtime;
 using NUnit.Framework;
 using UnityEngine;
 
+internal class MockMapContains : IMapContains {
+    readonly List<List<MovementGraphTile>> _graph;
+
+    public MockMapContains(List<List<MovementGraphTile>> graph) {
+        _graph = graph;
+    }
+
+    public int sizeY => _graph.Count;
+    public int sizeX => _graph[0].Count;
+
+    public bool Contains(Vector2Int pos) {
+        return Contains(pos.x, pos.y);
+    }
+
+    public bool Contains(int x, int y) {
+        return x >= 0 && x < sizeX && y >= 0 && y < sizeY;
+    }
+}
+
 // ReSharper disable once CheckNamespace
 public class TestHorseMovementSystem {
     [Test]
@@ -19,7 +38,10 @@ public class TestHorseMovementSystem {
                 new(false, false, false, false),
             },
         };
-        var result = system.FindPath(Vector2Int.zero, Vector2Int.one, graph, Direction.Up);
+        system.Init(new MockMapContains(graph), graph);
+
+        var result = system.FindPath(Vector2Int.zero, Vector2Int.one, Direction.Up);
+
         Assert.IsTrue(result.Success);
         Assert.AreEqual(
             result.Path,
@@ -51,7 +73,10 @@ public class TestHorseMovementSystem {
                 new(false, false, false, false),
             },
         };
-        var result = system.FindPath(new(2, 0), new(3, 1), graph, Direction.Left);
+
+        system.Init(new MockMapContains(graph), graph);
+
+        var result = system.FindPath(new(2, 0), new(3, 1), Direction.Left);
 
         Assert.IsTrue(result.Success);
         Assert.AreEqual(
@@ -131,7 +156,9 @@ public class TestHorseMovementSystem {
                 new(false, false, false, false),
             },
         };
-        var result = system.FindPath(Vector2Int.zero, Vector2Int.one, graph, Direction.Up);
+        system.Init(new MockMapContains(graph), graph);
+
+        var result = system.FindPath(Vector2Int.zero, Vector2Int.one, Direction.Up);
         Assert.IsFalse(result.Success);
         Assert.AreEqual(result.Path, null);
     }
