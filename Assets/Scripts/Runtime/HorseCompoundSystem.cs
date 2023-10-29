@@ -61,10 +61,6 @@ public class HorseCompoundSystem : MonoBehaviour {
     [Min(0)]
     float _trainItemUnloadingDuration = 1f;
 
-    [SerializeField]
-    [Required]
-    List<Transform> _movableObjects;
-
     [FormerlySerializedAs("_trainSpeed")]
     [SerializeField]
     [Min(0)]
@@ -87,26 +83,44 @@ public class HorseCompoundSystem : MonoBehaviour {
         }
     }
 
+    HorseTrain CreateTrain() {
+        var horse = new HorseTrain(_horseSpeed, Direction.Right);
+        _map.OnTrainCreated.OnNext(new() { Horse = horse });
+
+        horse.AddSegmentVertex(_pointA);
+        horse.AddSegmentVertex(_pointA);
+        horse.AddSegmentVertex(_pointA);
+        horse.AddSegmentVertex(_pointA);
+
+        horse.AddLocomotive(new(Guid.NewGuid(), 1f, 0), 3, 0f);
+        horse.AddWagon(new(Guid.NewGuid(), .8f));
+        horse.AddWagon(new(Guid.NewGuid(), .8f));
+        horse.AddWagon(new(Guid.NewGuid(), .8f));
+
+        var isLocomotive = true;
+        foreach (var node in horse.nodes) {
+            _map.OnTrainNodeCreated.OnNext(new() {
+                Horse = horse, Node = node, IsLocomotive = isLocomotive,
+            });
+
+            isLocomotive = false;
+        }
+
+        return horse;
+    }
+
     public void Init(IMap map, IMapSize mapSize) {
         _mapSize = mapSize;
         _map = map;
         _map.OnElementTileChanged.Subscribe(OnElementTileChanged);
+
+        _horse = CreateTrain();
 
         GenerateMovementGraph();
 
         _movementSystem = new() { debugMode = _debugMode };
         _movementSystem.Init(_mapSize, _movementTiles);
         _movementSystem.OnReachedDestination.Subscribe(OnHorseReachedDestination);
-
-        _horse = new(_horseSpeed, Direction.Right);
-        _horse.AddSegmentVertex(_pointA);
-        _horse.AddSegmentVertex(_pointA);
-        _horse.AddSegmentVertex(_pointA);
-        _horse.AddSegmentVertex(_pointA);
-        _horse.AddLocomotive(new(1f), 3, 0f);
-        _horse.AddNode(new(.8f));
-        _horse.AddNode(new(.8f));
-        _horse.AddNode(new(.8f));
 
         _horse.AddDestination(new() {
             Type = HorseDestinationType.Load,
@@ -195,10 +209,6 @@ public class HorseCompoundSystem : MonoBehaviour {
                 }
 
                 break;
-        }
-
-        for (var i = 0; i < _movableObjects.Count; i++) {
-            _movableObjects[i].localPosition = horse.nodes[i].CalculatedPosition;
         }
     }
 

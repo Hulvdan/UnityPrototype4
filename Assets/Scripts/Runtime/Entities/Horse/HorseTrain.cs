@@ -68,7 +68,7 @@ public class HorseTrain {
 
     public bool IsThereANodeThatCanStoreItem() {
         foreach (var node in nodes) {
-            if (node.storedResources.Count == 0) {
+            if (node.canStoreResourceCount > node.storedResources.Count) {
                 return true;
             }
         }
@@ -92,7 +92,7 @@ public class HorseTrain {
         }
     }
 
-    public void AddNode(TrainNode node) {
+    public void AddWagon(TrainNode node) {
         HorseMovementSystem.NormalizeNodeDistances(node, nodes[^1]);
         nodes.Add(node);
     }
