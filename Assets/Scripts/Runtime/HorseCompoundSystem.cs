@@ -14,6 +14,10 @@ public enum ElementTileType {
 }
 
 public class HorseCompoundSystem : MonoBehaviour {
+    [FoldoutGroup("Debug", true)]
+    [SerializeField]
+    bool _debugMode;
+
     [FormerlySerializedAs("_tilemap")]
     [FoldoutGroup("Debug", true)]
     [SerializeField]
@@ -90,7 +94,7 @@ public class HorseCompoundSystem : MonoBehaviour {
 
         GenerateMovementGraph();
 
-        _movementSystem = new();
+        _movementSystem = new() { debugMode = _debugMode };
         _movementSystem.Init(_mapSize, _movementTiles);
         _movementSystem.OnReachedDestination.Subscribe(OnHorseReachedDestination);
 
@@ -114,14 +118,17 @@ public class HorseCompoundSystem : MonoBehaviour {
         });
 
         _movementSystem.TrySetNextDestinationAndBuildPath(_horse);
+        _horse.State = TrainState.Moving;
     }
 
     void OnHorseReachedDestination(OnReachedDestinationData data) {
-        if (data.destination.Type == HorseDestinationType.Load) {
-            data.train.State = TrainState.Loading;
-        }
-        else if (data.destination.Type == HorseDestinationType.Load) {
-            data.train.State = TrainState.Unloading;
+        switch (data.destination.Type) {
+            case HorseDestinationType.Load:
+                data.train.State = TrainState.Loading;
+                break;
+            case HorseDestinationType.Unload:
+                data.train.State = TrainState.Unloading;
+                break;
         }
     }
 
@@ -163,6 +170,18 @@ public class HorseCompoundSystem : MonoBehaviour {
                 break;
             case TrainState.Unloading:
                 horse.TrainLoadingUnloadingElapsed += Time.deltaTime;
+                if (horse.TrainLoadingUnloadingElapsed >= _trainItemUnloadingDuration) {
+                    horse.TrainLoadingUnloadingElapsed -= _trainItemUnloadingDuration;
+
+                    if (_map.AreThereAvailableSlotsTheTrainCanPassResourcesTo(horse)) {
+                        _map.PickRandomSlotForTheTrainToPassItemTo(horse);
+                    }
+                    else {
+                        horse.State = TrainState.Moving;
+                        _movementSystem.TrySetNextDestinationAndBuildPath(horse);
+                    }
+                }
+
                 break;
         }
 

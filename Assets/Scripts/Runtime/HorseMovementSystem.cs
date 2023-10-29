@@ -8,6 +8,8 @@ namespace BFG.Runtime {
 public class HorseMovementSystem {
     public readonly Subject<OnReachedDestinationData> OnReachedDestination = new();
 
+    public bool debugMode;
+
     List<List<MovementGraphTile>> _graph;
     IMapSize _mapSize;
 
@@ -47,8 +49,9 @@ public class HorseMovementSystem {
 
         var v0 = horse.segmentVertexes[locomotive.SegmentIndex];
         var v1 = horse.segmentVertexes[locomotive.SegmentIndex + 1];
-        var dir = DirectionFromTiles(v0, v1);
-        horse.Direction = dir;
+        if (v0 != v1) {
+            horse.Direction = DirectionFromTiles(v0, v1);
+        }
 
         if (couldReachTheEnd) {
             var pair = new Tuple<Vector2Int, Vector2Int>(v0, v1);
@@ -68,6 +71,10 @@ public class HorseMovementSystem {
     }
 
     void TrainReachedDestination(HorseTrain train, TrainDestination destination) {
+        if (debugMode) {
+            Debug.Log($"TrainReachedDestination {destination}");
+        }
+
         OnReachedDestination.OnNext(new() {
             train = train,
             destination = destination,
@@ -208,7 +215,13 @@ public class HorseMovementSystem {
             return;
         }
 
+        var first = true;
         foreach (var vertex in path.Path) {
+            if (first) {
+                first = false;
+                continue;
+            }
+
             horse.AddSegmentVertex(vertex);
         }
     }

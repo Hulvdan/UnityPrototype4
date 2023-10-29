@@ -19,5 +19,7 @@ public interface IMap {
 
     bool AreThereAvailableResourcesForTheTrain(HorseTrain horse);
     void PickRandomItemForTheTrain(HorseTrain horse);
+    bool AreThereAvailableSlotsTheTrainCanPassResourcesTo(HorseTrain horse);
+    void PickRandomSlotForTheTrainToPassItemTo(HorseTrain horse);
 }
 }

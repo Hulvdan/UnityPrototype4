@@ -6,5 +6,9 @@ namespace BFG.Runtime {
 public struct TrainDestination {
     public HorseDestinationType Type;
     public Vector2Int Pos;
+
+    public override string ToString() {
+        return $"TrainDestination({Pos}, {Type})";
+    }
 }
 }

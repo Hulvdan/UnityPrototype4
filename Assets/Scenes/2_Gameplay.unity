@@ -1544,7 +1544,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5.375
+  orthographic size: 5.2734375
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -8284,6 +8284,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9676e93c1f044e8a490ed494df6f818, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _debugMode: 1
   _debugTilemap: {fileID: 446218257}
   _arrow0: {fileID: 11400000, guid: c324f74d79f7bee47865b72555ad9530, type: 2}
   _arrow1: {fileID: 11400000, guid: 7925f0cd6b7f2f74c915b934fc4ce807, type: 2}
@@ -8292,7 +8293,7 @@ MonoBehaviour:
   _arrow3: {fileID: 11400000, guid: fe1204f22a8fd7743a534641ac4a23df, type: 2}
   _arrow4: {fileID: 11400000, guid: 8f33588a2d846b44f9d8b9b5e5515726, type: 2}
   _pointA: {x: 8, y: 3}
-  _pointB: {x: 4, y: 5}
+  _pointB: {x: 3, y: 5}
   _trainItemLoadingDuration: 1
   _trainItemUnloadingDuration: 1
   _movableObjects:

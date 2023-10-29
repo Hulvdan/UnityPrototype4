@@ -599,6 +599,13 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public void PickRandomItemForTheTrain(HorseTrain train) {
     }
 
+    public bool AreThereAvailableSlotsTheTrainCanPassResourcesTo(HorseTrain horse) {
+        return false;
+    }
+
+    public void PickRandomSlotForTheTrainToPassItemTo(HorseTrain horse) {
+    }
+
     #endregion
 }
 }
