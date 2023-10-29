@@ -10,7 +10,7 @@ using UnityEngine.Serialization;
 using Random = System.Random;
 
 namespace BFG.Runtime {
-public class Map : MonoBehaviour, IMap, IMapContains {
+public class Map : MonoBehaviour, IMap, IMapSize {
     // Layers:
     // 1 - Terrain (depends on height)
     // 2 - Trees, Stone, Ore

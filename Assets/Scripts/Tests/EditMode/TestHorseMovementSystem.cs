@@ -3,10 +3,11 @@ using BFG.Runtime;
 using NUnit.Framework;
 using UnityEngine;
 
-internal class MockMapContains : IMapContains {
+// ReSharper disable once CheckNamespace
+internal class MockMapSize : IMapSize {
     readonly List<List<MovementGraphTile>> _graph;
 
-    public MockMapContains(List<List<MovementGraphTile>> graph) {
+    public MockMapSize(List<List<MovementGraphTile>> graph) {
         _graph = graph;
     }
 
@@ -38,7 +39,7 @@ public class TestHorseMovementSystem {
                 new(false, false, false, false),
             },
         };
-        system.Init(new MockMapContains(graph), graph);
+        system.Init(new MockMapSize(graph), graph);
 
         var result = system.FindPath(Vector2Int.zero, Vector2Int.one, Direction.Up);
 
@@ -74,7 +75,7 @@ public class TestHorseMovementSystem {
             },
         };
 
-        system.Init(new MockMapContains(graph), graph);
+        system.Init(new MockMapSize(graph), graph);
 
         var result = system.FindPath(new(2, 0), new(3, 1), Direction.Left);
 
@@ -156,7 +157,7 @@ public class TestHorseMovementSystem {
                 new(false, false, false, false),
             },
         };
-        system.Init(new MockMapContains(graph), graph);
+        system.Init(new MockMapSize(graph), graph);
 
         var result = system.FindPath(Vector2Int.zero, Vector2Int.one, Direction.Up);
         Assert.IsFalse(result.Success);

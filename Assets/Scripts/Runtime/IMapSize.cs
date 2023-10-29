@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace BFG.Runtime {
-public interface IMapContains {
+public interface IMapSize {
     int sizeY { get; }
     int sizeX { get; }
 

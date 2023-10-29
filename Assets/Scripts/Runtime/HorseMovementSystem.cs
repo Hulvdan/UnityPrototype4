@@ -9,13 +9,13 @@ public class HorseMovementSystem {
     public readonly Subject<OnReachedDestinationData> OnReachedDestination = new();
 
     List<List<MovementGraphTile>> _graph;
-    IMapContains _mapContains;
+    IMapSize _mapSize;
 
     float TrainLoadingDuration = 1f;
     float TrainUnloadingDuration = 1f;
 
-    public void Init(IMapContains mapContains, List<List<MovementGraphTile>> movementGraph) {
-        _mapContains = mapContains;
+    public void Init(IMapSize mapSize, List<List<MovementGraphTile>> movementGraph) {
+        _mapSize = mapSize;
         _graph = movementGraph;
     }
 
@@ -150,7 +150,7 @@ public class HorseMovementSystem {
                 var newY = pos.y + offset.y;
                 var newX = pos.x + offset.x;
 
-                if (!_mapContains.Contains(newX, newY)) {
+                if (!_mapSize.Contains(newX, newY)) {
                     continue;
                 }
 

@@ -26,20 +26,20 @@ public class InitialMapProvider : MonoBehaviour {
     TileBase _stationVerticalTile;
 
     IMap _map;
-    IMapContains _mapContains;
+    IMapSize _mapSize;
 
-    public void Init(IMap map, IMapContains mapContains) {
+    public void Init(IMap map, IMapSize mapSize) {
         _map = map;
-        _mapContains = mapContains;
+        _mapSize = mapSize;
     }
 
     public List<List<ElementTile>> LoadElementTiles() {
-        var elementTiles = new List<List<ElementTile>>(_mapContains.sizeY);
+        var elementTiles = new List<List<ElementTile>>(_mapSize.sizeY);
 
-        for (var y = 0; y < _mapContains.sizeY; y++) {
-            var row = new List<ElementTile>(_mapContains.sizeX);
+        for (var y = 0; y < _mapSize.sizeY; y++) {
+            var row = new List<ElementTile>(_mapSize.sizeX);
 
-            for (var x = 0; x < _mapContains.sizeX; x++) {
+            for (var x = 0; x < _mapSize.sizeX; x++) {
                 var tilemapTile = _movementSystemTilemap.GetTile(new(x, y));
 
                 ElementTile tile;

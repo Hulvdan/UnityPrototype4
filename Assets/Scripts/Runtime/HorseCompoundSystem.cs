@@ -71,7 +71,7 @@ public class HorseCompoundSystem : MonoBehaviour {
     HorseTrain _horse;
 
     IMap _map;
-    IMapContains _mapContains;
+    IMapSize _mapSize;
 
     HorseMovementSystem _movementSystem;
     List<List<MovementGraphTile>> _movementTiles;
@@ -83,15 +83,15 @@ public class HorseCompoundSystem : MonoBehaviour {
         }
     }
 
-    public void Init(IMap map, IMapContains mapContains) {
-        _mapContains = mapContains;
+    public void Init(IMap map, IMapSize mapSize) {
+        _mapSize = mapSize;
         _map = map;
         _map.OnElementTileChanged.Subscribe(OnElementTileChanged);
 
         GenerateMovementGraph();
 
         _movementSystem = new();
-        _movementSystem.Init(_mapContains, _movementTiles);
+        _movementSystem.Init(_mapSize, _movementTiles);
         _movementSystem.OnReachedDestination.Subscribe(OnHorseReachedDestination);
 
         _horse = new(_horseSpeed, Direction.Right);
@@ -131,7 +131,7 @@ public class HorseCompoundSystem : MonoBehaviour {
 
         foreach (var offset in DirectionOffsets.Offsets) {
             var newPos = pos + offset;
-            if (_mapContains.Contains(newPos)) {
+            if (_mapSize.Contains(newPos)) {
                 UpdateTileAtPos(newPos);
                 UpdateDebugTilemapAtPos(newPos);
             }
@@ -199,18 +199,18 @@ public class HorseCompoundSystem : MonoBehaviour {
             _debugTilemap.ClearAllTiles();
         }
 
-        _movementTiles = new(_mapContains.sizeY);
-        for (var y = 0; y < _mapContains.sizeY; y++) {
-            var row = new List<MovementGraphTile>(_mapContains.sizeX);
-            for (var x = 0; x < _mapContains.sizeX; x++) {
+        _movementTiles = new(_mapSize.sizeY);
+        for (var y = 0; y < _mapSize.sizeY; y++) {
+            var row = new List<MovementGraphTile>(_mapSize.sizeX);
+            for (var x = 0; x < _mapSize.sizeX; x++) {
                 row.Add(null);
             }
 
             _movementTiles.Add(row);
         }
 
-        for (var y = 0; y < _mapContains.sizeY; y++) {
-            for (var x = 0; x < _mapContains.sizeX; x++) {
+        for (var y = 0; y < _mapSize.sizeY; y++) {
+            for (var x = 0; x < _mapSize.sizeX; x++) {
                 UpdateTileAtPos(x, y);
             }
         }
@@ -253,7 +253,7 @@ public class HorseCompoundSystem : MonoBehaviour {
         MovementGraphTile mTile,
         List<List<ElementTile>> tiles
     ) {
-        mTile.Directions[0] = x < _mapContains.sizeX - 1
+        mTile.Directions[0] = x < _mapSize.sizeX - 1
                               && (
                                   tiles[y][x + 1].Type == ElementTileType.Road
                                   || (
@@ -269,7 +269,7 @@ public class HorseCompoundSystem : MonoBehaviour {
                                       && tiles[y][x - 1].Rotation == 0
                                   )
                               );
-        mTile.Directions[1] = y < _mapContains.sizeY - 1
+        mTile.Directions[1] = y < _mapSize.sizeY - 1
                               && (
                                   tiles[y + 1][x].Type == ElementTileType.Road
                                   || (
@@ -295,7 +295,7 @@ public class HorseCompoundSystem : MonoBehaviour {
         List<List<ElementTile>> tiles
     ) {
         if (tile.Rotation == 0) {
-            mTile.Directions[0] = x < _mapContains.sizeX - 1
+            mTile.Directions[0] = x < _mapSize.sizeX - 1
                                   && (
                                       tiles[y][x + 1].Type == ElementTileType.Road
                                       || (
@@ -313,7 +313,7 @@ public class HorseCompoundSystem : MonoBehaviour {
                                   );
         }
         else if (tile.Rotation == 1) {
-            mTile.Directions[1] = y < _mapContains.sizeY - 1
+            mTile.Directions[1] = y < _mapSize.sizeY - 1
                                   && (
                                       tiles[y + 1][x].Type == ElementTileType.Road
                                       || (
@@ -337,8 +337,8 @@ public class HorseCompoundSystem : MonoBehaviour {
             return;
         }
 
-        for (var y = 0; y < _mapContains.sizeY; y++) {
-            for (var x = 0; x < _mapContains.sizeX; x++) {
+        for (var y = 0; y < _mapSize.sizeY; y++) {
+            for (var x = 0; x < _mapSize.sizeX; x++) {
                 UpdateDebugTilemapAtPos(x, y);
             }
         }
