@@ -66,6 +66,16 @@ public class HorseTrain {
         Destinations.RemoveAt(index);
     }
 
+    public bool IsThereANodeThatCanStoreItem() {
+        foreach (var node in nodes) {
+            if (node.storedResources.Count == 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     void NormalizeDestinationIndex() {
         if (Destinations.Count == 0) {
             _currentDestination = null;

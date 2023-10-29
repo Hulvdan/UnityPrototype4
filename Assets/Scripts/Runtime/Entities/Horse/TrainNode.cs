@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace BFG.Runtime {
 public class TrainNode {
@@ -12,5 +14,7 @@ public class TrainNode {
     public TrainNode(float width) {
         Width = width;
     }
+
+    public List<Tuple<ScriptableResource, int>> storedResources { get; } = new();
 }
 }

@@ -158,10 +158,22 @@ public class HorseCompoundSystem : MonoBehaviour {
                 if (horse.TrainLoadingUnloadingElapsed >= _trainItemLoadingDuration) {
                     horse.TrainLoadingUnloadingElapsed -= _trainItemLoadingDuration;
 
-                    if (_map.AreThereAvailableResourcesForTheTrain(horse)) {
+                    if (
+                        horse.IsThereANodeThatCanStoreItem()
+                        && _map.AreThereAvailableResourcesForTheTrain(horse)
+                    ) {
+                        if (_debugMode) {
+                            Debug.Log("There is an empty slot in the train and " +
+                                      "found a new item that can be added to the train");
+                        }
+
                         _map.PickRandomItemForTheTrain(horse);
                     }
                     else {
+                        if (_debugMode) {
+                            Debug.Log("Switching to the next destination");
+                        }
+
                         horse.State = TrainState.Moving;
                         _movementSystem.TrySetNextDestinationAndBuildPath(horse);
                     }
