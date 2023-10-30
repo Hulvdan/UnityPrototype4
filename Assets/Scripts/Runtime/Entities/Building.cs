@@ -105,7 +105,7 @@ public class Building {
 
         storedResources.Add(resource);
 
-        if (CanBeProcessed()) {
+        if (CanStartProcessing()) {
             IsProcessing = true;
             ProcessingElapsed = 0;
             return StoreResourceResult.AddedToProcessingImmediately;
@@ -114,7 +114,7 @@ public class Building {
         return StoreResourceResult.AddedToTheStore;
     }
 
-    bool CanBeProcessed() {
+    public bool CanStartProcessing() {
         if (producedResources.Count >= scriptableBuilding.produceItemsAmount) {
             return false;
         }

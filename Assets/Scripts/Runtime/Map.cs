@@ -206,7 +206,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             var scriptableBuilding = building.scriptableBuilding;
             if (scriptableBuilding.type == BuildingType.Produce) {
                 if (!building.IsProcessing) {
-                    if (building.storedResources.Count > 0) {
+                    if (building.storedResources.Count > 0 && building.CanStartProcessing()) {
                         building.IsProcessing = true;
                         building.ProcessingElapsed = 0;
 
