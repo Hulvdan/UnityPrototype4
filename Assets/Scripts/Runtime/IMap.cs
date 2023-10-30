@@ -27,6 +27,8 @@ public interface IMap {
     void PickRandomItemForTheTrain(HorseTrain horse);
     bool AreThereAvailableSlotsTheTrainCanPassResourcesTo(HorseTrain horse);
     void PickRandomSlotForTheTrainToPassItemTo(HorseTrain horse);
+    bool IsBuildable(int x, int y);
+    bool IsBuildable(Vector2Int pos);
 }
 
 public class TrainCreatedData {

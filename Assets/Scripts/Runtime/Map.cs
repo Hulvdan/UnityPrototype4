@@ -158,6 +158,37 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         OnElementTileChanged.OnNext(pos);
     }
 
+    public bool IsBuildable(int x, int y) {
+        if (y >= sizeY) {
+            Debug.LogError("WTF?");
+            return false;
+        }
+
+        if (terrainTiles[y][x].Name == "cliff") {
+            return false;
+        }
+
+        if (terrainTiles[y][x].Resource != null) {
+            return false;
+        }
+
+        if (elementTiles[y][x].Type != ElementTileType.None) {
+            return false;
+        }
+
+        foreach (var building in buildings) {
+            if (building.position.x == x && building.position.y == y) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public bool IsBuildable(Vector2Int pos) {
+        return IsBuildable(pos.x, pos.y);
+    }
+
     public int sizeY => _mapSizeY;
     public int sizeX => _mapSizeX;
 
@@ -183,6 +214,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         elementTiles = _initialMapProvider.LoadElementTiles();
+        OnTerrainTilesRegenerated?.Invoke();
+
         _horseCompoundSystem.Init(this, this);
 
         CreateHuman(_buildings[0]);
@@ -261,10 +294,15 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [Button("Regen With New Seed")]
     void RegenerateTilemapWithNewSeed() {
         _randomSeed += 1;
-        RegenerateTilemap();
+        RegenerateTilemapAndFireEvent();
     }
 
     [Button("RegenerateTilemap")]
+    void RegenerateTilemapAndFireEvent() {
+        RegenerateTilemap();
+        OnTerrainTilesRegenerated?.Invoke();
+    }
+
     void RegenerateTilemap() {
         terrainTiles = new();
 
@@ -310,8 +348,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 terrainTiles[y][x] = tile;
             }
         }
-
-        OnTerrainTilesRegenerated?.Invoke();
     }
 
     float MakeSomeNoise2D(int seed, int x, int y, float scale) {

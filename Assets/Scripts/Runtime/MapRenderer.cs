@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 namespace BFG.Runtime {
@@ -93,9 +94,10 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     GameObject _wagonPrefab;
 
+    [FormerlySerializedAs("_debugTileUnwalkable")]
     [SerializeField]
     [Required]
-    TileBase _debugTileUnwalkable;
+    TileBase _debugTileUnbuildable;
 
     readonly List<IDisposable> _dependencyHooks = new();
 
@@ -226,6 +228,18 @@ public class MapRenderer : MonoBehaviour {
         }
 
         _movementSystemTilemap.SetTile(new(pos.x, pos.y), tile);
+
+        var debugTile = _map.IsBuildable(pos.x, pos.y) ? null : _debugTileUnbuildable;
+        _debugTilemap.SetTile(new(pos.x, pos.y, 0), debugTile);
+        foreach (var offset in DirectionOffsets.Offsets) {
+            var newPos = pos + offset;
+            if (!_mapSize.Contains(newPos)) {
+                continue;
+            }
+
+            debugTile = _map.IsBuildable(newPos.x, newPos.y) ? null : _debugTileUnbuildable;
+            _debugTilemap.SetTile(new(newPos.x, newPos.y, 0), debugTile);
+        }
     }
 
     void UpdateTileBasedOnRemainingResourcePercent(
@@ -322,23 +336,11 @@ public class MapRenderer : MonoBehaviour {
 
         for (var y = 0; y < _mapSize.sizeY; y++) {
             for (var x = 0; x < _mapSize.sizeX; x++) {
-                bool walkable;
-                if (y >= _mapSize.sizeY) {
-                    walkable = false;
-                }
-                else {
-                    walkable = !TileIsACliff(x, y);
-                }
-
-                if (!walkable) {
-                    _debugTilemap.SetTile(new(x, y, 0), _debugTileUnwalkable);
+                if (!_map.IsBuildable(x, y)) {
+                    _debugTilemap.SetTile(new(x, y, 0), _debugTileUnbuildable);
                 }
             }
         }
-    }
-
-    bool TileIsACliff(int x, int y) {
-        return _map.terrainTiles[y][x].Name == "cliff";
     }
 
     GameObject GenerateTilemap(int i, float order, string nameTemplate, GameObject prefabTemplate) {
