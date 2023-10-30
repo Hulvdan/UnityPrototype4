@@ -110,10 +110,19 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     TileBase _debugTileUnbuildable;
 
+    [SerializeField]
+    [Min(0.1f)]
+    float _buildingMovingItemToTheWarehouseDuration = 1f;
+
+    [SerializeField]
+    [Min(0.1f)]
+    AnimationCurve _buildingMovingItemToTheWarehouseDurationCurve =
+        AnimationCurve.Linear(0, 0, 1, 1);
+
     readonly List<IDisposable> _dependencyHooks = new();
 
     readonly Dictionary<Guid, Tuple<Human, HumanGO>> _humans = new();
-    readonly Dictionary<Tuple<Guid, int>, ItemGO> _storedItems = new();
+    readonly Dictionary<Guid, ItemGO> _storedItems = new();
     readonly Dictionary<Guid, Tuple<TrainNode, TrainNodeGO>> _trainNodes = new();
     Camera _camera;
 
@@ -214,6 +223,36 @@ public class MapRenderer : MonoBehaviour {
         _dependencyHooks.Add(_map.OnTrainNodeCreated.Subscribe(OnTrainNodeCreated));
         _dependencyHooks.Add(_map.OnTrainPickedUpResource.Subscribe(OnTrainPickedUpResource));
         _dependencyHooks.Add(_map.OnTrainPushedResource.Subscribe(OnTrainPushedResource));
+
+        _dependencyHooks.Add(
+            _map.OnBuildingStartedProcessing.Subscribe(OnBuildingStartedProcessing));
+        _dependencyHooks.Add(_map.OnBuildingProducedItem.Subscribe(OnBuildingProducedItem));
+    }
+
+    void OnBuildingStartedProcessing(BuildingStartedProcessingData data) {
+    }
+
+    void OnBuildingProducedItem(BuildingProducedItemData data) {
+        var item = Instantiate(_itemPrefab, _itemsLayer);
+
+        var building = data.Building;
+        var scriptable = building.scriptableBuilding;
+
+        var i = (building.producedResources.Count - 1) % scriptable.producedItemsPositions.Count;
+        var itemOffset = scriptable.producedItemsPositions[i];
+        item.transform.localPosition = (Vector2)building.position;
+        var itemGo = item.GetComponent<ItemGO>();
+        itemGo.SetAs(data.Resource.script);
+
+        DOTween.To(
+            () => item.transform.localPosition,
+            val => item.transform.localPosition = val,
+            (Vector3)(building.position + itemOffset + Vector2.right / 2),
+            _buildingMovingItemToTheWarehouseDuration
+        ).SetEase(_buildingMovingItemToTheWarehouseDurationCurve);
+
+        // var resIdx = data.StoreBuilding.storedResources.Count - 1;
+        // _storedItems.Add(new(data.StoreBuilding.ID, resIdx), itemGo);
     }
 
     void OnSelectedItemChanged(SelectedItem item) {
@@ -420,7 +459,7 @@ public class MapRenderer : MonoBehaviour {
             data.RemainingAmountPercent
         );
 
-        _humans[data.Human.ID].Item2.OnPickedUpResource(data.Resource);
+        _humans[data.Human.ID].Item2.OnPickedUpResource(data.Resource.script);
     }
 
     void OnHumanPlacedResource(HumanPlacedResourceData data) {
@@ -440,11 +479,9 @@ public class MapRenderer : MonoBehaviour {
         var itemOffset = scriptable.storedItemPositions[i];
         item.transform.localPosition = building.position + itemOffset + Vector2.right / 2;
         var itemGo = item.GetComponent<ItemGO>();
-        itemGo.SetAs(data.Resource);
+        itemGo.SetAs(data.Resource.script);
 
-        var resIdx = data.StoreBuilding.storedResources.Count - 1;
-
-        _storedItems.Add(new(data.StoreBuilding.ID, resIdx), itemGo);
+        _storedItems.Add(data.Resource.id, itemGo);
     }
 
     Vector3 GameLogicToRenderPos(Vector2 pos) {
@@ -471,12 +508,12 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void OnTrainPickedUpResource(TrainPickedUpResourceData data) {
-        var key = new Tuple<Guid, int>(data.Building.ID, data.ResourceIndex);
-        Destroy(_storedItems[key].gameObject);
-        _storedItems.Remove(key);
+        var resID = data.Resource.id;
+        Destroy(_storedItems[resID].gameObject);
+        _storedItems.Remove(resID);
 
         _trainNodes[data.TrainNode.ID].Item2.OnPickedUpResource(
-            data.Resource, data.Building.position
+            data.Resource.script, data.Building.position
         );
     }
 
@@ -493,21 +530,25 @@ public class MapRenderer : MonoBehaviour {
 
         item.transform.localPosition = data.TrainNode.CalculatedPosition;
         var itemGo = item.GetComponent<ItemGO>();
-        itemGo.SetAs(data.Resource);
+        itemGo.SetAs(data.Resource.script);
 
-        DOTween.To(
-            () => item.transform.localPosition,
-            val => item.transform.localPosition = val,
-            (Vector3)(building.position + itemOffset + Vector2.right / 2),
-            _itemPlacingDuration
-        ).SetEase(_itemPlacingCurve).OnComplete(() => {
-            if (data.StoreResourceResult == StoreResourceResult.AddedToProcessingImmediately) {
-                itemGo.gameObject.SetActive(false);
-            }
-        });
+        var resId = data.Resource.id;
+        _storedItems.Add(resId, itemGo);
 
-        var resIdx = data.Building.storedResources.Count - 1;
-        _storedItems.Add(new(data.Building.ID, resIdx), itemGo);
+        DOTween
+            .To(
+                () => item.transform.localPosition,
+                val => item.transform.localPosition = val,
+                (Vector3)(building.position + itemOffset + Vector2.right / 2),
+                _itemPlacingDuration
+            )
+            .SetEase(_itemPlacingCurve)
+            .OnComplete(() => {
+                if (data.StoreResourceResult == StoreResourceResult.AddedToProcessingImmediately) {
+                    Destroy(_storedItems[resId].gameObject);
+                    _storedItems.Remove(resId);
+                }
+            });
         // var key = new Tuple<Guid, int>(data.Building.ID, data.ResourceIndex);
         // Destroy(_storedItems[key].gameObject);
         // _storedItems.Remove(key);

@@ -20,6 +20,7 @@ public interface IMap {
     Subject<TrainPickedUpResourceData> OnTrainPickedUpResource { get; }
     Subject<TrainPushedResourceData> OnTrainPushedResource { get; }
 
+    Subject<BuildingStartedProcessingData> OnBuildingStartedProcessing { get; }
     Subject<BuildingProducedItemData> OnBuildingProducedItem { get; }
 
     Subject<TopBarResourceChangedData> OnResourceChanged { get; }
