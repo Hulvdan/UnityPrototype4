@@ -73,6 +73,16 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     GameObject _itemPrefab;
 
+    [Header("Setup")]
+    [SerializeField]
+    [Required]
+    [Min(.1f)]
+    float _itemPlacingDuration = 1f;
+
+    [SerializeField]
+    [Required]
+    AnimationCurve _itemPlacingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
     [Header("Inputs")]
     [SerializeField]
     [Required]
@@ -489,8 +499,12 @@ public class MapRenderer : MonoBehaviour {
             () => item.transform.localPosition,
             val => item.transform.localPosition = val,
             (Vector3)(building.position + itemOffset + Vector2.right / 2),
-            1f
-        );
+            _itemPlacingDuration
+        ).SetEase(_itemPlacingCurve).OnComplete(() => {
+            if (data.StoreResourceResult == StoreResourceResult.AddedToProcessingImmediately) {
+                itemGo.gameObject.SetActive(false);
+            }
+        });
 
         var resIdx = data.Building.storedResources.Count - 1;
         _storedItems.Add(new(data.Building.ID, resIdx), itemGo);

@@ -102,9 +102,13 @@ public class Building {
 
         storedResources.Add(new(foundResource, count));
 
-        return CanBeProcessed()
-            ? StoreResourceResult.AddedToProcessingImmediately
-            : StoreResourceResult.AddedToTheStore;
+        if (CanBeProcessed()) {
+            IsProcessing = true;
+            ProcessingElapsed = 0;
+            return StoreResourceResult.AddedToProcessingImmediately;
+        }
+
+        return StoreResourceResult.AddedToTheStore;
     }
 
     public float ProcessingElapsed;

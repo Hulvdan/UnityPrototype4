@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Subjects;
 using SimplexNoise;
 using Sirenix.OdinInspector;
+using Unity.Jobs.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -115,6 +116,35 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void Update() {
         UpdateHumans();
+        UpdateBuildings();
+    }
+
+    void UpdateBuildings() {
+        foreach (var building in buildings) {
+            var scriptableBuilding = building.scriptableBuilding;
+            if (scriptableBuilding.type == BuildingType.Produce) {
+                if (building.IsProcessing) {
+                    building.ProcessingElapsed += Time.deltaTime;
+
+                    if (building.ProcessingElapsed >= scriptableBuilding.ItemProcessingDuration) {
+                        building.IsProcessing = false;
+                        Produce(building);
+                    }
+                }
+            }
+        }
+    }
+
+    void Produce(Building building) {
+        Debug.Log("Produced!");
+        var res = building.scriptableBuilding.produces;
+        building.producedResources.Add(new(res, 1));
+
+        OnBuildingProducedItem.OnNext(new() {
+            Resource = res,
+            ProducedAmount = 1,
+            Building = building,
+        });
     }
 
     void OnValidate() {
@@ -218,7 +248,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         _horseCompoundSystem.Init(this, this);
 
-        CreateHuman(_buildings[0]);
+        // CreateHuman(_buildings[0]);
         CreateHuman(_buildings[0]);
         CreateHuman(_buildings[1]);
         CreateHuman(_buildings[1]);
@@ -286,6 +316,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public Subject<TrainPickedUpResourceData> OnTrainPickedUpResource { get; } = new();
     public Subject<TrainPushedResourceData> OnTrainPushedResource { get; } = new();
+    public Subject<BuildingProducedItemData> OnBuildingProducedItem { get; } = new();
     public Subject<TopBarResourceChangedData> OnResourceChanged { get; } = new();
 
     #endregion

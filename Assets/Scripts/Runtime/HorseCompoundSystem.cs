@@ -118,7 +118,7 @@ public class HorseCompoundSystem : MonoBehaviour {
 
         GenerateMovementGraph();
 
-        _movementSystem = new() { debugMode = _debugMode };
+        _movementSystem = new() { DebugMode = _debugMode };
         _movementSystem.Init(_mapSize, _movementTiles);
         _movementSystem.OnReachedDestination.Subscribe(OnHorseReachedDestination);
 
