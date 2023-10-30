@@ -32,6 +32,9 @@ public class Building {
     [SerializeField]
     List<Tuple<ScriptableResource, int>> _producedResources = new();
 
+    public float ProcessingElapsed;
+    public bool IsProcessing;
+
     public ScriptableBuilding scriptableBuilding => _scriptableBuilding;
     public int posX => _posX;
     public int posY => _posY;
@@ -110,9 +113,6 @@ public class Building {
 
         return StoreResourceResult.AddedToTheStore;
     }
-
-    public float ProcessingElapsed;
-    public bool IsProcessing;
 
     bool CanBeProcessed() {
         if (producedResources.Count >= scriptableBuilding.produceItemsAmount) {

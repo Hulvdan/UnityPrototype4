@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reactive.Subjects;
 using SimplexNoise;
 using Sirenix.OdinInspector;
-using Unity.Jobs.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -119,34 +118,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         UpdateBuildings();
     }
 
-    void UpdateBuildings() {
-        foreach (var building in buildings) {
-            var scriptableBuilding = building.scriptableBuilding;
-            if (scriptableBuilding.type == BuildingType.Produce) {
-                if (building.IsProcessing) {
-                    building.ProcessingElapsed += Time.deltaTime;
-
-                    if (building.ProcessingElapsed >= scriptableBuilding.ItemProcessingDuration) {
-                        building.IsProcessing = false;
-                        Produce(building);
-                    }
-                }
-            }
-        }
-    }
-
-    void Produce(Building building) {
-        Debug.Log("Produced!");
-        var res = building.scriptableBuilding.produces;
-        building.producedResources.Add(new(res, 1));
-
-        OnBuildingProducedItem.OnNext(new() {
-            Resource = res,
-            ProducedAmount = 1,
-            Building = building,
-        });
-    }
-
     void OnValidate() {
         _humanTotalHarvestingDuration = _humanHeadingDuration
                                         + _humanHarvestingDuration
@@ -228,6 +199,34 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public bool Contains(int x, int y) {
         return x >= 0 && x < sizeX && y >= 0 && y < sizeY;
+    }
+
+    void UpdateBuildings() {
+        foreach (var building in buildings) {
+            var scriptableBuilding = building.scriptableBuilding;
+            if (scriptableBuilding.type == BuildingType.Produce) {
+                if (building.IsProcessing) {
+                    building.ProcessingElapsed += Time.deltaTime;
+
+                    if (building.ProcessingElapsed >= scriptableBuilding.ItemProcessingDuration) {
+                        building.IsProcessing = false;
+                        Produce(building);
+                    }
+                }
+            }
+        }
+    }
+
+    void Produce(Building building) {
+        Debug.Log("Produced!");
+        var res = building.scriptableBuilding.produces;
+        building.producedResources.Add(new(res, 1));
+
+        OnBuildingProducedItem.OnNext(new() {
+            Resource = res,
+            ProducedAmount = 1,
+            Building = building,
+        });
     }
 
     public void InitDependencies(GameManager gameManager) {
