@@ -12,10 +12,10 @@ public class UIManager : MonoBehaviour {
 
     public void InitDependencies(IMap map) {
         _map = map;
-        _map.OnResourceChanged.Subscribe(OnResourceChanged);
+        _map.onResourceChanged.Subscribe(OnResourceChanged);
     }
 
-    void OnResourceChanged(TopBarResourceChangedData data) {
+    void OnResourceChanged(E_TopBarResourceChanged data) {
         foreach (var mapping in _resourceTextsMapping) {
             if (mapping.Resource != data.Resource) {
                 continue;
@@ -26,7 +26,7 @@ public class UIManager : MonoBehaviour {
         }
     }
 
-    void OnHumanHarvestedResource(HumanPickedUpResourceData data) {
+    void OnHumanHarvestedResource(E_HumanPickedUpResource data) {
     }
 
     public void OnButtonPressed() {

@@ -1,8 +1,8 @@
 ﻿namespace BFG.Runtime {
-public class HumanCreatedData {
+public class E_HumanCreated {
     public readonly Human Human;
 
-    public HumanCreatedData(Human human) {
+    public E_HumanCreated(Human human) {
         Human = human;
     }
 }

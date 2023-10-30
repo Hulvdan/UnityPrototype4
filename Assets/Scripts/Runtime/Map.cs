@@ -125,7 +125,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                                         + _humanReturningBackDuration;
     }
 
-    public Subject<Vector2Int> OnElementTileChanged { get; } = new();
+    public Subject<Vector2Int> onElementTileChanged { get; } = new();
 
     // NOTE(Hulvdan): Indexes start from the bottom left corner and go to the top right one
     public List<List<ElementTile>> elementTiles { get; private set; }
@@ -156,7 +156,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             return;
         }
 
-        OnElementTileChanged.OnNext(pos);
+        onElementTileChanged.OnNext(pos);
     }
 
     public bool IsBuildable(int x, int y) {
@@ -213,7 +213,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                         var res = building.storedResources[0];
                         building.storedResources.RemoveAt(0);
 
-                        OnBuildingStartedProcessing.OnNext(new() {
+                        onBuildingStartedProcessing.OnNext(new() {
                             Resource = res,
                             Building = building,
                         });
@@ -239,7 +239,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var resourceObj = new ResourceObj(Guid.NewGuid(), res);
         building.producedResources.Add(resourceObj);
 
-        OnBuildingProducedItem.OnNext(new() {
+        onBuildingProducedItem.OnNext(new() {
             Resource = resourceObj,
             ProducedAmount = 1,
             Building = building,
@@ -273,7 +273,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     void GiveResource(ScriptableResource resource1, int amount) {
         var resource = _resources.Find(x => x.Resource == resource1);
         resource.Amount += amount;
-        OnResourceChanged.OnNext(
+        onResourceChanged.OnNext(
             new() {
                 NewAmount = resource.Amount,
                 OldAmount = resource.Amount - amount,
@@ -322,21 +322,21 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     #region Events
 
-    public Subject<HumanCreatedData> OnHumanCreated { get; } = new();
-    public Subject<HumanStateChangedData> OnHumanStateChanged { get; } = new();
-    public Subject<HumanPickedUpResourceData> OnHumanPickedUpResource { get; } = new();
-    public Subject<HumanPlacedResourceData> OnHumanPlacedResource { get; } = new();
+    public Subject<E_HumanCreated> onHumanCreated { get; } = new();
+    public Subject<E_HumanStateChanged> onHumanStateChanged { get; } = new();
+    public Subject<E_HumanPickedUpResource> onHumanPickedUpResource { get; } = new();
+    public Subject<E_HumanPlacedResource> onHumanPlacedResource { get; } = new();
 
-    public Subject<TrainCreatedData> OnTrainCreated { get; } = new();
-    public Subject<TrainNodeCreatedData> OnTrainNodeCreated { get; } = new();
+    public Subject<E_TrainCreated> onTrainCreated { get; } = new();
+    public Subject<E_TrainNodeCreated> onTrainNodeCreated { get; } = new();
 
-    public Subject<TrainPickedUpResourceData> OnTrainPickedUpResource { get; } = new();
-    public Subject<TrainPushedResourceData> OnTrainPushedResource { get; } = new();
+    public Subject<E_TrainPickedUpResource> onTrainPickedUpResource { get; } = new();
+    public Subject<E_TrainPushedResource> onTrainPushedResource { get; } = new();
 
-    public Subject<BuildingStartedProcessingData> OnBuildingStartedProcessing { get; } = new();
-    public Subject<BuildingProducedItemData> OnBuildingProducedItem { get; } = new();
+    public Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; } = new();
+    public Subject<E_BuildingProducedItem> onBuildingProducedItem { get; } = new();
 
-    public Subject<TopBarResourceChangedData> OnResourceChanged { get; } = new();
+    public Subject<E_TopBarResourceChanged> onResourceChanged { get; } = new();
 
     #endregion
 
@@ -414,7 +414,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var human = new Human(Guid.NewGuid(), building, building.position);
         _humans.Add(human);
         // OnHumanCreated?.Invoke(new HumanCreatedData(human));
-        OnHumanCreated.OnNext(new(human));
+        onHumanCreated.OnNext(new(human));
     }
 
     void UpdateHumans() {
@@ -534,7 +534,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         tile.ResourceAmount -= 1;
 
         var res = human.harvestBuilding.scriptableBuilding.harvestableResource;
-        OnHumanPickedUpResource.OnNext(
+        onHumanPickedUpResource.OnNext(
             new() {
                 Human = human,
                 Resource = new(Guid.NewGuid(), res),
@@ -558,7 +558,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var resource = new ResourceObj(Guid.NewGuid(), scriptableResource);
         human.storeBuilding.storedResources.Add(resource);
 
-        OnHumanPlacedResource.OnNext(
+        onHumanPlacedResource.OnNext(
             new() {
                 Amount = 1,
                 Human = human,
@@ -575,7 +575,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         var oldState = human.state;
         human.state = newState;
-        OnHumanStateChanged.OnNext(new(human, oldState, newState));
+        onHumanStateChanged.OnNext(new(human, oldState, newState));
     }
 
     void UpdateHumanIdle(Human human) {
@@ -842,7 +842,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         foundNode.storedResources.Add(foundResource);
 
-        OnTrainPickedUpResource.OnNext(new() {
+        onTrainPickedUpResource.OnNext(new() {
             Train = horse,
             TrainNode = foundNode,
             PickedUpAmount = 1,
@@ -930,7 +930,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var res = foundBuilding.StoreResource(foundResource);
         foundNode.storedResources.RemoveAt(foundResourceIndex);
 
-        OnTrainPushedResource.OnNext(new() {
+        onTrainPushedResource.OnNext(new() {
             Train = horse,
             TrainNode = foundNode,
             PickedUpAmount = 1,

@@ -1,5 +1,5 @@
 ﻿namespace BFG.Runtime {
-public class TrainCreatedData {
+public class E_TrainCreated {
     public HorseTrain Horse;
 }
 }

@@ -1,6 +1,7 @@
 ﻿namespace BFG.Runtime {
-public class BuildingStartedProcessingData {
+public class E_BuildingProducedItem {
     public Building Building;
+    public int ProducedAmount;
     public ResourceObj Resource;
 }
 }

@@ -1,5 +1,5 @@
 ﻿namespace BFG.Runtime {
-public class TopBarResourceChangedData {
+public class E_TopBarResourceChanged {
     public int NewAmount;
     public int OldAmount;
     public ScriptableResource Resource;
