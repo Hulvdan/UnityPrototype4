@@ -324,9 +324,21 @@ public class MapRenderer : MonoBehaviour {
             0, maxHeight + 2, BuildingsTilemapNameTemplate, _tilemapBuildingsPrefab
         ).GetComponent<Tilemap>();
         foreach (var building in _map.buildings) {
+            var widthOffset = (building.scriptableBuilding.size.x - 1) / 2f;
+            var heightOffset = (building.scriptableBuilding.size.y - 1) / 2f;
+
             buildingsTilemap.SetTile(
-                new(building.posX, building.posY, 0),
-                building.scriptableBuilding.tile
+                new(
+                    new(building.posX, building.posY, 0),
+                    building.scriptableBuilding.tile,
+                    Color.white,
+                    Matrix4x4.TRS(
+                        new(widthOffset, heightOffset),
+                        Quaternion.identity,
+                        Vector3.one
+                    )
+                ),
+                false
             );
         }
     }

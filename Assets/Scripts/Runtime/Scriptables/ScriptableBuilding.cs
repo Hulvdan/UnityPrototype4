@@ -43,6 +43,10 @@ public class ScriptableBuilding : ScriptableObject {
     [PreviewField]
     TileBase _tile;
 
+    [SerializeField]
+    [Min(1)]
+    Vector2Int _size = Vector2Int.one;
+
     public BuildingType type => _type;
     public ScriptableResource harvestableResource => _harvestableResource;
     public int tilesRadius => _tilesRadius;
@@ -52,5 +56,6 @@ public class ScriptableBuilding : ScriptableObject {
     public ScriptableResource produces => _produces;
 
     public TileBase tile => _tile;
+    public Vector2Int size => _size;
 }
 }
