@@ -11,10 +11,7 @@ public class HorseMovementSystem {
     List<List<MovementGraphTile>> _graph;
     IMapSize _mapSize;
 
-    public bool debugMode;
-
-    float TrainLoadingDuration = 1f;
-    float TrainUnloadingDuration = 1f;
+    public bool DebugMode;
 
     public void Init(IMapSize mapSize, List<List<MovementGraphTile>> movementGraph) {
         _mapSize = mapSize;
@@ -71,7 +68,7 @@ public class HorseMovementSystem {
     }
 
     void TrainReachedDestination(HorseTrain train, TrainDestination destination) {
-        if (debugMode) {
+        if (DebugMode) {
             Debug.Log($"TrainReachedDestination {destination}");
         }
 

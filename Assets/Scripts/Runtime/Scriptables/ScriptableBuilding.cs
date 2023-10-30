@@ -50,6 +50,10 @@ public class ScriptableBuilding : ScriptableObject {
     List<Vector2> _producedItemsPositions = new();
 
     [SerializeField]
+    [Min(0.1f)]
+    float _itemProcessingDuration = 1f;
+
+    [SerializeField]
     [PreviewField]
     TileBase _tile;
 
@@ -94,6 +98,7 @@ public class ScriptableBuilding : ScriptableObject {
     public List<Vector2> storedItemPositions => _storedItemPositions;
     public List<ScriptableResource> takes => _takes;
     public ScriptableResource produces => _produces;
+    public float ItemProcessingDuration => _itemProcessingDuration;
 
     public TileBase tile => _tile;
     public Vector2Int size => _size;

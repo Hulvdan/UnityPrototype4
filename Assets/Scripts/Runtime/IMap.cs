@@ -20,6 +20,8 @@ public interface IMap {
     Subject<TrainPickedUpResourceData> OnTrainPickedUpResource { get; }
     Subject<TrainPushedResourceData> OnTrainPushedResource { get; }
 
+    Subject<BuildingProducedItemData> OnBuildingProducedItem { get; }
+
     Subject<TopBarResourceChangedData> OnResourceChanged { get; }
 
     void TryBuild(Vector2Int hoveredTile, SelectedItem gameManagerSelectedItem);
@@ -30,15 +32,5 @@ public interface IMap {
     void PickRandomSlotForTheTrainToPassItemTo(HorseTrain horse);
     bool IsBuildable(int x, int y);
     bool IsBuildable(Vector2Int pos);
-}
-
-public class TrainCreatedData {
-    public HorseTrain Horse;
-}
-
-public class TrainNodeCreatedData {
-    public HorseTrain Horse;
-    public bool IsLocomotive;
-    public TrainNode Node;
 }
 }
