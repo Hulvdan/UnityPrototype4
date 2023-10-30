@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -31,6 +32,10 @@ public class TrainNodeGO : MonoBehaviour {
             Vector2.zero,
             _itemPickupDuration
         ).SetEase(_itemPickupCurve);
+    }
+
+    public void OnPushedResource() {
+        _resourceSpriteRenderer.sprite = null;
     }
 }
 }

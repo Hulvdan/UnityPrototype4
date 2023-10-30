@@ -8,6 +8,7 @@
 - 0 - Terrain
 - 2 - Buildings, Humans
 - 4 - Horse, Wagons
+- 5 - Items
 - 6 - Preview
 - 100 - Debug_UnwalkableCells
 - 101 - Debug_MovementSystemTilemap

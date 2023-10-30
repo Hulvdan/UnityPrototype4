@@ -29,6 +29,9 @@ public class Building {
     [SerializeField]
     List<Tuple<ScriptableResource, int>> _storedResources = new();
 
+    [SerializeField]
+    List<Tuple<ScriptableResource, int>> _producedResources = new();
+
     public ScriptableBuilding scriptableBuilding => _scriptableBuilding;
     public int posX => _posX;
     public int posY => _posY;
@@ -49,7 +52,30 @@ public class Building {
         set => _isBooked = value;
     }
 
-    public List<Tuple<ScriptableResource, int>> storedResources => _storedResources;
+    public List<Tuple<ScriptableResource, int>> storedResources {
+        get {
+            if (
+                scriptableBuilding.type != BuildingType.Store
+                && scriptableBuilding.type != BuildingType.Produce
+            ) {
+                Debug.LogError("WTF");
+            }
+
+            return _storedResources;
+        }
+    }
+
+    public List<Tuple<ScriptableResource, int>> producedResources {
+        get {
+            if (scriptableBuilding.type != BuildingType.Produce) {
+                Debug.LogError("WTF?");
+            }
+
+            return _producedResources;
+        }
+    }
+
+    public RectInt rect => new(posX, posY, _scriptableBuilding.size.x, _scriptableBuilding.size.y);
 
     public bool Contains(Vector2Int pos) {
         return Contains(pos.x, pos.y);
@@ -61,5 +87,40 @@ public class Building {
                && position.y <= y
                && y <= position.y + scriptableBuilding.size.y;
     }
+
+    public bool CanStoreResource() {
+        return storedResources.Count < scriptableBuilding.storeItemsAmount;
+    }
+
+    public StoreResourceResult StoreResource(ScriptableResource foundResource, int count) {
+        if (
+            scriptableBuilding.type != BuildingType.Produce
+            && scriptableBuilding.type != BuildingType.Store
+        ) {
+            Debug.LogError("WTF?");
+        }
+
+        storedResources.Add(new(foundResource, count));
+
+        return CanBeProcessed()
+            ? StoreResourceResult.AddedToProcessingImmediately
+            : StoreResourceResult.AddedToTheStore;
+    }
+
+    public float ProcessingElapsed;
+    public bool IsProcessing;
+
+    bool CanBeProcessed() {
+        if (producedResources.Count >= scriptableBuilding.produceItemsAmount) {
+            return false;
+        }
+
+        return !IsProcessing;
+    }
+}
+
+public enum StoreResourceResult {
+    AddedToTheStore,
+    AddedToProcessingImmediately,
 }
 }

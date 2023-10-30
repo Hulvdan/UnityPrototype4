@@ -284,7 +284,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public Subject<TrainCreatedData> OnTrainCreated { get; } = new();
     public Subject<TrainNodeCreatedData> OnTrainNodeCreated { get; } = new();
 
-    public Subject<TrainNodePickedUpResourceData> OnTrainPickedUpResource { get; } = new();
+    public Subject<TrainPickedUpResourceData> OnTrainPickedUpResource { get; } = new();
+    public Subject<TrainPushedResourceData> OnTrainPushedResource { get; } = new();
     public Subject<TopBarResourceChangedData> OnResourceChanged { get; } = new();
 
     #endregion
@@ -645,7 +646,11 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var expandedDimensions = ExpandStationDimensions(dimensions);
 
         foreach (var building in buildings) {
-            if (!BetterContains(expandedDimensions, building.position)) {
+            if (building.scriptableBuilding.type != BuildingType.Store) {
+                continue;
+            }
+
+            if (!Intersect(expandedDimensions, building.rect)) {
                 continue;
             }
 
@@ -657,19 +662,19 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         return false;
     }
 
-    bool BetterContains(RectInt rect, Vector2Int pos) {
-        return rect.xMin <= pos.x
-               && rect.yMin <= pos.y
-               && pos.x <= rect.xMax
-               && pos.y <= rect.yMax;
+    bool Intersect(RectInt rect1, RectInt rect2) {
+        return rect1.xMin < rect2.xMax
+               && rect1.xMax > rect2.xMin
+               && rect1.yMin < rect2.yMax
+               && rect1.yMax > rect2.yMin;
     }
 
     RectInt ExpandStationDimensions(RectInt dimensions) {
         return new() {
             xMin = Math.Max(0, dimensions.xMin - _horsesStationItemsGatheringRadius),
             yMin = Math.Max(0, dimensions.yMin - _horsesStationItemsGatheringRadius),
-            xMax = Math.Min(sizeX - 1, dimensions.xMax + _horsesStationItemsGatheringRadius),
-            yMax = Math.Min(sizeY - 1, dimensions.yMax + _horsesStationItemsGatheringRadius),
+            xMax = Math.Min(sizeX, dimensions.xMax + _horsesStationItemsGatheringRadius),
+            yMax = Math.Min(sizeY, dimensions.yMax + _horsesStationItemsGatheringRadius),
         };
     }
 
@@ -677,18 +682,13 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var tile = elementTiles[pos.y][pos.x];
         if (tile.Type != ElementTileType.Station) {
             Debug.LogError("WTF?");
-            return new() {
-                xMin = pos.x,
-                yMin = pos.y,
-                xMax = pos.x,
-                yMax = pos.y,
-            };
+            return new(pos.x, pos.y, 1, 1);
         }
 
-        var minStationX = pos.x;
-        var maxStationX = pos.x;
-        var minStationY = pos.y;
-        var maxStationY = pos.y;
+        var width = 1;
+        var height = 1;
+        var leftX = pos.x;
+        var bottomY = pos.y;
         if (tile.Rotation == 0) {
             for (var x = pos.x - 1; x >= 0; x--) {
                 var newTile = elementTiles[pos.y][x];
@@ -696,7 +696,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     break;
                 }
 
-                minStationX = x;
+                width += 1;
+                leftX = x;
             }
 
             for (var x = pos.x + 1; x < sizeX; x++) {
@@ -705,114 +706,192 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     break;
                 }
 
-                maxStationX = x;
+                width += 1;
             }
         }
         else if (tile.Rotation == 1) {
             for (var y = pos.y - 1; y >= 0; y--) {
                 var newTile = elementTiles[y][pos.x];
-                if (newTile.Type != ElementTileType.Station || newTile.Rotation != 0) {
+                if (newTile.Type != ElementTileType.Station || newTile.Rotation != 1) {
                     break;
                 }
 
-                minStationY = y;
+                bottomY = y;
+                height += 1;
             }
 
             for (var y = pos.y + 1; y < sizeY; y++) {
                 var newTile = elementTiles[y][pos.x];
-                if (newTile.Type != ElementTileType.Station || newTile.Rotation != 0) {
+                if (newTile.Type != ElementTileType.Station || newTile.Rotation != 1) {
                     break;
                 }
 
-                maxStationY = y;
+                height += 1;
             }
         }
         else {
             Debug.LogError("WTF?");
         }
 
-        return new() {
-            xMin = minStationX,
-            yMin = minStationY,
-            xMax = maxStationX,
-            yMax = maxStationY,
-        };
+        return new(leftX, bottomY, width, height);
     }
 
-    public void PickRandomItemForTheTrain(HorseTrain train) {
-        TrainNode node1 = null;
-        foreach (var node in train.nodes) {
+    public void PickRandomItemForTheTrain(HorseTrain horse) {
+        TrainNode foundNode = null;
+        foreach (var node in horse.nodes) {
             if (node.canStoreResourceCount > node.storedResources.Count) {
-                node1 = node;
+                foundNode = node;
                 break;
             }
         }
 
-        if (node1 == null) {
+        if (foundNode == null) {
             Debug.LogError("WTF?");
             return;
         }
 
-        if (train.CurrentDestination.HasValue == false) {
+        if (horse.CurrentDestination.HasValue == false) {
             Debug.LogError("WTF?");
             return;
         }
 
-        var pos = train.CurrentDestination.Value.Pos;
+        var pos = horse.CurrentDestination.Value.Pos;
         var dimensions = GetStationDimensions(pos);
         var expandedDimensions = ExpandStationDimensions(dimensions);
 
         var shuffledBuildings = buildings.ToArray();
         Utils.Shuffle(shuffledBuildings, _random);
 
-        Building building1 = null;
-        ScriptableResource res = null;
-        var resIndex = -1;
+        Building foundBuilding = null;
+        ScriptableResource foundResource = null;
+        var foundResourceIndex = -1;
         foreach (var building in shuffledBuildings) {
-            if (!BetterContains(expandedDimensions, building.position)) {
+            if (building.scriptableBuilding.type != BuildingType.Store) {
                 continue;
             }
 
-            if (building.storedResources.Count > 0) {
-                resIndex = building.storedResources.Count - 1;
-                building1 = building;
-                res = building.storedResources[resIndex].Item1;
-                building.storedResources.RemoveAt(resIndex);
-                break;
+            if (!Intersect(expandedDimensions, building.rect)) {
+                continue;
             }
+
+            if (building.storedResources.Count == 0) {
+                continue;
+            }
+
+            foundResourceIndex = building.storedResources.Count - 1;
+            foundBuilding = building;
+            foundResource = building.storedResources[foundResourceIndex].Item1;
+            building.storedResources.RemoveAt(foundResourceIndex);
+            break;
         }
 
-        node1.storedResources.Add(new(res, 1));
-
-        if (res == null) {
+        if (foundResource == null) {
             Debug.LogError("WTF?");
             return;
         }
 
+        foundNode.storedResources.Add(new(foundResource, 1));
+
         OnTrainPickedUpResource.OnNext(new() {
-            Train = train,
-            TrainNode = node1,
+            Train = horse,
+            TrainNode = foundNode,
             PickedUpAmount = 1,
-            Building = building1,
-            Resource = res,
-            ResourceIndex = resIndex,
+            Building = foundBuilding,
+            Resource = foundResource,
+            ResourceIndex = foundResourceIndex,
         });
     }
 
     public bool AreThereAvailableSlotsTheTrainCanPassResourcesTo(HorseTrain horse) {
+        if (horse.CurrentDestination.HasValue == false) {
+            Debug.LogError("WTF?");
+            return false;
+        }
+
+        var pos = horse.CurrentDestination.Value.Pos;
+        var dimensions = GetStationDimensions(pos);
+        var expandedDimensions = ExpandStationDimensions(dimensions);
+
+        foreach (var building in buildings) {
+            if (building.scriptableBuilding.type != BuildingType.Produce) {
+                continue;
+            }
+
+            if (!Intersect(expandedDimensions, building.rect)) {
+                continue;
+            }
+
+            if (building.CanStoreResource()) {
+                return true;
+            }
+        }
+
         return false;
     }
 
     public void PickRandomSlotForTheTrainToPassItemTo(HorseTrain horse) {
+        if (horse.CurrentDestination.HasValue == false) {
+            Debug.LogError("WTF?");
+            return;
+        }
+
+        var pos = horse.CurrentDestination.Value.Pos;
+        var dimensions = GetStationDimensions(pos);
+        var expandedDimensions = ExpandStationDimensions(dimensions);
+
+        var shuffledBuildings = buildings.ToArray();
+        Utils.Shuffle(shuffledBuildings, _random);
+
+        Building foundBuilding = null;
+        foreach (var building in buildings) {
+            if (building.scriptableBuilding.type != BuildingType.Produce) {
+                continue;
+            }
+
+            if (!Intersect(expandedDimensions, building.rect)) {
+                continue;
+            }
+
+            if (building.CanStoreResource()) {
+                foundBuilding = building;
+                break;
+            }
+        }
+
+        if (foundBuilding == null) {
+            Debug.LogError("WTF?");
+            return;
+        }
+
+        TrainNode foundNode = null;
+        foreach (var node in horse.nodes) {
+            if (node.storedResources.Count > 0) {
+                foundNode = node;
+                break;
+            }
+        }
+
+        if (foundNode == null) {
+            Debug.LogError("WTF?");
+            return;
+        }
+
+        var foundResourceIndex = foundNode.storedResources.Count - 1;
+        var foundResource = foundNode.storedResources[foundResourceIndex];
+        var res = foundBuilding.StoreResource(foundResource.Item1, foundResource.Item2);
+        foundNode.storedResources.RemoveAt(foundResourceIndex);
+
+        OnTrainPushedResource.OnNext(new() {
+            Train = horse,
+            TrainNode = foundNode,
+            PickedUpAmount = 1,
+            Building = foundBuilding,
+            Resource = foundResource.Item1,
+            ResourceIndex = foundResourceIndex,
+            StoreResourceResult = res,
+        });
     }
 
     #endregion
-}
-
-internal record StationDimensions {
-    public int MaxX;
-    public int MaxY;
-    public int MinX;
-    public int MinY;
 }
 }

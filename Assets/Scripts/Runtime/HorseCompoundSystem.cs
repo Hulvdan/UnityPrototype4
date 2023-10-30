@@ -199,7 +199,10 @@ public class HorseCompoundSystem : MonoBehaviour {
                 if (horse.TrainLoadingUnloadingElapsed >= _trainItemUnloadingDuration) {
                     horse.TrainLoadingUnloadingElapsed -= _trainItemUnloadingDuration;
 
-                    if (_map.AreThereAvailableSlotsTheTrainCanPassResourcesTo(horse)) {
+                    if (
+                        horse.IsThereANodeThatCanUnloadItem()
+                        && _map.AreThereAvailableSlotsTheTrainCanPassResourcesTo(horse)
+                    ) {
                         _map.PickRandomSlotForTheTrainToPassItemTo(horse);
                     }
                     else {

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Random = System.Random;
 
 namespace BFG.Runtime {
 public static class Utils {
