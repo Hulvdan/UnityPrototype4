@@ -111,5 +111,15 @@ public class HorseTrain {
             node.SegmentIndex -= 1;
         }
     }
+
+    public bool IsThereANodeThatCanUnloadItem() {
+        foreach (var node in nodes) {
+            if (node.storedResources.Count > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
 }

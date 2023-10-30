@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -22,12 +23,12 @@ public class ScriptableBuilding : ScriptableObject {
     int _tilesRadius;
 
     [SerializeField]
-    [ShowIf("_type", BuildingType.Store)]
+    [ShowIf("@_type == BuildingType.Store || _type == BuildingType.Produce")]
     [Min(1)]
     int _storeItemsAmount = 1;
 
     [SerializeField]
-    [ShowIf("_type", BuildingType.Store)]
+    [ShowIf("@_type == BuildingType.Store || _type == BuildingType.Produce")]
     List<Vector2> _storedItemPositions = new();
 
     [SerializeField]
@@ -40,6 +41,15 @@ public class ScriptableBuilding : ScriptableObject {
     ScriptableResource _produces;
 
     [SerializeField]
+    [ShowIf("_type", BuildingType.Produce)]
+    [Min(1)]
+    int _produceItemsAmount = 1;
+
+    [SerializeField]
+    [ShowIf("_type", BuildingType.Produce)]
+    List<Vector2> _producedItemsPositions = new();
+
+    [SerializeField]
     [PreviewField]
     TileBase _tile;
 
@@ -48,9 +58,39 @@ public class ScriptableBuilding : ScriptableObject {
     Vector2Int _size = Vector2Int.one;
 
     public BuildingType type => _type;
-    public ScriptableResource harvestableResource => _harvestableResource;
+
+    public ScriptableResource harvestableResource {
+        get {
+            if (_type != BuildingType.Harvest) {
+                Debug.LogError("WTF?");
+            }
+
+            return _harvestableResource;
+        }
+    }
+
     public int tilesRadius => _tilesRadius;
-    public int storeItemsAmount => _storeItemsAmount;
+
+    public int storeItemsAmount {
+        get {
+            if (_type != BuildingType.Produce && _type != BuildingType.Store) {
+                Debug.LogError("WTF?");
+            }
+
+            return _storeItemsAmount;
+        }
+    }
+
+    public int produceItemsAmount {
+        get {
+            if (_type != BuildingType.Produce) {
+                Debug.LogError("WTF?");
+            }
+
+            return _produceItemsAmount;
+        }
+    }
+
     public List<Vector2> storedItemPositions => _storedItemPositions;
     public List<ScriptableResource> takes => _takes;
     public ScriptableResource produces => _produces;

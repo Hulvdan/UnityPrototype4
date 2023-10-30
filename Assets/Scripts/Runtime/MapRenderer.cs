@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -115,9 +116,6 @@ public class MapRenderer : MonoBehaviour {
     Matrix4x4 _previewMatrix;
 
     Tilemap _resourceTilemap;
-    // Dictionary<Building, List<>>
-    //     Map
-    // <Building> _items;
 
     void Awake() {
         _camera = Camera.main;
@@ -205,6 +203,7 @@ public class MapRenderer : MonoBehaviour {
         _dependencyHooks.Add(_map.OnTrainCreated.Subscribe(OnTrainCreated));
         _dependencyHooks.Add(_map.OnTrainNodeCreated.Subscribe(OnTrainNodeCreated));
         _dependencyHooks.Add(_map.OnTrainPickedUpResource.Subscribe(OnTrainPickedUpResource));
+        _dependencyHooks.Add(_map.OnTrainPushedResource.Subscribe(OnTrainPushedResource));
     }
 
     void OnSelectedItemChanged(SelectedItem item) {
@@ -461,7 +460,7 @@ public class MapRenderer : MonoBehaviour {
         _trainNodes.Add(data.Node.ID, new(data.Node, trainNodeGo));
     }
 
-    void OnTrainPickedUpResource(TrainNodePickedUpResourceData data) {
+    void OnTrainPickedUpResource(TrainPickedUpResourceData data) {
         var key = new Tuple<Guid, int>(data.Building.ID, data.ResourceIndex);
         Destroy(_storedItems[key].gameObject);
         _storedItems.Remove(key);
@@ -469,6 +468,35 @@ public class MapRenderer : MonoBehaviour {
         _trainNodes[data.TrainNode.ID].Item2.OnPickedUpResource(
             data.Resource, data.Building.position
         );
+    }
+
+    void OnTrainPushedResource(TrainPushedResourceData data) {
+        _trainNodes[data.TrainNode.ID].Item2.OnPushedResource();
+
+        var item = Instantiate(_itemPrefab, _itemsLayer);
+
+        var building = data.Building;
+        var scriptable = building.scriptableBuilding;
+
+        var i = (building.storedResources.Count - 1) % scriptable.storedItemPositions.Count;
+        var itemOffset = scriptable.storedItemPositions[i];
+
+        item.transform.localPosition = data.TrainNode.CalculatedPosition;
+        var itemGo = item.GetComponent<ItemGO>();
+        itemGo.SetAs(data.Resource);
+
+        DOTween.To(
+            () => item.transform.localPosition,
+            val => item.transform.localPosition = val,
+            (Vector3)(building.position + itemOffset + Vector2.right / 2),
+            1f
+        );
+
+        var resIdx = data.Building.storedResources.Count - 1;
+        _storedItems.Add(new(data.Building.ID, resIdx), itemGo);
+        // var key = new Tuple<Guid, int>(data.Building.ID, data.ResourceIndex);
+        // Destroy(_storedItems[key].gameObject);
+        // _storedItems.Remove(key);
     }
 
     void UpdateTrains() {

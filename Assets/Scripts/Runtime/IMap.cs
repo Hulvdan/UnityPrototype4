@@ -17,7 +17,8 @@ public interface IMap {
 
     Subject<TrainCreatedData> OnTrainCreated { get; }
     Subject<TrainNodeCreatedData> OnTrainNodeCreated { get; }
-    Subject<TrainNodePickedUpResourceData> OnTrainPickedUpResource { get; }
+    Subject<TrainPickedUpResourceData> OnTrainPickedUpResource { get; }
+    Subject<TrainPushedResourceData> OnTrainPushedResource { get; }
 
     Subject<TopBarResourceChangedData> OnResourceChanged { get; }
 
