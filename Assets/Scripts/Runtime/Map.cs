@@ -177,7 +177,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         foreach (var building in buildings) {
-            if (building.position.x == x && building.position.y == y) {
+            if (building.Contains(x, y)) {
                 return false;
             }
         }

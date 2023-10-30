@@ -23,6 +23,7 @@ public class Building {
     int _posY;
 
     [SerializeField]
+    [ReadOnly]
     bool _isBooked;
 
     [SerializeField]
@@ -49,5 +50,16 @@ public class Building {
     }
 
     public List<Tuple<ScriptableResource, int>> storedResources => _storedResources;
+
+    public bool Contains(Vector2Int pos) {
+        return Contains(pos.x, pos.y);
+    }
+
+    public bool Contains(int x, int y) {
+        return position.x <= x
+               && x <= position.x + scriptableBuilding.size.x
+               && position.y <= y
+               && y <= position.y + scriptableBuilding.size.y;
+    }
 }
 }
