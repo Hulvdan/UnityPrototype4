@@ -24,6 +24,6 @@ public class TrainNode {
 
     public int canStoreResourceCount { get; }
 
-    public List<Tuple<ScriptableResource, int>> storedResources { get; } = new();
+    public List<ResourceObj> storedResources { get; } = new();
 }
 }

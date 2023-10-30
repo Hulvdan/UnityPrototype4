@@ -205,6 +205,21 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         foreach (var building in buildings) {
             var scriptableBuilding = building.scriptableBuilding;
             if (scriptableBuilding.type == BuildingType.Produce) {
+                if (!building.IsProcessing) {
+                    if (building.storedResources.Count > 0) {
+                        building.IsProcessing = true;
+                        building.ProcessingElapsed = 0;
+
+                        var res = building.storedResources[0];
+                        building.storedResources.RemoveAt(0);
+
+                        OnBuildingStartedProcessing.OnNext(new() {
+                            Resource = res,
+                            Building = building,
+                        });
+                    }
+                }
+
                 if (building.IsProcessing) {
                     building.ProcessingElapsed += Time.deltaTime;
 
@@ -220,10 +235,12 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     void Produce(Building building) {
         Debug.Log("Produced!");
         var res = building.scriptableBuilding.produces;
-        building.producedResources.Add(new(res, 1));
+        building.storedResources.RemoveAt(0);
+        var resourceObj = new ResourceObj(Guid.NewGuid(), res);
+        building.producedResources.Add(resourceObj);
 
         OnBuildingProducedItem.OnNext(new() {
-            Resource = res,
+            Resource = resourceObj,
             ProducedAmount = 1,
             Building = building,
         });
@@ -315,7 +332,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public Subject<TrainPickedUpResourceData> OnTrainPickedUpResource { get; } = new();
     public Subject<TrainPushedResourceData> OnTrainPushedResource { get; } = new();
+
+    public Subject<BuildingStartedProcessingData> OnBuildingStartedProcessing { get; } = new();
     public Subject<BuildingProducedItemData> OnBuildingProducedItem { get; } = new();
+
     public Subject<TopBarResourceChangedData> OnResourceChanged { get; } = new();
 
     #endregion
@@ -513,14 +533,15 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var tile = terrainTiles[pos.y][pos.x];
         tile.ResourceAmount -= 1;
 
+        var res = human.harvestBuilding.scriptableBuilding.harvestableResource;
         OnHumanPickedUpResource.OnNext(
-            new(
-                human,
-                human.harvestBuilding.scriptableBuilding.harvestableResource,
-                pos,
-                1,
-                tile.ResourceAmount / (float)_maxForestAmount
-            )
+            new() {
+                Human = human,
+                Resource = new(Guid.NewGuid(), res),
+                ResourceTilePosition = pos,
+                PickedUpAmount = 1,
+                RemainingAmountPercent = tile.ResourceAmount / (float)_maxForestAmount,
+            }
         );
 
         if (tile.ResourceAmount <= 0) {
@@ -533,18 +554,17 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void PlaceResource(Human human) {
-        var tuple = new Tuple<ScriptableResource, int>(
-            human.harvestBuilding.scriptableBuilding.harvestableResource, 1
-        );
-        human.storeBuilding.storedResources.Add(tuple);
+        var scriptableResource = human.harvestBuilding.scriptableBuilding.harvestableResource;
+        var resource = new ResourceObj(Guid.NewGuid(), scriptableResource);
+        human.storeBuilding.storedResources.Add(resource);
 
         OnHumanPlacedResource.OnNext(
-            new(
-                1,
-                human,
-                human.storeBuilding,
-                human.harvestBuilding.scriptableBuilding.harvestableResource
-            )
+            new() {
+                Amount = 1,
+                Human = human,
+                StoreBuilding = human.storeBuilding,
+                Resource = resource,
+            }
         );
     }
 
@@ -793,7 +813,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         Utils.Shuffle(shuffledBuildings, _random);
 
         Building foundBuilding = null;
-        ScriptableResource foundResource = null;
+        ResourceObj foundResource = null;
         var foundResourceIndex = -1;
         foreach (var building in shuffledBuildings) {
             if (building.scriptableBuilding.type != BuildingType.Store) {
@@ -810,7 +830,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
             foundResourceIndex = building.storedResources.Count - 1;
             foundBuilding = building;
-            foundResource = building.storedResources[foundResourceIndex].Item1;
+            foundResource = building.storedResources[foundResourceIndex];
             building.storedResources.RemoveAt(foundResourceIndex);
             break;
         }
@@ -820,7 +840,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             return;
         }
 
-        foundNode.storedResources.Add(new(foundResource, 1));
+        foundNode.storedResources.Add(foundResource);
 
         OnTrainPickedUpResource.OnNext(new() {
             Train = horse,
@@ -828,7 +848,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             PickedUpAmount = 1,
             Building = foundBuilding,
             Resource = foundResource,
-            ResourceIndex = foundResourceIndex,
         });
     }
 
@@ -908,7 +927,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         var foundResourceIndex = foundNode.storedResources.Count - 1;
         var foundResource = foundNode.storedResources[foundResourceIndex];
-        var res = foundBuilding.StoreResource(foundResource.Item1, foundResource.Item2);
+        var res = foundBuilding.StoreResource(foundResource);
         foundNode.storedResources.RemoveAt(foundResourceIndex);
 
         OnTrainPushedResource.OnNext(new() {
@@ -916,8 +935,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             TrainNode = foundNode,
             PickedUpAmount = 1,
             Building = foundBuilding,
-            Resource = foundResource.Item1,
-            ResourceIndex = foundResourceIndex,
+            Resource = foundResource,
             StoreResourceResult = res,
         });
     }

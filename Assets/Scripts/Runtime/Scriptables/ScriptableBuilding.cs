@@ -95,6 +95,8 @@ public class ScriptableBuilding : ScriptableObject {
     }
 
     public List<Vector2> storedItemPositions => _storedItemPositions;
+    public List<Vector2> producedItemsPositions => _producedItemsPositions;
+
     public List<ScriptableResource> takes => _takes;
     public ScriptableResource produces => _produces;
     public float ItemProcessingDuration => _itemProcessingDuration;

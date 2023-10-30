@@ -26,14 +26,14 @@ public class Building {
     [ReadOnly]
     bool _isBooked;
 
-    [SerializeField]
-    List<Tuple<ScriptableResource, int>> _storedResources = new();
-
-    [SerializeField]
-    List<Tuple<ScriptableResource, int>> _producedResources = new();
-
     public float ProcessingElapsed;
     public bool IsProcessing;
+
+    [SerializeField]
+    List<ResourceObj> _producedResources = new();
+
+    [SerializeField]
+    List<ResourceObj> _storedResources = new();
 
     public ScriptableBuilding scriptableBuilding => _scriptableBuilding;
     public int posX => _posX;
@@ -55,7 +55,7 @@ public class Building {
         set => _isBooked = value;
     }
 
-    public List<Tuple<ScriptableResource, int>> storedResources {
+    public List<ResourceObj> storedResources {
         get {
             if (
                 scriptableBuilding.type != BuildingType.Store
@@ -68,7 +68,7 @@ public class Building {
         }
     }
 
-    public List<Tuple<ScriptableResource, int>> producedResources {
+    public List<ResourceObj> producedResources {
         get {
             if (scriptableBuilding.type != BuildingType.Produce) {
                 Debug.LogError("WTF?");
@@ -95,7 +95,7 @@ public class Building {
         return storedResources.Count < scriptableBuilding.storeItemsAmount;
     }
 
-    public StoreResourceResult StoreResource(ScriptableResource foundResource, int count) {
+    public StoreResourceResult StoreResource(ResourceObj resource) {
         if (
             scriptableBuilding.type != BuildingType.Produce
             && scriptableBuilding.type != BuildingType.Store
@@ -103,7 +103,7 @@ public class Building {
             Debug.LogError("WTF?");
         }
 
-        storedResources.Add(new(foundResource, count));
+        storedResources.Add(resource);
 
         if (CanBeProcessed()) {
             IsProcessing = true;

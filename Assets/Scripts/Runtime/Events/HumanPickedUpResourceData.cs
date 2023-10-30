@@ -7,21 +7,7 @@ public class HumanPickedUpResourceData {
     public int PickedUpAmount;
     public float RemainingAmountPercent;
 
-    public ScriptableResource Resource;
+    public ResourceObj Resource;
     public Vector2Int ResourceTilePosition;
-
-    public HumanPickedUpResourceData(
-        Human human,
-        ScriptableResource resource,
-        Vector2Int resourceTilePosition,
-        int pickedUpAmount,
-        float remainingAmountPercent
-    ) {
-        Human = human;
-        Resource = resource;
-        PickedUpAmount = pickedUpAmount;
-        ResourceTilePosition = resourceTilePosition;
-        RemainingAmountPercent = remainingAmountPercent;
-    }
 }
 }
