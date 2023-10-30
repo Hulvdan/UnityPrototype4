@@ -213,26 +213,26 @@ public class MapRenderer : MonoBehaviour {
 
         _dependencyHooks.Clear();
         _dependencyHooks.Add(_gameManager.OnSelectedItemChanged.Subscribe(OnSelectedItemChanged));
-        _dependencyHooks.Add(_map.OnElementTileChanged.Subscribe(OnElementTileChanged));
+        _dependencyHooks.Add(_map.onElementTileChanged.Subscribe(OnElementTileChanged));
 
-        _dependencyHooks.Add(_map.OnHumanCreated.Subscribe(OnHumanCreated));
-        _dependencyHooks.Add(_map.OnHumanPickedUpResource.Subscribe(OnHumanPickedUpResource));
-        _dependencyHooks.Add(_map.OnHumanPlacedResource.Subscribe(OnHumanPlacedResource));
+        _dependencyHooks.Add(_map.onHumanCreated.Subscribe(OnHumanCreated));
+        _dependencyHooks.Add(_map.onHumanPickedUpResource.Subscribe(OnHumanPickedUpResource));
+        _dependencyHooks.Add(_map.onHumanPlacedResource.Subscribe(OnHumanPlacedResource));
 
-        _dependencyHooks.Add(_map.OnTrainCreated.Subscribe(OnTrainCreated));
-        _dependencyHooks.Add(_map.OnTrainNodeCreated.Subscribe(OnTrainNodeCreated));
-        _dependencyHooks.Add(_map.OnTrainPickedUpResource.Subscribe(OnTrainPickedUpResource));
-        _dependencyHooks.Add(_map.OnTrainPushedResource.Subscribe(OnTrainPushedResource));
+        _dependencyHooks.Add(_map.onTrainCreated.Subscribe(OnTrainCreated));
+        _dependencyHooks.Add(_map.onTrainNodeCreated.Subscribe(OnTrainNodeCreated));
+        _dependencyHooks.Add(_map.onTrainPickedUpResource.Subscribe(OnTrainPickedUpResource));
+        _dependencyHooks.Add(_map.onTrainPushedResource.Subscribe(OnTrainPushedResource));
 
         _dependencyHooks.Add(
-            _map.OnBuildingStartedProcessing.Subscribe(OnBuildingStartedProcessing));
-        _dependencyHooks.Add(_map.OnBuildingProducedItem.Subscribe(OnBuildingProducedItem));
+            _map.onBuildingStartedProcessing.Subscribe(OnBuildingStartedProcessing));
+        _dependencyHooks.Add(_map.onBuildingProducedItem.Subscribe(OnBuildingProducedItem));
     }
 
-    void OnBuildingStartedProcessing(BuildingStartedProcessingData data) {
+    void OnBuildingStartedProcessing(E_BuildingStartedProcessing data) {
     }
 
-    void OnBuildingProducedItem(BuildingProducedItemData data) {
+    void OnBuildingProducedItem(E_BuildingProducedItem data) {
         var item = Instantiate(_itemPrefab, _itemsLayer);
 
         var building = data.Building;
@@ -448,12 +448,12 @@ public class MapRenderer : MonoBehaviour {
 
     #region HumanSystem
 
-    void OnHumanCreated(HumanCreatedData data) {
+    void OnHumanCreated(E_HumanCreated data) {
         var go = Instantiate(_humanPrefab, _grid.transform);
         _humans.Add(data.Human.ID, Tuple.Create(data.Human, go.GetComponent<HumanGO>()));
     }
 
-    void OnHumanPickedUpResource(HumanPickedUpResourceData data) {
+    void OnHumanPickedUpResource(E_HumanPickedUpResource data) {
         UpdateTileBasedOnRemainingResourcePercent(
             data.ResourceTilePosition,
             data.RemainingAmountPercent
@@ -462,7 +462,7 @@ public class MapRenderer : MonoBehaviour {
         _humans[data.Human.ID].Item2.OnPickedUpResource(data.Resource.script);
     }
 
-    void OnHumanPlacedResource(HumanPlacedResourceData data) {
+    void OnHumanPlacedResource(E_HumanPlacedResource data) {
         _humans[data.Human.ID].Item2.OnPlacedResource();
 
         var item = Instantiate(_itemPrefab, _itemsLayer);
@@ -498,16 +498,16 @@ public class MapRenderer : MonoBehaviour {
 
     #region TrainSystem
 
-    void OnTrainCreated(TrainCreatedData data) {
+    void OnTrainCreated(E_TrainCreated data) {
     }
 
-    void OnTrainNodeCreated(TrainNodeCreatedData data) {
+    void OnTrainNodeCreated(E_TrainNodeCreated data) {
         var go = Instantiate(data.IsLocomotive ? _locomotivePrefab : _wagonPrefab, _grid.transform);
         var trainNodeGo = go.GetComponent<TrainNodeGO>();
         _trainNodes.Add(data.Node.ID, new(data.Node, trainNodeGo));
     }
 
-    void OnTrainPickedUpResource(TrainPickedUpResourceData data) {
+    void OnTrainPickedUpResource(E_TrainPickedUpResource data) {
         var resID = data.Resource.id;
         Destroy(_storedItems[resID].gameObject);
         _storedItems.Remove(resID);
@@ -517,7 +517,7 @@ public class MapRenderer : MonoBehaviour {
         );
     }
 
-    void OnTrainPushedResource(TrainPushedResourceData data) {
+    void OnTrainPushedResource(E_TrainPushedResource data) {
         _trainNodes[data.TrainNode.ID].Item2.OnPushedResource();
 
         var item = Instantiate(_itemPrefab, _itemsLayer);

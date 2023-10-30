@@ -1,5 +1,5 @@
 ﻿namespace BFG.Runtime {
-public class TrainPickedUpResourceData {
+public class E_TrainPickedUpResource {
     public Building Building;
 
     public int PickedUpAmount;

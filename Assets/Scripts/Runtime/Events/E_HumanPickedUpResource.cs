@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace BFG.Runtime {
-public class HumanPickedUpResourceData {
+public class E_HumanPickedUpResource {
     public Human Human;
 
     public int PickedUpAmount;

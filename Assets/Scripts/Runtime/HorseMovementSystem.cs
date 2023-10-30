@@ -6,7 +6,7 @@ using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
 public class HorseMovementSystem {
-    public readonly Subject<OnReachedDestinationData> OnReachedDestination = new();
+    public readonly Subject<E_TrainReachedDestination> OnReachedDestination = new();
 
     List<List<MovementGraphTile>> _graph;
     IMapSize _mapSize;

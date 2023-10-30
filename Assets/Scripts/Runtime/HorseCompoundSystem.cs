@@ -85,7 +85,7 @@ public class HorseCompoundSystem : MonoBehaviour {
 
     HorseTrain CreateTrain() {
         var horse = new HorseTrain(_horseSpeed, Direction.Right);
-        _map.OnTrainCreated.OnNext(new() { Horse = horse });
+        _map.onTrainCreated.OnNext(new() { Horse = horse });
 
         horse.AddSegmentVertex(_pointA);
         horse.AddSegmentVertex(_pointA);
@@ -99,7 +99,7 @@ public class HorseCompoundSystem : MonoBehaviour {
 
         var isLocomotive = true;
         foreach (var node in horse.nodes) {
-            _map.OnTrainNodeCreated.OnNext(new() {
+            _map.onTrainNodeCreated.OnNext(new() {
                 Horse = horse, Node = node, IsLocomotive = isLocomotive,
             });
 
@@ -112,7 +112,7 @@ public class HorseCompoundSystem : MonoBehaviour {
     public void Init(IMap map, IMapSize mapSize) {
         _mapSize = mapSize;
         _map = map;
-        _map.OnElementTileChanged.Subscribe(OnElementTileChanged);
+        _map.onElementTileChanged.Subscribe(OnElementTileChanged);
 
         _horse = CreateTrain();
 
@@ -135,7 +135,7 @@ public class HorseCompoundSystem : MonoBehaviour {
         _horse.State = TrainState.Moving;
     }
 
-    void OnHorseReachedDestination(OnReachedDestinationData data) {
+    void OnHorseReachedDestination(E_TrainReachedDestination data) {
         switch (data.destination.Type) {
             case HorseDestinationType.Load:
                 data.train.State = TrainState.Loading;

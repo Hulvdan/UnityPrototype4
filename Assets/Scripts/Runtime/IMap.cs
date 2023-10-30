@@ -8,22 +8,22 @@ public interface IMap {
     List<List<ElementTile>> elementTiles { get; }
     List<List<TerrainTile>> terrainTiles { get; }
 
-    Subject<Vector2Int> OnElementTileChanged { get; }
+    Subject<Vector2Int> onElementTileChanged { get; }
 
-    Subject<HumanCreatedData> OnHumanCreated { get; }
-    Subject<HumanStateChangedData> OnHumanStateChanged { get; }
-    Subject<HumanPickedUpResourceData> OnHumanPickedUpResource { get; }
-    Subject<HumanPlacedResourceData> OnHumanPlacedResource { get; }
+    Subject<E_HumanCreated> onHumanCreated { get; }
+    Subject<E_HumanStateChanged> onHumanStateChanged { get; }
+    Subject<E_HumanPickedUpResource> onHumanPickedUpResource { get; }
+    Subject<E_HumanPlacedResource> onHumanPlacedResource { get; }
 
-    Subject<TrainCreatedData> OnTrainCreated { get; }
-    Subject<TrainNodeCreatedData> OnTrainNodeCreated { get; }
-    Subject<TrainPickedUpResourceData> OnTrainPickedUpResource { get; }
-    Subject<TrainPushedResourceData> OnTrainPushedResource { get; }
+    Subject<E_TrainCreated> onTrainCreated { get; }
+    Subject<E_TrainNodeCreated> onTrainNodeCreated { get; }
+    Subject<E_TrainPickedUpResource> onTrainPickedUpResource { get; }
+    Subject<E_TrainPushedResource> onTrainPushedResource { get; }
 
-    Subject<BuildingStartedProcessingData> OnBuildingStartedProcessing { get; }
-    Subject<BuildingProducedItemData> OnBuildingProducedItem { get; }
+    Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; }
+    Subject<E_BuildingProducedItem> onBuildingProducedItem { get; }
 
-    Subject<TopBarResourceChangedData> OnResourceChanged { get; }
+    Subject<E_TopBarResourceChanged> onResourceChanged { get; }
 
     void TryBuild(Vector2Int hoveredTile, SelectedItem gameManagerSelectedItem);
 

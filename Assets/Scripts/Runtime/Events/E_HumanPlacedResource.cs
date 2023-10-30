@@ -1,5 +1,5 @@
 ﻿namespace BFG.Runtime {
-public class HumanPlacedResourceData {
+public class E_HumanPlacedResource {
     public int Amount;
     public Human Human;
     public ResourceObj Resource;
