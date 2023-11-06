@@ -8640,7 +8640,7 @@ MonoBehaviour:
   _locomotivePrefab: {fileID: 389402034253815562, guid: 2006355f835e5694d996ac703fecf2ae, type: 3}
   _wagonPrefab: {fileID: 6852838267408035928, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
   _debugTileUnbuildable: {fileID: 11400000, guid: b5678ba17b4646b44a07e1b6fdf32816, type: 2}
-  _buildingMovingItemToTheWarehouseDuration: 1
+  _buildingMovingItemToTheWarehouseDuration: 0.3
   _buildingMovingItemToTheWarehouseDurationCurve:
     serializedVersion: 2
     m_Curve:
@@ -8648,7 +8648,7 @@ MonoBehaviour:
       time: 0
       value: 0
       inSlope: 0
-      outSlope: 1
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
@@ -8656,7 +8656,7 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 1
+      inSlope: 0
       outSlope: 0
       tangentMode: 0
       weightedMode: 0
