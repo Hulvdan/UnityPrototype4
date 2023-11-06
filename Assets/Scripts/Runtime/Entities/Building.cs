@@ -108,6 +108,7 @@ public class Building {
         if (CanStartProcessing()) {
             IsProcessing = true;
             ProcessingElapsed = 0;
+            storedResources.RemoveAt(0);
             return StoreResourceResult.AddedToProcessingImmediately;
         }
 

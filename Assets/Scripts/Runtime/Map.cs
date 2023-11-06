@@ -292,7 +292,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     void Produce(Building building) {
         Debug.Log("Produced!");
         var res = building.scriptableBuilding.produces;
-        building.storedResources.RemoveAt(0);
         var resourceObj = new ResourceObj(Guid.NewGuid(), res);
         building.producedResources.Add(resourceObj);
 
