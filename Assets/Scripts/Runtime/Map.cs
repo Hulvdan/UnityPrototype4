@@ -190,6 +190,26 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         return IsBuildable(pos.x, pos.y);
     }
 
+    public bool CellContainsPickupableItems(Vector2Int hoveredTile) {
+        foreach (var building in buildings) {
+            if (
+                building.scriptableBuilding.type != BuildingType.Produce
+                || building.producedResources.Count <= 0
+                || !building.Contains(hoveredTile)
+            ) {
+                continue;
+            }
+
+            var itemsPos = building.position +
+                           building.scriptableBuilding.pickupableItemsCellOffset;
+            if (hoveredTile == itemsPos) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public int sizeY => _mapSizeY;
     public int sizeX => _mapSizeX;
 

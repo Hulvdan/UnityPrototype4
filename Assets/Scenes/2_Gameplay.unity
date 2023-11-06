@@ -274,6 +274,7 @@ MonoBehaviour:
   _mapRenderer: {fileID: 1879392621}
   _buildablesPanel: {fileID: 1600136909}
   _uiManager: {fileID: 1458577632}
+  _cursorController: {fileID: 1937440201}
   _inputActionAsset: {fileID: -944628639613478452, guid: 304fc82518949fc4abc5fceb1a7ffe52, type: 3}
 --- !u!1001 &237059753
 PrefabInstance:
@@ -1420,7 +1421,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5.2734375
+  orthographic size: 6.421875
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -8609,11 +8610,61 @@ MonoBehaviour:
   _logResource: {fileID: 11400000, guid: 361152873045e084892d56e677d6d740, type: 2}
   _itemsLayer: {fileID: 2040351865}
   _itemPrefab: {fileID: 8175125910645311947, guid: bcf84f38c6b6e414db8990ba390ed555, type: 3}
+  _itemPlacingDuration: 1
+  _itemPlacingCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   _inputActionAsset: {fileID: -944628639613478452, guid: 304fc82518949fc4abc5fceb1a7ffe52, type: 3}
   _debugTilemap: {fileID: 869664077}
   _locomotivePrefab: {fileID: 389402034253815562, guid: 2006355f835e5694d996ac703fecf2ae, type: 3}
   _wagonPrefab: {fileID: 6852838267408035928, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
   _debugTileUnbuildable: {fileID: 11400000, guid: b5678ba17b4646b44a07e1b6fdf32816, type: 2}
+  _buildingMovingItemToTheWarehouseDuration: 1
+  _buildingMovingItemToTheWarehouseDurationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!224 &1911864412 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 9141696638949257931, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
@@ -9053,6 +9104,58 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1 &1937440199
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1937440200}
+  - component: {fileID: 1937440201}
+  m_Layer: 0
+  m_Name: CursorController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1937440200
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1937440199}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2080007875}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1937440201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1937440199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c73d654e6f6542eba0e6aea257c23a22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _mapRenderer: {fileID: 1879392621}
+  _cursors:
+  - texture: {fileID: 2800000, guid: dda6f9a52bb031c4a84576a314590376, type: 3}
+    type: 0
+    hotspot: {x: 0, y: 0}
+  - texture: {fileID: 2800000, guid: f15fc0b42570dd04484c8ea125f77120, type: 3}
+    type: 1
+    hotspot: {x: 5, y: 0}
 --- !u!114 &1957836270 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1962483450866880944, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
@@ -9364,6 +9467,7 @@ Transform:
   m_Children:
   - {fileID: 1102392342}
   - {fileID: 203342529}
+  - {fileID: 1937440200}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &2103245468 stripped

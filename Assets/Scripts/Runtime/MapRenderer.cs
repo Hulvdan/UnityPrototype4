@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reactive.Subjects;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -8,6 +9,11 @@ using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 namespace BFG.Runtime {
+public enum PickupableItemHoveringState {
+    StartedHovering,
+    FinishedHovering,
+}
+
 public class MapRenderer : MonoBehaviour {
     const string TerrainTilemapNameTemplate = "Gen-Terrain";
     const string BuildingsTilemapNameTemplate = "Gen-Buildings";
@@ -136,6 +142,10 @@ public class MapRenderer : MonoBehaviour {
 
     Tilemap _resourceTilemap;
 
+    bool _wasHoveringOverItemsPreviously;
+
+    public Subject<PickupableItemHoveringState> OnPickupableItemHoveringChanged { get; } = new();
+
     void Awake() {
         _camera = Camera.main;
 
@@ -149,17 +159,18 @@ public class MapRenderer : MonoBehaviour {
         UpdateTrains();
         DisplayPreviewTile();
 
+        var hoveredTile = GetHoveredTile();
+
         // TODO: Move inputs to GameManager
         if (_mouseBuildAction.WasPressedThisFrame()) {
-            var hoveredTile = GetHoveredTile();
-            if (!_mapSize.Contains(hoveredTile)) {
-                return;
+            if (_mapSize.Contains(hoveredTile)) {
+                _map.TryBuild(hoveredTile, _gameManager.selectedItem);
             }
-
-            _map.TryBuild(hoveredTile, _gameManager.selectedItem);
         }
         // else if (_mouseBuildAction.WasReleasedThisFrame()) {
         // }
+
+        UpdateHoveringOverItems(hoveredTile);
     }
 
     void OnEnable() {
@@ -199,6 +210,33 @@ public class MapRenderer : MonoBehaviour {
             }
 
             Gizmos.DrawLineList(points);
+        }
+    }
+
+    void UpdateHoveringOverItems(Vector2Int hoveredTile) {
+        var shouldStopHovering = false;
+        if (_mapSize.Contains(hoveredTile)) {
+            if (_map.CellContainsPickupableItems(hoveredTile)) {
+                if (!_wasHoveringOverItemsPreviously) {
+                    OnPickupableItemHoveringChanged.OnNext(
+                        PickupableItemHoveringState.StartedHovering
+                    );
+                    _wasHoveringOverItemsPreviously = true;
+                }
+            }
+            else if (_wasHoveringOverItemsPreviously) {
+                shouldStopHovering = true;
+            }
+        }
+        else if (_wasHoveringOverItemsPreviously) {
+            shouldStopHovering = true;
+        }
+
+        if (shouldStopHovering && _wasHoveringOverItemsPreviously) {
+            OnPickupableItemHoveringChanged.OnNext(
+                PickupableItemHoveringState.FinishedHovering
+            );
+            _wasHoveringOverItemsPreviously = false;
         }
     }
 

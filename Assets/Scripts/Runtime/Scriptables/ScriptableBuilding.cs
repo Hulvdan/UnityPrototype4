@@ -49,6 +49,10 @@ public class ScriptableBuilding : ScriptableObject {
     List<Vector2> _producedItemsPositions = new();
 
     [SerializeField]
+    [ShowIf("_type", BuildingType.Produce)]
+    Vector2Int _pickupableItemsCellOffset = Vector2Int.zero;
+
+    [SerializeField]
     [Min(0.1f)]
     float _itemProcessingDuration = 1f;
 
@@ -103,5 +107,6 @@ public class ScriptableBuilding : ScriptableObject {
 
     public TileBase tile => _tile;
     public Vector2Int size => _size;
+    public Vector2Int pickupableItemsCellOffset => _pickupableItemsCellOffset;
 }
 }
