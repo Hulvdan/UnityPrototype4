@@ -23,6 +23,7 @@ public interface IMap {
     Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; }
     Subject<E_BuildingProducedItem> onBuildingProducedItem { get; }
 
+    Subject<E_ProducedResourcesPickedUp> onProducedResourcesPickedUp { get; }
     Subject<E_TopBarResourceChanged> onResourceChanged { get; }
 
     void TryBuild(Vector2Int hoveredTile, SelectedItem gameManagerSelectedItem);
@@ -33,6 +34,8 @@ public interface IMap {
     void PickRandomSlotForTheTrainToPassItemTo(HorseTrain horse);
     bool IsBuildable(int x, int y);
     bool IsBuildable(Vector2Int pos);
+
     bool CellContainsPickupableItems(Vector2Int hoveredTile);
+    void CollectItems(Vector2Int hoveredTile);
 }
 }
