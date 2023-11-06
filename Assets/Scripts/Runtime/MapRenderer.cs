@@ -284,6 +284,8 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void OnBuildingStartedProcessing(E_BuildingStartedProcessing data) {
+        Destroy(_storedItems[data.Resource.id].gameObject);
+        _storedItems.Remove(data.Resource.id);
     }
 
     void OnBuildingProducedItem(E_BuildingProducedItem data) {
