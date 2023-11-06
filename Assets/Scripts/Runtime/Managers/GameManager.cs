@@ -24,6 +24,10 @@ public class GameManager : MonoBehaviour {
 
     [SerializeField]
     [Required]
+    CursorController _cursorController;
+
+    [SerializeField]
+    [Required]
     InputActionAsset _inputActionAsset;
 
     public readonly Subject<SelectedItem> OnSelectedItemChanged = new();
@@ -64,6 +68,7 @@ public class GameManager : MonoBehaviour {
         _mapRenderer.InitDependencies(this, _map, _map);
         _buildablesPanel.InitDependencies(this);
         _uiManager.InitDependencies(_map);
+        _cursorController.InitDependencies();
 
         _map.Init();
         _buildablesPanel.Init();

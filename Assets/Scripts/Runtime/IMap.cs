@@ -33,5 +33,6 @@ public interface IMap {
     void PickRandomSlotForTheTrainToPassItemTo(HorseTrain horse);
     bool IsBuildable(int x, int y);
     bool IsBuildable(Vector2Int pos);
+    bool CellContainsPickupableItems(Vector2Int hoveredTile);
 }
 }
