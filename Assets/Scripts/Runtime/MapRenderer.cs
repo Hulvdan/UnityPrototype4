@@ -142,7 +142,7 @@ public class MapRenderer : MonoBehaviour {
 
     Tilemap _resourceTilemap;
 
-    bool _wasHoveringOverItemsPreviously;
+    bool _isHoveringOverItems;
 
     public Subject<PickupableItemHoveringState> OnPickupableItemHoveringChanged { get; } = new();
 
@@ -157,20 +157,25 @@ public class MapRenderer : MonoBehaviour {
     void Update() {
         UpdateHumans();
         UpdateTrains();
-        DisplayPreviewTile();
 
         var hoveredTile = GetHoveredTile();
+        UpdateHoveringOverItems(hoveredTile);
+
+        DisplayPreviewTile();
 
         // TODO: Move inputs to GameManager
         if (_mouseBuildAction.WasPressedThisFrame()) {
             if (_mapSize.Contains(hoveredTile)) {
-                _map.TryBuild(hoveredTile, _gameManager.selectedItem);
+                if (_isHoveringOverItems) {
+                    _map.CollectItems(hoveredTile);
+                }
+                else {
+                    _map.TryBuild(hoveredTile, _gameManager.selectedItem);
+                }
             }
         }
         // else if (_mouseBuildAction.WasReleasedThisFrame()) {
         // }
-
-        UpdateHoveringOverItems(hoveredTile);
     }
 
     void OnEnable() {
@@ -217,26 +222,26 @@ public class MapRenderer : MonoBehaviour {
         var shouldStopHovering = false;
         if (_mapSize.Contains(hoveredTile)) {
             if (_map.CellContainsPickupableItems(hoveredTile)) {
-                if (!_wasHoveringOverItemsPreviously) {
+                if (!_isHoveringOverItems) {
                     OnPickupableItemHoveringChanged.OnNext(
                         PickupableItemHoveringState.StartedHovering
                     );
-                    _wasHoveringOverItemsPreviously = true;
+                    _isHoveringOverItems = true;
                 }
             }
-            else if (_wasHoveringOverItemsPreviously) {
+            else if (_isHoveringOverItems) {
                 shouldStopHovering = true;
             }
         }
-        else if (_wasHoveringOverItemsPreviously) {
+        else if (_isHoveringOverItems) {
             shouldStopHovering = true;
         }
 
-        if (shouldStopHovering && _wasHoveringOverItemsPreviously) {
+        if (shouldStopHovering && _isHoveringOverItems) {
             OnPickupableItemHoveringChanged.OnNext(
                 PickupableItemHoveringState.FinishedHovering
             );
-            _wasHoveringOverItemsPreviously = false;
+            _isHoveringOverItems = false;
         }
     }
 
@@ -263,8 +268,19 @@ public class MapRenderer : MonoBehaviour {
         _dependencyHooks.Add(_map.onTrainPushedResource.Subscribe(OnTrainPushedResource));
 
         _dependencyHooks.Add(
-            _map.onBuildingStartedProcessing.Subscribe(OnBuildingStartedProcessing));
+            _map.onBuildingStartedProcessing.Subscribe(OnBuildingStartedProcessing)
+        );
         _dependencyHooks.Add(_map.onBuildingProducedItem.Subscribe(OnBuildingProducedItem));
+        _dependencyHooks.Add(
+            _map.onProducedResourcesPickedUp.Subscribe(OnProducedResourcesPickedUp)
+        );
+    }
+
+    void OnProducedResourcesPickedUp(E_ProducedResourcesPickedUp data) {
+        foreach (var id in data.Ids) {
+            Destroy(_storedItems[id].gameObject);
+            _storedItems.Remove(id);
+        }
     }
 
     void OnBuildingStartedProcessing(E_BuildingStartedProcessing data) {
@@ -289,8 +305,7 @@ public class MapRenderer : MonoBehaviour {
             _buildingMovingItemToTheWarehouseDuration
         ).SetEase(_buildingMovingItemToTheWarehouseDurationCurve);
 
-        // var resIdx = data.StoreBuilding.storedResources.Count - 1;
-        // _storedItems.Add(new(data.StoreBuilding.ID, resIdx), itemGo);
+        _storedItems.Add(data.Resource.id, itemGo);
     }
 
     void OnSelectedItemChanged(SelectedItem item) {

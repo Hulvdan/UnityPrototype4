@@ -210,6 +210,43 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         return false;
     }
 
+    public void CollectItems(Vector2Int hoveredTile) {
+        foreach (var building in buildings) {
+            if (
+                building.scriptableBuilding.type != BuildingType.Produce
+                || building.producedResources.Count <= 0
+                || !building.Contains(hoveredTile)
+            ) {
+                continue;
+            }
+
+            var itemsPos = building.position +
+                           building.scriptableBuilding.pickupableItemsCellOffset;
+            if (hoveredTile != itemsPos) {
+                continue;
+            }
+
+            var res = building.producedResources[0].script;
+            var oldAmount = _resources.Find(x => x.Resource == res).Amount;
+            var newAmount = oldAmount + building.producedResources.Count;
+            _resources.Find(x => x.Resource == res).Amount = newAmount;
+
+            var ids = new List<Guid>();
+            foreach (var resource in building.producedResources) {
+                ids.Add(resource.id);
+            }
+
+            onProducedResourcesPickedUp.OnNext(new() { Ids = ids });
+            building.producedResources.Clear();
+
+            onResourceChanged.OnNext(new() {
+                Resource = res,
+                OldAmount = oldAmount,
+                NewAmount = newAmount,
+            });
+        }
+    }
+
     public int sizeY => _mapSizeY;
     public int sizeX => _mapSizeX;
 
@@ -355,6 +392,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; } = new();
     public Subject<E_BuildingProducedItem> onBuildingProducedItem { get; } = new();
+    public Subject<E_ProducedResourcesPickedUp> onProducedResourcesPickedUp { get; } = new();
 
     public Subject<E_TopBarResourceChanged> onResourceChanged { get; } = new();
 
