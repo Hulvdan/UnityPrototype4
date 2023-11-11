@@ -10,7 +10,17 @@ public class TrainNodeGO : MonoBehaviour {
 
     [SerializeField]
     [Required]
+    SpriteRenderer _mainSpriteRenderer;
+
+    [SerializeField]
+    [Required]
     Transform _itemOffset;
+
+    [SerializeField]
+    Animator _locomotiveAnimator;
+
+    public Animator LocomotiveAnimator => _locomotiveAnimator;
+    public SpriteRenderer MainSpriteRenderer => _mainSpriteRenderer;
 
     [SerializeField]
     [Required]

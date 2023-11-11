@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 149078550958580615}
   - component: {fileID: 6731249837297213435}
   - component: {fileID: 4147265088170921778}
+  - component: {fileID: 7599249539944695475}
   m_Layer: 0
   m_Name: Horse_brown_blue3_7
   m_TagString: Untagged
@@ -97,6 +98,27 @@ SortingGroup:
   m_SortingLayer: 0
   m_SortingOrder: 4
   m_SortAtRoot: 0
+--- !u!95 &7599249539944695475
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5700830237030551654}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 722a2b923a5b5a941a3e1d1ca26ad1cf, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &6520441566913130322
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -105,6 +127,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2183623256007323550, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
+      propertyPath: _locomotiveAnimator
+      value: 
+      objectReference: {fileID: 7599249539944695475}
+    - target: {fileID: 2183623256007323550, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
+      propertyPath: _mainSpriteRenderer
+      value: 
+      objectReference: {fileID: 6731249837297213435}
     - target: {fileID: 5521203136289244689, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
