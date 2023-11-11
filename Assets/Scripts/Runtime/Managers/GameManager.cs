@@ -31,15 +31,26 @@ public class GameManager : MonoBehaviour {
     [Required]
     InputActionAsset _inputActionAsset;
 
+    [SerializeField]
+    float _mapMovementScale = 32f;
+
+    readonly List<float> _zooms = new() { .25f, 0.5f, 1f, 2f, 4f };
+
     readonly List<float> GameSpeeds = new() { .1f, .25f, .5f, 1f, 2f, 4f };
 
     public readonly Subject<SelectedItem> OnSelectedItemChanged = new();
     public readonly Subject<int> OnSelectedItemRotationChanged = new();
     InputAction _actionDecreaseGameSpeed;
     InputAction _actionIncreaseGameSpeed;
+    InputAction _actionMoveMap;
     InputAction _actionRotate;
+    InputAction _actionStartMapMovement;
+    InputAction _actionZoom;
+    int _currentZoomIndex;
 
     InputActionMap _inputActionMap;
+
+    bool _movingMap;
 
     SelectedItem _selectedItem = SelectedItem.None;
 
@@ -68,11 +79,16 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    float currentZoom => _zooms[_currentZoomIndex];
+
     void Awake() {
         _inputActionMap = _inputActionAsset.FindActionMap("Gameplay");
         _actionRotate = _inputActionMap.FindAction("Rotate");
         _actionIncreaseGameSpeed = _inputActionMap.FindAction("IncreaseGameSpeed");
         _actionDecreaseGameSpeed = _inputActionMap.FindAction("DecreaseGameSpeed");
+        _actionStartMapMovement = _inputActionMap.FindAction("StartMapMovement");
+        _actionMoveMap = _inputActionMap.FindAction("MoveMap");
+        _actionZoom = _inputActionMap.FindAction("ZoomMap");
     }
 
     void Start() {
@@ -87,6 +103,8 @@ public class GameManager : MonoBehaviour {
 
         CurrentGameSpeedIndex =
             PlayerPrefs.GetInt("GameManager_CurrentGameSpeedIndex", 3) % GameSpeeds.Count;
+        _currentZoomIndex = PlayerPrefs.GetInt("GameManager_CurrentZoomIndex", 2) % _zooms.Count;
+        _map.transform.localScale = new(currentZoom, currentZoom, 1);
     }
 
     void Update() {
@@ -100,6 +118,36 @@ public class GameManager : MonoBehaviour {
 
         if (_actionDecreaseGameSpeed.WasPressedThisFrame()) {
             PreviousGameSpeed();
+        }
+
+        if (_actionStartMapMovement.WasPressedThisFrame()) {
+            _movingMap = true;
+        }
+        else if (_actionStartMapMovement.WasReleasedThisFrame()) {
+            _movingMap = false;
+        }
+
+        if (_movingMap) {
+            _map.transform.localPosition +=
+                (Vector3)_actionMoveMap.ReadValue<Vector2>() / _mapMovementScale;
+        }
+
+        var zoomValue = _actionZoom.ReadValue<float>();
+        if (zoomValue > 0) {
+            _currentZoomIndex += 1;
+            if (_currentZoomIndex >= _zooms.Count - 1) {
+                _currentZoomIndex = _zooms.Count - 1;
+            }
+        }
+        else if (zoomValue < 0) {
+            _currentZoomIndex -= 1;
+            if (_currentZoomIndex < 0) {
+                _currentZoomIndex = 0;
+            }
+        }
+
+        if (zoomValue != 0) {
+            _map.transform.localScale = new(currentZoom, currentZoom, 1);
         }
     }
 
