@@ -53,6 +53,7 @@ public class ScriptableBuilding : ScriptableObject {
     Vector2Int _pickupableItemsCellOffset = Vector2Int.zero;
 
     [SerializeField]
+    [ShowIf("_type", BuildingType.Produce)]
     [Min(0.1f)]
     float _itemProcessingDuration = 1f;
 

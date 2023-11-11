@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1962483450866880944}
   - component: {fileID: 6101930107467715491}
   m_Layer: 0
-  m_Name: Buildable
+  m_Name: BuildablesSidebar_Buildable
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

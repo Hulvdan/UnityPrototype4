@@ -3,5 +3,6 @@ public enum BuildingType {
     Harvest,
     Store,
     Produce,
+    SpecialStable,
 }
 }
