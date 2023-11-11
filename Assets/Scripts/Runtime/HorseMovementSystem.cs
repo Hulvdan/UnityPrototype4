@@ -27,11 +27,11 @@ public class HorseMovementSystem {
         }
     }
 
-    public void AdvanceHorse(HorseTrain horse) {
+    public void AdvanceHorse(HorseTrain horse, float dt) {
         horse.NormalisedSpeed = 1;
         var locomotive = horse.nodes[0];
 
-        locomotive.Progress += Time.deltaTime * horse.Speed;
+        locomotive.Progress += dt * horse.Speed;
         while (locomotive.Progress >= 1) {
             locomotive.SegmentIndex += 1;
             locomotive.Progress -= 1;

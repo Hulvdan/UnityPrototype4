@@ -165,6 +165,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "IncreaseGameSpeed",
+                    "type": "Button",
+                    "id": "2d77e74c-a9ac-41fa-b54c-75504ad92870",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "DecreaseGameSpeed",
+                    "type": "Button",
+                    "id": "34eda939-ffd8-4701-8c59-39f72477bc96",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -222,6 +240,28 @@
                     "action": "Rotate",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "9d7b4e75-3b5d-4485-8347-5486a2c9e7ec",
+                    "path": "<Keyboard>/rightBracket",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "IncreaseGameSpeed",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "afa2a106-a545-4ea1-b100-a37be76f3341",
+                    "path": "<Keyboard>/leftBracket",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DecreaseGameSpeed",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

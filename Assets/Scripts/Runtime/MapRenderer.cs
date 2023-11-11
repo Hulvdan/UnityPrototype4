@@ -171,7 +171,7 @@ public class MapRenderer : MonoBehaviour {
 
     void Update() {
         UpdateHumans();
-        UpdateTrains();
+        UpdateTrains(_gameManager.CurrentGameSpeed);
 
         var hoveredTile = GetHoveredTile();
         UpdateHoveringOverItems(hoveredTile);
@@ -319,7 +319,7 @@ public class MapRenderer : MonoBehaviour {
             () => item.transform.localPosition,
             val => item.transform.localPosition = val,
             (Vector3)(building.position + itemOffset + Vector2.right / 2),
-            _buildingMovingItemToTheWarehouseDuration
+            _buildingMovingItemToTheWarehouseDuration / _gameManager.CurrentGameSpeed
         ).SetEase(_buildingMovingItemToTheWarehouseDurationCurve);
 
         _storedItems.Add(data.Resource.id, itemGo);
@@ -529,11 +529,13 @@ public class MapRenderer : MonoBehaviour {
             data.RemainingAmountPercent
         );
 
-        _humans[data.Human.ID].Item2.OnPickedUpResource(data.Resource.script);
+        _humans[data.Human.ID].Item2.OnPickedUpResource(
+            data.Resource.script, _gameManager.CurrentGameSpeed
+        );
     }
 
     void OnHumanPlacedResource(E_HumanPlacedResource data) {
-        _humans[data.Human.ID].Item2.OnPlacedResource();
+        _humans[data.Human.ID].Item2.OnPlacedResource(_gameManager.CurrentGameSpeed);
 
         var item = Instantiate(_itemPrefab, _itemsLayer);
 
@@ -585,7 +587,7 @@ public class MapRenderer : MonoBehaviour {
         _storedItems.Remove(resID);
 
         _trainNodes[data.TrainNode.ID].Item2.OnPickedUpResource(
-            data.Resource.script, data.Building.position
+            data.Resource.script, data.Building.position, _gameManager.CurrentGameSpeed
         );
     }
 
@@ -612,7 +614,7 @@ public class MapRenderer : MonoBehaviour {
                 () => item.transform.localPosition,
                 val => item.transform.localPosition = val,
                 (Vector3)(building.position + itemOffset + Vector2.right / 2),
-                _itemPlacingDuration
+                _itemPlacingDuration / _gameManager.CurrentGameSpeed
             )
             .SetEase(_itemPlacingCurve)
             .OnComplete(() => {
@@ -623,7 +625,7 @@ public class MapRenderer : MonoBehaviour {
             });
     }
 
-    void UpdateTrains() {
+    void UpdateTrains(float gameSpeed) {
         foreach (var horse in _horses.Values) {
             foreach (var (trainNode, go) in horse.Item2) {
                 go.transform.position = GameLogicToRenderPos(trainNode.Position);
@@ -632,7 +634,7 @@ public class MapRenderer : MonoBehaviour {
                     var anim = go.LocomotiveAnimator;
                     anim.SetFloat("speedX", Mathf.Cos(Mathf.Deg2Rad * trainNode.Rotation));
                     anim.SetFloat("speedY", Mathf.Sin(Mathf.Deg2Rad * trainNode.Rotation));
-                    anim.SetFloat("speed", horse.Item1.NormalisedSpeed);
+                    anim.SetFloat("speed", horse.Item1.NormalisedSpeed * gameSpeed);
                 }
                 else {
                     if (trainNode.Rotation == 0 || Math.Abs(trainNode.Rotation - 180) < 0.001f) {
