@@ -114,6 +114,14 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     GameObject _wagonPrefab;
 
+    [SerializeField]
+    [Min(.1f)]
+    float _sinCosScale;
+
+    [SerializeField]
+    [Min(0)]
+    float _buildingScaleAmplitude = .2f;
+
     [Header("Inputs")]
     [SerializeField]
     [Required]
@@ -123,10 +131,6 @@ public class MapRenderer : MonoBehaviour {
     [SerializeField]
     [Required]
     Tilemap _debugTilemap;
-
-    // [SerializeField]
-    // [Required]
-    // TileBase _debugTileWalkable;
 
     [FormerlySerializedAs("_debugTileUnwalkable")]
     [SerializeField]
@@ -144,6 +148,9 @@ public class MapRenderer : MonoBehaviour {
     readonly Dictionary<Guid, ItemGO> _storedItems = new();
 
     readonly Dictionary<Guid, Tuple<TrainNode, TrainNodeGO>> _trainNodes = new();
+
+    float _buildingScaleTimeline;
+    Tilemap _buildingsTilemap;
 
     Camera _camera;
 
@@ -172,6 +179,7 @@ public class MapRenderer : MonoBehaviour {
     void Update() {
         UpdateHumans();
         UpdateTrains(_gameManager.CurrentGameSpeed);
+        UpdateBuildings();
 
         var hoveredTile = GetHoveredTile();
         UpdateHoveringOverItems(hoveredTile);
@@ -231,6 +239,41 @@ public class MapRenderer : MonoBehaviour {
 
             Gizmos.DrawLineList(points);
         }
+    }
+
+    void UpdateBuildings() {
+        _buildingScaleTimeline += Time.deltaTime * _gameManager.CurrentGameSpeed;
+        if (_buildingScaleTimeline >= 2 * Mathf.PI * _sinCosScale) {
+            _buildingScaleTimeline -= 2 * Mathf.PI * _sinCosScale;
+        }
+
+        foreach (var building in _map.buildings) {
+            if (building.scriptableBuilding.type != BuildingType.Produce) {
+                continue;
+            }
+
+            var scale = GetBuildingScale(
+                building.IsProcessing,
+                building.ProcessingElapsed,
+                building.scriptableBuilding.ItemProcessingDuration
+            );
+            SetBuilding(building, scale.x, scale.y);
+        }
+    }
+
+    Vector2 GetBuildingScale(
+        bool isProcessing,
+        float buildingProcessingElapsed,
+        float scriptableBuildingItemProcessingDuration
+    ) {
+        if (!isProcessing || buildingProcessingElapsed == 0) {
+            return new(1, 1);
+        }
+
+        return new(
+            1 + _buildingScaleAmplitude * Mathf.Sin(_buildingScaleTimeline * _sinCosScale),
+            1 + _buildingScaleAmplitude * Mathf.Cos(_buildingScaleTimeline * _sinCosScale)
+        );
     }
 
     void UpdateHoveringOverItems(Vector2Int hoveredTile) {
@@ -438,27 +481,31 @@ public class MapRenderer : MonoBehaviour {
             }
         }
 
-        var buildingsTilemap = GenerateTilemap(
+        _buildingsTilemap = GenerateTilemap(
             0, maxHeight + 2, BuildingsTilemapNameTemplate, _tilemapBuildingsPrefab
         ).GetComponent<Tilemap>();
         foreach (var building in _map.buildings) {
-            var widthOffset = (building.scriptableBuilding.size.x - 1) / 2f;
-            var heightOffset = (building.scriptableBuilding.size.y - 1) / 2f;
-
-            buildingsTilemap.SetTile(
-                new(
-                    new(building.posX, building.posY, 0),
-                    building.scriptableBuilding.tile,
-                    Color.white,
-                    Matrix4x4.TRS(
-                        new(widthOffset, heightOffset),
-                        Quaternion.identity,
-                        Vector3.one
-                    )
-                ),
-                false
-            );
+            SetBuilding(building, 1, 1);
         }
+    }
+
+    void SetBuilding(Building building, float scaleX, float scaleY) {
+        var widthOffset = (building.scriptableBuilding.size.x - 1) / 2f;
+        var heightOffset = (building.scriptableBuilding.size.y - 1) / 2f;
+
+        _buildingsTilemap.SetTile(
+            new(
+                new(building.posX, building.posY, 0),
+                building.scriptableBuilding.tile,
+                Color.white,
+                Matrix4x4.TRS(
+                    new(widthOffset, heightOffset),
+                    Quaternion.identity,
+                    new(scaleX, scaleY, 1)
+                )
+            ),
+            false
+        );
     }
 
     void RegenerateDebugTilemapGameObject() {
@@ -631,10 +678,10 @@ public class MapRenderer : MonoBehaviour {
                 go.transform.position = GameLogicToRenderPos(trainNode.Position);
 
                 if (trainNode.isLocomotive) {
-                    var anim = go.LocomotiveAnimator;
-                    anim.SetFloat("speedX", Mathf.Cos(Mathf.Deg2Rad * trainNode.Rotation));
-                    anim.SetFloat("speedY", Mathf.Sin(Mathf.Deg2Rad * trainNode.Rotation));
-                    anim.SetFloat("speed", horse.Item1.NormalisedSpeed * gameSpeed);
+                    var animator = go.LocomotiveAnimator;
+                    animator.SetFloat("speedX", Mathf.Cos(Mathf.Deg2Rad * trainNode.Rotation));
+                    animator.SetFloat("speedY", Mathf.Sin(Mathf.Deg2Rad * trainNode.Rotation));
+                    animator.SetFloat("speed", horse.Item1.NormalisedSpeed * gameSpeed);
                 }
                 else {
                     if (trainNode.Rotation == 0 || Math.Abs(trainNode.Rotation - 180) < 0.001f) {
