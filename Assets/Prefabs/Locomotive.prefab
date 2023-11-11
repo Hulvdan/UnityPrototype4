@@ -128,6 +128,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2183623256007323550, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
+      propertyPath: _itemPickupDuration
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2183623256007323550, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
       propertyPath: _locomotiveAnimator
       value: 
       objectReference: {fileID: 7599249539944695475}
@@ -135,6 +139,30 @@ PrefabInstance:
       propertyPath: _mainSpriteRenderer
       value: 
       objectReference: {fileID: 6731249837297213435}
+    - target: {fileID: 2183623256007323550, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
+      propertyPath: _itemPickupCurve.m_Curve.Array.data[0].inSlope
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2183623256007323550, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
+      propertyPath: _itemPickupCurve.m_Curve.Array.data[1].inSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2183623256007323550, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
+      propertyPath: _itemPickupCurve.m_Curve.Array.data[0].outSlope
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2183623256007323550, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
+      propertyPath: _itemPickupCurve.m_Curve.Array.data[1].outSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2183623256007323550, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
+      propertyPath: _itemPickupCurve.m_Curve.Array.data[0].tangentMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2183623256007323550, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
+      propertyPath: _itemPickupCurve.m_Curve.Array.data[1].tangentMode
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5521203136289244689, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
