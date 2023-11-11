@@ -31,7 +31,8 @@ public class TrainNodeGO : MonoBehaviour {
     public Animator LocomotiveAnimator => _locomotiveAnimator;
     public SpriteRenderer MainSpriteRenderer => _mainSpriteRenderer;
 
-    public void OnPickedUpResource(ScriptableResource resource, Vector2 resourceMapPosition) {
+    public void OnPickedUpResource(ScriptableResource resource, Vector2 resourceMapPosition,
+        float gameSpeed) {
         _resourceSpriteRenderer.sprite = resource.smallerSprite;
         _itemOffset.transform.localPosition = resourceMapPosition;
         _itemOffset.transform.localPosition -= transform.localPosition;
@@ -39,7 +40,7 @@ public class TrainNodeGO : MonoBehaviour {
             () => _itemOffset.transform.localPosition,
             (Vector2 value) => _itemOffset.transform.localPosition = value,
             Vector2.zero,
-            _itemPickupDuration
+            _itemPickupDuration / gameSpeed
         ).SetEase(_itemPickupCurve);
     }
 

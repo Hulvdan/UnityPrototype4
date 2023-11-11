@@ -114,8 +114,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void Update() {
-        UpdateHumans();
-        UpdateBuildings();
+        var dt = _gameManager.dt;
+        UpdateHumans(dt);
+        UpdateBuildings(dt);
+        _horseCompoundSystem.UpdateDt(dt);
     }
 
     void OnValidate() {
@@ -258,7 +260,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         return x >= 0 && x < sizeX && y >= 0 && y < sizeY;
     }
 
-    void UpdateBuildings() {
+    void UpdateBuildings(float dt) {
         foreach (var building in buildings) {
             var scriptableBuilding = building.scriptableBuilding;
             if (scriptableBuilding.type == BuildingType.Produce) {
@@ -278,7 +280,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 }
 
                 if (building.IsProcessing) {
-                    building.ProcessingElapsed += Time.deltaTime;
+                    building.ProcessingElapsed += dt;
 
                     if (building.ProcessingElapsed >= scriptableBuilding.ItemProcessingDuration) {
                         building.IsProcessing = false;
@@ -304,6 +306,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public void InitDependencies(GameManager gameManager) {
         _gameManager = gameManager;
+        _horseCompoundSystem.InitDependencies(gameManager);
     }
 
     public void Init() {
@@ -474,10 +477,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         onHumanCreated.OnNext(new(human));
     }
 
-    void UpdateHumans() {
+    void UpdateHumans(float dt) {
         foreach (var human in _humans) {
             if (human.state != HumanState.Idle) {
-                human.harvestingElapsed += Time.deltaTime;
+                human.harvestingElapsed += dt;
 
                 var newState = human.state;
                 if (human.harvestingElapsed >= _humanTotalHarvestingDuration) {

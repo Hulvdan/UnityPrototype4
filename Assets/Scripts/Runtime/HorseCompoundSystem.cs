@@ -67,6 +67,7 @@ public class HorseCompoundSystem : MonoBehaviour {
     float _horseSpeed = 1f;
 
     public readonly Subject<Direction> OnHorseReachedTarget = new();
+    GameManager _gameManager;
 
     HorseTrain _horse;
 
@@ -77,9 +78,13 @@ public class HorseCompoundSystem : MonoBehaviour {
     List<List<MovementGraphTile>> _movementTiles;
     List<Vector2Int> _path = new();
 
-    void Update() {
+    public void InitDependencies(GameManager gameManager) {
+        _gameManager = gameManager;
+    }
+
+    public void UpdateDt(float dt) {
         if (_horse != null) {
-            UpdateHorse(_horse);
+            UpdateHorse(_horse, dt);
         }
     }
 
@@ -159,16 +164,16 @@ public class HorseCompoundSystem : MonoBehaviour {
         }
     }
 
-    void UpdateHorse(HorseTrain horse) {
+    void UpdateHorse(HorseTrain horse, float dt) {
         switch (horse.State) {
             case TrainState.Idle:
                 break;
             case TrainState.Moving:
-                _movementSystem.AdvanceHorse(horse);
+                _movementSystem.AdvanceHorse(horse, dt);
                 _movementSystem.RecalculateNodePositions(horse);
                 break;
             case TrainState.Loading:
-                horse.TrainLoadingUnloadingElapsed += Time.deltaTime;
+                horse.TrainLoadingUnloadingElapsed += dt;
                 if (horse.TrainLoadingUnloadingElapsed >= _trainItemLoadingDuration) {
                     horse.TrainLoadingUnloadingElapsed -= _trainItemLoadingDuration;
 
@@ -195,7 +200,7 @@ public class HorseCompoundSystem : MonoBehaviour {
 
                 break;
             case TrainState.Unloading:
-                horse.TrainLoadingUnloadingElapsed += Time.deltaTime;
+                horse.TrainLoadingUnloadingElapsed += dt;
                 if (horse.TrainLoadingUnloadingElapsed >= _trainItemUnloadingDuration) {
                     horse.TrainLoadingUnloadingElapsed -= _trainItemUnloadingDuration;
 

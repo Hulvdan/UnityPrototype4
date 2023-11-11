@@ -31,24 +31,24 @@ public class HumanGO : MonoBehaviour {
     [SerializeField]
     AnimationCurve _itemPlacingCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
-    public void OnPickedUpResource(ScriptableResource resource) {
+    public void OnPickedUpResource(ScriptableResource resource, float gameSpeed) {
         _resourceSpriteRenderer.sprite = resource.smallerSprite;
         _resourceSpriteRenderer.transform.localPosition = _placingVerticalOffset;
         DOTween.To(
             () => _resourceSpriteRenderer.transform.localPosition,
             (Vector2 value) => _resourceSpriteRenderer.transform.localPosition = value,
             _verticalOffset,
-            _itemPickupDuration
+            _itemPickupDuration / gameSpeed
         ).SetEase(_itemPickupCurve);
     }
 
-    public void OnPlacedResource() {
+    public void OnPlacedResource(float gameSpeed) {
         _resourceSpriteRenderer.transform.localPosition = _verticalOffset;
         DOTween.To(
             () => _resourceSpriteRenderer.transform.localPosition,
             (Vector2 value) => _resourceSpriteRenderer.transform.localPosition = value,
             _placingVerticalOffset,
-            _itemPlacingDuration
+            _itemPlacingDuration / gameSpeed
         ).SetEase(_itemPlacingCurve).OnComplete(
             () => _resourceSpriteRenderer.sprite = null
         );
