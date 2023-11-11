@@ -281,6 +281,7 @@ MonoBehaviour:
   _uiManager: {fileID: 1458577632}
   _cursorController: {fileID: 1937440201}
   _inputActionAsset: {fileID: -944628639613478452, guid: 304fc82518949fc4abc5fceb1a7ffe52, type: 3}
+  _mapMovementScale: 200
 --- !u!1001 &237059753
 PrefabInstance:
   m_ObjectHideFlags: 0
