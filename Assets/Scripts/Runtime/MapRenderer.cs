@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
 using DG.Tweening;
@@ -129,7 +130,14 @@ public class MapRenderer : MonoBehaviour {
 
     readonly Dictionary<Guid, Tuple<Human, HumanGO>> _humans = new();
     readonly Dictionary<Guid, ItemGO> _storedItems = new();
+
+    readonly Dictionary<
+        Guid,
+        Tuple<HorseTrain, List<Tuple<TrainNode, TrainNodeGO>>>
+    > _horses = new();
+
     readonly Dictionary<Guid, Tuple<TrainNode, TrainNodeGO>> _trainNodes = new();
+
     Camera _camera;
 
     GameManager _gameManager;
@@ -554,11 +562,13 @@ public class MapRenderer : MonoBehaviour {
     #region TrainSystem
 
     void OnTrainCreated(E_TrainCreated data) {
+        _horses.Add(data.Horse.ID, new(data.Horse, new()));
     }
 
     void OnTrainNodeCreated(E_TrainNodeCreated data) {
         var go = Instantiate(data.IsLocomotive ? _locomotivePrefab : _wagonPrefab, _grid.transform);
         var trainNodeGo = go.GetComponent<TrainNodeGO>();
+        _horses[data.Horse.ID].Item2.Add(new(data.Node, trainNodeGo));
         _trainNodes.Add(data.Node.ID, new(data.Node, trainNodeGo));
     }
 
@@ -583,7 +593,7 @@ public class MapRenderer : MonoBehaviour {
         var i = (building.storedResources.Count - 1) % scriptable.storedItemPositions.Count;
         var itemOffset = scriptable.storedItemPositions[i];
 
-        item.transform.localPosition = data.TrainNode.CalculatedPosition;
+        item.transform.localPosition = data.TrainNode.Position;
         var itemGo = item.GetComponent<ItemGO>();
         itemGo.SetAs(data.Resource.script);
 
@@ -604,14 +614,22 @@ public class MapRenderer : MonoBehaviour {
                     _storedItems.Remove(resId);
                 }
             });
-        // var key = new Tuple<Guid, int>(data.Building.ID, data.ResourceIndex);
-        // Destroy(_storedItems[key].gameObject);
-        // _storedItems.Remove(key);
     }
 
     void UpdateTrains() {
-        foreach (var (trainNode, go) in _trainNodes.Values) {
-            go.transform.position = GameLogicToRenderPos(trainNode.CalculatedPosition);
+        foreach (var horse in _horses.Values) {
+            foreach (var (trainNode, go) in horse.Item2) {
+                go.transform.position = GameLogicToRenderPos(trainNode.Position);
+
+                if (trainNode.isLocomotive) {
+                    var anim = go.LocomotiveAnimator;
+                    anim.SetFloat("speedX", Mathf.Cos(Mathf.Deg2Rad * trainNode.Rotation));
+                    anim.SetFloat("speedY", Mathf.Sin(Mathf.Deg2Rad * trainNode.Rotation));
+                    anim.SetFloat("speed", horse.Item1.NormalisedSpeed);
+
+                    go.MainSpriteRenderer.flipX = Math.Abs(trainNode.Rotation - 180) < 0.001f;
+                }
+            }
         }
     }
 

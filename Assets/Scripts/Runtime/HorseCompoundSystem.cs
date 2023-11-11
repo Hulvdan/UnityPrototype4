@@ -84,7 +84,7 @@ public class HorseCompoundSystem : MonoBehaviour {
     }
 
     HorseTrain CreateTrain() {
-        var horse = new HorseTrain(_horseSpeed, Direction.Right);
+        var horse = new HorseTrain(Guid.NewGuid(), _horseSpeed, Direction.Right);
         _map.onTrainCreated.OnNext(new() { Horse = horse });
 
         horse.AddSegmentVertex(_pointA);
@@ -92,7 +92,7 @@ public class HorseCompoundSystem : MonoBehaviour {
         horse.AddSegmentVertex(_pointA);
         horse.AddSegmentVertex(_pointA);
 
-        horse.AddLocomotive(new(Guid.NewGuid(), 1f, 0), 3, 0f);
+        horse.AddLocomotive(new(Guid.NewGuid(), 1f, true, 0), 3, 0f);
         horse.AddWagon(new(Guid.NewGuid(), .8f));
         horse.AddWagon(new(Guid.NewGuid(), .8f));
         horse.AddWagon(new(Guid.NewGuid(), .8f));

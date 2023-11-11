@@ -6,6 +6,7 @@ using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
 public class HorseTrain {
+    public Guid ID;
     public readonly float Speed;
 
     int? _currentDestination;
@@ -19,9 +20,11 @@ public class HorseTrain {
     public TrainState State = TrainState.Idle;
 
     public float TrainLoadingUnloadingElapsed;
+    public float NormalisedSpeed = 1f;
 
-    public HorseTrain(float speed, Direction direction) {
+    public HorseTrain(Guid id, float speed, Direction direction) {
         Assert.IsTrue(speed >= 0);
+        ID = id;
         Speed = speed;
         Direction = direction;
     }

@@ -28,6 +28,7 @@ public class HorseMovementSystem {
     }
 
     public void AdvanceHorse(HorseTrain horse) {
+        horse.NormalisedSpeed = 1;
         var locomotive = horse.nodes[0];
 
         locomotive.Progress += Time.deltaTime * horse.Speed;
@@ -57,6 +58,7 @@ public class HorseMovementSystem {
 
                 var destination = horse.CurrentDestination;
                 if (destination.HasValue && destination.Value.Pos == v1) {
+                    horse.NormalisedSpeed = 0;
                     TrainReachedDestination(horse, destination.Value);
                 }
             }
@@ -106,9 +108,8 @@ public class HorseMovementSystem {
 
             var vertex0 = horse.segmentVertexes[v0];
             var vertex1 = horse.segmentVertexes[v1];
-            node.CalculatedPosition = Vector2.Lerp(vertex0, vertex1, node.Progress);
-
-            // TODO: Calculate node.Rotation
+            node.Position = Vector2.Lerp(vertex0, vertex1, node.Progress);
+            node.Rotation = 90f * (int)DirectionFromTiles(vertex0, vertex1);
         }
     }
 
