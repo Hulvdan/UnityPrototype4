@@ -7808,6 +7808,7 @@ MonoBehaviour:
   _wagonPrefab: {fileID: 6852838267408035928, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
   _sinCosScale: 8
   _buildingScaleAmplitude: 0.05
+  _unbuildableTileColor: {r: 1, g: 0, b: 0, a: 1}
   _inputActionAsset: {fileID: -944628639613478452, guid: 304fc82518949fc4abc5fceb1a7ffe52, type: 3}
   _debugTilemap: {fileID: 869664077}
   _debugTileUnbuildable: {fileID: 11400000, guid: b5678ba17b4646b44a07e1b6fdf32816, type: 2}

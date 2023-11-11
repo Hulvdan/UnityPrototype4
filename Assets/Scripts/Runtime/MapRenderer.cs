@@ -87,6 +87,14 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     GameObject _itemPrefab;
 
+    [SerializeField]
+    [Required]
+    GameObject _locomotivePrefab;
+
+    [SerializeField]
+    [Required]
+    GameObject _wagonPrefab;
+
     [Header("Setup")]
     [SerializeField]
     [Required]
@@ -107,20 +115,15 @@ public class MapRenderer : MonoBehaviour {
         AnimationCurve.Linear(0, 0, 1, 1);
 
     [SerializeField]
-    [Required]
-    GameObject _locomotivePrefab;
-
-    [SerializeField]
-    [Required]
-    GameObject _wagonPrefab;
-
-    [SerializeField]
     [Min(.1f)]
     float _sinCosScale;
 
     [SerializeField]
     [Min(0)]
     float _buildingScaleAmplitude = .2f;
+
+    [SerializeField]
+    Color _unbuildableTileColor = Color.red;
 
     [Header("Inputs")]
     [SerializeField]
@@ -192,7 +195,7 @@ public class MapRenderer : MonoBehaviour {
                 if (_isHoveringOverItems) {
                     _map.CollectItems(hoveredTile);
                 }
-                else {
+                else if (_map.IsBuildable(hoveredTile)) {
                     _map.TryBuild(hoveredTile, _gameManager.selectedItem);
                 }
             }
@@ -552,8 +555,15 @@ public class MapRenderer : MonoBehaviour {
             return;
         }
 
+        var buildable = _map.IsBuildable(tile);
         _previewTilemap.SetTile(
-            new(new(tile.x, tile.y, 0), tilemapTile, Color.white, _previewMatrix), false
+            new(
+                new(tile.x, tile.y, 0),
+                tilemapTile,
+                buildable ? Color.white : _unbuildableTileColor,
+                _previewMatrix
+            ),
+            false
         );
     }
 
