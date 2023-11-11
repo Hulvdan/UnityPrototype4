@@ -292,9 +292,9 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void OnProducedResourcesPickedUp(E_ProducedResourcesPickedUp data) {
-        foreach (var id in data.Ids) {
-            Destroy(_storedItems[id].gameObject);
-            _storedItems.Remove(id);
+        foreach (var res in data.Resources) {
+            Destroy(_storedItems[res.id].gameObject);
+            _storedItems.Remove(res.id);
         }
     }
 

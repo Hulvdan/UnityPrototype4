@@ -238,7 +238,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 ids.Add(resource.id);
             }
 
-            onProducedResourcesPickedUp.OnNext(new() { Ids = ids });
+            onProducedResourcesPickedUp.OnNext(new() {
+                Resources = building.producedResources,
+                Position = itemsPos,
+            });
             building.producedResources.Clear();
 
             onResourceChanged.OnNext(new() {

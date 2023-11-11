@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace BFG.Runtime {
 public class E_ProducedResourcesPickedUp {
-    public List<Guid> Ids;
+    public Vector2Int Position;
+    public List<ResourceObj> Resources;
 }
 }
