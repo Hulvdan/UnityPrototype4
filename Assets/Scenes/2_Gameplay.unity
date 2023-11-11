@@ -8612,15 +8612,15 @@ MonoBehaviour:
   _logResource: {fileID: 11400000, guid: 361152873045e084892d56e677d6d740, type: 2}
   _itemsLayer: {fileID: 2040351865}
   _itemPrefab: {fileID: 8175125910645311947, guid: bcf84f38c6b6e414db8990ba390ed555, type: 3}
-  _itemPlacingDuration: 1
+  _itemPlacingDuration: 0.3
   _itemPlacingCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0
-      outSlope: 0
+      inSlope: 2
+      outSlope: 2
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
@@ -8637,11 +8637,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  _inputActionAsset: {fileID: -944628639613478452, guid: 304fc82518949fc4abc5fceb1a7ffe52, type: 3}
-  _debugTilemap: {fileID: 869664077}
-  _locomotivePrefab: {fileID: 389402034253815562, guid: 2006355f835e5694d996ac703fecf2ae, type: 3}
-  _wagonPrefab: {fileID: 6852838267408035928, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
-  _debugTileUnbuildable: {fileID: 11400000, guid: b5678ba17b4646b44a07e1b6fdf32816, type: 2}
   _buildingMovingItemToTheWarehouseDuration: 0.3
   _buildingMovingItemToTheWarehouseDurationCurve:
     serializedVersion: 2
@@ -8649,8 +8644,8 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0
-      outSlope: 0
+      inSlope: 2
+      outSlope: 2
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
@@ -8667,6 +8662,11 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  _locomotivePrefab: {fileID: 389402034253815562, guid: 2006355f835e5694d996ac703fecf2ae, type: 3}
+  _wagonPrefab: {fileID: 6852838267408035928, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
+  _inputActionAsset: {fileID: -944628639613478452, guid: 304fc82518949fc4abc5fceb1a7ffe52, type: 3}
+  _debugTilemap: {fileID: 869664077}
+  _debugTileUnbuildable: {fileID: 11400000, guid: b5678ba17b4646b44a07e1b6fdf32816, type: 2}
 --- !u!224 &1911864412 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 9141696638949257931, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}

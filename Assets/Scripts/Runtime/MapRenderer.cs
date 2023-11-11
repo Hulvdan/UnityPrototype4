@@ -97,6 +97,23 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     AnimationCurve _itemPlacingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
+    [SerializeField]
+    [Min(0.1f)]
+    float _buildingMovingItemToTheWarehouseDuration = 1f;
+
+    [SerializeField]
+    [Min(0.1f)]
+    AnimationCurve _buildingMovingItemToTheWarehouseDurationCurve =
+        AnimationCurve.Linear(0, 0, 1, 1);
+
+    [SerializeField]
+    [Required]
+    GameObject _locomotivePrefab;
+
+    [SerializeField]
+    [Required]
+    GameObject _wagonPrefab;
+
     [Header("Inputs")]
     [SerializeField]
     [Required]
@@ -111,27 +128,10 @@ public class MapRenderer : MonoBehaviour {
     // [Required]
     // TileBase _debugTileWalkable;
 
-    [SerializeField]
-    [Required]
-    GameObject _locomotivePrefab;
-
-    [SerializeField]
-    [Required]
-    GameObject _wagonPrefab;
-
     [FormerlySerializedAs("_debugTileUnwalkable")]
     [SerializeField]
     [Required]
     TileBase _debugTileUnbuildable;
-
-    [SerializeField]
-    [Min(0.1f)]
-    float _buildingMovingItemToTheWarehouseDuration = 1f;
-
-    [SerializeField]
-    [Min(0.1f)]
-    AnimationCurve _buildingMovingItemToTheWarehouseDurationCurve =
-        AnimationCurve.Linear(0, 0, 1, 1);
 
     readonly List<IDisposable> _dependencyHooks = new();
 
