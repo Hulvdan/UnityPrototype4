@@ -34,11 +34,11 @@ public class TrainNodeGO : MonoBehaviour {
     public void OnPickedUpResource(ScriptableResource resource, Vector2 resourceMapPosition,
         float gameSpeed) {
         _resourceSpriteRenderer.sprite = resource.smallerSprite;
-        _itemOffset.transform.localPosition = resourceMapPosition;
-        _itemOffset.transform.localPosition -= transform.localPosition;
+        _itemOffset.localPosition = resourceMapPosition;
+        _itemOffset.localPosition -= transform.localPosition;
         DOTween.To(
-            () => _itemOffset.transform.localPosition,
-            (Vector2 value) => _itemOffset.transform.localPosition = value,
+            () => _itemOffset.localPosition,
+            (Vector2 value) => _itemOffset.localPosition = value,
             Vector2.zero,
             _itemPickupDuration / gameSpeed
         ).SetEase(_itemPickupCurve);
