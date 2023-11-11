@@ -17,8 +17,8 @@ public class TrainNode {
     public int SegmentIndex;
 
     public float Width;
-    public readonly Guid ID;
     public bool isLocomotive;
+    public readonly Guid ID;
 
     public TrainNode(
         Guid id,

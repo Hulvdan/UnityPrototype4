@@ -19,9 +19,6 @@ public class TrainNodeGO : MonoBehaviour {
     [SerializeField]
     Animator _locomotiveAnimator;
 
-    public Animator LocomotiveAnimator => _locomotiveAnimator;
-    public SpriteRenderer MainSpriteRenderer => _mainSpriteRenderer;
-
     [SerializeField]
     [Required]
     [Min(0)]
@@ -30,6 +27,9 @@ public class TrainNodeGO : MonoBehaviour {
     [SerializeField]
     [Required]
     AnimationCurve _itemPickupCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
+    public Animator LocomotiveAnimator => _locomotiveAnimator;
+    public SpriteRenderer MainSpriteRenderer => _mainSpriteRenderer;
 
     public void OnPickedUpResource(ScriptableResource resource, Vector2 resourceMapPosition) {
         _resourceSpriteRenderer.sprite = resource.smallerSprite;
