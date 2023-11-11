@@ -134,21 +134,35 @@ public class GameManager : MonoBehaviour {
 
         var zoomValue = _actionZoom.ReadValue<float>();
         if (zoomValue > 0) {
-            _currentZoomIndex += 1;
-            if (_currentZoomIndex >= _zooms.Count - 1) {
-                _currentZoomIndex = _zooms.Count - 1;
-            }
+            NextZoomLevel();
         }
         else if (zoomValue < 0) {
-            _currentZoomIndex -= 1;
-            if (_currentZoomIndex < 0) {
-                _currentZoomIndex = 0;
-            }
+            PreviousZoomLevel();
         }
 
         if (zoomValue != 0) {
             _map.transform.localScale = new(currentZoom, currentZoom, 1);
         }
+    }
+
+    void PreviousZoomLevel() {
+        _currentZoomIndex -= 1;
+        if (_currentZoomIndex < 0) {
+            _currentZoomIndex = 0;
+        }
+
+        PlayerPrefs.SetInt("GameManager_CurrentZoomIndex", CurrentGameSpeedIndex);
+        PlayerPrefs.Save();
+    }
+
+    void NextZoomLevel() {
+        _currentZoomIndex += 1;
+        if (_currentZoomIndex >= _zooms.Count - 1) {
+            _currentZoomIndex = _zooms.Count - 1;
+        }
+
+        PlayerPrefs.SetInt("GameManager_CurrentZoomIndex", CurrentGameSpeedIndex);
+        PlayerPrefs.Save();
     }
 
     void OnEnable() {
@@ -170,6 +184,7 @@ public class GameManager : MonoBehaviour {
         }
 
         PlayerPrefs.SetInt("GameManager_CurrentGameSpeedIndex", CurrentGameSpeedIndex);
+        PlayerPrefs.Save();
     }
 
     void PreviousGameSpeed() {
@@ -179,6 +194,7 @@ public class GameManager : MonoBehaviour {
         }
 
         PlayerPrefs.SetInt("GameManager_CurrentGameSpeedIndex", CurrentGameSpeedIndex);
+        PlayerPrefs.Save();
     }
 
     public void RotateSelectedItemCW() {
