@@ -178,7 +178,7 @@ public class MapRenderer : MonoBehaviour {
 
     void Update() {
         UpdateHumans();
-        UpdateTrains(_gameManager.CurrentGameSpeed);
+        UpdateTrains(_gameManager.currentGameSpeed);
         UpdateBuildings();
 
         var hoveredTile = GetHoveredTile();
@@ -242,7 +242,7 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void UpdateBuildings() {
-        _buildingScaleTimeline += Time.deltaTime * _gameManager.CurrentGameSpeed;
+        _buildingScaleTimeline += Time.deltaTime * _gameManager.currentGameSpeed;
         if (_buildingScaleTimeline >= 2 * Mathf.PI * _sinCosScale) {
             _buildingScaleTimeline -= 2 * Mathf.PI * _sinCosScale;
         }
@@ -362,7 +362,7 @@ public class MapRenderer : MonoBehaviour {
             () => item.transform.localPosition,
             val => item.transform.localPosition = val,
             (Vector3)(building.position + itemOffset + Vector2.right / 2),
-            _buildingMovingItemToTheWarehouseDuration / _gameManager.CurrentGameSpeed
+            _buildingMovingItemToTheWarehouseDuration / _gameManager.currentGameSpeed
         ).SetEase(_buildingMovingItemToTheWarehouseDurationCurve);
 
         _storedItems.Add(data.Resource.id, itemGo);
@@ -577,12 +577,12 @@ public class MapRenderer : MonoBehaviour {
         );
 
         _humans[data.Human.ID].Item2.OnPickedUpResource(
-            data.Resource.script, _gameManager.CurrentGameSpeed
+            data.Resource.script, _gameManager.currentGameSpeed
         );
     }
 
     void OnHumanPlacedResource(E_HumanPlacedResource data) {
-        _humans[data.Human.ID].Item2.OnPlacedResource(_gameManager.CurrentGameSpeed);
+        _humans[data.Human.ID].Item2.OnPlacedResource(_gameManager.currentGameSpeed);
 
         var item = Instantiate(_itemPrefab, _itemsLayer);
 
@@ -634,7 +634,7 @@ public class MapRenderer : MonoBehaviour {
         _storedItems.Remove(resID);
 
         _trainNodes[data.TrainNode.ID].Item2.OnPickedUpResource(
-            data.Resource.script, data.ResourceSlotPosition, _gameManager.CurrentGameSpeed
+            data.Resource.script, data.ResourceSlotPosition, _gameManager.currentGameSpeed
         );
     }
 
@@ -661,7 +661,7 @@ public class MapRenderer : MonoBehaviour {
                 () => item.transform.localPosition,
                 val => item.transform.localPosition = val,
                 (Vector3)(building.position + itemOffset + Vector2.right / 2),
-                _itemPlacingDuration / _gameManager.CurrentGameSpeed
+                _itemPlacingDuration / _gameManager.currentGameSpeed
             )
             .SetEase(_itemPlacingCurve)
             .OnComplete(() => {
