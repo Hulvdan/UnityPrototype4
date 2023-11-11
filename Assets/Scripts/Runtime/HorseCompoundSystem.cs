@@ -48,10 +48,7 @@ public class HorseCompoundSystem : MonoBehaviour {
     TileBase _arrow4;
 
     [SerializeField]
-    Vector2Int _pointA;
-
-    [SerializeField]
-    Vector2Int _pointB;
+    List<HorseDestination> _destinations;
 
     [SerializeField]
     [Min(0)]
@@ -92,10 +89,10 @@ public class HorseCompoundSystem : MonoBehaviour {
         var horse = new HorseTrain(Guid.NewGuid(), _horseSpeed, Direction.Right);
         _map.onTrainCreated.OnNext(new() { Horse = horse });
 
-        horse.AddSegmentVertex(_pointA);
-        horse.AddSegmentVertex(_pointA);
-        horse.AddSegmentVertex(_pointA);
-        horse.AddSegmentVertex(_pointA);
+        horse.AddSegmentVertex(_destinations[0].Position);
+        horse.AddSegmentVertex(_destinations[0].Position);
+        horse.AddSegmentVertex(_destinations[0].Position);
+        horse.AddSegmentVertex(_destinations[0].Position);
 
         horse.AddLocomotive(new(Guid.NewGuid(), .8f, true, 0), 3, 0f);
         horse.AddWagon(new(Guid.NewGuid(), .6f));
@@ -127,14 +124,9 @@ public class HorseCompoundSystem : MonoBehaviour {
         _movementSystem.Init(_mapSize, _movementTiles);
         _movementSystem.OnReachedDestination.Subscribe(OnHorseReachedDestination);
 
-        _horse.AddDestination(new() {
-            Type = HorseDestinationType.Load,
-            Pos = _pointB,
-        });
-        _horse.AddDestination(new() {
-            Type = HorseDestinationType.Unload,
-            Pos = _pointA,
-        });
+        foreach (var dest in _destinations) {
+            _horse.AddDestination(new() { Type = dest.Type, Pos = dest.Position });
+        }
 
         _movementSystem.TrySetNextDestinationAndBuildPath(_horse);
         _horse.State = TrainState.Moving;
@@ -416,5 +408,11 @@ public class HorseCompoundSystem : MonoBehaviour {
         );
         _debugTilemap.SetTile(td, false);
     }
+}
+
+[Serializable]
+internal class HorseDestination {
+    public Vector2Int Position;
+    public HorseDestinationType Type;
 }
 }
