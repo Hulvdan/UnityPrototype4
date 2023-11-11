@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
 using DG.Tweening;
@@ -128,13 +127,13 @@ public class MapRenderer : MonoBehaviour {
 
     readonly List<IDisposable> _dependencyHooks = new();
 
-    readonly Dictionary<Guid, Tuple<Human, HumanGO>> _humans = new();
-    readonly Dictionary<Guid, ItemGO> _storedItems = new();
-
     readonly Dictionary<
         Guid,
         Tuple<HorseTrain, List<Tuple<TrainNode, TrainNodeGO>>>
     > _horses = new();
+
+    readonly Dictionary<Guid, Tuple<Human, HumanGO>> _humans = new();
+    readonly Dictionary<Guid, ItemGO> _storedItems = new();
 
     readonly Dictionary<Guid, Tuple<TrainNode, TrainNodeGO>> _trainNodes = new();
 
@@ -142,6 +141,8 @@ public class MapRenderer : MonoBehaviour {
 
     GameManager _gameManager;
     InputActionMap _gameplayInputMap;
+
+    bool _isHoveringOverItems;
     IMap _map;
     IMapSize _mapSize;
     InputAction _mouseBuildAction;
@@ -149,8 +150,6 @@ public class MapRenderer : MonoBehaviour {
     Matrix4x4 _previewMatrix;
 
     Tilemap _resourceTilemap;
-
-    bool _isHoveringOverItems;
 
     public Subject<PickupableItemHoveringState> OnPickupableItemHoveringChanged { get; } = new();
 

@@ -6,21 +6,22 @@ using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
 public class HorseTrain {
-    public Guid ID;
     public readonly float Speed;
 
     int? _currentDestination;
     public List<TrainDestination> Destinations = new();
 
     public Direction Direction;
+    public Guid ID;
 
     [CanBeNull]
     public Tuple<Vector2Int, Vector2Int> LastReachedSegmentVertexes;
 
+    public float NormalisedSpeed = 1f;
+
     public TrainState State = TrainState.Idle;
 
     public float TrainLoadingUnloadingElapsed;
-    public float NormalisedSpeed = 1f;
 
     public HorseTrain(Guid id, float speed, Direction direction) {
         Assert.IsTrue(speed >= 0);
