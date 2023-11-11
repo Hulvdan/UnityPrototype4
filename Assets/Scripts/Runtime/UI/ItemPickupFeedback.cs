@@ -1,9 +1,9 @@
-using BFG.Runtime;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+namespace BFG.Runtime {
 public class ItemPickupFeedback : MonoBehaviour {
     [SerializeField]
     [Required]
@@ -28,4 +28,5 @@ public class ItemPickupFeedback : MonoBehaviour {
         _quantityText.SetText("+1");
         _resourceImage.sprite = res.sprite;
     }
+}
 }

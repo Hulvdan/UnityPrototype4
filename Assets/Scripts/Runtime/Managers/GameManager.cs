@@ -34,8 +34,9 @@ public class GameManager : MonoBehaviour {
     [SerializeField]
     float _mapMovementScale = 32f;
 
-    readonly List<float> _zooms = new() { .25f, 0.5f, 1f, 2f, 4f };
     readonly List<float> _gameSpeeds = new() { .1f, .25f, .5f, 1f, 2f, 4f };
+
+    readonly List<float> _zooms = new() { .25f, 0.5f, 1f, 2f, 4f };
 
     public readonly Subject<SelectedItem> OnSelectedItemChanged = new();
     public readonly Subject<int> OnSelectedItemRotationChanged = new();
@@ -46,6 +47,7 @@ public class GameManager : MonoBehaviour {
     InputAction _actionRotate;
     InputAction _actionStartMapMovement;
     InputAction _actionZoom;
+    int _currentGameSpeedIndex;
     int _currentZoomIndex;
 
     InputActionMap _inputActionMap;
@@ -55,7 +57,6 @@ public class GameManager : MonoBehaviour {
     SelectedItem _selectedItem = SelectedItem.None;
 
     int _selectedItemRotation;
-    int _currentGameSpeedIndex;
 
     public float currentGameSpeed => _gameSpeeds[_currentGameSpeedIndex];
 
@@ -145,6 +146,18 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    void OnEnable() {
+        _inputActionMap.Enable();
+    }
+
+    void OnDisable() {
+        _inputActionMap.Disable();
+    }
+
+    void OnValidate() {
+        _mapRenderer.InitDependencies(this, _map, _map);
+    }
+
     void PreviousZoomLevel() {
         _currentZoomIndex -= 1;
         if (_currentZoomIndex < 0) {
@@ -163,18 +176,6 @@ public class GameManager : MonoBehaviour {
 
         PlayerPrefs.SetInt("GameManager_CurrentZoomIndex", _currentGameSpeedIndex);
         PlayerPrefs.Save();
-    }
-
-    void OnEnable() {
-        _inputActionMap.Enable();
-    }
-
-    void OnDisable() {
-        _inputActionMap.Disable();
-    }
-
-    void OnValidate() {
-        _mapRenderer.InitDependencies(this, _map, _map);
     }
 
     void NextGameSpeed() {
