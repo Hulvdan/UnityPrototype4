@@ -602,7 +602,7 @@ public class MapRenderer : MonoBehaviour {
         var i = (building.storedResources.Count - 1) % scriptable.storedItemPositions.Count;
         var itemOffset = scriptable.storedItemPositions[i];
 
-        item.transform.localPosition = data.TrainNode.Position;
+        item.transform.localPosition = data.TrainNode.Position + Vector2.one / 2f;
         var itemGo = item.GetComponent<ItemGO>();
         itemGo.SetAs(data.Resource.script);
 
