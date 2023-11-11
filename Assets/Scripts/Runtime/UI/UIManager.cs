@@ -36,6 +36,10 @@ public class UIManager : MonoBehaviour {
     [SerializeField]
     AnimationCurve _feedbackCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
+    [FormerlySerializedAs("feedbackCurve")]
+    [SerializeField]
+    AnimationCurve _feedbackOpacityCurve = AnimationCurve.Linear(1, 1, 0, 0);
+
     readonly List<IDisposable> _dependencyHooks = new();
 
     IMap _map;
@@ -80,7 +84,12 @@ public class UIManager : MonoBehaviour {
             - new Vector3(Camera.main.pixelWidth / 2, Camera.main.pixelHeight / 2, 0);
         feedback.transform.localPosition = uiPos;
 
-        feedback.GetComponent<ItemPickupFeedback>().Init(res.script);
+        var f = feedback.GetComponent<ItemPickupFeedback>();
+        f.Init(res.script);
+
+        DOTween
+            .To(() => f.Group.alpha, val => f.Group.alpha = val, 0, _feedbackDuration)
+            .SetEase(_feedbackOpacityCurve);
 
         DOTween
             .To(

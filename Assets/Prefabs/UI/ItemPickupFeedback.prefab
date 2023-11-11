@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2145891503969559506}
   - component: {fileID: 797794061742009977}
   - component: {fileID: 5047495391129835952}
+  - component: {fileID: 3623294241355711208}
   m_Layer: 0
   m_Name: ItemPickupFeedback
   m_TagString: Untagged
@@ -81,6 +82,19 @@ MonoBehaviour:
   _quantityText: {fileID: 1178702605045341615}
   _resourceNameText: {fileID: 2291108558276913336}
   _resourceImage: {fileID: 5082548456317163290}
+  _group: {fileID: 3623294241355711208}
+--- !u!225 &3623294241355711208
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 734847210889320874}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &2090549551140606785
 GameObject:
   m_ObjectHideFlags: 0
