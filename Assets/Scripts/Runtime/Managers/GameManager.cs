@@ -117,14 +117,17 @@ public class GameManager : MonoBehaviour {
 
     void NextGameSpeed() {
         CurrentGameSpeedIndex += 1;
-        CurrentGameSpeedIndex %= GameSpeeds.Count;
+        if (CurrentGameSpeedIndex >= GameSpeeds.Count) {
+            CurrentGameSpeedIndex = GameSpeeds.Count - 1;
+        }
+
         PlayerPrefs.SetInt("GameManager_CurrentGameSpeedIndex", CurrentGameSpeedIndex);
     }
 
     void PreviousGameSpeed() {
         CurrentGameSpeedIndex -= 1;
         if (CurrentGameSpeedIndex < 0) {
-            CurrentGameSpeedIndex = GameSpeeds.Count - 1;
+            CurrentGameSpeedIndex = 0;
         }
 
         PlayerPrefs.SetInt("GameManager_CurrentGameSpeedIndex", CurrentGameSpeedIndex);

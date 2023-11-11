@@ -875,6 +875,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         Building foundBuilding = null;
         ResourceObj foundResource = null;
         var foundResourceIndex = -1;
+        var resourceSlotPosition = Vector2.zero;
         foreach (var building in shuffledBuildings) {
             if (building.scriptableBuilding.type != BuildingType.Store) {
                 continue;
@@ -891,6 +892,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             foundResourceIndex = building.storedResources.Count - 1;
             foundBuilding = building;
             foundResource = building.storedResources[foundResourceIndex];
+            resourceSlotPosition = building.scriptableBuilding.storedItemPositions[
+                                       foundResourceIndex % building.scriptableBuilding
+                                           .storedItemPositions.Count] +
+                                   building.position;
             building.storedResources.RemoveAt(foundResourceIndex);
             break;
         }
@@ -908,6 +913,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             PickedUpAmount = 1,
             Building = foundBuilding,
             Resource = foundResource,
+            ResourceSlotPosition = resourceSlotPosition,
         });
     }
 

@@ -549,7 +549,7 @@ public class MapRenderer : MonoBehaviour {
         }
 
         var itemOffset = scriptable.storedItemPositions[i];
-        item.transform.localPosition = building.position + itemOffset + Vector2.right / 2;
+        item.transform.localPosition = building.position + itemOffset;
         var itemGo = item.GetComponent<ItemGO>();
         itemGo.SetAs(data.Resource.script);
 
@@ -587,7 +587,7 @@ public class MapRenderer : MonoBehaviour {
         _storedItems.Remove(resID);
 
         _trainNodes[data.TrainNode.ID].Item2.OnPickedUpResource(
-            data.Resource.script, data.Building.position, _gameManager.CurrentGameSpeed
+            data.Resource.script, data.ResourceSlotPosition, _gameManager.CurrentGameSpeed
         );
     }
 
