@@ -35,11 +35,11 @@ public class GameManager : MonoBehaviour {
     float _mapMovementScale = 32f;
 
     readonly List<float> _zooms = new() { .25f, 0.5f, 1f, 2f, 4f };
-
-    readonly List<float> GameSpeeds = new() { .1f, .25f, .5f, 1f, 2f, 4f };
+    readonly List<float> _gameSpeeds = new() { .1f, .25f, .5f, 1f, 2f, 4f };
 
     public readonly Subject<SelectedItem> OnSelectedItemChanged = new();
     public readonly Subject<int> OnSelectedItemRotationChanged = new();
+
     InputAction _actionDecreaseGameSpeed;
     InputAction _actionIncreaseGameSpeed;
     InputAction _actionMoveMap;
@@ -55,9 +55,9 @@ public class GameManager : MonoBehaviour {
     SelectedItem _selectedItem = SelectedItem.None;
 
     int _selectedItemRotation;
-    int CurrentGameSpeedIndex;
+    int _currentGameSpeedIndex;
 
-    public float CurrentGameSpeed => GameSpeeds[CurrentGameSpeedIndex];
+    public float currentGameSpeed => _gameSpeeds[_currentGameSpeedIndex];
 
     public int selectedItemRotation {
         get => _selectedItemRotation;
@@ -67,7 +67,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    public float dt => Time.deltaTime * CurrentGameSpeed;
+    public float dt => Time.deltaTime * currentGameSpeed;
 
     public SelectedItem selectedItem {
         get => _selectedItem;
@@ -101,8 +101,8 @@ public class GameManager : MonoBehaviour {
         _map.Init();
         _buildablesPanel.Init();
 
-        CurrentGameSpeedIndex =
-            PlayerPrefs.GetInt("GameManager_CurrentGameSpeedIndex", 3) % GameSpeeds.Count;
+        _currentGameSpeedIndex =
+            PlayerPrefs.GetInt("GameManager_CurrentGameSpeedIndex", 3) % _gameSpeeds.Count;
         _currentZoomIndex = PlayerPrefs.GetInt("GameManager_CurrentZoomIndex", 2) % _zooms.Count;
         _map.transform.localScale = new(currentZoom, currentZoom, 1);
     }
@@ -151,7 +151,7 @@ public class GameManager : MonoBehaviour {
             _currentZoomIndex = 0;
         }
 
-        PlayerPrefs.SetInt("GameManager_CurrentZoomIndex", CurrentGameSpeedIndex);
+        PlayerPrefs.SetInt("GameManager_CurrentZoomIndex", _currentGameSpeedIndex);
         PlayerPrefs.Save();
     }
 
@@ -161,7 +161,7 @@ public class GameManager : MonoBehaviour {
             _currentZoomIndex = _zooms.Count - 1;
         }
 
-        PlayerPrefs.SetInt("GameManager_CurrentZoomIndex", CurrentGameSpeedIndex);
+        PlayerPrefs.SetInt("GameManager_CurrentZoomIndex", _currentGameSpeedIndex);
         PlayerPrefs.Save();
     }
 
@@ -178,29 +178,23 @@ public class GameManager : MonoBehaviour {
     }
 
     void NextGameSpeed() {
-        CurrentGameSpeedIndex += 1;
-        if (CurrentGameSpeedIndex >= GameSpeeds.Count) {
-            CurrentGameSpeedIndex = GameSpeeds.Count - 1;
+        _currentGameSpeedIndex += 1;
+        if (_currentGameSpeedIndex >= _gameSpeeds.Count) {
+            _currentGameSpeedIndex = _gameSpeeds.Count - 1;
         }
 
-        PlayerPrefs.SetInt("GameManager_CurrentGameSpeedIndex", CurrentGameSpeedIndex);
+        PlayerPrefs.SetInt("GameManager_CurrentGameSpeedIndex", _currentGameSpeedIndex);
         PlayerPrefs.Save();
     }
 
     void PreviousGameSpeed() {
-        CurrentGameSpeedIndex -= 1;
-        if (CurrentGameSpeedIndex < 0) {
-            CurrentGameSpeedIndex = 0;
+        _currentGameSpeedIndex -= 1;
+        if (_currentGameSpeedIndex < 0) {
+            _currentGameSpeedIndex = 0;
         }
 
-        PlayerPrefs.SetInt("GameManager_CurrentGameSpeedIndex", CurrentGameSpeedIndex);
+        PlayerPrefs.SetInt("GameManager_CurrentGameSpeedIndex", _currentGameSpeedIndex);
         PlayerPrefs.Save();
-    }
-
-    public void RotateSelectedItemCW() {
-    }
-
-    public void RotateSelectedItemCCW() {
     }
 }
 }
