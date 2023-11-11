@@ -8596,6 +8596,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _movementSystemTilemap: {fileID: 278003677}
+  WagonSprite_Right: {fileID: 21300000, guid: 0e83a9b261d526e449fe74f637ae7a4f, type: 3}
+  WagonSprite_Up: {fileID: 21300000, guid: 1d9fee1bcbd38f94da21b2088e3deea6, type: 3}
   _previewTilemap: {fileID: 828968650}
   _grid: {fileID: 539681139}
   _tileGrass: {fileID: 11400000, guid: 53d50839a5ac409478f0636c58cf9418, type: 2}

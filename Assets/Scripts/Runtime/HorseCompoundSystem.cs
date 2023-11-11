@@ -92,10 +92,10 @@ public class HorseCompoundSystem : MonoBehaviour {
         horse.AddSegmentVertex(_pointA);
         horse.AddSegmentVertex(_pointA);
 
-        horse.AddLocomotive(new(Guid.NewGuid(), 1f, true, 0), 3, 0f);
-        horse.AddWagon(new(Guid.NewGuid(), .8f));
-        horse.AddWagon(new(Guid.NewGuid(), .8f));
-        horse.AddWagon(new(Guid.NewGuid(), .8f));
+        horse.AddLocomotive(new(Guid.NewGuid(), .8f, true, 0), 3, 0f);
+        horse.AddWagon(new(Guid.NewGuid(), .6f));
+        horse.AddWagon(new(Guid.NewGuid(), .6f));
+        horse.AddWagon(new(Guid.NewGuid(), .6f));
 
         var isLocomotive = true;
         foreach (var node in horse.nodes) {

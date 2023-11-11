@@ -26,6 +26,14 @@ public class MapRenderer : MonoBehaviour {
 
     [SerializeField]
     [Required]
+    Sprite WagonSprite_Right;
+
+    [SerializeField]
+    [Required]
+    Sprite WagonSprite_Up;
+
+    [SerializeField]
+    [Required]
     Tilemap _previewTilemap;
 
     [SerializeField]
@@ -625,9 +633,17 @@ public class MapRenderer : MonoBehaviour {
                     anim.SetFloat("speedX", Mathf.Cos(Mathf.Deg2Rad * trainNode.Rotation));
                     anim.SetFloat("speedY", Mathf.Sin(Mathf.Deg2Rad * trainNode.Rotation));
                     anim.SetFloat("speed", horse.Item1.NormalisedSpeed);
-
-                    go.MainSpriteRenderer.flipX = Math.Abs(trainNode.Rotation - 180) < 0.001f;
                 }
+                else {
+                    if (trainNode.Rotation == 0 || Math.Abs(trainNode.Rotation - 180) < 0.001f) {
+                        go.MainSpriteRenderer.sprite = WagonSprite_Right;
+                    }
+                    else {
+                        go.MainSpriteRenderer.sprite = WagonSprite_Up;
+                    }
+                }
+
+                go.MainSpriteRenderer.flipX = Math.Abs(trainNode.Rotation - 180) < 0.001f;
             }
         }
     }

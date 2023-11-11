@@ -202,7 +202,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 7524924543403809702}
+  _mainSpriteRenderer: {fileID: 2823813532148224219}
   _itemOffset: {fileID: 1822842438786602458}
+  _locomotiveAnimator: {fileID: 0}
   _itemPickupDuration: 0.5
   _itemPickupCurve:
     serializedVersion: 2
