@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour {
 
     public readonly Subject<SelectedItem> OnSelectedItemChanged = new();
     public readonly Subject<int> OnSelectedItemRotationChanged = new();
+    InputAction _actionChangeLanguage;
 
     InputAction _actionDecreaseGameSpeed;
     InputAction _actionIncreaseGameSpeed;
@@ -90,6 +91,7 @@ public class GameManager : MonoBehaviour {
         _actionStartMapMovement = _inputActionMap.FindAction("StartMapMovement");
         _actionMoveMap = _inputActionMap.FindAction("MoveMap");
         _actionZoom = _inputActionMap.FindAction("ZoomMap");
+        _actionChangeLanguage = _inputActionMap.FindAction("ChangeLanguage");
     }
 
     void Start() {
@@ -143,6 +145,12 @@ public class GameManager : MonoBehaviour {
 
         if (zoomValue != 0) {
             _map.transform.localScale = new(currentZoom, currentZoom, 1);
+        }
+
+        if (_actionChangeLanguage.WasReleasedThisFrame()) {
+            var newLanguage = (int)LocalizationDatabase.Instance.CurrentLanguage + 1;
+            newLanguage %= (int)(Language.RU + 1);
+            LocalizationDatabase.Instance.ChangeLanguage((Language)newLanguage);
         }
     }
 

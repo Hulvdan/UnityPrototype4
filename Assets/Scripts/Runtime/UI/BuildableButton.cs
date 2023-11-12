@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace BFG.Runtime {
 [Serializable]
-public struct ColorBlock : IEquatable<ColorBlock> {
+public struct ColorBlock {
     [SerializeField]
     Color _normalColor;
 
@@ -37,30 +37,6 @@ public struct ColorBlock : IEquatable<ColorBlock> {
     public Color disabledColor {
         get => _disabledColor;
         set => _disabledColor = value;
-    }
-
-    public bool Equals(ColorBlock other) {
-        return normalColor == other.normalColor &&
-               highlightedColor == other.highlightedColor &&
-               selectedColor == other.selectedColor &&
-               selectedColor == other.selectedColor &&
-               disabledColor == other.disabledColor;
-    }
-
-    public override bool Equals(object obj) {
-        if (!(obj is ColorBlock)) {
-            return false;
-        }
-
-        return Equals((ColorBlock)obj);
-    }
-
-    public static bool operator ==(ColorBlock point1, ColorBlock point2) {
-        return point1.Equals(point2);
-    }
-
-    public static bool operator !=(ColorBlock point1, ColorBlock point2) {
-        return !point1.Equals(point2);
     }
 }
 
@@ -163,6 +139,7 @@ public class BuildableButton : MonoBehaviour {
             ButtonEnum.Selected => _colorBlock.selectedColor,
             ButtonEnum.Hovered => _colorBlock.highlightedColor,
             ButtonEnum.Normal => _colorBlock.normalColor,
+            _ => _colorBlock.normalColor,
         };
     }
 
