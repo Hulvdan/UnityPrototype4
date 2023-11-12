@@ -280,6 +280,7 @@ public class MapRenderer : MonoBehaviour {
         var createdModal = Instantiate(_stablesModalPrefab, _buildingModalsContainer);
         var panel = createdModal.GetComponent<Stable_Panel>();
         panel.Init(Guid.NewGuid(), _map, _gameManager, building, new() { new(1, _planksResource) });
+        panel.OnCreateHorse += _map.OnCreateHorse;
         panel.OnClose += OnModalClose;
         _modals.Add(panel.id, createdModal.gameObject);
     }

@@ -42,6 +42,18 @@ public class InitialMapProvider : MonoBehaviour {
             for (var x = 0; x < _mapSize.sizeX; x++) {
                 var tilemapTile = _movementSystemTilemap.GetTile(new(x, y));
 
+                var isStables = false;
+                foreach (var building in _map.buildings) {
+                    if (building.scriptableBuilding.type != BuildingType.SpecialStable) {
+                        continue;
+                    }
+
+                    if (building.posX == x && building.posY == y) {
+                        isStables = true;
+                        break;
+                    }
+                }
+
                 ElementTile tile;
                 if (tilemapTile == _roadTile) {
                     tile = ElementTile.Road;
@@ -51,6 +63,9 @@ public class InitialMapProvider : MonoBehaviour {
                 }
                 else if (tilemapTile == _stationVerticalTile) {
                     tile = new(ElementTileType.Station, 1);
+                }
+                else if (isStables) {
+                    tile = new(ElementTileType.Stables, 0);
                 }
                 else {
                     tile = ElementTile.None;

@@ -233,11 +233,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             var newAmount = oldAmount + building.producedResources.Count;
             resources.Find(x => x.Resource == res).Amount = newAmount;
 
-            var ids = new List<Guid>();
-            foreach (var resource in building.producedResources) {
-                ids.Add(resource.id);
-            }
-
             onProducedResourcesPickedUp.OnNext(new() {
                 Resources = building.producedResources,
                 Position = itemsPos,
@@ -252,6 +247,17 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
     }
 
+    public void OnCreateHorse(HorseCreateData data) {
+        SpendResources(data.RequiredResources);
+        var horse = _horseCompoundSystem.CreateTrain(0, data.Building.position, Direction.Down);
+        horse.AddDestination(new() {
+            Type = HorseDestinationType.Default,
+            Pos = data.Building.position,
+        });
+
+        _horseCompoundSystem.TrySetNextDestinationAndBuildPath(horse);
+    }
+
     public int sizeY => _mapSizeY;
     public int sizeX => _mapSizeX;
 
@@ -261,6 +267,26 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public bool Contains(int x, int y) {
         return x >= 0 && x < sizeX && y >= 0 && y < sizeY;
+    }
+
+    void SpendResources(List<Tuple<int, ScriptableResource>> resourcesToSpend) {
+        foreach (var res in resourcesToSpend) {
+            foreach (var ress in resources) {
+                if (ress.Resource != res.Item2) {
+                    continue;
+                }
+
+                var oldAmount = ress.Amount;
+                ress.Amount = Math.Max(ress.Amount - res.Item1, 0);
+
+                onResourceChanged.OnNext(new() {
+                    Resource = res.Item2,
+                    OldAmount = oldAmount,
+                    NewAmount = ress.Amount,
+                });
+                break;
+            }
+        }
     }
 
     void UpdateBuildings(float dt) {
