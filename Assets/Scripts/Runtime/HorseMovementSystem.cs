@@ -110,18 +110,33 @@ public class HorseMovementSystem {
             var vertex1 = horse.segmentVertexes[v1];
             node.Position = Vector2.Lerp(vertex0, vertex1, node.Progress);
             var dv = vertex1 - vertex0;
-            node.Rotation = Mathf.Atan2(dv.y, dv.x) * Mathf.Rad2Deg;
+
+            if (vertex0 != vertex1) {
+                node.Rotation = Mathf.Atan2(dv.y, dv.x) * Mathf.Rad2Deg;
+            }
         }
     }
 
     /// <summary>
-    ///     Returns a list of Vector2Int including starting and ending cells.
+    ///     Returns a path of cells from source to destination.
     /// </summary>
+    /// <remarks>
+    ///     If source == destination, returns an empty list.
+    ///     If source != destination, returns a list of cells without source, but with destination.
+    ///     If could not find path, return Success = false.
+    /// </remarks>
     public PathFindResult FindPath(
         Vector2Int source,
         Vector2Int destination,
         Direction startingDirection
     ) {
+        if (source == destination) {
+            return new() {
+                Path = new() { Capacity = 0 },
+                Success = true,
+            };
+        }
+
         foreach (var row in _graph) {
             foreach (var node in row) {
                 if (node != null) {
@@ -148,8 +163,7 @@ public class HorseMovementSystem {
                     continue;
                 }
 
-                if (isStartingTile && (Direction)i !=
-                    startingDirection) {
+                if (isStartingTile && ((int)startingDirection + 2) % 4 == i) {
                     continue;
                 }
 
