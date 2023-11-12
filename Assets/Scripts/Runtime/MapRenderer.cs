@@ -81,6 +81,10 @@ public class MapRenderer : MonoBehaviour {
 
     [SerializeField]
     [Required]
+    ScriptableResource _planksResource;
+
+    [SerializeField]
+    [Required]
     Transform _itemsLayer;
 
     [SerializeField]
@@ -94,6 +98,15 @@ public class MapRenderer : MonoBehaviour {
     [SerializeField]
     [Required]
     GameObject _wagonPrefab;
+
+    [SerializeField]
+    [Required]
+    Transform _buildingModalsContainer;
+
+    [SerializeField]
+    [Required]
+    [AssetsOnly]
+    Stable_Panel _stablesModalPrefab;
 
     [Header("Setup")]
     [SerializeField]
@@ -171,6 +184,9 @@ public class MapRenderer : MonoBehaviour {
 
     public Subject<PickupableItemHoveringState> OnPickupableItemHoveringChanged { get; } = new();
 
+    Dictionary<Guid, GameObject> _modals = new();
+    Building _hoveredBuilding;
+
     void Awake() {
         _camera = Camera.main;
 
@@ -185,7 +201,7 @@ public class MapRenderer : MonoBehaviour {
         UpdateBuildings();
 
         var hoveredTile = GetHoveredTile();
-        UpdateHoveringOverItems(hoveredTile);
+        UpdateHoveringState(hoveredTile);
 
         DisplayPreviewTile();
 
@@ -195,13 +211,41 @@ public class MapRenderer : MonoBehaviour {
                 if (_isHoveringOverItems) {
                     _map.CollectItems(hoveredTile);
                 }
-                else if (_map.IsBuildable(hoveredTile)) {
+                else if (
+                    _gameManager.selectedItem == SelectedItem.None
+                    && _hoveredBuilding != null
+                ) {
+                    if (_hoveredBuilding.scriptableBuilding.type == BuildingType.SpecialStable) {
+                        CreateStablesPanel(_hoveredBuilding);
+                    }
+                }
+                else if (
+                    _gameManager.selectedItem != SelectedItem.None
+                    && _map.IsBuildable(hoveredTile)
+                ) {
                     _map.TryBuild(hoveredTile, _gameManager.selectedItem);
                 }
             }
         }
-        // else if (_mouseBuildAction.WasReleasedThisFrame()) {
-        // }
+    }
+
+    void CreateStablesPanel(Building building) {
+        foreach (var modal in _modals.Values) {
+            if (modal.GetComponent<Stable_Panel>().building == building) {
+                return;
+            }
+        }
+
+        var createdModal = Instantiate(_stablesModalPrefab, _buildingModalsContainer);
+        var panel = createdModal.GetComponent<Stable_Panel>();
+        panel.Init(Guid.NewGuid(), building, new() { new(1, _planksResource) });
+        panel.OnClose += OnModalClose;
+        _modals.Add(panel.id, createdModal.gameObject);
+    }
+
+    void OnModalClose(Stable_Panel panel) {
+        _modals.Remove(panel.id);
+        Destroy(panel);
     }
 
     void OnEnable() {
@@ -279,7 +323,15 @@ public class MapRenderer : MonoBehaviour {
         );
     }
 
-    void UpdateHoveringOverItems(Vector2Int hoveredTile) {
+    void UpdateHoveringState(Vector2Int hoveredTile) {
+        _hoveredBuilding = null;
+        foreach (var building in _map.buildings) {
+            if (building.Contains(hoveredTile)) {
+                _hoveredBuilding = building;
+                break;
+            }
+        }
+
         var shouldStopHovering = false;
         if (_mapSize.Contains(hoveredTile)) {
             if (_map.CellContainsPickupableItems(hoveredTile)) {
@@ -613,13 +665,9 @@ public class MapRenderer : MonoBehaviour {
         _storedItems.Add(data.Resource.id, itemGo);
     }
 
-    Vector3 GameLogicToRenderPos(Vector2 pos) {
-        return _grid.LocalToWorld(pos) + new Vector3(.5f, .5f, 0);
-    }
-
     void UpdateHumans() {
         foreach (var (human, go) in _humans.Values) {
-            go.transform.position = GameLogicToRenderPos(human.position);
+            go.transform.localPosition = human.position + Vector2.one / 2;
         }
     }
 
@@ -685,7 +733,7 @@ public class MapRenderer : MonoBehaviour {
     void UpdateTrains(float gameSpeed) {
         foreach (var horse in _horses.Values) {
             foreach (var (trainNode, go) in horse.Item2) {
-                go.transform.position = GameLogicToRenderPos(trainNode.Position);
+                go.transform.localPosition = trainNode.Position + Vector2.one / 2;
 
                 if (trainNode.isLocomotive) {
                     var animator = go.LocomotiveAnimator;
