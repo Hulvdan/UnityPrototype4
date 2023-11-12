@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,6 +29,9 @@ public class Stable_Panel : MonoBehaviour {
 
     [NonSerialized]
     public Action<Stable_Panel> OnClose = delegate { };
+
+    [NonSerialized]
+    public Action<HorseCreateData> OnCreateHorse = delegate { };
 
     public Guid id { get; private set; }
     public Building building { get; private set; }
@@ -75,6 +79,15 @@ public class Stable_Panel : MonoBehaviour {
         _createButton.interactable = allSufficient;
     }
 
+    public void OnButtonCreateHorsePressed() {
+        OnCreateHorse?.Invoke(new() {
+            Building = building,
+            RequiredResources = _requiredItems.Select(
+                i => new Tuple<int, ScriptableResource>(i.quantity, i.resource)
+            ).ToList(),
+        });
+    }
+
     public void OnButtonClosePressed() {
         Close();
     }
@@ -84,5 +97,10 @@ public class Stable_Panel : MonoBehaviour {
         _hook = null;
         OnClose?.Invoke(this);
     }
+}
+
+public class HorseCreateData {
+    public Building Building;
+    public List<Tuple<int, ScriptableResource>> RequiredResources;
 }
 }

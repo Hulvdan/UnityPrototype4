@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reactive.Subjects;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -11,6 +10,7 @@ public enum ElementTileType {
     None,
     Road,
     Station,
+    Stables,
 }
 
 public class HorseCompoundSystem : MonoBehaviour {
@@ -63,7 +63,6 @@ public class HorseCompoundSystem : MonoBehaviour {
     [Min(0)]
     float _horseSpeed = 1f;
 
-    public readonly Subject<Direction> OnHorseReachedTarget = new();
     GameManager _gameManager;
 
     HorseTrain _horse;
@@ -73,7 +72,6 @@ public class HorseCompoundSystem : MonoBehaviour {
 
     HorseMovementSystem _movementSystem;
     List<List<MovementGraphTile>> _movementTiles;
-    List<Vector2Int> _path = new();
 
     public void InitDependencies(GameManager gameManager) {
         _gameManager = gameManager;
@@ -85,19 +83,20 @@ public class HorseCompoundSystem : MonoBehaviour {
         }
     }
 
-    HorseTrain CreateTrain() {
-        var horse = new HorseTrain(Guid.NewGuid(), _horseSpeed, Direction.Right);
+    public HorseTrain CreateTrain(
+        int wagonsCount, Vector2Int initialPosition, Direction direction
+    ) {
+        var horse = new HorseTrain(Guid.NewGuid(), _horseSpeed, direction);
         _map.onTrainCreated.OnNext(new() { Horse = horse });
 
-        horse.AddSegmentVertex(_destinations[0].Position);
-        horse.AddSegmentVertex(_destinations[0].Position);
-        horse.AddSegmentVertex(_destinations[0].Position);
-        horse.AddSegmentVertex(_destinations[0].Position);
+        horse.AddSegmentVertex(initialPosition);
+        horse.AddSegmentVertex(initialPosition);
 
         horse.AddLocomotive(new(Guid.NewGuid(), .8f, true, 0), 3, 0f);
-        horse.AddWagon(new(Guid.NewGuid(), .6f));
-        horse.AddWagon(new(Guid.NewGuid(), .6f));
-        horse.AddWagon(new(Guid.NewGuid(), .6f));
+        for (var i = 0; i < wagonsCount; i++) {
+            horse.AddSegmentVertex(initialPosition);
+            horse.AddWagon(new(Guid.NewGuid(), .6f));
+        }
 
         var isLocomotive = true;
         foreach (var node in horse.nodes) {
@@ -116,7 +115,7 @@ public class HorseCompoundSystem : MonoBehaviour {
         _map = map;
         _map.onElementTileChanged.Subscribe(OnElementTileChanged);
 
-        _horse = CreateTrain();
+        _horse = CreateTrain(3, _destinations[0].Position, Direction.Right);
 
         GenerateMovementGraph();
 
@@ -125,11 +124,18 @@ public class HorseCompoundSystem : MonoBehaviour {
         _movementSystem.OnReachedDestination.Subscribe(OnHorseReachedDestination);
 
         foreach (var dest in _destinations) {
-            _horse.AddDestination(new() { Type = dest.Type, Pos = dest.Position });
+            _horse.AddDestination(new() {
+                Type = dest.Type,
+                Pos = dest.Position,
+            });
         }
 
-        _movementSystem.TrySetNextDestinationAndBuildPath(_horse);
+        TrySetNextDestinationAndBuildPath(_horse);
         _horse.State = TrainState.Moving;
+    }
+
+    public void TrySetNextDestinationAndBuildPath(HorseTrain horse) {
+        _movementSystem.TrySetNextDestinationAndBuildPath(horse);
     }
 
     void OnHorseReachedDestination(E_TrainReachedDestination data) {
@@ -139,6 +145,8 @@ public class HorseCompoundSystem : MonoBehaviour {
                 break;
             case HorseDestinationType.Unload:
                 data.train.State = TrainState.Unloading;
+                break;
+            case HorseDestinationType.Default:
                 break;
         }
     }
@@ -285,6 +293,9 @@ public class HorseCompoundSystem : MonoBehaviour {
         else if (tile.Type == ElementTileType.Station) {
             UpdateStationTile(x, y, tile, mTile, elementTiles);
         }
+        else if (tile.Type == ElementTileType.Stables) {
+            UpdateStablesTile(x, y, tile, mTile, elementTiles);
+        }
     }
 
     void UpdateRoadTile(
@@ -317,6 +328,7 @@ public class HorseCompoundSystem : MonoBehaviour {
                                       tiles[y + 1][x].Type == ElementTileType.Station
                                       && tiles[y + 1][x].Rotation == 1
                                   )
+                                  || tiles[y + 1][x].Type == ElementTileType.Stables
                               );
         mTile.Directions[3] = y > 0
                               && (
@@ -361,6 +373,7 @@ public class HorseCompoundSystem : MonoBehaviour {
                                           tiles[y + 1][x].Type == ElementTileType.Station
                                           && tiles[y + 1][x].Rotation == 1
                                       )
+                                      || tiles[y + 1][x].Type == ElementTileType.Stables
                                   );
             mTile.Directions[3] = y > 0
                                   && (
@@ -371,6 +384,23 @@ public class HorseCompoundSystem : MonoBehaviour {
                                       )
                                   );
         }
+    }
+
+    void UpdateStablesTile(
+        int x,
+        int y,
+        ElementTile tile,
+        MovementGraphTile mTile,
+        List<List<ElementTile>> tiles
+    ) {
+        mTile.Directions[3] = y > 0
+                              && (
+                                  tiles[y - 1][x].Type == ElementTileType.Road
+                                  || (
+                                      tiles[y - 1][x].Type == ElementTileType.Station
+                                      && tiles[y - 1][x].Rotation == 1
+                                  )
+                              );
     }
 
     void GenerateDebugTilemap() {
