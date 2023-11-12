@@ -212,6 +212,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceImage: {fileID: 279332290871598030}
   _resourceQuantityText: {fileID: 933992148634148362}
+  _backgroundImage: {fileID: 987001487878914778}
 --- !u!1 &6359547964859365297
 GameObject:
   m_ObjectHideFlags: 0

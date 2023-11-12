@@ -9,6 +9,8 @@ namespace Editor {
 public class GStringKeySelectorWindow : ScriptableWizard {
     readonly Rect _gridRect = new(0, 0, 300, 60);
 
+    int _selected;
+
     Dictionary<string, LocalizationRecord> _strings;
     List<string> _stringsHuman = new();
 
@@ -17,8 +19,6 @@ public class GStringKeySelectorWindow : ScriptableWizard {
 
     [NonSerialized]
     public Action<string> OnKeyChanged = delegate { };
-
-    int _selected;
 
     void Awake() {
         Load();
