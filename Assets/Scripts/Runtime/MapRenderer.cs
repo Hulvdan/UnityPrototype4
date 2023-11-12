@@ -216,7 +216,7 @@ public class MapRenderer : MonoBehaviour {
                     && _hoveredBuilding != null
                 ) {
                     if (_hoveredBuilding.scriptableBuilding.type == BuildingType.SpecialStable) {
-                        CreateStablesPanel(_hoveredBuilding);
+                        ToggleStablesPanel(_hoveredBuilding);
                     }
                 }
                 else if (
@@ -229,9 +229,10 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    void CreateStablesPanel(Building building) {
+    void ToggleStablesPanel(Building building) {
         foreach (var modal in _modals.Values) {
             if (modal.GetComponent<Stable_Panel>().building == building) {
+                modal.GetComponent<Stable_Panel>().Close();
                 return;
             }
         }
@@ -245,7 +246,7 @@ public class MapRenderer : MonoBehaviour {
 
     void OnModalClose(Stable_Panel panel) {
         _modals.Remove(panel.id);
-        Destroy(panel);
+        Destroy(panel.gameObject);
     }
 
     void OnEnable() {

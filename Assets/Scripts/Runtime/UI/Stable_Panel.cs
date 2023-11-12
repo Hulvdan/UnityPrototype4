@@ -33,6 +33,10 @@ public class Stable_Panel : MonoBehaviour {
     }
 
     public void OnButtonClosePressed() {
+        Close();
+    }
+
+    public void Close() {
         OnClose?.Invoke(this);
     }
 }
