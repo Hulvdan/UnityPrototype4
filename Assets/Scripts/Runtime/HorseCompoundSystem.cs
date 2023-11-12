@@ -63,9 +63,9 @@ public class HorseCompoundSystem : MonoBehaviour {
     [Min(0)]
     float _horseSpeed = 1f;
 
-    GameManager _gameManager;
+    readonly List<HorseTrain> _horses = new();
 
-    HorseTrain _horse;
+    GameManager _gameManager;
 
     IMap _map;
     IMapSize _mapSize;
@@ -78,8 +78,8 @@ public class HorseCompoundSystem : MonoBehaviour {
     }
 
     public void UpdateDt(float dt) {
-        if (_horse != null) {
-            UpdateHorse(_horse, dt);
+        foreach (var horse in _horses) {
+            UpdateHorse(horse, dt);
         }
     }
 
@@ -87,7 +87,7 @@ public class HorseCompoundSystem : MonoBehaviour {
         int wagonsCount, Vector2Int initialPosition, Direction direction
     ) {
         var horse = new HorseTrain(Guid.NewGuid(), _horseSpeed, direction);
-        _map.onTrainCreated.OnNext(new() { Horse = horse });
+        _horses.Add(horse);
 
         horse.AddSegmentVertex(initialPosition);
         horse.AddSegmentVertex(initialPosition);
@@ -99,13 +99,18 @@ public class HorseCompoundSystem : MonoBehaviour {
         }
 
         var isLocomotive = true;
+        _map.onTrainCreated.OnNext(new() { Horse = horse });
         foreach (var node in horse.nodes) {
             _map.onTrainNodeCreated.OnNext(new() {
                 Horse = horse, Node = node, IsLocomotive = isLocomotive,
             });
 
+            node.Rotation = (int)direction * 90;
+
             isLocomotive = false;
         }
+
+        _movementSystem.AdvanceHorse(horse, 0);
 
         return horse;
     }
@@ -115,23 +120,22 @@ public class HorseCompoundSystem : MonoBehaviour {
         _map = map;
         _map.onElementTileChanged.Subscribe(OnElementTileChanged);
 
-        _horse = CreateTrain(3, _destinations[0].Position, Direction.Right);
-
         GenerateMovementGraph();
 
         _movementSystem = new() { DebugMode = _debugMode };
         _movementSystem.Init(_mapSize, _movementTiles);
         _movementSystem.OnReachedDestination.Subscribe(OnHorseReachedDestination);
 
+        var horse = CreateTrain(3, _destinations[0].Position, Direction.Right);
         foreach (var dest in _destinations) {
-            _horse.AddDestination(new() {
+            horse.AddDestination(new() {
                 Type = dest.Type,
                 Pos = dest.Position,
             });
         }
 
-        TrySetNextDestinationAndBuildPath(_horse);
-        _horse.State = TrainState.Moving;
+        TrySetNextDestinationAndBuildPath(horse);
+        horse.State = TrainState.Moving;
     }
 
     public void TrySetNextDestinationAndBuildPath(HorseTrain horse) {
@@ -167,6 +171,7 @@ public class HorseCompoundSystem : MonoBehaviour {
     void UpdateHorse(HorseTrain horse, float dt) {
         switch (horse.State) {
             case TrainState.Idle:
+                _movementSystem.RecalculateNodePositions(horse);
                 break;
             case TrainState.Moving:
                 _movementSystem.AdvanceHorse(horse, dt);
