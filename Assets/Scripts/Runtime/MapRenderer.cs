@@ -161,6 +161,8 @@ public class MapRenderer : MonoBehaviour {
     > _horses = new();
 
     readonly Dictionary<Guid, Tuple<Human, HumanGO>> _humans = new();
+
+    readonly Dictionary<Guid, GameObject> _modals = new();
     readonly Dictionary<Guid, ItemGO> _storedItems = new();
 
     readonly Dictionary<Guid, Tuple<TrainNode, TrainNodeGO>> _trainNodes = new();
@@ -172,6 +174,7 @@ public class MapRenderer : MonoBehaviour {
 
     GameManager _gameManager;
     InputActionMap _gameplayInputMap;
+    Building _hoveredBuilding;
 
     bool _isHoveringOverItems;
     IMap _map;
@@ -183,9 +186,6 @@ public class MapRenderer : MonoBehaviour {
     Tilemap _resourceTilemap;
 
     public Subject<PickupableItemHoveringState> OnPickupableItemHoveringChanged { get; } = new();
-
-    Dictionary<Guid, GameObject> _modals = new();
-    Building _hoveredBuilding;
 
     void Awake() {
         _camera = Camera.main;
@@ -229,26 +229,6 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    void ToggleStablesPanel(Building building) {
-        foreach (var modal in _modals.Values) {
-            if (modal.GetComponent<Stable_Panel>().building == building) {
-                modal.GetComponent<Stable_Panel>().Close();
-                return;
-            }
-        }
-
-        var createdModal = Instantiate(_stablesModalPrefab, _buildingModalsContainer);
-        var panel = createdModal.GetComponent<Stable_Panel>();
-        panel.Init(Guid.NewGuid(), building, new() { new(1, _planksResource) });
-        panel.OnClose += OnModalClose;
-        _modals.Add(panel.id, createdModal.gameObject);
-    }
-
-    void OnModalClose(Stable_Panel panel) {
-        _modals.Remove(panel.id);
-        Destroy(panel.gameObject);
-    }
-
     void OnEnable() {
         _gameplayInputMap.Enable();
     }
@@ -287,6 +267,26 @@ public class MapRenderer : MonoBehaviour {
 
             Gizmos.DrawLineList(points);
         }
+    }
+
+    void ToggleStablesPanel(Building building) {
+        foreach (var modal in _modals.Values) {
+            if (modal.GetComponent<Stable_Panel>().building == building) {
+                modal.GetComponent<Stable_Panel>().Close();
+                return;
+            }
+        }
+
+        var createdModal = Instantiate(_stablesModalPrefab, _buildingModalsContainer);
+        var panel = createdModal.GetComponent<Stable_Panel>();
+        panel.Init(Guid.NewGuid(), _map, _gameManager, building, new() { new(1, _planksResource) });
+        panel.OnClose += OnModalClose;
+        _modals.Add(panel.id, createdModal.gameObject);
+    }
+
+    void OnModalClose(Stable_Panel panel) {
+        _modals.Remove(panel.id);
+        Destroy(panel.gameObject);
     }
 
     void UpdateBuildings() {

@@ -98,8 +98,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [Min(1)]
     int _horsesStationItemsGatheringRadius = 2;
 
-    readonly List<TopBarResource> _resources = new();
-
     GameManager _gameManager;
 
     [FoldoutGroup("Humans", true)]
@@ -126,6 +124,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                                         + _humanHeadingToTheStoreBuildingDuration
                                         + _humanReturningBackDuration;
     }
+
+    public List<TopBarResource> resources { get; } = new();
 
     public Subject<Vector2Int> onElementTileChanged { get; } = new();
 
@@ -229,9 +229,9 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
 
             var res = building.producedResources[0].script;
-            var oldAmount = _resources.Find(x => x.Resource == res).Amount;
+            var oldAmount = resources.Find(x => x.Resource == res).Amount;
             var newAmount = oldAmount + building.producedResources.Count;
-            _resources.Find(x => x.Resource == res).Amount = newAmount;
+            resources.Find(x => x.Resource == res).Amount = newAmount;
 
             var ids = new List<Guid>();
             foreach (var resource in building.producedResources) {
@@ -318,7 +318,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         RegenerateTilemap();
 
         foreach (var res in _topBarResources) {
-            _resources.Add(new() { Amount = 0, Resource = res });
+            resources.Add(new() { Amount = 0, Resource = res });
         }
 
         elementTiles = _initialMapProvider.LoadElementTiles();
@@ -333,7 +333,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void GiveResource(ScriptableResource resource1, int amount) {
-        var resource = _resources.Find(x => x.Resource == resource1);
+        var resource = resources.Find(x => x.Resource == resource1);
         resource.Amount += amount;
         onResourceChanged.OnNext(
             new() {

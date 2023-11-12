@@ -4,11 +4,13 @@ using UnityEngine;
 
 namespace BFG.Runtime {
 public interface IMap {
-    List<Building> buildings { get; }
     List<List<ElementTile>> elementTiles { get; }
     List<List<TerrainTile>> terrainTiles { get; }
 
     Subject<Vector2Int> onElementTileChanged { get; }
+
+    List<Building> buildings { get; }
+    List<TopBarResource> resources { get; }
 
     Subject<E_HumanCreated> onHumanCreated { get; }
     Subject<E_HumanStateChanged> onHumanStateChanged { get; }

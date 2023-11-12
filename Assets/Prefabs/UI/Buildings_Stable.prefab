@@ -797,6 +797,7 @@ GameObject:
   - component: {fileID: 1145064279913261824}
   - component: {fileID: 1037618292456434122}
   - component: {fileID: 4084700819911152684}
+  - component: {fileID: 4343380207809653984}
   m_Layer: 0
   m_Name: Buildings_Stable
   m_TagString: Untagged
@@ -873,6 +874,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _requiredResourcesContainer: {fileID: 6553523422943702618}
   _requiredResourcePrefab: {fileID: 3398561171832197313, guid: 5a9caa5bf8200394fafcdddfe9de7e92, type: 3}
+  _createButton: {fileID: 8994618824630784944}
+--- !u!225 &4343380207809653984
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6820477962611735291}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &6828182885763583888
 GameObject:
   m_ObjectHideFlags: 0
@@ -1041,6 +1055,7 @@ GameObject:
   - component: {fileID: 8592492457561741793}
   - component: {fileID: 7072466095607741730}
   - component: {fileID: 4638526657313533264}
+  - component: {fileID: 3476226091112275093}
   m_Layer: 0
   m_Name: TopBar
   m_TagString: Untagged
@@ -1104,6 +1119,29 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!223 &3476226091112275093
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8497585213274238115}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
 --- !u!1 &8507229780766483956
 GameObject:
   m_ObjectHideFlags: 0
