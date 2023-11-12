@@ -13,11 +13,27 @@ public class Stable_Panel : MonoBehaviour {
     [Required]
     GameObject _requiredResourcePrefab;
 
-    public void Init(List<Tuple<int, ScriptableResource>> requiredResources) {
+    public Action<Stable_Panel> OnClose = delegate { };
+
+    public Guid id { get; private set; }
+    public Building building => _building;
+
+    Building _building;
+
+    public void Init(
+        Guid id, Building building, List<Tuple<int, ScriptableResource>> requiredResources
+    ) {
+        this.id = id;
+        _building = building;
+
         foreach (var res in requiredResources) {
             var go = Instantiate(_requiredResourcePrefab, _requiredResourcesContainer);
             go.GetComponent<Building_RequiredItem>().Init(res.Item2.sprite, res.Item1);
         }
+    }
+
+    public void OnButtonClosePressed() {
+        OnClose?.Invoke(this);
     }
 }
 }
