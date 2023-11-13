@@ -22,7 +22,7 @@ jobs:
         dotnet-version: 7.0.x
 
     - name: Restore Dependencies
-      run: dotnet restore ReSharperCleanupCodeDemo.sln
+      run: dotnet restore UnityPrototype4.sln
 
     - name: Cleanup Code
       id: cleanup
