@@ -414,12 +414,15 @@ public class MapRenderer : MonoBehaviour {
         var itemGo = item.GetComponent<ItemGO>();
         itemGo.SetAs(data.Resource.script);
 
-        DOTween.To(
-            () => item.transform.localPosition,
-            val => item.transform.localPosition = val,
-            (Vector3)(building.position + itemOffset + Vector2.right / 2),
-            _buildingMovingItemToTheWarehouseDuration / _gameManager.currentGameSpeed
-        ).SetEase(_buildingMovingItemToTheWarehouseDurationCurve);
+        DOTween
+            .To(
+                () => item.transform.localPosition,
+                val => item.transform.localPosition = val,
+                (Vector3)(building.position + itemOffset + Vector2.right / 2),
+                _buildingMovingItemToTheWarehouseDuration / _gameManager.currentGameSpeed
+            )
+            .SetLink(item)
+            .SetEase(_buildingMovingItemToTheWarehouseDurationCurve);
 
         _storedItems.Add(data.Resource.id, itemGo);
     }
