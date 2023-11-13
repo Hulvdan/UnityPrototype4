@@ -4,7 +4,7 @@
 
 ### Setting Up The Machine
 
-Unity Version: `2022.3.10f1`
+Unity Version: `2022.3.13f1`
 
 1. Clone the repository
 2. Open up the project. You will see entering SAFE MODE dialog, ignore it
