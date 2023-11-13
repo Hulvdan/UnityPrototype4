@@ -7,11 +7,6 @@ using UnityEngine.Serialization;
 namespace BFG.Runtime {
 [Serializable]
 public class Building {
-    [FormerlySerializedAs("_ID")]
-    [SerializeField]
-    [Required]
-    Guid _id = Guid.Empty;
-
     [SerializeField]
     [Required]
     ScriptableBuilding _scriptableBuilding;
@@ -28,6 +23,11 @@ public class Building {
 
     public float ProcessingElapsed;
     public bool IsProcessing;
+
+    [FormerlySerializedAs("_ID")]
+    [SerializeField]
+    [Required]
+    Guid _id = Guid.Empty;
 
     [SerializeField]
     List<ResourceObj> _producedResources = new();
