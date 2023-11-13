@@ -8,6 +8,8 @@ public enum Direction {
     Down = 3,
 }
 
+
+
 public static class DirectionOffsets {
     public static readonly Vector2Int[] Offsets = {
         new(1, 0),
