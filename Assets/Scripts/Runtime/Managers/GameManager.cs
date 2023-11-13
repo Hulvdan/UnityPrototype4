@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour {
     InputAction _actionStartMapMovement;
     InputAction _actionZoom;
     int _currentGameSpeedIndex;
-    int _currentZoomIndex;
+    int _currentZoomIndex = 2;
 
     InputActionMap _inputActionMap;
 
@@ -60,6 +60,7 @@ public class GameManager : MonoBehaviour {
     int _selectedItemRotation;
 
     public float currentGameSpeed => _gameSpeeds[_currentGameSpeedIndex];
+    public float currentZoom => _zooms[_currentZoomIndex];
 
     public int selectedItemRotation {
         get => _selectedItemRotation;
@@ -80,8 +81,6 @@ public class GameManager : MonoBehaviour {
             selectedItemRotation = 0;
         }
     }
-
-    float currentZoom => _zooms[_currentZoomIndex];
 
     void Awake() {
         _inputActionMap = _inputActionAsset.FindActionMap("Gameplay");
@@ -106,7 +105,11 @@ public class GameManager : MonoBehaviour {
 
         _currentGameSpeedIndex =
             PlayerPrefs.GetInt("GameManager_CurrentGameSpeedIndex", 3) % _gameSpeeds.Count;
+#if UNITY_EDITOR
+        _currentZoomIndex = 2;
+#else
         _currentZoomIndex = PlayerPrefs.GetInt("GameManager_CurrentZoomIndex", 2) % _zooms.Count;
+#endif
         _map.transform.localScale = new(currentZoom, currentZoom, 1);
     }
 

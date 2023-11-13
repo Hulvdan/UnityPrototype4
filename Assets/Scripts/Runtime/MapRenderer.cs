@@ -246,8 +246,7 @@ public class MapRenderer : MonoBehaviour {
                 continue;
             }
 
-            var r = building.scriptableBuilding.tilesRadius + .55f;
-            var gridOffset = _grid.transform.localPosition + transform.localPosition;
+            var r = building.scriptableBuilding.tilesRadius + .45f;
             var points = new Vector3[] {
                 new(r, r, 0),
                 new(r, -r, 0),
@@ -260,9 +259,9 @@ public class MapRenderer : MonoBehaviour {
             };
             for (var i = 0; i < points.Length; i++) {
                 var point = points[i];
-                point.x += building.posX + gridOffset.x + .5f;
-                point.y += building.posY + gridOffset.y + .5f;
-                points[i] = point;
+                point.x += building.posX + .5f;
+                point.y += building.posY + .5f;
+                points[i] = _grid.transform.TransformPoint(point);
             }
 
             Gizmos.DrawLineList(points);
