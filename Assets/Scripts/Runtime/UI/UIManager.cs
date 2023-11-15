@@ -4,6 +4,7 @@ using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Console = BeastConsole.Console;
 
 namespace BFG.Runtime {
 public class UIManager : MonoBehaviour {
@@ -40,6 +41,11 @@ public class UIManager : MonoBehaviour {
     [SerializeField]
     AnimationCurve _feedbackOpacityCurve = AnimationCurve.Linear(1, 1, 0, 0);
 
+    [Header("Debug")]
+    [SerializeField]
+    [Required]
+    ScriptableResource _testResource;
+
     readonly List<IDisposable> _dependencyHooks = new();
 
     IMap _map;
@@ -55,6 +61,17 @@ public class UIManager : MonoBehaviour {
         _dependencyHooks.Add(
             _map.onProducedResourcesPickedUp.Subscribe(OnProducedResourcesPickedUp)
         );
+
+        Console.AddCommand(
+            "pickup", "", this, _ => Debug_OnProducedResourcesPickedUp()
+        );
+    }
+
+    void Debug_OnProducedResourcesPickedUp() {
+        OnProducedResourcesPickedUp(new() {
+            Position = new(1, 1),
+            Resources = new() { new(Guid.NewGuid(), _testResource) },
+        });
     }
 
     void OnResourceChanged(E_TopBarResourceChanged data) {
