@@ -12,7 +12,7 @@ public class TestItemTransportationGraph {
     }
 
     Building MakeBuilding(BuildingType type, Vector2Int pos) {
-        return new(Guid.NewGuid(), ScriptableBuilding.Tests.Build(type), pos);
+        return new(Guid.NewGuid(), new MockScriptableBuilding(type), pos, 1);
     }
 
     [Test]
