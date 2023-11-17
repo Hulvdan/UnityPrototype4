@@ -23,7 +23,20 @@ public class TestItemTransportationGraph {
                 ".B",
                 "Cr",
             },
-            1
+            1,
+            new() {
+                new(
+                    new() {
+                        new(new(), new(0, 0)),
+                        new(new(), new(1, 1)),
+                    },
+                    new() {
+                        new(0, 0),
+                        new(1, 0),
+                        new(1, 1),
+                    }
+                ),
+            }
         );
     }
 
@@ -240,10 +253,16 @@ public class TestItemTransportationGraph {
         );
     }
 
-    void Test(string[] strings, int expectedSegmentsCount) {
+    void Test(
+        string[] strings, int expectedSegmentsCount, List<GraphSegment> expectedGraphSegments = null
+    ) {
         strings = strings.Reverse().ToArray();
         var height = strings.Length;
         var width = strings[0].Length;
+
+        foreach (var str in strings) {
+            Assert.AreEqual(str.Length, width);
+        }
 
         var buildings = new List<Building>();
 
@@ -287,6 +306,15 @@ public class TestItemTransportationGraph {
             graph, MockMapSize_FromGraph(graph), buildings
         );
         Assert.AreEqual(expectedSegmentsCount, result.Count);
+
+        // if (expectedGraphSegments == null) {
+        //     return;
+        // }
+        //
+        // expectedGraphSegments.Sort();
+        // result.Sort();
+        //
+        // Assert.AreEqual(expectedGraphSegments, result);
     }
 }
 }

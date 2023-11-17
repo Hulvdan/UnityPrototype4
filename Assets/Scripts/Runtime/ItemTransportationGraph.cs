@@ -43,7 +43,7 @@ public static class ItemTransportationGraph {
                                  && tile.Building.scriptableBuilding.type ==
                                  BuildingType.SpecialCityHall;
                 if (isFlag || isBuilding) {
-                    vertexes.Add(new(new(), pos));
+                    AddWithoutDuplication(vertexes, pos);
                 }
 
                 for (var dirIndex = 0; dirIndex < 4; dirIndex++) {
@@ -83,10 +83,10 @@ public static class ItemTransportationGraph {
 
                     visited[pos.y][pos.x][dirIndex] = true;
                     visited[newPos.y][newPos.x][oppositeDirIndex] = true;
-                    segmentTiles.Add(newPos);
+                    AddWithoutDuplication(segmentTiles, newPos);
 
                     if (newIsBuilding || newIsFlag) {
-                        vertexes.Add(new(new(), newPos));
+                        AddWithoutDuplication(vertexes, newPos);
                     }
                     else {
                         queue.Enqueue(new(0, newPos));
@@ -114,6 +114,32 @@ public static class ItemTransportationGraph {
         }
 
         return visited;
+    }
+
+    static void AddWithoutDuplication(List<Vector2Int> list, Vector2Int pos) {
+        var found = false;
+        foreach (var v in list) {
+            if (v == pos) {
+                found = true;
+            }
+        }
+
+        if (!found) {
+            list.Add(pos);
+        }
+    }
+
+    static void AddWithoutDuplication(List<GraphVertex> list, Vector2Int pos) {
+        var found = false;
+        foreach (var v in list) {
+            if (v.Pos == pos) {
+                found = true;
+            }
+        }
+
+        if (!found) {
+            list.Add(new(new(), pos));
+        }
     }
 }
 }
