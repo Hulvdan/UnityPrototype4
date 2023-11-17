@@ -61,7 +61,9 @@ public class UIManager : MonoBehaviour {
         _dependencyHooks.Add(
             _map.onProducedResourcesPickedUp.Subscribe(OnProducedResourcesPickedUp)
         );
+    }
 
+    void Start() {
         Console.AddCommand(
             "pickup", "", this, _ => Debug_OnProducedResourcesPickedUp()
         );

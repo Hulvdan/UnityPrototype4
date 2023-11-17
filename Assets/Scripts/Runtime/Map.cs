@@ -115,7 +115,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var dt = _gameManager.dt;
         UpdateHumans(dt);
         UpdateBuildings(dt);
-        _horseCompoundSystem.UpdateDt(dt);
+        // _horseCompoundSystem.UpdateDt(dt);
     }
 
     void OnValidate() {
@@ -133,6 +133,32 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public List<List<ElementTile>> elementTiles { get; private set; }
     public List<List<TerrainTile>> terrainTiles { get; private set; }
     public List<Building> buildings => _buildings;
+
+    public void Init() {
+        _initialMapProvider.Init(this, this);
+
+        resources.Clear();
+        foreach (var res in _topBarResources) {
+            resources.Add(new() { Amount = 0, Resource = res });
+        }
+
+        if (Application.isPlaying) {
+            RegenerateTilemap();
+            OnTerrainTilesRegenerated?.Invoke();
+        }
+
+        // _horseCompoundSystem.Init(this, this);
+
+        // CreateHuman(_buildings[0]);
+        // CreateHuman(_buildings[0]);
+        // CreateHuman(_buildings[1]);
+        // CreateHuman(_buildings[1]);
+    }
+
+    public void InitDependencies(GameManager gameManager) {
+        _gameManager = gameManager;
+        // _horseCompoundSystem.InitDependencies(gameManager);
+    }
 
     public void TryBuild(Vector2Int pos, SelectedItem item) {
         if (!Contains(pos)) {
@@ -293,10 +319,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         foreach (var building in buildings) {
             var scriptableBuilding = building.scriptableBuilding;
             if (scriptableBuilding.type == BuildingType.Produce) {
-                if (!building.IsProcessing) {
+                if (!building.IsProducing) {
                     if (building.storedResources.Count > 0 && building.CanStartProcessing()) {
-                        building.IsProcessing = true;
-                        building.ProcessingElapsed = 0;
+                        building.IsProducing = true;
+                        building.ProducingElapsed = 0;
 
                         var res = building.storedResources[0];
                         building.storedResources.RemoveAt(0);
@@ -308,11 +334,11 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     }
                 }
 
-                if (building.IsProcessing) {
-                    building.ProcessingElapsed += dt;
+                if (building.IsProducing) {
+                    building.ProducingElapsed += dt;
 
-                    if (building.ProcessingElapsed >= scriptableBuilding.ItemProcessingDuration) {
-                        building.IsProcessing = false;
+                    if (building.ProducingElapsed >= scriptableBuilding.ItemProcessingDuration) {
+                        building.IsProducing = false;
                         Produce(building);
                     }
                 }
@@ -331,31 +357,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             ProducedAmount = 1,
             Building = building,
         });
-    }
-
-    public void InitDependencies(GameManager gameManager) {
-        _gameManager = gameManager;
-        _horseCompoundSystem.InitDependencies(gameManager);
-    }
-
-    public void Init() {
-        _initialMapProvider.Init(this, this);
-
-        RegenerateTilemap();
-
-        foreach (var res in _topBarResources) {
-            resources.Add(new() { Amount = 0, Resource = res });
-        }
-
-        elementTiles = _initialMapProvider.LoadElementTiles();
-        OnTerrainTilesRegenerated?.Invoke();
-
-        _horseCompoundSystem.Init(this, this);
-
-        // CreateHuman(_buildings[0]);
-        CreateHuman(_buildings[0]);
-        CreateHuman(_buildings[1]);
-        CreateHuman(_buildings[1]);
     }
 
     void GiveResource(ScriptableResource resource1, int amount) {
@@ -488,6 +489,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 terrainTiles[y][x] = tile;
             }
         }
+
+        elementTiles = _initialMapProvider.LoadElementTiles();
     }
 
     float MakeSomeNoise2D(int seed, int x, int y, float scale) {

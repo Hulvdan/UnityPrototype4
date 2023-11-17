@@ -238,6 +238,10 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void OnDrawGizmos() {
+        if (_map == null) {
+            return;
+        }
+
         Gizmos.color = Color.cyan;
 
         foreach (var building in _map.buildings) {
@@ -266,6 +270,37 @@ public class MapRenderer : MonoBehaviour {
 
             Gizmos.DrawLineList(points);
         }
+    }
+
+    public void InitDependencies(GameManager gameManager, IMap map, IMapSize mapSize) {
+        _map = map;
+        _mapSize = mapSize;
+        _gameManager = gameManager;
+
+        foreach (var hook in _dependencyHooks) {
+            hook.Dispose();
+        }
+
+        _dependencyHooks.Clear();
+        _dependencyHooks.Add(_gameManager.OnSelectedItemChanged.Subscribe(OnSelectedItemChanged));
+        _dependencyHooks.Add(_map.onElementTileChanged.Subscribe(OnElementTileChanged));
+
+        _dependencyHooks.Add(_map.onHumanCreated.Subscribe(OnHumanCreated));
+        _dependencyHooks.Add(_map.onHumanPickedUpResource.Subscribe(OnHumanPickedUpResource));
+        _dependencyHooks.Add(_map.onHumanPlacedResource.Subscribe(OnHumanPlacedResource));
+
+        _dependencyHooks.Add(_map.onTrainCreated.Subscribe(OnTrainCreated));
+        _dependencyHooks.Add(_map.onTrainNodeCreated.Subscribe(OnTrainNodeCreated));
+        _dependencyHooks.Add(_map.onTrainPickedUpResource.Subscribe(OnTrainPickedUpResource));
+        _dependencyHooks.Add(_map.onTrainPushedResource.Subscribe(OnTrainPushedResource));
+
+        _dependencyHooks.Add(
+            _map.onBuildingStartedProcessing.Subscribe(OnBuildingStartedProcessing)
+        );
+        _dependencyHooks.Add(_map.onBuildingProducedItem.Subscribe(OnBuildingProducedItem));
+        _dependencyHooks.Add(
+            _map.onProducedResourcesPickedUp.Subscribe(OnProducedResourcesPickedUp)
+        );
     }
 
     void ToggleStablesPanel(Building building) {
@@ -301,8 +336,8 @@ public class MapRenderer : MonoBehaviour {
             }
 
             var scale = GetBuildingScale(
-                building.IsProcessing,
-                building.ProcessingElapsed,
+                building.IsProducing,
+                building.ProducingElapsed,
                 building.scriptableBuilding.ItemProcessingDuration
             );
             SetBuilding(building, scale.x, scale.y);
@@ -357,37 +392,6 @@ public class MapRenderer : MonoBehaviour {
             );
             _isHoveringOverItems = false;
         }
-    }
-
-    public void InitDependencies(GameManager gameManager, IMap map, IMapSize mapSize) {
-        _map = map;
-        _mapSize = mapSize;
-        _gameManager = gameManager;
-
-        foreach (var hook in _dependencyHooks) {
-            hook.Dispose();
-        }
-
-        _dependencyHooks.Clear();
-        _dependencyHooks.Add(_gameManager.OnSelectedItemChanged.Subscribe(OnSelectedItemChanged));
-        _dependencyHooks.Add(_map.onElementTileChanged.Subscribe(OnElementTileChanged));
-
-        _dependencyHooks.Add(_map.onHumanCreated.Subscribe(OnHumanCreated));
-        _dependencyHooks.Add(_map.onHumanPickedUpResource.Subscribe(OnHumanPickedUpResource));
-        _dependencyHooks.Add(_map.onHumanPlacedResource.Subscribe(OnHumanPlacedResource));
-
-        _dependencyHooks.Add(_map.onTrainCreated.Subscribe(OnTrainCreated));
-        _dependencyHooks.Add(_map.onTrainNodeCreated.Subscribe(OnTrainNodeCreated));
-        _dependencyHooks.Add(_map.onTrainPickedUpResource.Subscribe(OnTrainPickedUpResource));
-        _dependencyHooks.Add(_map.onTrainPushedResource.Subscribe(OnTrainPushedResource));
-
-        _dependencyHooks.Add(
-            _map.onBuildingStartedProcessing.Subscribe(OnBuildingStartedProcessing)
-        );
-        _dependencyHooks.Add(_map.onBuildingProducedItem.Subscribe(OnBuildingProducedItem));
-        _dependencyHooks.Add(
-            _map.onProducedResourcesPickedUp.Subscribe(OnProducedResourcesPickedUp)
-        );
     }
 
     void OnProducedResourcesPickedUp(E_ProducedResourcesPickedUp data) {
