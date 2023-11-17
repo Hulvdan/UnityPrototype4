@@ -1,8 +1,10 @@
-﻿namespace BFG.Runtime {
-public enum SelectedItem {
-    None,
-    Road,
-    Station,
-    Horse,
+﻿using JetBrains.Annotations;
+
+namespace BFG.Runtime {
+public class SelectedItem {
+    public SelectedItemType Type;
+
+    [CanBeNull]
+    public ScriptableBuilding Building;
 }
 }

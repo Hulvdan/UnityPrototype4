@@ -51,7 +51,16 @@ public class Building {
     public int posY => _posY;
     public Vector2Int pos => new(_posX, _posY);
 
-    public Guid ID {
+    public Building(Guid id, ScriptableBuilding scriptable, Vector2Int pos) {
+        _id = id;
+        _scriptableBuilding = scriptable;
+        _posX = pos.x;
+        _posY = pos.y;
+
+        BuildingProgress = 0;
+    }
+
+    public Guid id {
         get {
             if (_id == Guid.Empty) {
                 _id = Guid.NewGuid();

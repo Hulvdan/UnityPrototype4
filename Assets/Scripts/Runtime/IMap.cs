@@ -22,13 +22,15 @@ public interface IMap {
     Subject<E_TrainPickedUpResource> onTrainPickedUpResource { get; }
     Subject<E_TrainPushedResource> onTrainPushedResource { get; }
 
+    Subject<E_BuildingPlaced> onBuildingPlaced { get; }
+
     Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; }
     Subject<E_BuildingProducedItem> onBuildingProducedItem { get; }
 
     Subject<E_ProducedResourcesPickedUp> onProducedResourcesPickedUp { get; }
     Subject<E_TopBarResourceChanged> onResourceChanged { get; }
 
-    void TryBuild(Vector2Int hoveredTile, SelectedItem gameManagerSelectedItem);
+    void TryBuild(Vector2Int hoveredTile, SelectedItem item);
 
     bool AreThereAvailableResourcesForTheTrain(HorseTrain horse);
     void PickRandomItemForTheTrain(HorseTrain horse);

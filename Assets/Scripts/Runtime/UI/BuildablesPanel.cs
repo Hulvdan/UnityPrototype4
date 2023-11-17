@@ -27,7 +27,7 @@ public class BuildablesPanel : MonoBehaviour {
         _ignoreButtonStateChanges = true;
         foreach (var button in _buttons) {
             if (button.GetInstanceID() == selectedButtonInstanceID) {
-                _gameManager.selectedItem = button.item;
+                _gameManager.SelectedItem = button.selectedItem;
                 continue;
             }
 
@@ -37,7 +37,7 @@ public class BuildablesPanel : MonoBehaviour {
         _ignoreButtonStateChanges = false;
 
         if (selectedButtonInstanceID == null) {
-            _gameManager.selectedItem = SelectedItem.None;
+            _gameManager.SelectedItem = null;
         }
     }
 }

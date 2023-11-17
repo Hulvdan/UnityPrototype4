@@ -85,6 +85,11 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [Required]
     InitialMapProvider _initialMapProvider;
 
+    [FoldoutGroup("Setup", true)]
+    [SerializeField]
+    [Required]
+    ScriptableBuilding _lumberjacksHouse;
+
     [FormerlySerializedAs("_compoundSystem")]
     [FormerlySerializedAs("_movementSystemInterface")]
     [FoldoutGroup("Horse Movement System", true)]
@@ -128,6 +133,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public List<TopBarResource> resources { get; } = new();
 
     public Subject<Vector2Int> onElementTileChanged { get; } = new();
+    public Subject<E_BuildingPlaced> onBuildingPlaced { get; } = new();
 
     // NOTE(Hulvdan): Indexes start from the bottom left corner and go to the top right one
     public List<List<ElementTile>> elementTiles { get; private set; }
@@ -169,22 +175,27 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             return;
         }
 
-        if (item == SelectedItem.Road) {
+        if (item.Type == SelectedItemType.Road) {
             var road = elementTiles[pos.y][pos.x];
             road.Type = ElementTileType.Road;
             elementTiles[pos.y][pos.x] = road;
+
+            onElementTileChanged.OnNext(pos);
         }
-        else if (item == SelectedItem.Station) {
+        else if (item.Type == SelectedItemType.Station) {
             var tile = elementTiles[pos.y][pos.x];
             tile.Type = ElementTileType.Station;
             tile.Rotation = _gameManager.selectedItemRotation == 0 ? 1 : 0;
             elementTiles[pos.y][pos.x] = tile;
-        }
-        else {
-            return;
-        }
 
-        onElementTileChanged.OnNext(pos);
+            onElementTileChanged.OnNext(pos);
+        }
+        else if (item.Type == SelectedItemType.Building) {
+            var building = new Building(new(), item.Building, pos);
+            buildings.Add(building);
+
+            onBuildingPlaced.OnNext(new() { Building = building });
+        }
     }
 
     public bool IsBuildable(int x, int y) {
