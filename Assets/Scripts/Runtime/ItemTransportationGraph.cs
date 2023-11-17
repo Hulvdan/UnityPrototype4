@@ -20,19 +20,17 @@ public static class ItemTransportationGraph {
 
         var queue = new Queue<Vector2Int>();
 
+        var visited = GetVisited(mapSize);
+
         while (bigFukenQueue.Count > 0) {
-            queue.Enqueue(bigFukenQueue.Dequeue());
+            var p = bigFukenQueue.Dequeue();
+            queue.Enqueue(p);
 
             var vertexes = new List<GraphVertex>();
-            var segmentTiles = new List<Vector2Int>();
-
-            var visited = GetVisited(mapSize);
-            visited[cityHall.posY][cityHall.posX] = true;
+            var segmentTiles = new List<Vector2Int> { p };
 
             while (queue.Count > 0) {
                 var pos = queue.Dequeue();
-                visited[pos.y][pos.x] = true;
-                segmentTiles.Add(pos);
 
                 var tile = elementTiles[pos.y][pos.x];
                 var isFlag = tile.Type == ElementTileType.Flag;
@@ -41,41 +39,43 @@ public static class ItemTransportationGraph {
                     vertexes.Add(new(new(), pos));
                 }
 
-                if (isFlag) {
-                    bigFukenQueue.Enqueue(pos);
-                    continue;
-                }
+                for (var dirIndex = 0; dirIndex < 4; dirIndex++) {
+                    var offset = DirectionOffsets.Offsets[dirIndex];
+                    if (visited[pos.y][pos.x][dirIndex]) {
+                        continue;
+                    }
 
-                var isBuilding_ButNot_CityHall = isBuilding
-                                                 && tile.Building.scriptableBuilding.type !=
-                                                 BuildingType.SpecialCityHall;
-                if (isBuilding_ButNot_CityHall) {
-                    continue;
-                }
-
-                foreach (var offset in DirectionOffsets.Offsets) {
                     var newPos = pos + offset;
                     if (!mapSize.Contains(newPos)) {
                         continue;
                     }
 
-                    if (visited[newPos.y][newPos.x]) {
+                    var oppositeDirIndex = (dirIndex + 2) % 4;
+                    if (visited[newPos.y][newPos.x][oppositeDirIndex]) {
                         continue;
                     }
 
-                    var newTile = elementTiles[pos.y][pos.x];
+                    var newTile = elementTiles[newPos.y][newPos.x];
                     if (newTile.Type == ElementTileType.None) {
                         continue;
                     }
 
-                    var newIsBuilding = newTile.Type == ElementTileType.Building;
-                    if (isBuilding && newIsBuilding) {
-                        continue;
+                    var newIsFlag = newTile.Type == ElementTileType.Flag;
+                    if (newIsFlag) {
+                        bigFukenQueue.Enqueue(pos);
                     }
 
+                    visited[pos.y][pos.x][dirIndex] = true;
+                    visited[newPos.y][newPos.x][oppositeDirIndex] = true;
                     segmentTiles.Add(newPos);
 
-                    queue.Enqueue(newPos);
+                    var newIsBuilding = newTile.Type == ElementTileType.Building;
+                    if (newIsBuilding || newIsFlag) {
+                        vertexes.Add(new(new(), newPos));
+                    }
+                    else {
+                        queue.Enqueue(newPos);
+                    }
                 }
             }
 
@@ -90,12 +90,12 @@ public static class ItemTransportationGraph {
         return graphSegments;
     }
 
-    static List<List<bool>> GetVisited(IMapSize size) {
-        var visited = new List<List<bool>>();
+    static List<List<bool[]>> GetVisited(IMapSize size) {
+        var visited = new List<List<bool[]>>();
         for (var y = 0; y < size.sizeY; y++) {
-            var row = new List<bool>();
+            var row = new List<bool[]>();
             for (var x = 0; x < size.sizeX; x++) {
-                row.Add(false);
+                row.Add(new bool[4]);
             }
 
             visited.Add(row);
