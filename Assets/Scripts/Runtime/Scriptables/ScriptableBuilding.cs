@@ -109,5 +109,11 @@ public class ScriptableBuilding : ScriptableObject {
     public TileBase tile => _tile;
     public Vector2Int size => _size;
     public Vector2Int pickupableItemsCellOffset => _pickupableItemsCellOffset;
+
+    public static class Tests {
+        public static ScriptableBuilding Build(BuildingType type) {
+            return new() { _type = type };
+        }
+    }
 }
 }

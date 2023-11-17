@@ -11,6 +11,8 @@ public enum ElementTileType {
     Road,
     Station,
     Stables,
+    Building,
+    Flag,
 }
 
 public class HorseCompoundSystem : MonoBehaviour {

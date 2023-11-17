@@ -1,7 +1,7 @@
 using BFG.Runtime;
 using NUnit.Framework;
 
-// ReSharper disable once CheckNamespace
+namespace Tests.EditMode {
 public class TestMovementGraphTile {
     [Test]
     public void Test_Count() {
@@ -98,4 +98,5 @@ public class TestMovementGraphTile {
             Assert.AreEqual(0, tile.Rotation());
         }
     }
+}
 }
