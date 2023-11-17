@@ -233,6 +233,36 @@ public class TestItemTransportationGraph {
 
     [Test]
     [Timeout(1)]
+    public void Test_Complex9() {
+        Test(
+            new[] {
+                "...B..",
+                "..rrr.",
+                "BrrCrB",
+                "..rrr.",
+                "...B..",
+            },
+            1
+        );
+    }
+
+    [Test]
+    [Timeout(1)]
+    public void Test_Complex10() {
+        Test(
+            new[] {
+                "...B..",
+                "..rrr.",
+                "BrrCrB",
+                "..rr..",
+                "...B..",
+            },
+            1
+        );
+    }
+
+    [Test]
+    [Timeout(1)]
     public void Test_Line_CrB() {
         Test(
             new[] {
