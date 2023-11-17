@@ -156,6 +156,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         // CreateHuman(_buildings[1]);
     }
 
+    List<GraphSegment> _graphSegments = new();
+
     public void InitDependencies(GameManager gameManager) {
         _gameManager = gameManager;
         // _horseCompoundSystem.InitDependencies(gameManager);

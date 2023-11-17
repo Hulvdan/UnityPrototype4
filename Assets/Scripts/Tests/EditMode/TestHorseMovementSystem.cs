@@ -3,28 +3,12 @@ using BFG.Runtime;
 using NUnit.Framework;
 using UnityEngine;
 
-// ReSharper disable once CheckNamespace
-internal class MockMapSize : IMapSize {
-    readonly List<List<MovementGraphTile>> _graph;
-
-    public MockMapSize(List<List<MovementGraphTile>> graph) {
-        _graph = graph;
-    }
-
-    public int sizeY => _graph.Count;
-    public int sizeX => _graph[0].Count;
-
-    public bool Contains(Vector2Int pos) {
-        return Contains(pos.x, pos.y);
-    }
-
-    public bool Contains(int x, int y) {
-        return x >= 0 && x < sizeX && y >= 0 && y < sizeY;
-    }
-}
-
-// ReSharper disable once CheckNamespace
+namespace Tests.EditMode {
 public class TestHorseMovementSystem {
+    MockMapSize MockMapSize_FromGraph(List<List<MovementGraphTile>> graph) {
+        return new(graph[0].Count, graph.Count);
+    }
+
     [Test]
     [Timeout(1)]
     public void TestFindPath() {
@@ -39,7 +23,7 @@ public class TestHorseMovementSystem {
                 new(false, false, false, false),
             },
         };
-        system.Init(new MockMapSize(graph), graph);
+        system.Init(MockMapSize_FromGraph(graph), graph);
 
         var result = system.FindPath(Vector2Int.zero, Vector2Int.one, Direction.Up);
 
@@ -75,7 +59,7 @@ public class TestHorseMovementSystem {
             },
         };
 
-        system.Init(new MockMapSize(graph), graph);
+        system.Init(MockMapSize_FromGraph(graph), graph);
 
         var result = system.FindPath(new(2, 0), new(3, 1), Direction.Left);
 
@@ -157,10 +141,11 @@ public class TestHorseMovementSystem {
                 new(false, false, false, false),
             },
         };
-        system.Init(new MockMapSize(graph), graph);
+        system.Init(MockMapSize_FromGraph(graph), graph);
 
         var result = system.FindPath(Vector2Int.zero, Vector2Int.one, Direction.Up);
         Assert.IsFalse(result.Success);
         Assert.AreEqual(result.Path, null);
     }
+}
 }
