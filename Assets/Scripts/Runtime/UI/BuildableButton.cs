@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -56,6 +57,13 @@ public class BuildableButton : MonoBehaviour {
     public SelectedItemType ItemType;
 
     [SerializeField]
+    [ShowIf("ItemType", SelectedItemType.Building)]
+    [Required]
+    [CanBeNull]
+    ScriptableBuilding _building;
+
+    [Space]
+    [SerializeField]
     List<Image> _images;
 
     [SerializeField]
@@ -64,12 +72,6 @@ public class BuildableButton : MonoBehaviour {
 
     [SerializeField]
     ColorBlock _colorBlock;
-
-    [SerializeField]
-    [ShowIf("ItemType", SelectedItemType.Building)]
-    [Required]
-    [CanBeNull]
-    ScriptableBuilding _building;
 
     float _fadeElapsed;
 
@@ -90,6 +92,7 @@ public class BuildableButton : MonoBehaviour {
             var item = new SelectedItem { Type = ItemType };
 
             if (ItemType == SelectedItemType.Building) {
+                Assert.IsNotNull(_building);
                 item.Building = _building;
             }
 
