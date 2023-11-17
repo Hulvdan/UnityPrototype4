@@ -21,8 +21,19 @@ public class Building {
     [ReadOnly]
     bool _isBooked;
 
-    public float ProcessingElapsed;
-    public bool IsProcessing;
+    [FormerlySerializedAs("ProcessingElapsed")]
+    [ShowIf("@_scriptableBuilding._type == BuildingType.Produce")]
+    public float ProducingElapsed;
+
+    [FormerlySerializedAs("IsProcessing")]
+    [ShowIf("@_scriptableBuilding._type == BuildingType.Produce")]
+    public bool IsProducing;
+
+    public bool isBuilt => BuildingProgress >= 1;
+
+    [SerializeField]
+    [Range(0, 1)]
+    public float BuildingProgress;
 
     [FormerlySerializedAs("_ID")]
     [SerializeField]
@@ -106,8 +117,8 @@ public class Building {
         storedResources.Add(resource);
 
         if (CanStartProcessing()) {
-            IsProcessing = true;
-            ProcessingElapsed = 0;
+            IsProducing = true;
+            ProducingElapsed = 0;
             storedResources.RemoveAt(0);
             return StoreResourceResult.AddedToProcessingImmediately;
         }
@@ -120,7 +131,7 @@ public class Building {
             return false;
         }
 
-        return !IsProcessing;
+        return !IsProducing;
     }
 }
 
