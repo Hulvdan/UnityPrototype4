@@ -39,7 +39,7 @@ public class CursorController : MonoBehaviour {
 
         _dependencyHooks.Clear();
 
-        _dependencyHooks.Add(_mapRenderer.OnPickupableItemHoveringChanged.Subscribe(
+        _dependencyHooks.Add(_mapRenderer.onPickupableItemHoveringChanged.Subscribe(
             e => {
                 var cursorType = e == PickupableItemHoveringState.StartedHovering
                     ? CursorType.Hand

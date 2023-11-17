@@ -188,7 +188,7 @@ public class MapRenderer : MonoBehaviour {
 
     Tilemap _resourceTilemap;
 
-    public Subject<PickupableItemHoveringState> OnPickupableItemHoveringChanged { get; } = new();
+    public Subject<PickupableItemHoveringState> onPickupableItemHoveringChanged { get; } = new();
 
     void Awake() {
         _camera = Camera.main;
@@ -375,7 +375,7 @@ public class MapRenderer : MonoBehaviour {
         if (_mapSize.Contains(hoveredTile)) {
             if (_map.CellContainsPickupableItems(hoveredTile)) {
                 if (!_isHoveringOverItems) {
-                    OnPickupableItemHoveringChanged.OnNext(
+                    onPickupableItemHoveringChanged.OnNext(
                         PickupableItemHoveringState.StartedHovering
                     );
                     _isHoveringOverItems = true;
@@ -390,7 +390,7 @@ public class MapRenderer : MonoBehaviour {
         }
 
         if (shouldStopHovering && _isHoveringOverItems) {
-            OnPickupableItemHoveringChanged.OnNext(
+            onPickupableItemHoveringChanged.OnNext(
                 PickupableItemHoveringState.FinishedHovering
             );
             _isHoveringOverItems = false;
@@ -470,8 +470,7 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void UpdateTileBasedOnRemainingResourcePercent(
-        Vector2Int pos,
-        float dataRemainingAmountPercent
+        Vector2Int pos, float dataRemainingAmountPercent
     ) {
         if (dataRemainingAmountPercent > 0) {
             return;
@@ -610,11 +609,12 @@ public class MapRenderer : MonoBehaviour {
         }
 
         TileBase tilemapTile;
-        if (_gameManager.SelectedItem == null) {
+        var item = _gameManager.SelectedItem;
+        if (item == null) {
             return;
         }
 
-        switch (_gameManager.SelectedItem.Type) {
+        switch (item.Type) {
             case SelectedItemType.Road:
                 tilemapTile = _tileRoad;
                 break;
@@ -624,20 +624,25 @@ public class MapRenderer : MonoBehaviour {
                     : _tileStationHorizontal;
                 break;
             case SelectedItemType.Building:
-                Assert.IsNotNull(_gameManager.SelectedItem.Building);
-                tilemapTile = _gameManager.SelectedItem.Building.tile;
+                Assert.IsNotNull(item.Building);
+                tilemapTile = item.Building.tile;
                 break;
             default:
                 return;
         }
 
         var buildable = _map.IsBuildable(pos);
+        var matrix = Matrix4x4.identity;
+        if (item.Type == SelectedItemType.Building) {
+            matrix = Matrix4x4.TRS(new(0, -0.5f, 0), Quaternion.identity, Vector3.one);
+        }
+
         _previewTilemap.SetTile(
             new(
                 new(pos.x, pos.y, 0),
                 tilemapTile,
                 buildable ? Color.white : _unbuildableTileColor,
-                _previewMatrix
+                matrix
             ),
             false
         );
