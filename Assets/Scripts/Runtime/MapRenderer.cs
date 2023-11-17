@@ -68,6 +68,10 @@ public class MapRenderer : MonoBehaviour {
 
     [SerializeField]
     [Required]
+    TileBase _tileUnfinishedBuilding;
+
+    [SerializeField]
+    [Required]
     GameObject _tilemapPrefab;
 
     [SerializeField]
@@ -558,10 +562,15 @@ public class MapRenderer : MonoBehaviour {
         var widthOffset = (building.scriptableBuilding.size.x - 1) / 2f;
         var heightOffset = (building.scriptableBuilding.size.y - 1) / 2f;
 
+        var tile = building.scriptableBuilding.tile;
+        if (building.BuildingProgress < 1) {
+            tile = _tileUnfinishedBuilding;
+        }
+
         _buildingsTilemap.SetTile(
             new(
                 new(building.posX, building.posY, 0),
-                building.scriptableBuilding.tile,
+                tile,
                 Color.white,
                 Matrix4x4.TRS(
                     new(widthOffset, heightOffset),
