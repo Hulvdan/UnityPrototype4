@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
+// TODO: IComparable, IEquatable should be considered for removal
 public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> {
     public readonly List<GraphVertex> Vertexes;
     public readonly List<Vector2Int> MovementTiles;
@@ -12,6 +13,7 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
         Vertexes = vertexes;
         MovementTiles = movementTiles;
 
+        // TODO: Should be considered for removal
         vertexes.Sort();
         movementTiles.Sort(Utils.StupidVector2IntComparation);
 

@@ -10,8 +10,6 @@ public class Building {
     public bool isBuilt => BuildingProgress >= 1;
     public float BuildingProgress;
 
-    Guid _id = Guid.Empty;
-
     public IScriptableBuilding scriptableBuilding { get; }
 
     public int posX { get; }
@@ -19,6 +17,7 @@ public class Building {
 
     public Vector2Int pos => new(posX, posY);
 
+    Guid _id;
     readonly List<ResourceObj> _producedResources = new();
     readonly List<ResourceObj> _storedResources = new();
 
