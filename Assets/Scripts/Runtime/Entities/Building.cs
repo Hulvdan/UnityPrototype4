@@ -1,63 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace BFG.Runtime {
-[Serializable]
 public class Building {
-    [SerializeField]
-    [Required]
-    ScriptableBuilding _scriptableBuilding;
-
-    [SerializeField]
-    int _posX;
-
-    [SerializeField]
-    int _posY;
-
-    [SerializeField]
-    [ReadOnly]
-    bool _isBooked;
-
-    [FormerlySerializedAs("ProcessingElapsed")]
-    [ShowIf("@_scriptableBuilding._type == BuildingType.Produce")]
+    public bool IsProducing;
     public float ProducingElapsed;
 
-    [FormerlySerializedAs("IsProcessing")]
-    [ShowIf("@_scriptableBuilding._type == BuildingType.Produce")]
-    public bool IsProducing;
-
     public bool isBuilt => BuildingProgress >= 1;
-
-    [SerializeField]
-    [Range(0, 1)]
     public float BuildingProgress;
 
-    [FormerlySerializedAs("_ID")]
-    [SerializeField]
-    [Required]
     Guid _id = Guid.Empty;
 
-    [SerializeField]
-    List<ResourceObj> _producedResources = new();
+    public IScriptableBuilding scriptableBuilding { get; }
 
-    [SerializeField]
-    List<ResourceObj> _storedResources = new();
+    public int posX { get; }
+    public int posY { get; }
 
-    public ScriptableBuilding scriptableBuilding => _scriptableBuilding;
-    public int posX => _posX;
-    public int posY => _posY;
-    public Vector2Int pos => new(_posX, _posY);
+    public Vector2Int pos => new(posX, posY);
 
-    public Building(Guid id, ScriptableBuilding scriptable, Vector2Int pos) {
+    readonly List<ResourceObj> _producedResources = new();
+    readonly List<ResourceObj> _storedResources = new();
+
+    public Building(
+        Guid id, IScriptableBuilding scriptable, Vector2Int pos, float buildingProgress
+    ) {
         _id = id;
-        _scriptableBuilding = scriptable;
-        _posX = pos.x;
-        _posY = pos.y;
+        scriptableBuilding = scriptable;
+        posX = pos.x;
+        posY = pos.y;
 
-        BuildingProgress = 0;
+        BuildingProgress = buildingProgress;
     }
 
     public Guid id {
@@ -70,10 +43,7 @@ public class Building {
         }
     }
 
-    public bool isBooked {
-        get => _isBooked;
-        set => _isBooked = value;
-    }
+    public bool isBooked { get; set; }
 
     public List<ResourceObj> storedResources {
         get {
@@ -98,7 +68,7 @@ public class Building {
         }
     }
 
-    public RectInt rect => new(posX, posY, _scriptableBuilding.size.x, _scriptableBuilding.size.y);
+    public RectInt rect => new(posX, posY, scriptableBuilding.size.x, scriptableBuilding.size.y);
 
     public bool Contains(Vector2Int pos) {
         return Contains(pos.x, pos.y);

@@ -62,9 +62,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [SerializeField]
     public UnityEvent OnTerrainTilesRegenerated;
 
+    [FormerlySerializedAs("_buildings")]
     [FoldoutGroup("Setup", true)]
     [SerializeField]
-    List<Building> _buildings;
+    List<BuildingGO> _buildingGameObjects;
 
     [FoldoutGroup("Setup", true)]
     [SerializeField]
@@ -133,7 +134,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     // NOTE(Hulvdan): Indexes start from the bottom left corner and go to the top right one
     public List<List<ElementTile>> elementTiles { get; private set; }
     public List<List<TerrainTile>> terrainTiles { get; private set; }
-    public List<Building> buildings => _buildings;
+
+    public List<Building> buildings { get; private set; } = new();
 
     public void Init() {
         _initialMapProvider.Init(this, this);
@@ -161,6 +163,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public void InitDependencies(GameManager gameManager) {
         _gameManager = gameManager;
         // _horseCompoundSystem.InitDependencies(gameManager);
+
+        buildings = _buildingGameObjects.Select(i => i.IntoBuilding()).ToList();
     }
 
     public void TryBuild(Vector2Int pos, SelectedItem item) {
@@ -188,7 +192,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             onElementTileChanged.OnNext(pos);
         }
         else if (item.Type == SelectedItemType.Building) {
-            var building = new Building(new(), item.Building, pos);
+            var building = new Building(new(), item.Building, pos, 0);
             buildings.Add(building);
 
             onBuildingPlaced.OnNext(new() { Building = building });
