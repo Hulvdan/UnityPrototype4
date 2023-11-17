@@ -15,54 +15,78 @@ public static class ItemTransportationGraph {
             return graphSegments;
         }
 
+        var bigFukenQueue = new Queue<Vector2Int>();
+        bigFukenQueue.Enqueue(cityHall.pos);
+
         var queue = new Queue<Vector2Int>();
-        queue.Enqueue(cityHall.pos);
 
-        var vertexes = new List<GraphVertex>();
-        var segmentTiles = new List<Vector2Int>();
+        while (bigFukenQueue.Count > 0) {
+            queue.Enqueue(bigFukenQueue.Dequeue());
 
-        var visited = GetVisited(mapSize);
-        visited[cityHall.posY][cityHall.posX] = true;
+            var vertexes = new List<GraphVertex>();
+            var segmentTiles = new List<Vector2Int>();
 
-        while (queue.Count > 0) {
-            var pos = queue.Dequeue();
-            segmentTiles.Add(pos);
+            var visited = GetVisited(mapSize);
+            visited[cityHall.posY][cityHall.posX] = true;
 
-            var tile = elementTiles[pos.y][pos.x];
-            if (tile.Type == ElementTileType.Building || tile.Type == ElementTileType.Flag) {
-                vertexes.Add(new(new(), cityHall.pos));
-            }
+            while (queue.Count > 0) {
+                var pos = queue.Dequeue();
+                visited[pos.y][pos.x] = true;
+                segmentTiles.Add(pos);
 
-            var isBuilding_ButNot_CityHall = tile.Type == ElementTileType.Building
-                                             && tile.Building.scriptableBuilding.type !=
-                                             BuildingType.SpecialCityHall;
-            var isFlag = tile.Type == ElementTileType.Flag;
-            if (isBuilding_ButNot_CityHall || isFlag) {
-                continue;
-            }
+                var tile = elementTiles[pos.y][pos.x];
+                var isFlag = tile.Type == ElementTileType.Flag;
+                var isBuilding = tile.Type == ElementTileType.Building;
+                if (isFlag || isBuilding) {
+                    vertexes.Add(new(new(), pos));
+                }
 
-            foreach (var offset in DirectionOffsets.Offsets) {
-                var newPos = pos + offset;
-                if (!mapSize.Contains(newPos) || visited[newPos.y][newPos.x]) {
+                if (isFlag) {
+                    bigFukenQueue.Enqueue(pos);
                     continue;
                 }
 
-                visited[newPos.y][newPos.x] = true;
-                if (tile.Type == ElementTileType.None) {
+                var isBuilding_ButNot_CityHall = isBuilding
+                                                 && tile.Building.scriptableBuilding.type !=
+                                                 BuildingType.SpecialCityHall;
+                if (isBuilding_ButNot_CityHall) {
                     continue;
                 }
 
-                segmentTiles.Add(newPos);
+                foreach (var offset in DirectionOffsets.Offsets) {
+                    var newPos = pos + offset;
+                    if (!mapSize.Contains(newPos)) {
+                        continue;
+                    }
 
-                queue.Enqueue(newPos);
+                    if (visited[newPos.y][newPos.x]) {
+                        continue;
+                    }
+
+                    var newTile = elementTiles[pos.y][pos.x];
+                    if (newTile.Type == ElementTileType.None) {
+                        continue;
+                    }
+
+                    var newIsBuilding = newTile.Type == ElementTileType.Building;
+                    if (isBuilding && newIsBuilding) {
+                        continue;
+                    }
+
+                    segmentTiles.Add(newPos);
+
+                    queue.Enqueue(newPos);
+                }
             }
+
+            if (vertexes.Count <= 1) {
+                return new();
+            }
+
+            graphSegments.Add(new(vertexes, segmentTiles));
+            queue.Clear();
         }
 
-        if (vertexes.Count <= 1) {
-            return new();
-        }
-
-        graphSegments.Add(new(vertexes, segmentTiles));
         return graphSegments;
     }
 
