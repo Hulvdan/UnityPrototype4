@@ -414,7 +414,7 @@ public class MapRenderer : MonoBehaviour {
 
         var i = (building.producedResources.Count - 1) % scriptable.producedItemsPositions.Count;
         var itemOffset = scriptable.producedItemsPositions[i];
-        item.transform.localPosition = (Vector2)building.position;
+        item.transform.localPosition = (Vector2)building.pos;
         var itemGo = item.GetComponent<ItemGO>();
         itemGo.SetAs(data.Resource.script);
 
@@ -422,7 +422,7 @@ public class MapRenderer : MonoBehaviour {
             .To(
                 () => item.transform.localPosition,
                 val => item.transform.localPosition = val,
-                (Vector3)(building.position + itemOffset + Vector2.right / 2),
+                (Vector3)(building.pos + itemOffset + Vector2.right / 2),
                 _buildingMovingItemToTheWarehouseDuration / _gameManager.currentGameSpeed
             )
             .SetLink(item)
@@ -480,7 +480,7 @@ public class MapRenderer : MonoBehaviour {
 
     public void ResetRenderer() {
         DeleteOldTilemaps();
-        RegenerateTilemapGameObject();
+        RegenerateTilemapGameObjects();
         RegenerateDebugTilemapGameObject();
         UpdateGridPosition();
     }
@@ -495,7 +495,7 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    void RegenerateTilemapGameObject() {
+    void RegenerateTilemapGameObjects() {
         var maxHeight = 0;
         for (var y = 0; y < _mapSize.sizeY; y++) {
             for (var x = 0; x < _mapSize.sizeX; x++) {
@@ -509,7 +509,7 @@ public class MapRenderer : MonoBehaviour {
         // Buildings 2 (y=-0.0021)
         var terrainMaps = new List<Tilemap>();
         for (var i = 0; i <= maxHeight; i++) {
-            var terrain = GenerateTilemap(i, i, TerrainTilemapNameTemplate, _tilemapPrefab);
+            var terrain = GenerateTerrainTilemap(i, i, TerrainTilemapNameTemplate, _tilemapPrefab);
             terrainMaps.Add(terrain.GetComponent<Tilemap>());
         }
 
@@ -531,7 +531,7 @@ public class MapRenderer : MonoBehaviour {
             }
         }
 
-        _resourceTilemap = GenerateTilemap(
+        _resourceTilemap = GenerateTerrainTilemap(
             0, maxHeight + 1, ResourcesTilemapNameTemplate, _tilemapPrefab
         ).GetComponent<Tilemap>();
         for (var y = 0; y < _mapSize.sizeY; y++) {
@@ -544,11 +544,15 @@ public class MapRenderer : MonoBehaviour {
             }
         }
 
-        _buildingsTilemap = GenerateTilemap(
+        _buildingsTilemap = GenerateTerrainTilemap(
             0, maxHeight + 2, BuildingsTilemapNameTemplate, _tilemapBuildingsPrefab
         ).GetComponent<Tilemap>();
         foreach (var building in _map.buildings) {
             SetBuilding(building, 1, 1);
+        }
+
+        foreach (var building in _map.buildings) {
+            _movementSystemTilemap.SetTile(new(building.posX, building.posY, 0), _tileRoad);
         }
     }
 
@@ -583,7 +587,9 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    GameObject GenerateTilemap(int i, float order, string nameTemplate, GameObject prefabTemplate) {
+    GameObject GenerateTerrainTilemap(
+        int i, float order, string nameTemplate, GameObject prefabTemplate
+    ) {
         var terrainTilemap = Instantiate(prefabTemplate, _grid.transform);
         terrainTilemap.name = nameTemplate + i;
         terrainTilemap.transform.localPosition = new(0, -order / 100000f, 0);
@@ -666,7 +672,7 @@ public class MapRenderer : MonoBehaviour {
         }
 
         var itemOffset = scriptable.storedItemPositions[i];
-        item.transform.localPosition = building.position + itemOffset;
+        item.transform.localPosition = building.pos + itemOffset;
         var itemGo = item.GetComponent<ItemGO>();
         itemGo.SetAs(data.Resource.script);
 
@@ -726,7 +732,7 @@ public class MapRenderer : MonoBehaviour {
             .To(
                 () => item.transform.localPosition,
                 val => item.transform.localPosition = val,
-                (Vector3)(building.position + itemOffset + Vector2.right / 2),
+                (Vector3)(building.pos + itemOffset + Vector2.right / 2),
                 _itemPlacingDuration / _gameManager.currentGameSpeed
             )
             .SetEase(_itemPlacingCurve)
