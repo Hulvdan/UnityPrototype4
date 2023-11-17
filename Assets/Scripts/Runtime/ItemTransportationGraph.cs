@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace BFG.Runtime {
@@ -15,10 +16,13 @@ public static class ItemTransportationGraph {
             return graphSegments;
         }
 
-        var bigFukenQueue = new Queue<Vector2Int>();
-        bigFukenQueue.Enqueue(cityHall.pos);
+        var bigFukenQueue = new Queue<Tuple<int, Vector2Int>>();
+        bigFukenQueue.Enqueue(new((int)Direction.Right, cityHall.pos));
+        bigFukenQueue.Enqueue(new((int)Direction.Up, cityHall.pos));
+        bigFukenQueue.Enqueue(new((int)Direction.Left, cityHall.pos));
+        bigFukenQueue.Enqueue(new((int)Direction.Down, cityHall.pos));
 
-        var queue = new Queue<Vector2Int>();
+        var queue = new Queue<Tuple<int, Vector2Int>>();
 
         var visited = GetVisited(mapSize);
 
@@ -27,19 +31,26 @@ public static class ItemTransportationGraph {
             queue.Enqueue(p);
 
             var vertexes = new List<GraphVertex>();
-            var segmentTiles = new List<Vector2Int> { p };
+            var segmentTiles = new List<Vector2Int> { p.Item2 };
 
             while (queue.Count > 0) {
-                var pos = queue.Dequeue();
+                var (dir, pos) = queue.Dequeue();
 
                 var tile = elementTiles[pos.y][pos.x];
                 var isFlag = tile.Type == ElementTileType.Flag;
                 var isBuilding = tile.Type == ElementTileType.Building;
+                var isCityHall = isBuilding
+                                 && tile.Building.scriptableBuilding.type ==
+                                 BuildingType.SpecialCityHall;
                 if (isFlag || isBuilding) {
                     vertexes.Add(new(new(), pos));
                 }
 
                 for (var dirIndex = 0; dirIndex < 4; dirIndex++) {
+                    if (isCityHall && dirIndex != dir) {
+                        continue;
+                    }
+
                     var offset = DirectionOffsets.Offsets[dirIndex];
                     if (visited[pos.y][pos.x][dirIndex]) {
                         continue;
@@ -60,31 +71,32 @@ public static class ItemTransportationGraph {
                         continue;
                     }
 
+                    var newIsBuilding = newTile.Type == ElementTileType.Building;
+                    if (isBuilding && newIsBuilding) {
+                        continue;
+                    }
+
                     var newIsFlag = newTile.Type == ElementTileType.Flag;
                     if (newIsFlag) {
-                        bigFukenQueue.Enqueue(pos);
+                        bigFukenQueue.Enqueue(new(0, newPos));
                     }
 
                     visited[pos.y][pos.x][dirIndex] = true;
                     visited[newPos.y][newPos.x][oppositeDirIndex] = true;
                     segmentTiles.Add(newPos);
 
-                    var newIsBuilding = newTile.Type == ElementTileType.Building;
                     if (newIsBuilding || newIsFlag) {
                         vertexes.Add(new(new(), newPos));
                     }
                     else {
-                        queue.Enqueue(newPos);
+                        queue.Enqueue(new(0, newPos));
                     }
                 }
             }
 
-            if (vertexes.Count <= 1) {
-                return new();
+            if (vertexes.Count > 1) {
+                graphSegments.Add(new(vertexes, segmentTiles));
             }
-
-            graphSegments.Add(new(vertexes, segmentTiles));
-            queue.Clear();
         }
 
         return graphSegments;

@@ -17,13 +17,13 @@ public class TestItemTransportationGraph {
 
     [Test]
     [Timeout(1)]
-    public void Test_2Buildings_1Road_With_1Segment_2Vertexes() {
+    public void Test_2Buildings_1Road_1Segment() {
         Test(
             new[] {
                 ".B",
                 "Cr",
             },
-            0
+            1
         );
     }
 
@@ -113,19 +113,18 @@ public class TestItemTransportationGraph {
 
     [Test]
     [Timeout(1)]
-    public void Test_Complex1() {
-        // CrrFrB
+    public void Test_Line_CrrFrB() {
         Test(
             new[] {
                 "CrrFrB",
             },
-            1
+            2
         );
     }
 
     [Test]
     [Timeout(1)]
-    public void Test_Complex2() {
+    public void Test_Line_CrrrrB() {
         Test(
             new[] {
                 "CrrrrB",
@@ -221,7 +220,7 @@ public class TestItemTransportationGraph {
 
     [Test]
     [Timeout(1)]
-    public void Test_Complex9() {
+    public void Test_Line_CrB() {
         Test(
             new[] {
                 "CrB",
@@ -232,7 +231,7 @@ public class TestItemTransportationGraph {
 
     [Test]
     [Timeout(1)]
-    public void Test_Complex10() {
+    public void Test_Line_CFB() {
         Test(
             new[] {
                 "CFB",
