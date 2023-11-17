@@ -85,11 +85,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [Required]
     InitialMapProvider _initialMapProvider;
 
-    [FoldoutGroup("Setup", true)]
-    [SerializeField]
-    [Required]
-    ScriptableBuilding _lumberjacksHouse;
-
     [FormerlySerializedAs("_compoundSystem")]
     [FormerlySerializedAs("_movementSystemInterface")]
     [FoldoutGroup("Horse Movement System", true)]

@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿// ReSharper disable once RedundantUsingDirective
+
+using System.Collections.Generic;
 using System.Reactive.Subjects;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 

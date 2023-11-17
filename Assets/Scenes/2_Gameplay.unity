@@ -8344,7 +8344,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 45af1427840af3a4a98b31727bdd67b4, type: 2}
   - {fileID: 11400000, guid: ae832cc99114055458e3b3270e527dd6, type: 2}
   _initialMapProvider: {fileID: 795772558}
-  _lumberjacksHouse: {fileID: 0}
   _horseCompoundSystem: {fileID: 1706615548}
   _horsesStationItemsGatheringRadius: 2
   _humanHeadingDuration: 1
@@ -8407,6 +8406,7 @@ MonoBehaviour:
   _tileStationVertical: {fileID: 11400000, guid: cab357ae5a134df4e83dedfbcbf177d2, type: 2}
   _tileForest: {fileID: 11400000, guid: eedf2f35d2863c847b3e482af4541ea7, type: 2}
   _tileForestTop: {fileID: 11400000, guid: e39481a7068315745bb97871069b3b17, type: 2}
+  _tileUnfinishedBuilding: {fileID: 11400000, guid: ab68e249e651a9743954499abf5c24b1, type: 2}
   _tilemapPrefab: {fileID: 7769032001010058926, guid: 102831fe39d96624dae6dc8fe9cc3e8c, type: 3}
   _tilemapBuildingsPrefab: {fileID: 6846368563622007670, guid: f68912ad1580d1d4c8a829f829763b4e, type: 3}
   _humanPrefab: {fileID: 3002592055168235560, guid: a0701c25212629e43b39f51cf8637b3b, type: 3}
