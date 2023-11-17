@@ -228,7 +228,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 continue;
             }
 
-            var itemsPos = building.position +
+            var itemsPos = building.pos +
                            building.scriptableBuilding.pickupableItemsCellOffset;
             if (hoveredTile == itemsPos) {
                 return true;
@@ -248,7 +248,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 continue;
             }
 
-            var itemsPos = building.position +
+            var itemsPos = building.pos +
                            building.scriptableBuilding.pickupableItemsCellOffset;
             if (hoveredTile != itemsPos) {
                 continue;
@@ -275,10 +275,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public void OnCreateHorse(HorseCreateData data) {
         SpendResources(data.RequiredResources);
-        var horse = _horseCompoundSystem.CreateTrain(0, data.Building.position, Direction.Down);
+        var horse = _horseCompoundSystem.CreateTrain(0, data.Building.pos, Direction.Down);
         horse.AddDestination(new() {
             Type = HorseDestinationType.Default,
-            Pos = data.Building.position,
+            Pos = data.Building.pos,
         });
 
         _horseCompoundSystem.TrySetNextDestinationAndBuildPath(horse);
@@ -503,7 +503,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     #region HumanSystem_Behaviour
 
     void CreateHuman(Building building) {
-        var human = new Human(Guid.NewGuid(), building, building.position);
+        var human = new Human(Guid.NewGuid(), building, building.pos);
         _humans.Add(human);
         // OnHumanCreated?.Invoke(new HumanCreatedData(human));
         onHumanCreated.OnNext(new(human));
@@ -536,7 +536,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                         HumanFinishedHeadingToTheStoreBuilding(human);
 
                         PlaceResource(human);
-                        human.movingFrom = human.storeBuilding.position;
+                        human.movingFrom = human.storeBuilding.pos;
                         human.storeBuilding.isBooked = false;
                         human.storeBuilding = null;
 
@@ -717,10 +717,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 continue;
             }
 
-            var isWithinRadius = leftInclusive <= building.position.x
-                                 && building.position.x <= rightInclusive
-                                 && bottomInclusive <= building.position.y
-                                 && building.position.y <= topInclusive;
+            var isWithinRadius = leftInclusive <= building.pos.x
+                                 && building.pos.x <= rightInclusive
+                                 && bottomInclusive <= building.pos.y
+                                 && building.pos.y <= topInclusive;
             if (isWithinRadius) {
                 storeBuildingCandidate = building;
                 break;
@@ -746,7 +746,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var t = human.harvestingElapsed / _humanHeadingDuration;
         var mt = _humanMovementCurve.Evaluate(t);
         human.position =
-            Vector2.Lerp(human.harvestBuilding.position, human.harvestTilePosition.Value, mt);
+            Vector2.Lerp(human.harvestBuilding.pos, human.harvestTilePosition.Value, mt);
     }
 
     void UpdateHumanHarvesting(Human human) {
@@ -759,7 +759,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var t = stateElapsed / _humanHeadingToTheStoreBuildingDuration;
         var mt = _humanMovementCurve.Evaluate(t);
         human.position =
-            Vector2.Lerp(human.harvestTilePosition.Value, human.storeBuilding.position, mt);
+            Vector2.Lerp(human.harvestTilePosition.Value, human.storeBuilding.pos, mt);
     }
 
     void UpdateHumanHeadingBackToTheHarvestBuilding(Human human) {
@@ -770,7 +770,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var t = stateElapsed / _humanReturningBackDuration;
         var mt = _humanMovementCurve.Evaluate(t);
         human.position =
-            Vector2.Lerp(human.movingFrom, human.harvestBuilding.position, mt);
+            Vector2.Lerp(human.movingFrom, human.harvestBuilding.pos, mt);
     }
 
     #endregion
@@ -927,7 +927,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             resourceSlotPosition = building.scriptableBuilding.storedItemPositions[
                                        foundResourceIndex % building.scriptableBuilding
                                            .storedItemPositions.Count] +
-                                   building.position;
+                                   building.pos;
             building.storedResources.RemoveAt(foundResourceIndex);
             break;
         }

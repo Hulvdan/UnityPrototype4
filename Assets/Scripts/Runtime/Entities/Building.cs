@@ -49,7 +49,7 @@ public class Building {
     public ScriptableBuilding scriptableBuilding => _scriptableBuilding;
     public int posX => _posX;
     public int posY => _posY;
-    public Vector2Int position => new(_posX, _posY);
+    public Vector2Int pos => new(_posX, _posY);
 
     public Guid ID {
         get {
@@ -96,10 +96,10 @@ public class Building {
     }
 
     public bool Contains(int x, int y) {
-        return position.x <= x
-               && x <= position.x + scriptableBuilding.size.x
-               && position.y <= y
-               && y <= position.y + scriptableBuilding.size.y;
+        return pos.x <= x
+               && x < pos.x + scriptableBuilding.size.x
+               && pos.y <= y
+               && y < pos.y + scriptableBuilding.size.y;
     }
 
     public bool CanStoreResource() {

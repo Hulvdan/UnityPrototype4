@@ -93,7 +93,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5613275084502226616}
-  - component: {fileID: 4630370520463868071}
   m_Layer: 0
   m_Name: w1
   m_TagString: Untagged
@@ -117,18 +116,6 @@ Transform:
   - {fileID: 6265680458939629173}
   m_Father: {fileID: 2302907136454829409}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!210 &4630370520463868071
-SortingGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2472099536684132128}
-  m_Enabled: 1
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 2
-  m_SortAtRoot: 0
 --- !u!1 &3002592055168235560
 GameObject:
   m_ObjectHideFlags: 0
@@ -139,6 +126,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2302907136454829409}
   - component: {fileID: 2569417270864729246}
+  - component: {fileID: 3294064663937693896}
   m_Layer: 0
   m_Name: Human
   m_TagString: Untagged
@@ -227,6 +215,18 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!210 &3294064663937693896
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3002592055168235560}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 200
+  m_SortAtRoot: 0
 --- !u!1 &3750039829303956361
 GameObject:
   m_ObjectHideFlags: 0
