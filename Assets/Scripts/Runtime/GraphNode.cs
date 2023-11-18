@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace BFG.Runtime {
 public static class GraphNode {
@@ -9,23 +10,43 @@ public static class GraphNode {
     public static byte Down = 1 << 3;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool Has(byte node, int dirIndex) {
+        return (node & (1 << dirIndex)) > 0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool Has(byte node, Direction dirIndex) {
+        return Has(node, (int)dirIndex);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsRight(byte node) {
-        return (node & (1 << 0)) > 0;
+        return Has(node, 0);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsUp(byte node) {
-        return (node & (1 << 1)) > 0;
+        return Has(node, 1);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsLeft(byte node) {
-        return (node & (1 << 2)) > 0;
+        return Has(node, 2);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsDown(byte node) {
-        return (node & (1 << 3)) > 0;
+        return Has(node, 3);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static byte MarkAs(byte node, Direction dirIndex) {
+        return MarkAs(node, (int)dirIndex);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static byte MarkAs(byte node, int dirIndex) {
+        return (byte)(node | (byte)(1 << dirIndex));
     }
 
     public static byte SetDirection(byte node, Direction direction, bool value) {

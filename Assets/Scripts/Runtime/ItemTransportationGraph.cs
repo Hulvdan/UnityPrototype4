@@ -15,13 +15,13 @@ public static class ItemTransportationGraph {
         );
         Assert.IsNotNull(cityHall);
 
-        var bigFukenQueue = new Queue<Tuple<int, Vector2Int>>();
-        bigFukenQueue.Enqueue(new((int)Direction.Right, cityHall.pos));
-        bigFukenQueue.Enqueue(new((int)Direction.Up, cityHall.pos));
-        bigFukenQueue.Enqueue(new((int)Direction.Left, cityHall.pos));
-        bigFukenQueue.Enqueue(new((int)Direction.Down, cityHall.pos));
+        var bigFukenQueue = new Queue<Tuple<Direction, Vector2Int>>();
+        bigFukenQueue.Enqueue(new(Direction.Right, cityHall.pos));
+        bigFukenQueue.Enqueue(new(Direction.Up, cityHall.pos));
+        bigFukenQueue.Enqueue(new(Direction.Left, cityHall.pos));
+        bigFukenQueue.Enqueue(new(Direction.Down, cityHall.pos));
 
-        var queue = new Queue<Tuple<int, Vector2Int>>();
+        var queue = new Queue<Tuple<Direction, Vector2Int>>();
 
         var visited = GetVisited(mapSize);
 
@@ -46,23 +46,22 @@ public static class ItemTransportationGraph {
                     AddWithoutDuplication(vertexes, pos);
                 }
 
-                for (var dirIndex = 0; dirIndex < 4; dirIndex++) {
+                for (Direction dirIndex = 0; dirIndex < (Direction)4; dirIndex++) {
                     if ((isCityHall || isFlag) && dirIndex != dir) {
                         continue;
                     }
 
-                    var offset = DirectionOffsets.Offsets[dirIndex];
-                    if (visited[pos.y][pos.x][dirIndex]) {
+                    if (GraphNode.Has(visited[pos.y][pos.x], dirIndex)) {
                         continue;
                     }
 
-                    var newPos = pos + offset;
+                    var newPos = pos + dirIndex.AsOffset();
                     if (!mapSize.Contains(newPos)) {
                         continue;
                     }
 
-                    var oppositeDirIndex = (dirIndex + 2) % 4;
-                    if (visited[newPos.y][newPos.x][oppositeDirIndex]) {
+                    var oppositeDirIndex = dirIndex.Opposite();
+                    if (GraphNode.Has(visited[newPos.y][newPos.x], oppositeDirIndex)) {
                         continue;
                     }
 
@@ -79,16 +78,18 @@ public static class ItemTransportationGraph {
                     }
 
                     if (newIsFlag) {
-                        bigFukenQueue.Enqueue(new(0, newPos));
-                        bigFukenQueue.Enqueue(new(1, newPos));
-                        bigFukenQueue.Enqueue(new(2, newPos));
-                        bigFukenQueue.Enqueue(new(3, newPos));
+                        bigFukenQueue.Enqueue(new(Direction.Right, newPos));
+                        bigFukenQueue.Enqueue(new(Direction.Up, newPos));
+                        bigFukenQueue.Enqueue(new(Direction.Left, newPos));
+                        bigFukenQueue.Enqueue(new(Direction.Down, newPos));
                     }
 
-                    visited[pos.y][pos.x][dirIndex] = true;
-                    visited[newPos.y][newPos.x][oppositeDirIndex] = true;
-                    graph.SetDirection(pos, (Direction)dirIndex);
-                    graph.SetDirection(newPos, (Direction)oppositeDirIndex);
+                    visited[pos.y][pos.x] = GraphNode.MarkAs(visited[pos.y][pos.x], dirIndex);
+                    visited[newPos.y][newPos.x] = GraphNode.MarkAs(
+                        visited[newPos.y][newPos.x], oppositeDirIndex
+                    );
+                    graph.SetDirection(pos, dirIndex);
+                    graph.SetDirection(newPos, oppositeDirIndex);
 
                     AddWithoutDuplication(segmentTiles, newPos);
 
@@ -109,15 +110,10 @@ public static class ItemTransportationGraph {
         return graphSegments;
     }
 
-    static List<List<bool[]>> GetVisited(IMapSize size) {
-        var visited = new List<List<bool[]>>();
-        for (var y = 0; y < size.sizeY; y++) {
-            var row = new List<bool[]>();
-            for (var x = 0; x < size.sizeX; x++) {
-                row.Add(new bool[4]);
-            }
-
-            visited.Add(row);
+    static byte[][] GetVisited(IMapSize mapSize) {
+        var visited = new byte[mapSize.sizeY][];
+        for (var index = 0; index < mapSize.sizeY; index++) {
+            visited[index] = new byte[mapSize.sizeX];
         }
 
         return visited;
