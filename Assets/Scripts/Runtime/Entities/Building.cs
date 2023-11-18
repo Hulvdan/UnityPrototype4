@@ -10,7 +10,7 @@ public class Building {
     public bool isBuilt => BuildingProgress >= 1;
     public float BuildingProgress;
 
-    public IScriptableBuilding scriptableBuilding { get; }
+    public IScriptableBuilding scriptable { get; }
 
     public int posX { get; }
     public int posY { get; }
@@ -25,7 +25,7 @@ public class Building {
         Guid id, IScriptableBuilding scriptable, Vector2Int pos, float buildingProgress
     ) {
         _id = id;
-        scriptableBuilding = scriptable;
+        this.scriptable = scriptable;
         posX = pos.x;
         posY = pos.y;
 
@@ -47,8 +47,8 @@ public class Building {
     public List<ResourceObj> storedResources {
         get {
             if (
-                scriptableBuilding.type != BuildingType.Store
-                && scriptableBuilding.type != BuildingType.Produce
+                scriptable.type != BuildingType.Store
+                && scriptable.type != BuildingType.Produce
             ) {
                 Debug.LogError("WTF");
             }
@@ -59,7 +59,7 @@ public class Building {
 
     public List<ResourceObj> producedResources {
         get {
-            if (scriptableBuilding.type != BuildingType.Produce) {
+            if (scriptable.type != BuildingType.Produce) {
                 Debug.LogError("WTF?");
             }
 
@@ -67,7 +67,7 @@ public class Building {
         }
     }
 
-    public RectInt rect => new(posX, posY, scriptableBuilding.size.x, scriptableBuilding.size.y);
+    public RectInt rect => new(posX, posY, scriptable.size.x, scriptable.size.y);
 
     public bool Contains(Vector2Int pos) {
         return Contains(pos.x, pos.y);
@@ -75,19 +75,19 @@ public class Building {
 
     public bool Contains(int x, int y) {
         return pos.x <= x
-               && x < pos.x + scriptableBuilding.size.x
+               && x < pos.x + scriptable.size.x
                && pos.y <= y
-               && y < pos.y + scriptableBuilding.size.y;
+               && y < pos.y + scriptable.size.y;
     }
 
     public bool CanStoreResource() {
-        return storedResources.Count < scriptableBuilding.storeItemsAmount;
+        return storedResources.Count < scriptable.storeItemsAmount;
     }
 
     public StoreResourceResult StoreResource(ResourceObj resource) {
         if (
-            scriptableBuilding.type != BuildingType.Produce
-            && scriptableBuilding.type != BuildingType.Store
+            scriptable.type != BuildingType.Produce
+            && scriptable.type != BuildingType.Store
         ) {
             Debug.LogError("WTF?");
         }
@@ -105,7 +105,7 @@ public class Building {
     }
 
     public bool CanStartProcessing() {
-        if (producedResources.Count >= scriptableBuilding.produceItemsAmount) {
+        if (producedResources.Count >= scriptable.produceItemsAmount) {
             return false;
         }
 

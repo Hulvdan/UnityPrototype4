@@ -46,16 +46,16 @@ public class InitialMapProvider : MonoBehaviour {
                 var isCityHall = false;
                 Building foundBuilding = null;
                 foreach (var building in _map.buildings) {
-                    if (building.scriptableBuilding.type != BuildingType.SpecialStable) {
+                    if (building.scriptable.type != BuildingType.SpecialStable) {
                         continue;
                     }
 
                     if (building.posX == x && building.posY == y) {
-                        if (building.scriptableBuilding.type == BuildingType.SpecialCityHall) {
+                        if (building.scriptable.type == BuildingType.SpecialCityHall) {
                             isCityHall = true;
                             foundBuilding = building;
                         }
-                        else if (building.scriptableBuilding.type == BuildingType.SpecialStable) {
+                        else if (building.scriptable.type == BuildingType.SpecialStable) {
                             isStables = true;
                         }
 

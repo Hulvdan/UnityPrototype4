@@ -109,5 +109,7 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     public TileBase tile => _tile;
     public Vector2Int size => _size;
     public Vector2Int pickupableItemsCellOffset => _pickupableItemsCellOffset;
+
+    public List<ResourceObj> requiredResources { get; } = new();
 }
 }
