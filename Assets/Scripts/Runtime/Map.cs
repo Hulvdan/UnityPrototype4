@@ -195,6 +195,12 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             var building = new Building(new(), item.Building, pos, 0);
             buildings.Add(building);
 
+            for (var dy = 0; dy < building.scriptable.size.y; dy++) {
+                for (var dx = 0; dx < building.scriptable.size.x; dx++) {
+                    elementTiles[pos.y + dy][pos.x + dx] = new(ElementTileType.Building, building);
+                }
+            }
+
             onBuildingPlaced.OnNext(new() { Building = building });
         }
 
@@ -511,6 +517,12 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         elementTiles = _initialMapProvider.LoadElementTiles();
+
+        var cityHalls = buildings.FindAll(i => i.scriptable.type == BuildingType.SpecialCityHall);
+        foreach (var building in cityHalls) {
+            var pos = building.pos;
+            elementTiles[pos.y][pos.x] = new(ElementTileType.Building, building);
+        }
     }
 
     float MakeSomeNoise2D(int seed, int x, int y, float scale) {
@@ -538,6 +550,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void UpdateHumans(float dt) {
         foreach (var human in _humans) {
+            if (human.role != HumanRole.Harvester) {
+                continue;
+            }
+
             if (human.state != HumanState.Idle) {
                 human.harvestingElapsed += dt;
 
