@@ -1,85 +1,64 @@
-﻿using System;
-using UnityEngine.Assertions;
+﻿using System.Runtime.CompilerServices;
 
 namespace BFG.Runtime {
-public struct GraphNode : IEquatable<GraphNode> {
-    public byte Directions;
+public static class GraphNode {
+    public static byte None = 0;
+    public static byte Right = 1 << 0;
+    public static byte Up = 1 << 1;
+    public static byte Left = 1 << 2;
+    public static byte Down = 1 << 3;
 
-    public GraphNode(bool[] directions) {
-        Directions = 0;
-        Assert.AreEqual(directions.Length, 4);
-
-        for (byte i = 0; i < 4; i++) {
-            if (directions[i]) {
-                Directions |= (byte)(1 << i);
-            }
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsRight(byte node) {
+        return (node & (1 << 0)) > 0;
     }
 
-    public GraphNode(byte Directions) {
-        this.Directions = Directions;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsUp(byte node) {
+        return (node & (1 << 1)) > 0;
     }
 
-    public bool right {
-        get => (Directions & (1 << 0)) > 0;
-        set => SetDirection(value, 0);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsLeft(byte node) {
+        return (node & (1 << 2)) > 0;
     }
 
-    public bool up {
-        get => (Directions & (1 << 1)) > 0;
-        set => SetDirection(value, 1);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsDown(byte node) {
+        return (node & (1 << 3)) > 0;
     }
 
-    public bool left {
-        get => (Directions & (1 << 2)) > 0;
-        set => SetDirection(value, 2);
-    }
-
-    public bool down {
-        get => (Directions & (1 << 3)) > 0;
-        set => SetDirection(value, 3);
-    }
-
-    public void SetDirection(bool value, byte dir) {
+    public static byte SetDirection(byte node, Direction direction, bool value) {
+        var dir = (byte)direction;
         if (value) {
-            Directions |= (byte)(1 << dir);
+            node |= (byte)(1 << dir);
         }
         else {
-            Directions &= (byte)(15 ^ (1 << dir));
+            node &= (byte)(15 ^ (1 << dir));
         }
+
+        return node;
     }
 
-    public bool Equals(GraphNode other) {
-        return Directions == other.Directions;
-    }
-
-    public override bool Equals(object obj) {
-        return obj is GraphNode other && Equals(other);
-    }
-
-    public override int GetHashCode() {
-        return Directions.GetHashCode();
-    }
-
-    public override string ToString() {
+    public static string ToString(byte node) {
         var str = "[";
-        if (right) {
+        if (IsRight(node)) {
             str += "Right, ";
         }
 
-        if (up) {
+        if (IsUp(node)) {
             str += "Up, ";
         }
 
-        if (left) {
+        if (IsLeft(node)) {
             str += "Left, ";
         }
 
-        if (down) {
+        if (IsDown(node)) {
             str += "Down, ";
         }
 
-        if (Directions != 0) {
+        if (node != 0) {
             str = str.Substring(0, str.Length - 2);
         }
         else {
@@ -89,7 +68,12 @@ public struct GraphNode : IEquatable<GraphNode> {
         return str + "]";
     }
 
-    public string Repr() {
+    public static string Repr(byte node) {
+        var right = IsRight(node);
+        var up = IsUp(node);
+        var left = IsLeft(node);
+        var down = IsDown(node);
+
         // 4
         if (right && up && left && down) {
             return "┼";

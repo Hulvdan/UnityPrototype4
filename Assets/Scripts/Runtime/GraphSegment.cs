@@ -7,13 +7,15 @@ namespace BFG.Runtime {
 // TODO: IComparable, IEquatable should be considered for removal
 public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> {
     public readonly List<GraphVertex> Vertexes;
+    public readonly Graph Graph;
     public readonly List<Vector2Int> MovementTiles;
 
-    public GraphSegment(List<GraphVertex> vertexes, List<Vector2Int> movementTiles) {
+    public GraphSegment(List<GraphVertex> vertexes, List<Vector2Int> movementTiles, Graph graph) {
         Vertexes = vertexes;
         MovementTiles = movementTiles;
 
         // TODO: Should be considered for removal
+        Graph = graph;
         vertexes.Sort();
         movementTiles.Sort(Utils.StupidVector2IntComparation);
 
@@ -48,7 +50,9 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
             return true;
         }
 
-        return Equals(Vertexes, other.Vertexes) && Equals(MovementTiles, other.MovementTiles);
+        return Equals(Vertexes, other.Vertexes)
+               && Equals(Graph, other.Graph)
+               && Equals(MovementTiles, other.MovementTiles);
     }
 
     public int CompareTo(GraphSegment other) {
@@ -82,6 +86,11 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
             }
         }
 
+        var graphCmp = Graph.CompareTo(other.Graph);
+        if (graphCmp != 0) {
+            return graphCmp;
+        }
+
         return 0;
     }
 
@@ -99,10 +108,6 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
         }
 
         return Equals((GraphSegment)obj);
-    }
-
-    public override int GetHashCode() {
-        return HashCode.Combine(Vertexes, MovementTiles);
     }
 
     public override string ToString() {
