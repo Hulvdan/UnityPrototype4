@@ -47,7 +47,7 @@ public static class ItemTransportationGraph {
                 }
 
                 for (var dirIndex = 0; dirIndex < 4; dirIndex++) {
-                    if (isCityHall && dirIndex != dir) {
+                    if ((isCityHall || isFlag) && dirIndex != dir) {
                         continue;
                     }
 
@@ -80,11 +80,13 @@ public static class ItemTransportationGraph {
 
                     if (newIsFlag) {
                         bigFukenQueue.Enqueue(new(0, newPos));
+                        bigFukenQueue.Enqueue(new(1, newPos));
+                        bigFukenQueue.Enqueue(new(2, newPos));
+                        bigFukenQueue.Enqueue(new(3, newPos));
                     }
 
                     visited[pos.y][pos.x][dirIndex] = true;
                     visited[newPos.y][newPos.x][oppositeDirIndex] = true;
-
                     graph.SetDirection(pos, (Direction)dirIndex);
                     graph.SetDirection(newPos, (Direction)oppositeDirIndex);
 
