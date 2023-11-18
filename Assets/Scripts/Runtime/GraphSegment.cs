@@ -112,7 +112,6 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
         str += string.Join(", ", MovementTiles);
         str += "])";
         return str;
-        // return $"(Vertexes: {Vertexes}, MovementTiles: {MovementTiles})";
     }
 }
 }

@@ -18,5 +18,6 @@ public interface IScriptableBuilding {
     Vector2Int size { get; }
     Vector2Int pickupableItemsCellOffset { get; }
     string name { get; }
+    List<ResourceObj> requiredResources { get; }
 }
 }

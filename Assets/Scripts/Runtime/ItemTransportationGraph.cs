@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
 public static class ItemTransportationGraph {
@@ -10,11 +11,9 @@ public static class ItemTransportationGraph {
         var graphSegments = new List<GraphSegment>();
 
         var cityHall = buildings.Find(
-            i => i.scriptableBuilding.type == BuildingType.SpecialCityHall
+            i => i.scriptable.type == BuildingType.SpecialCityHall
         );
-        if (cityHall == null) {
-            return graphSegments;
-        }
+        Assert.IsNotNull(cityHall);
 
         var bigFukenQueue = new Queue<Tuple<int, Vector2Int>>();
         bigFukenQueue.Enqueue(new((int)Direction.Right, cityHall.pos));
@@ -40,7 +39,7 @@ public static class ItemTransportationGraph {
                 var isFlag = tile.Type == ElementTileType.Flag;
                 var isBuilding = tile.Type == ElementTileType.Building;
                 var isCityHall = isBuilding
-                                 && tile.Building.scriptableBuilding.type ==
+                                 && tile.Building.scriptable.type ==
                                  BuildingType.SpecialCityHall;
                 if (isFlag || isBuilding) {
                     AddWithoutDuplication(vertexes, pos);

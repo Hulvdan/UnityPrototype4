@@ -52,7 +52,7 @@ public struct ElementTile {
     public override string ToString() {
         if (Type == ElementTileType.Building) {
             Assert.IsNotNull(Building);
-            return $"ElementTile({Type}, {Building.scriptableBuilding.name})";
+            return $"ElementTile({Type}, {Building.scriptable.name})";
         }
 
         return $"ElementTile({Type})";

@@ -263,6 +263,98 @@ public class TestItemTransportationGraph {
 
     [Test]
     [Timeout(1)]
+    public void Test_Complex11() {
+        Test(
+            new[] {
+                "...B...",
+                "..rrrr.",
+                "CrrSSrB",
+                "....rr.",
+            },
+            1
+        );
+    }
+
+    [Test]
+    [Timeout(1)]
+    public void Test_Complex12() {
+        Test(
+            new[] {
+                "...B...",
+                "..rFrr.",
+                "CrrSSrB",
+                "....rr.",
+            },
+            4
+        );
+    }
+
+    [Test]
+    [Timeout(1)]
+    public void Test_Complex13() {
+        Test(
+            new[] {
+                "...B...",
+                "..rFFr.",
+                "CrrSSrB",
+                "....rr.",
+            },
+            6
+        );
+    }
+
+    [Test]
+    [Timeout(1)]
+    public void Test_Complex14() {
+        Test(
+            new[] {
+                "...B...",
+                "..rrFr.",
+                "CrrSSrB",
+                "....rr.",
+            },
+            3
+        );
+    }
+
+    [Test]
+    [Timeout(1)]
+    public void Test_Complex15() {
+        Test(
+            new[] {
+                "CrF",
+                ".rB",
+            },
+            2
+        );
+    }
+
+    [Test]
+    [Timeout(1)]
+    public void Test_Complex16() {
+        Test(
+            new[] {
+                "CrFr",
+                ".rSS",
+            },
+            3
+        );
+    }
+
+    [Test]
+    [Timeout(1)]
+    public void Test_Complex17() {
+        Test(
+            new[] {
+                "Crrr",
+                ".rSS",
+            },
+            1
+        );
+    }
+
+    [Test]
+    [Timeout(1)]
     public void Test_Line_CrB() {
         Test(
             new[] {
@@ -296,6 +388,8 @@ public class TestItemTransportationGraph {
 
         var buildings = new List<Building>();
 
+        Building buildingSawmill = null;
+
         var graph = new List<List<ElementTile>>();
         for (var y = 0; y < height; y++) {
             var row = new List<ElementTile>();
@@ -311,6 +405,14 @@ public class TestItemTransportationGraph {
                         var building2 = MakeBuilding(BuildingType.Produce, new(x, y));
                         buildings.Add(building2);
                         tile = new(ElementTileType.Building, building2);
+                        break;
+                    case 'S':
+                        if (buildingSawmill == null) {
+                            buildingSawmill = MakeBuilding(BuildingType.Produce, new(x, y));
+                            buildings.Add(buildingSawmill);
+                        }
+
+                        tile = new(ElementTileType.Building, buildingSawmill);
                         break;
                     case 'r':
                         tile = ElementTile.Road;

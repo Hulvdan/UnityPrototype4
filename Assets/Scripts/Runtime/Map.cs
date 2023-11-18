@@ -69,7 +69,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     [FoldoutGroup("Setup", true)]
     [SerializeField]
-    List<Human> _humans;
+    readonly List<Human> _humans = new();
 
     [FoldoutGroup("Setup", true)]
     [SerializeField]
@@ -197,6 +197,14 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
             onBuildingPlaced.OnNext(new() { Building = building });
         }
+
+        var segments = ItemTransportationGraph.BuildGraphSegments(elementTiles, this, buildings);
+        if (segments.Count > 0) {
+            CreateHuman_Transporter(
+                buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall),
+                segments[0]
+            );
+        }
     }
 
     public bool IsBuildable(int x, int y) {
@@ -233,7 +241,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public bool CellContainsPickupableItems(Vector2Int hoveredTile) {
         foreach (var building in buildings) {
             if (
-                building.scriptableBuilding.type != BuildingType.Produce
+                building.scriptable.type != BuildingType.Produce
                 || building.producedResources.Count <= 0
                 || !building.Contains(hoveredTile)
             ) {
@@ -241,7 +249,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
 
             var itemsPos = building.pos +
-                           building.scriptableBuilding.pickupableItemsCellOffset;
+                           building.scriptable.pickupableItemsCellOffset;
             if (hoveredTile == itemsPos) {
                 return true;
             }
@@ -253,7 +261,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public void CollectItems(Vector2Int hoveredTile) {
         foreach (var building in buildings) {
             if (
-                building.scriptableBuilding.type != BuildingType.Produce
+                building.scriptable.type != BuildingType.Produce
                 || building.producedResources.Count <= 0
                 || !building.Contains(hoveredTile)
             ) {
@@ -261,7 +269,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
 
             var itemsPos = building.pos +
-                           building.scriptableBuilding.pickupableItemsCellOffset;
+                           building.scriptable.pickupableItemsCellOffset;
             if (hoveredTile != itemsPos) {
                 continue;
             }
@@ -329,7 +337,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void UpdateBuildings(float dt) {
         foreach (var building in buildings) {
-            var scriptableBuilding = building.scriptableBuilding;
+            var scriptableBuilding = building.scriptable;
             if (scriptableBuilding.type == BuildingType.Produce) {
                 if (!building.IsProducing) {
                     if (building.storedResources.Count > 0 && building.CanStartProcessing()) {
@@ -360,7 +368,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void Produce(Building building) {
         Debug.Log("Produced!");
-        var res = building.scriptableBuilding.produces;
+        var res = building.scriptable.produces;
         var resourceObj = new ResourceObj(Guid.NewGuid(), res);
         building.producedResources.Add(resourceObj);
 
@@ -514,6 +522,13 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     #region HumanSystem_Behaviour
 
+    void CreateHuman_Transporter(Building building, GraphSegment segment) {
+        var human = new Human(Guid.NewGuid(), building, segment);
+        _humans.Add(human);
+        // OnHumanCreated?.Invoke(new HumanCreatedData(human));
+        onHumanCreated.OnNext(new(human));
+    }
+
     void CreateHuman(Building building) {
         var human = new Human(Guid.NewGuid(), building, building.pos);
         _humans.Add(human);
@@ -637,7 +652,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var tile = terrainTiles[pos.y][pos.x];
         tile.ResourceAmount -= 1;
 
-        var res = human.harvestBuilding.scriptableBuilding.harvestableResource;
+        var res = human.building.scriptable.harvestableResource;
         onHumanPickedUpResource.OnNext(
             new() {
                 Human = human,
@@ -658,7 +673,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void PlaceResource(Human human) {
-        var scriptableResource = human.harvestBuilding.scriptableBuilding.harvestableResource;
+        var scriptableResource = human.building.scriptable.harvestableResource;
         var resource = new ResourceObj(Guid.NewGuid(), scriptableResource);
         human.storeBuilding.storedResources.Add(resource);
 
@@ -683,13 +698,13 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void UpdateHumanIdle(Human human) {
-        var r = human.harvestBuilding.scriptableBuilding.tilesRadius;
-        var leftInclusive = Math.Max(0, human.harvestBuilding.posX - r);
-        var rightInclusive = Math.Min(sizeX - 1, human.harvestBuilding.posX + r);
-        var topInclusive = Math.Min(sizeY - 1, human.harvestBuilding.posY + r);
-        var bottomInclusive = Math.Max(0, human.harvestBuilding.posY - r);
+        var r = human.building.scriptable.tilesRadius;
+        var leftInclusive = Math.Max(0, human.building.posX - r);
+        var rightInclusive = Math.Min(sizeX - 1, human.building.posX + r);
+        var topInclusive = Math.Min(sizeY - 1, human.building.posY + r);
+        var bottomInclusive = Math.Max(0, human.building.posY - r);
 
-        var resource = human.harvestBuilding.scriptableBuilding.harvestableResource;
+        var resource = human.building.scriptable.harvestableResource;
         var yy = Enumerable.Range(bottomInclusive, topInclusive - bottomInclusive + 1).ToArray();
         var xx = Enumerable.Range(leftInclusive, rightInclusive - leftInclusive + 1).ToArray();
 
@@ -717,7 +732,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var buildingCopy = buildings.ToArray();
         Utils.Shuffle(buildingCopy, _random);
         foreach (var building in buildingCopy) {
-            if (building.scriptableBuilding.type != BuildingType.Store) {
+            if (building.scriptable.type != BuildingType.Store) {
                 continue;
             }
 
@@ -725,7 +740,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 continue;
             }
 
-            if (building.storedResources.Count >= building.scriptableBuilding.storeItemsAmount) {
+            if (building.storedResources.Count >= building.scriptable.storeItemsAmount) {
                 continue;
             }
 
@@ -758,7 +773,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var t = human.harvestingElapsed / _humanHeadingDuration;
         var mt = _humanMovementCurve.Evaluate(t);
         human.position =
-            Vector2.Lerp(human.harvestBuilding.pos, human.harvestTilePosition.Value, mt);
+            Vector2.Lerp(human.building.pos, human.harvestTilePosition.Value, mt);
     }
 
     void UpdateHumanHarvesting(Human human) {
@@ -782,7 +797,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var t = stateElapsed / _humanReturningBackDuration;
         var mt = _humanMovementCurve.Evaluate(t);
         human.position =
-            Vector2.Lerp(human.movingFrom, human.harvestBuilding.pos, mt);
+            Vector2.Lerp(human.movingFrom, human.building.pos, mt);
     }
 
     #endregion
@@ -800,7 +815,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var expandedDimensions = ExpandStationDimensions(dimensions);
 
         foreach (var building in buildings) {
-            if (building.scriptableBuilding.type != BuildingType.Store) {
+            if (building.scriptable.type != BuildingType.Store) {
                 continue;
             }
 
@@ -921,7 +936,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var foundResourceIndex = -1;
         var resourceSlotPosition = Vector2.zero;
         foreach (var building in shuffledBuildings) {
-            if (building.scriptableBuilding.type != BuildingType.Store) {
+            if (building.scriptable.type != BuildingType.Store) {
                 continue;
             }
 
@@ -936,8 +951,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             foundResourceIndex = building.storedResources.Count - 1;
             foundBuilding = building;
             foundResource = building.storedResources[foundResourceIndex];
-            resourceSlotPosition = building.scriptableBuilding.storedItemPositions[
-                                       foundResourceIndex % building.scriptableBuilding
+            resourceSlotPosition = building.scriptable.storedItemPositions[
+                                       foundResourceIndex % building.scriptable
                                            .storedItemPositions.Count] +
                                    building.pos;
             building.storedResources.RemoveAt(foundResourceIndex);
@@ -972,7 +987,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var expandedDimensions = ExpandStationDimensions(dimensions);
 
         foreach (var building in buildings) {
-            if (building.scriptableBuilding.type != BuildingType.Produce) {
+            if (building.scriptable.type != BuildingType.Produce) {
                 continue;
             }
 
@@ -1003,7 +1018,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         Building foundBuilding = null;
         foreach (var building in buildings) {
-            if (building.scriptableBuilding.type != BuildingType.Produce) {
+            if (building.scriptable.type != BuildingType.Produce) {
                 continue;
             }
 

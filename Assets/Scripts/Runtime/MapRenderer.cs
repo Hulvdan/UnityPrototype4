@@ -218,7 +218,7 @@ public class MapRenderer : MonoBehaviour {
                 _map.CollectItems(hoveredTile);
             }
             else if (_gameManager.SelectedItem == null && _hoveredBuilding != null) {
-                if (_hoveredBuilding.scriptableBuilding.type == BuildingType.SpecialStable) {
+                if (_hoveredBuilding.scriptable.type == BuildingType.SpecialStable) {
                     ToggleStablesPanel(_hoveredBuilding);
                 }
             }
@@ -244,12 +244,12 @@ public class MapRenderer : MonoBehaviour {
         Gizmos.color = Color.cyan;
 
         foreach (var building in _map.buildings) {
-            if (building.scriptableBuilding == null
-                || building.scriptableBuilding.tilesRadius == 0) {
+            if (building.scriptable == null
+                || building.scriptable.tilesRadius == 0) {
                 continue;
             }
 
-            var r = building.scriptableBuilding.tilesRadius + .45f;
+            var r = building.scriptable.tilesRadius + .45f;
             var points = new Vector3[] {
                 new(r, r, 0),
                 new(r, -r, 0),
@@ -338,14 +338,14 @@ public class MapRenderer : MonoBehaviour {
         }
 
         foreach (var building in _map.buildings) {
-            if (building.scriptableBuilding.type != BuildingType.Produce) {
+            if (building.scriptable.type != BuildingType.Produce) {
                 continue;
             }
 
             var scale = GetBuildingScale(
                 building.IsProducing,
                 building.ProducingElapsed,
-                building.scriptableBuilding.ItemProcessingDuration
+                building.scriptable.ItemProcessingDuration
             );
             SetBuilding(building, scale.x, scale.y);
         }
@@ -417,7 +417,7 @@ public class MapRenderer : MonoBehaviour {
         var item = Instantiate(_itemPrefab, _itemsLayer);
 
         var building = data.Building;
-        var scriptable = building.scriptableBuilding;
+        var scriptable = building.scriptable;
 
         var i = (building.producedResources.Count - 1) % scriptable.producedItemsPositions.Count;
         var itemOffset = scriptable.producedItemsPositions[i];
@@ -559,10 +559,10 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void SetBuilding(Building building, float scaleX, float scaleY) {
-        var widthOffset = (building.scriptableBuilding.size.x - 1) / 2f;
-        var heightOffset = (building.scriptableBuilding.size.y - 1) / 2f;
+        var widthOffset = (building.scriptable.size.x - 1) / 2f;
+        var heightOffset = (building.scriptable.size.y - 1) / 2f;
 
-        var tile = building.scriptableBuilding.tile;
+        var tile = building.scriptable.tile;
         if (building.BuildingProgress < 1) {
             tile = _tileUnfinishedBuilding;
         }
@@ -687,7 +687,7 @@ public class MapRenderer : MonoBehaviour {
         var item = Instantiate(_itemPrefab, _itemsLayer);
 
         var building = data.StoreBuilding;
-        var scriptable = building.scriptableBuilding;
+        var scriptable = building.scriptable;
 
         var i = building.storedResources.Count - 1;
         if (i >= scriptable.storedItemPositions.Count) {
@@ -740,7 +740,7 @@ public class MapRenderer : MonoBehaviour {
         var item = Instantiate(_itemPrefab, _itemsLayer);
 
         var building = data.Building;
-        var scriptable = building.scriptableBuilding;
+        var scriptable = building.scriptable;
 
         var i = (building.storedResources.Count - 1) % scriptable.storedItemPositions.Count;
         var itemOffset = scriptable.storedItemPositions[i];
