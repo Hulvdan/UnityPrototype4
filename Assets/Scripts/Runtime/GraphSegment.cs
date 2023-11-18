@@ -110,6 +110,10 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
         return Equals((GraphSegment)obj);
     }
 
+    public override int GetHashCode() {
+        return HashCode.Combine(Vertexes, MovementTiles, Graph);
+    }
+
     public override string ToString() {
         var str = "(Vertexes: [";
         str += string.Join(", ", Vertexes);
