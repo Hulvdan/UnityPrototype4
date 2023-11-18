@@ -31,6 +31,7 @@ public static class ItemTransportationGraph {
 
             var vertexes = new List<GraphVertex>();
             var segmentTiles = new List<Vector2Int> { p.Item2 };
+            var graph = new Graph();
 
             while (queue.Count > 0) {
                 var (dir, pos) = queue.Dequeue();
@@ -71,17 +72,22 @@ public static class ItemTransportationGraph {
                     }
 
                     var newIsBuilding = newTile.Type == ElementTileType.Building;
+                    var newIsFlag = newTile.Type == ElementTileType.Flag;
+
                     if (isBuilding && newIsBuilding) {
                         continue;
                     }
 
-                    var newIsFlag = newTile.Type == ElementTileType.Flag;
                     if (newIsFlag) {
                         bigFukenQueue.Enqueue(new(0, newPos));
                     }
 
                     visited[pos.y][pos.x][dirIndex] = true;
                     visited[newPos.y][newPos.x][oppositeDirIndex] = true;
+
+                    graph.SetDirection(pos, (Direction)dirIndex);
+                    graph.SetDirection(newPos, (Direction)oppositeDirIndex);
+
                     AddWithoutDuplication(segmentTiles, newPos);
 
                     if (newIsBuilding || newIsFlag) {
@@ -94,7 +100,7 @@ public static class ItemTransportationGraph {
             }
 
             if (vertexes.Count > 1) {
-                graphSegments.Add(new(vertexes, segmentTiles));
+                graphSegments.Add(new(vertexes, segmentTiles, graph));
             }
         }
 

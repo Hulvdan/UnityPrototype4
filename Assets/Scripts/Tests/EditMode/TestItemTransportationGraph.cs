@@ -18,6 +18,12 @@ public class TestItemTransportationGraph {
     [Test]
     [Timeout(1)]
     public void Test_2Buildings_1Road_1Segment() {
+        var expectedGraph = new Graph();
+        expectedGraph.SetDirection(0, 0, Direction.Right);
+        expectedGraph.SetDirection(1, 0, Direction.Left);
+        expectedGraph.SetDirection(1, 0, Direction.Up);
+        expectedGraph.SetDirection(1, 1, Direction.Down);
+
         Test(
             new[] {
                 ".B",
@@ -34,7 +40,8 @@ public class TestItemTransportationGraph {
                         new(0, 0),
                         new(1, 0),
                         new(1, 1),
-                    }
+                    },
+                    expectedGraph
                 ),
             }
         );

@@ -5,65 +5,6 @@ using NUnit.Framework;
 namespace Tests.EditMode {
 public class TestGraph {
     [Test]
-    public void Test_GraphNode() {
-        var node = new GraphNode();
-        Assert.IsFalse(node.right);
-        Assert.IsFalse(node.up);
-        Assert.IsFalse(node.left);
-        Assert.IsFalse(node.down);
-
-        node.right = true;
-        Assert.IsTrue(node.right);
-        Assert.IsFalse(node.up);
-        Assert.IsFalse(node.left);
-        Assert.IsFalse(node.down);
-
-        node.up = true;
-        Assert.IsTrue(node.right);
-        Assert.IsTrue(node.up);
-        Assert.IsFalse(node.left);
-        Assert.IsFalse(node.down);
-
-        node.left = true;
-        Assert.IsTrue(node.right);
-        Assert.IsTrue(node.up);
-        Assert.IsTrue(node.left);
-        Assert.IsFalse(node.down);
-
-        node.down = true;
-        Assert.IsTrue(node.right);
-        Assert.IsTrue(node.up);
-        Assert.IsTrue(node.left);
-        Assert.IsTrue(node.down);
-
-        var node1 = new GraphNode(new[] { false, false, false, false });
-        Assert.IsFalse(node1.right);
-        Assert.IsFalse(node1.up);
-        Assert.IsFalse(node1.left);
-        Assert.IsFalse(node1.down);
-        var node2 = new GraphNode(new[] { true, false, false, false });
-        Assert.IsTrue(node2.right);
-        Assert.IsFalse(node2.up);
-        Assert.IsFalse(node2.left);
-        Assert.IsFalse(node2.down);
-        var node3 = new GraphNode(new[] { false, true, false, false });
-        Assert.IsFalse(node3.right);
-        Assert.IsTrue(node3.up);
-        Assert.IsFalse(node3.left);
-        Assert.IsFalse(node3.down);
-        var node4 = new GraphNode(new[] { false, false, true, false });
-        Assert.IsFalse(node4.right);
-        Assert.IsFalse(node4.up);
-        Assert.IsTrue(node4.left);
-        Assert.IsFalse(node4.down);
-        var node5 = new GraphNode(new[] { false, false, false, true });
-        Assert.IsFalse(node5.right);
-        Assert.IsFalse(node5.up);
-        Assert.IsFalse(node5.left);
-        Assert.IsTrue(node5.down);
-    }
-
-    [Test]
     [Timeout(1)]
     public void Test_1() {
         // ╶╵╴╷┼
@@ -75,8 +16,8 @@ public class TestGraph {
             },
             new() {
                 new() {
-                    new(new[] { true, false, false, false }),
-                    new(new[] { false, false, true, false }),
+                    GraphNode.Right,
+                    GraphNode.Left,
                 },
             }
         );
@@ -92,12 +33,12 @@ public class TestGraph {
             },
             new() {
                 new() {
-                    new(new[] { true, true, false, false }),
-                    new(new[] { false, true, true, false }),
+                    (byte)(GraphNode.Right | GraphNode.Up),
+                    (byte)(GraphNode.Left | GraphNode.Up),
                 },
                 new() {
-                    new(new[] { true, false, false, true }),
-                    new(new[] { false, false, true, true }),
+                    (byte)(GraphNode.Right | GraphNode.Down),
+                    (byte)(GraphNode.Left | GraphNode.Down),
                 },
             }
         );
@@ -111,9 +52,9 @@ public class TestGraph {
 
         var actual = Graph.Tests.GetNodes(graph);
         Assert.AreEqual(
-            new List<List<GraphNode>> {
+            new List<List<byte>> {
                 new() {
-                    new(new[] { true, false, false, false }),
+                    GraphNode.Right,
                 },
             },
             actual
@@ -129,14 +70,14 @@ public class TestGraph {
 
         var actual = Graph.Tests.GetNodes(graph);
         Assert.AreEqual(
-            new List<List<GraphNode>> {
+            new List<List<byte>> {
                 new() {
-                    new(new[] { false, false, true, false }),
-                    new(),
+                    GraphNode.Left,
+                    0,
                 },
                 new() {
-                    new(),
-                    new(new[] { true, false, false, false }),
+                    0,
+                    GraphNode.Right,
                 },
             },
             actual
@@ -229,7 +170,7 @@ public class TestGraph {
         return graph;
     }
 
-    void Test(string[] strings, List<List<GraphNode>> expectedNodesGraph) {
+    void Test(string[] strings, List<List<byte>> expectedNodesGraph) {
         var graph = FromStrings(strings);
         var actual = Graph.Tests.GetNodes(graph);
         Assert.AreEqual(expectedNodesGraph, actual);
