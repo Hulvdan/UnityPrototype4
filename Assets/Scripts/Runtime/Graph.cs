@@ -18,17 +18,22 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             var node = GraphNode.SetDirection(0, direction, value);
             _nodes = new() { new() { node } };
 
-            _nodesCount += 1;
+            if (node != 0) {
+                _nodesCount += 1;
+            }
         }
         else {
             ResizeIfNeeded(x, y);
 
             var node = _nodes[y - _offset.Value.y][x - _offset.Value.x];
 
-            if (!GraphNode.Has(node, direction) && value) {
+            var nodeIsZeroButWontBeAfter = node == 0 && value;
+            var nodeIsNotZeroButWillBe = !value && node != 0 &&
+                                         GraphNode.SetDirection(node, direction, false) == 0;
+            if (nodeIsZeroButWontBeAfter) {
                 _nodesCount += 1;
             }
-            else if (GraphNode.Has(node, direction) && !value) {
+            else if (nodeIsNotZeroButWillBe) {
                 _nodesCount -= 1;
             }
 
@@ -81,12 +86,12 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         // NOTE: |V| = _nodesCount
         // > let dist be a |V| × |V| array of minimum distances initialized to ∞ (infinity)
         // > let prev be a |V| × |V| array of minimum distances initialized to null
-        var dist = new float[_nodesCount][];
+        var dist = new int[_nodesCount][];
         var prev = new int[_nodesCount][];
         for (var y = 0; y < _nodesCount; y++) {
-            var distRow = new float[_nodesCount];
+            var distRow = new int[_nodesCount];
             for (var x = 0; x < _nodesCount; x++) {
-                distRow[x] = float.PositiveInfinity;
+                distRow[x] = int.MaxValue;
             }
 
             dist[y] = distRow;
@@ -145,22 +150,16 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             }
         }
 
-        // for k from 1 to |V|
-        //     for i from 1 to |V|
-        //         for j from 1 to |V|
-        //             if dist[i][j] > dist[i][k] + dist[k][j]
-        //                 dist[i][j] ← dist[i][k] + dist[k][j]
-        //                 prev[i][j] ← prev[k][j]
-        //             end if
+        // Floyd-Warshall's algorithm
         for (var k = 0; k < _nodesCount; k++) {
-            for (var i = 0; i < _nodesCount; i++) {
-                for (var j = 0; j < _nodesCount; j++) {
+            for (var j = 0; j < _nodesCount; j++) {
+                for (var i = 0; i < _nodesCount; i++) {
                     var ij = dist[i][j];
                     var ik = dist[i][k];
                     var kj = dist[k][j];
 
-                    if (ij > ik + kj) {
-                        dist[i][j] = ik + kj;
+                    if (ik != int.MaxValue && kj != int.MaxValue) {
+                        dist[i][j] = Math.Min(ij, ik + kj);
                         prev[i][j] = prev[k][j];
                     }
                 }
@@ -206,7 +205,132 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
     #endregion
 
     public List<Vector2Int> GetCenters() {
-        return new();
+        // This algorithm is based off Reference #1.
+        //
+        // References:
+        // 1. Codeforces. Center of a graph.
+        // https://codeforces.com/blog/entry/17974
+        //
+        // 2. HAL open science. A new algorithm for graph center computation
+        // and graph partitioning according to the distance to the center
+        // https://hal.science/hal-02304090/document
+
+        Assert.IsTrue(_nodes.Count > 0);
+        Assert.IsTrue(_nodes[0].Count > 0);
+
+        var height = _nodes.Count;
+        var width = _nodes[0].Count;
+
+        var nodeIndex2Pos = new Dictionary<int, Vector2Int>();
+        var pos2IndexNode = new Dictionary<Vector2Int, int>();
+
+        var nodeIndex = 0;
+        for (var y = 0; y < height; y++) {
+            for (var x = 0; x < width; x++) {
+                var node = _nodes[y][x];
+                if (node == 0) {
+                    continue;
+                }
+
+                nodeIndex2Pos.Add(nodeIndex, new(x, y));
+                pos2IndexNode.Add(new(x, y), nodeIndex);
+                nodeIndex += 1;
+            }
+        }
+
+        var dist = new int[_nodesCount][];
+        for (var y = 0; y < _nodesCount; y++) {
+            var distRow = new int[_nodesCount];
+            for (var x = 0; x < _nodesCount; x++) {
+                distRow[x] = int.MaxValue;
+            }
+
+            dist[y] = distRow;
+        }
+
+        nodeIndex = 0;
+        for (var y = 0; y < height; y++) {
+            for (var x = 0; x < width; x++) {
+                var node = _nodes[y][x];
+                if (node == 0) {
+                    continue;
+                }
+
+                dist[nodeIndex][nodeIndex] = 0;
+                nodeIndex += 1;
+            }
+        }
+
+        // NOTE: edge (u, v) = (nodeIndex, newNodeIndex)
+        // > for each edge (u, v) do
+        // >     dist[u][v] ← w(u, v)  // The weight of the edge (u, v)
+        // >     prev[u][v] ← u
+        nodeIndex = 0;
+        for (var y = 0; y < height; y++) {
+            for (var x = 0; x < width; x++) {
+                var node = _nodes[y][x];
+                if (node == 0) {
+                    continue;
+                }
+
+                for (Direction dir = 0; dir < (Direction)4; dir++) {
+                    if (!GraphNode.Has(node, dir)) {
+                        continue;
+                    }
+
+                    var newPos = new Vector2Int(x, y) + dir.AsOffset();
+                    var newNodeIndex = pos2IndexNode[newPos];
+                    dist[nodeIndex][newNodeIndex] = 1;
+                }
+
+                nodeIndex += 1;
+            }
+        }
+
+        var nodeEccentricities = new int[_nodesCount];
+        var rad = int.MaxValue;
+        var diam = 0;
+
+        // Floyd-Warshall's algorithm
+        for (var k = 0; k < _nodesCount; k++) {
+            for (var j = 0; j < _nodesCount; j++) {
+                for (var i = 0; i < _nodesCount; i++) {
+                    var ij = dist[i][j];
+                    var ik = dist[i][k];
+                    var kj = dist[k][j];
+
+                    if (ik != int.MaxValue && kj != int.MaxValue) {
+                        dist[i][j] = Math.Min(ij, ik + kj);
+                    }
+                }
+            }
+        }
+
+        // Counting values of eccentricity
+        for (var i = 0; i < _nodesCount; i++) {
+            for (var j = 0; j < _nodesCount; j++) {
+                nodeEccentricities[i] = Math.Max(nodeEccentricities[i], dist[i][j]);
+            }
+        }
+
+        for (var i = 0; i < _nodesCount; i++) {
+            rad = Math.Min(rad, nodeEccentricities[i]);
+            diam = Math.Max(diam, nodeEccentricities[i]);
+        }
+
+        var centerNodeIndices = new HashSet<int>();
+        for (var i = 0; i < _nodesCount; i++) {
+            if (nodeEccentricities[i] == rad) {
+                centerNodeIndices.Add(i);
+            }
+        }
+
+        var centerNodePositions = new List<Vector2Int> { Capacity = centerNodeIndices.Count };
+        foreach (var i in centerNodeIndices) {
+            centerNodePositions.Add(nodeIndex2Pos[i]);
+        }
+
+        return centerNodePositions;
     }
 
     public List<Vector2Int> GetCentroids() {
