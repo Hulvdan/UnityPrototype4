@@ -64,20 +64,12 @@ public class TestHorseMovementSystem {
         var result = system.FindPath(new(2, 0), new(3, 1), Direction.Left);
 
         Assert.IsTrue(result.Success);
-        Assert.AreEqual(
-            new List<Vector2Int> {
-                new(2, 0),
-                new(1, 0),
-                new(0, 0),
-                new(0, 1),
-                new(0, 2),
-                new(1, 2),
-                new(2, 2),
-                new(2, 1),
-                new(3, 1),
-            },
-            result.Path
-        );
+        var expected = new List<Vector2Int> {
+            new(2, 0),
+            new(2, 1),
+            new(3, 1),
+        };
+        Assert.AreEqual(expected, result.Path);
     }
 
     // [Test]

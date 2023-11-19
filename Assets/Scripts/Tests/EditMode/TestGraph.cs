@@ -188,16 +188,15 @@ public class TestGraph {
     public void Test_GetCenters_Empty1() {
         var strings = new string[] { };
         var graph = FromStrings(strings);
-        var centers = graph.GetCenters();
-        Assert.AreEqual(new(), centers);
+
+        Assert.Throws<AssertionException>(() => graph.GetCenters());
     }
 
     [Test]
     public void Test_GetCenters_Empty2() {
         var graph = FromStrings(".");
 
-        var centers = graph.GetCenters();
-        Assert.AreEqual(new(), centers);
+        Assert.Throws<AssertionException>(() => graph.GetCenters());
     }
 
     [Test]
