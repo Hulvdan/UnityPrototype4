@@ -366,5 +366,21 @@ public class TestGraph {
             || expected2.SequenceEqual(actual)
         );
     }
+
+    [Test]
+    public void Test_GetShortestPath_3() {
+        var graph = FromStrings(
+            ".╷..",
+            ".├┬╴",
+            "╶┴┤.",
+            "..╵."
+        );
+
+        var actual = graph.GetShortestPath(new(0, 1), new(1, 3));
+        var expected = new List<Vector2Int> {
+            new(0, 1), new(1, 1), new(1, 2), new(1, 3),
+        };
+        Assert.IsTrue(expected.SequenceEqual(actual));
+    }
 }
 }
