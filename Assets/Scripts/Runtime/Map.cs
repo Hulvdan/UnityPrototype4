@@ -548,6 +548,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void CreateHuman_Transporter(Building building, GraphSegment segment) {
         var human = new HumanTransporter(Guid.NewGuid(), segment, building.pos);
+        _humanTransporters.Add(human);
 
         var center = segment.Graph.GetCenters()[0];
         var movingPath = segment.Graph.GetShortestPath(building.pos, center);
@@ -564,9 +565,11 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
         else {
             human.state = HumanTransporterState.MovingToCenter;
+            human.position = building.pos;
+            human.movingFrom = building.pos;
+            human.movingTo = movingPath[1];
         }
 
-        _humanTransporters.Add(human);
         onHumanTransporterCreated.OnNext(new() { Human = human });
     }
 
