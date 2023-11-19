@@ -8,6 +8,7 @@ public class HumanTransporter {
         ID = id;
         this.segment = segment;
         position = currentPosition;
+        movingFrom = currentPosition;
     }
 
     public readonly Guid ID;
