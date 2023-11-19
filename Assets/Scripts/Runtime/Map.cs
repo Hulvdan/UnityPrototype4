@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
@@ -106,6 +107,12 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [ReadOnly]
     float _humanTotalHarvestingDuration;
 
+    [FoldoutGroup("Humans", true)]
+    [ShowInInspector]
+    [ReadOnly]
+    [Min(0.01f)]
+    float _humanTransporterMovingOneCellDuration = 1f;
+
     Random _random;
 
     void Awake() {
@@ -115,6 +122,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     void Update() {
         var dt = _gameManager.dt;
         UpdateHumans(dt);
+        UpdateHumanTransporters(dt);
         UpdateBuildings(dt);
         // _horseCompoundSystem.UpdateDt(dt);
     }
@@ -433,11 +441,15 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public float humanReturningBackDuration => _humanReturningBackDuration;
     public float humanTotalHarvestingDuration => _humanTotalHarvestingDuration;
 
+    List<HumanTransporter> _humanTransporters = new();
+    public float humanTransporterMovingOneCellDuration => _humanTransporterMovingOneCellDuration;
+
     #endregion
 
     #region Events
 
     public Subject<E_HumanCreated> onHumanCreated { get; } = new();
+    public Subject<E_HumanTransporterCreated> onHumanTransporterCreated { get; } = new();
     public Subject<E_HumanStateChanged> onHumanStateChanged { get; } = new();
     public Subject<E_HumanPickedUpResource> onHumanPickedUpResource { get; } = new();
     public Subject<E_HumanPlacedResource> onHumanPlacedResource { get; } = new();
@@ -535,25 +547,37 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     #region HumanSystem_Behaviour
 
     void CreateHuman_Transporter(Building building, GraphSegment segment) {
-        var human = new Human(Guid.NewGuid(), building, segment);
-        _humans.Add(human);
-        // OnHumanCreated?.Invoke(new HumanCreatedData(human));
-        onHumanCreated.OnNext(new(human));
+        var human = new HumanTransporter(Guid.NewGuid(), segment, building.pos);
+
+        var center = segment.Graph.GetCenters()[0];
+        var movingPath = segment.Graph.GetShortestPath(building.pos, center);
+        for (var i = 0; i < movingPath.Count; i++) {
+            if (i == 0) {
+                continue;
+            }
+
+            human.movingPath.Enqueue(movingPath[i]);
+        }
+
+        if (human.movingPath.Count == 0) {
+            human.state = HumanTransporterState.Idle_NothingToDo;
+        }
+        else {
+            human.state = HumanTransporterState.MovingToCenter;
+        }
+
+        _humanTransporters.Add(human);
+        onHumanTransporterCreated.OnNext(new() { Human = human });
     }
 
     void CreateHuman(Building building) {
         var human = new Human(Guid.NewGuid(), building, building.pos);
         _humans.Add(human);
-        // OnHumanCreated?.Invoke(new HumanCreatedData(human));
         onHumanCreated.OnNext(new(human));
     }
 
     void UpdateHumans(float dt) {
         foreach (var human in _humans) {
-            if (human.role != HumanRole.Harvester) {
-                continue;
-            }
-
             if (human.state != HumanState.Idle) {
                 human.harvestingElapsed += dt;
 
@@ -814,6 +838,37 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var mt = _humanMovementCurve.Evaluate(t);
         human.position =
             Vector2.Lerp(human.movingFrom, human.building.pos, mt);
+    }
+
+    void UpdateHumanTransporters(float dt) {
+        foreach (var human in _humanTransporters) {
+            if (human.state == HumanTransporterState.MovingToCenter) {
+                human.movingElapsed += dt;
+
+                while (
+                    human.movingPath.Count > 0
+                    && human.movingElapsed > humanTransporterMovingOneCellDuration
+                ) {
+                    human.movingElapsed -= humanTransporterMovingOneCellDuration;
+                    human.position = human.movingPath.Dequeue();
+                    human.movingFrom = human.position;
+                    if (human.movingPath.Count == 0) {
+                        human.movingTo = null;
+                    }
+                    else {
+                        human.movingTo = human.movingPath.Peek();
+                    }
+                }
+
+                human.movingNormalized = Mathf.Min(
+                    1, human.movingElapsed / _humanTransporterMovingOneCellDuration
+                );
+
+                if (human.movingPath.Count == 0) {
+                    human.state = HumanTransporterState.Idle_NothingToDo;
+                }
+            }
+        }
     }
 
     #endregion

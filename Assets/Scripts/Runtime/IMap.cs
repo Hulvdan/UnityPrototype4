@@ -13,6 +13,7 @@ public interface IMap {
     List<TopBarResource> resources { get; }
 
     Subject<E_HumanCreated> onHumanCreated { get; }
+    Subject<E_HumanTransporterCreated> onHumanTransporterCreated { get; }
     Subject<E_HumanStateChanged> onHumanStateChanged { get; }
     Subject<E_HumanPickedUpResource> onHumanPickedUpResource { get; }
     Subject<E_HumanPlacedResource> onHumanPlacedResource { get; }

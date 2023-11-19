@@ -284,6 +284,20 @@ public class TestGraph {
     }
 
     [Test]
+    public void Test_GetCenters_WithOffset() {
+        var graph = new Graph();
+        graph.SetDirection(10, 10, Direction.Right);
+        graph.SetDirection(11, 10, Direction.Right);
+        graph.SetDirection(11, 10, Direction.Left);
+        graph.SetDirection(12, 10, Direction.Left);
+
+        var centers = graph.GetCenters();
+        var expected = new List<Vector2Int> { new(11, 10) };
+
+        Assert.AreEqual(expected, centers);
+    }
+
+    [Test]
     public void Test_IsUndirected_Empty_1() {
         var graph = FromStrings();
         Assert.Throws<AssertionException>(() => graph.IsUndirected());
@@ -381,6 +395,53 @@ public class TestGraph {
             new(0, 1), new(1, 1), new(1, 2), new(1, 3),
         };
         Assert.IsTrue(expected.SequenceEqual(actual));
+    }
+
+    [Test]
+    public void Test_GetShortestPath_WithOffset() {
+        var graph = new Graph();
+        graph.SetDirection(10, 10, Direction.Right);
+        graph.SetDirection(11, 10, Direction.Right);
+        graph.SetDirection(11, 10, Direction.Left);
+        graph.SetDirection(12, 10, Direction.Left);
+
+        var actual = graph.GetShortestPath(new(10, 10), new(12, 10));
+        var expected = new List<Vector2Int> {
+            new(10, 10), new(11, 10), new(12, 10),
+        };
+        Assert.IsTrue(expected.SequenceEqual(actual));
+    }
+
+    [Test]
+    public void Test_GetShortestPath_WithOffset_2() {
+        var graph = new Graph();
+        graph.SetDirection(8, 7, Direction.Down);
+        graph.SetDirection(8, 6, Direction.Up);
+        graph.SetDirection(8, 6, Direction.Right);
+        graph.SetDirection(9, 6, Direction.Left);
+        graph.SetDirection(9, 6, Direction.Right);
+        graph.SetDirection(10, 6, Direction.Left);
+        graph.SetDirection(10, 6, Direction.Right);
+        graph.SetDirection(11, 6, Direction.Left);
+        graph.SetDirection(13, 13, Direction.Right, false);
+
+        var actual = graph.GetShortestPath(new(8, 7), new(11, 6));
+        var expected = new List<Vector2Int> {
+            new(8, 7), new(8, 6), new(9, 6), new(10, 6), new(11, 6),
+        };
+        Assert.IsTrue(expected.SequenceEqual(actual));
+    }
+
+    [Test]
+    public void Test_ContainsNode() {
+        var graph = new Graph();
+        graph.SetDirection(7, 10, Direction.Right);
+
+        Assert.IsTrue(Graph.Tests.ContainsNode(graph, 7, 10));
+        Assert.IsFalse(Graph.Tests.ContainsNode(graph, 8, 10));
+        Assert.IsFalse(Graph.Tests.ContainsNode(graph, 6, 10));
+        Assert.IsFalse(Graph.Tests.ContainsNode(graph, 7, 11));
+        Assert.IsFalse(Graph.Tests.ContainsNode(graph, 7, 9));
     }
 }
 }
