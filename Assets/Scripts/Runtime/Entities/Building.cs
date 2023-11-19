@@ -1,46 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace BFG.Runtime {
-[Serializable]
 public class Building {
-    [SerializeField]
-    [Required]
-    ScriptableBuilding _scriptableBuilding;
+    public bool IsProducing;
+    public float ProducingElapsed;
 
-    [SerializeField]
-    int _posX;
+    public bool isBuilt => BuildingProgress >= 1;
+    public float BuildingProgress;
 
-    [SerializeField]
-    int _posY;
+    public IScriptableBuilding scriptable { get; }
 
-    [SerializeField]
-    [ReadOnly]
-    bool _isBooked;
+    public int posX { get; }
+    public int posY { get; }
 
-    public float ProcessingElapsed;
-    public bool IsProcessing;
+    public Vector2Int pos => new(posX, posY);
 
-    [FormerlySerializedAs("_ID")]
-    [SerializeField]
-    [Required]
-    Guid _id = Guid.Empty;
+    Guid _id;
+    readonly List<ResourceObj> _producedResources = new();
+    readonly List<ResourceObj> _storedResources = new();
 
-    [SerializeField]
-    List<ResourceObj> _producedResources = new();
+    public Building(
+        Guid id, IScriptableBuilding scriptable, Vector2Int pos, float buildingProgress
+    ) {
+        _id = id;
+        this.scriptable = scriptable;
+        posX = pos.x;
+        posY = pos.y;
 
-    [SerializeField]
-    List<ResourceObj> _storedResources = new();
+        BuildingProgress = buildingProgress;
+    }
 
-    public ScriptableBuilding scriptableBuilding => _scriptableBuilding;
-    public int posX => _posX;
-    public int posY => _posY;
-    public Vector2Int position => new(_posX, _posY);
-
-    public Guid ID {
+    public Guid id {
         get {
             if (_id == Guid.Empty) {
                 _id = Guid.NewGuid();
@@ -50,16 +42,13 @@ public class Building {
         }
     }
 
-    public bool isBooked {
-        get => _isBooked;
-        set => _isBooked = value;
-    }
+    public bool isBooked { get; set; }
 
     public List<ResourceObj> storedResources {
         get {
             if (
-                scriptableBuilding.type != BuildingType.Store
-                && scriptableBuilding.type != BuildingType.Produce
+                scriptable.type != BuildingType.Store
+                && scriptable.type != BuildingType.Produce
             ) {
                 Debug.LogError("WTF");
             }
@@ -70,7 +59,7 @@ public class Building {
 
     public List<ResourceObj> producedResources {
         get {
-            if (scriptableBuilding.type != BuildingType.Produce) {
+            if (scriptable.type != BuildingType.Produce) {
                 Debug.LogError("WTF?");
             }
 
@@ -78,27 +67,27 @@ public class Building {
         }
     }
 
-    public RectInt rect => new(posX, posY, _scriptableBuilding.size.x, _scriptableBuilding.size.y);
+    public RectInt rect => new(posX, posY, scriptable.size.x, scriptable.size.y);
 
     public bool Contains(Vector2Int pos) {
         return Contains(pos.x, pos.y);
     }
 
     public bool Contains(int x, int y) {
-        return position.x <= x
-               && x <= position.x + scriptableBuilding.size.x
-               && position.y <= y
-               && y <= position.y + scriptableBuilding.size.y;
+        return pos.x <= x
+               && x < pos.x + scriptable.size.x
+               && pos.y <= y
+               && y < pos.y + scriptable.size.y;
     }
 
     public bool CanStoreResource() {
-        return storedResources.Count < scriptableBuilding.storeItemsAmount;
+        return storedResources.Count < scriptable.storeItemsAmount;
     }
 
     public StoreResourceResult StoreResource(ResourceObj resource) {
         if (
-            scriptableBuilding.type != BuildingType.Produce
-            && scriptableBuilding.type != BuildingType.Store
+            scriptable.type != BuildingType.Produce
+            && scriptable.type != BuildingType.Store
         ) {
             Debug.LogError("WTF?");
         }
@@ -106,8 +95,8 @@ public class Building {
         storedResources.Add(resource);
 
         if (CanStartProcessing()) {
-            IsProcessing = true;
-            ProcessingElapsed = 0;
+            IsProducing = true;
+            ProducingElapsed = 0;
             storedResources.RemoveAt(0);
             return StoreResourceResult.AddedToProcessingImmediately;
         }
@@ -116,11 +105,11 @@ public class Building {
     }
 
     public bool CanStartProcessing() {
-        if (producedResources.Count >= scriptableBuilding.produceItemsAmount) {
+        if (producedResources.Count >= scriptable.produceItemsAmount) {
             return false;
         }
 
-        return !IsProcessing;
+        return !IsProducing;
     }
 }
 

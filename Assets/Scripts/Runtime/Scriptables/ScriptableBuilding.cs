@@ -6,7 +6,7 @@ using UnityEngine.Tilemaps;
 
 namespace BFG.Runtime {
 [CreateAssetMenu(fileName = "Data", menuName = "Gameplay/Building", order = 1)]
-public class ScriptableBuilding : ScriptableObject {
+public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     [SerializeField]
     [EnumToggleButtons]
     BuildingType _type;
@@ -109,5 +109,7 @@ public class ScriptableBuilding : ScriptableObject {
     public TileBase tile => _tile;
     public Vector2Int size => _size;
     public Vector2Int pickupableItemsCellOffset => _pickupableItemsCellOffset;
+
+    public List<ResourceObj> requiredResources { get; } = new();
 }
 }

@@ -4,6 +4,7 @@ using System.Reactive.Subjects;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
@@ -24,13 +25,15 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     Tilemap _movementSystemTilemap;
 
+    [FormerlySerializedAs("WagonSprite_Right")]
     [SerializeField]
     [Required]
-    Sprite WagonSprite_Right;
+    Sprite _wagonSprite_Right;
 
+    [FormerlySerializedAs("WagonSprite_Up")]
     [SerializeField]
     [Required]
-    Sprite WagonSprite_Up;
+    Sprite _wagonSprite_Up;
 
     [SerializeField]
     [Required]
@@ -62,6 +65,10 @@ public class MapRenderer : MonoBehaviour {
     [SerializeField]
     [Required]
     TileBase _tileForestTop;
+
+    [SerializeField]
+    [Required]
+    TileBase _tileUnfinishedBuilding;
 
     [SerializeField]
     [Required]
@@ -161,6 +168,7 @@ public class MapRenderer : MonoBehaviour {
     > _horses = new();
 
     readonly Dictionary<Guid, Tuple<Human, HumanGO>> _humans = new();
+    readonly Dictionary<Guid, Tuple<HumanTransporter, HumanGO>> _humanTransporters = new();
 
     readonly Dictionary<Guid, GameObject> _modals = new();
     readonly Dictionary<Guid, ItemGO> _storedItems = new();
@@ -185,7 +193,7 @@ public class MapRenderer : MonoBehaviour {
 
     Tilemap _resourceTilemap;
 
-    public Subject<PickupableItemHoveringState> OnPickupableItemHoveringChanged { get; } = new();
+    public Subject<PickupableItemHoveringState> onPickupableItemHoveringChanged { get; } = new();
 
     void Awake() {
         _camera = Camera.main;
@@ -200,31 +208,23 @@ public class MapRenderer : MonoBehaviour {
         UpdateTrains(_gameManager.currentGameSpeed);
         UpdateBuildings();
 
-        var hoveredTile = GetHoveredTile();
+        var hoveredTile = GetHoveredTilePos();
         UpdateHoveringState(hoveredTile);
 
         DisplayPreviewTile();
 
         // TODO: Move inputs to GameManager
-        if (_mouseBuildAction.WasPressedThisFrame()) {
-            if (_mapSize.Contains(hoveredTile)) {
-                if (_isHoveringOverItems) {
-                    _map.CollectItems(hoveredTile);
+        if (_mouseBuildAction.WasPressedThisFrame() && _mapSize.Contains(hoveredTile)) {
+            if (_isHoveringOverItems) {
+                _map.CollectItems(hoveredTile);
+            }
+            else if (_gameManager.SelectedItem == null && _hoveredBuilding != null) {
+                if (_hoveredBuilding.scriptable.type == BuildingType.SpecialStable) {
+                    ToggleStablesPanel(_hoveredBuilding);
                 }
-                else if (
-                    _gameManager.selectedItem == SelectedItem.None
-                    && _hoveredBuilding != null
-                ) {
-                    if (_hoveredBuilding.scriptableBuilding.type == BuildingType.SpecialStable) {
-                        ToggleStablesPanel(_hoveredBuilding);
-                    }
-                }
-                else if (
-                    _gameManager.selectedItem != SelectedItem.None
-                    && _map.IsBuildable(hoveredTile)
-                ) {
-                    _map.TryBuild(hoveredTile, _gameManager.selectedItem);
-                }
+            }
+            else if (_gameManager.SelectedItem != null && _map.IsBuildable(hoveredTile)) {
+                _map.TryBuild(hoveredTile, _gameManager.SelectedItem);
             }
         }
     }
@@ -238,15 +238,19 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void OnDrawGizmos() {
+        if (_map == null) {
+            return;
+        }
+
         Gizmos.color = Color.cyan;
 
         foreach (var building in _map.buildings) {
-            if (building.scriptableBuilding == null
-                || building.scriptableBuilding.tilesRadius == 0) {
+            if (building.scriptable == null
+                || building.scriptable.tilesRadius == 0) {
                 continue;
             }
 
-            var r = building.scriptableBuilding.tilesRadius + .45f;
+            var r = building.scriptable.tilesRadius + .45f;
             var points = new Vector3[] {
                 new(r, r, 0),
                 new(r, -r, 0),
@@ -266,6 +270,46 @@ public class MapRenderer : MonoBehaviour {
 
             Gizmos.DrawLineList(points);
         }
+    }
+
+    public void InitDependencies(GameManager gameManager, IMap map, IMapSize mapSize) {
+        _map = map;
+        _mapSize = mapSize;
+        _gameManager = gameManager;
+
+        foreach (var hook in _dependencyHooks) {
+            hook.Dispose();
+        }
+
+        _dependencyHooks.Clear();
+        InitializeDependencyHooks();
+    }
+
+    void InitializeDependencyHooks() {
+        var hooks = _dependencyHooks;
+
+        hooks.Add(_gameManager.OnSelectedItemChanged.Subscribe(OnSelectedItemChanged));
+        hooks.Add(_map.onElementTileChanged.Subscribe(OnElementTileChanged));
+
+        hooks.Add(_map.onHumanCreated.Subscribe(OnHumanCreated));
+        hooks.Add(_map.onHumanTransporterCreated.Subscribe(OnHumanTransporterCreated));
+        hooks.Add(_map.onHumanPickedUpResource.Subscribe(OnHumanPickedUpResource));
+        hooks.Add(_map.onHumanPlacedResource.Subscribe(OnHumanPlacedResource));
+
+        hooks.Add(_map.onTrainCreated.Subscribe(OnTrainCreated));
+        hooks.Add(_map.onTrainNodeCreated.Subscribe(OnTrainNodeCreated));
+        hooks.Add(_map.onTrainPickedUpResource.Subscribe(OnTrainPickedUpResource));
+        hooks.Add(_map.onTrainPushedResource.Subscribe(OnTrainPushedResource));
+
+        hooks.Add(_map.onBuildingPlaced.Subscribe(OnBuildingPlaced));
+
+        hooks.Add(_map.onBuildingStartedProcessing.Subscribe(OnBuildingStartedProcessing));
+        hooks.Add(_map.onBuildingProducedItem.Subscribe(OnBuildingProducedItem));
+        hooks.Add(_map.onProducedResourcesPickedUp.Subscribe(OnProducedResourcesPickedUp));
+    }
+
+    void OnBuildingPlaced(E_BuildingPlaced data) {
+        SetBuilding(data.Building, 1, 1);
     }
 
     void ToggleStablesPanel(Building building) {
@@ -296,14 +340,14 @@ public class MapRenderer : MonoBehaviour {
         }
 
         foreach (var building in _map.buildings) {
-            if (building.scriptableBuilding.type != BuildingType.Produce) {
+            if (building.scriptable.type != BuildingType.Produce) {
                 continue;
             }
 
             var scale = GetBuildingScale(
-                building.IsProcessing,
-                building.ProcessingElapsed,
-                building.scriptableBuilding.ItemProcessingDuration
+                building.IsProducing,
+                building.ProducingElapsed,
+                building.scriptable.ItemProcessingDuration
             );
             SetBuilding(building, scale.x, scale.y);
         }
@@ -337,7 +381,7 @@ public class MapRenderer : MonoBehaviour {
         if (_mapSize.Contains(hoveredTile)) {
             if (_map.CellContainsPickupableItems(hoveredTile)) {
                 if (!_isHoveringOverItems) {
-                    OnPickupableItemHoveringChanged.OnNext(
+                    onPickupableItemHoveringChanged.OnNext(
                         PickupableItemHoveringState.StartedHovering
                     );
                     _isHoveringOverItems = true;
@@ -352,42 +396,11 @@ public class MapRenderer : MonoBehaviour {
         }
 
         if (shouldStopHovering && _isHoveringOverItems) {
-            OnPickupableItemHoveringChanged.OnNext(
+            onPickupableItemHoveringChanged.OnNext(
                 PickupableItemHoveringState.FinishedHovering
             );
             _isHoveringOverItems = false;
         }
-    }
-
-    public void InitDependencies(GameManager gameManager, IMap map, IMapSize mapSize) {
-        _map = map;
-        _mapSize = mapSize;
-        _gameManager = gameManager;
-
-        foreach (var hook in _dependencyHooks) {
-            hook.Dispose();
-        }
-
-        _dependencyHooks.Clear();
-        _dependencyHooks.Add(_gameManager.OnSelectedItemChanged.Subscribe(OnSelectedItemChanged));
-        _dependencyHooks.Add(_map.onElementTileChanged.Subscribe(OnElementTileChanged));
-
-        _dependencyHooks.Add(_map.onHumanCreated.Subscribe(OnHumanCreated));
-        _dependencyHooks.Add(_map.onHumanPickedUpResource.Subscribe(OnHumanPickedUpResource));
-        _dependencyHooks.Add(_map.onHumanPlacedResource.Subscribe(OnHumanPlacedResource));
-
-        _dependencyHooks.Add(_map.onTrainCreated.Subscribe(OnTrainCreated));
-        _dependencyHooks.Add(_map.onTrainNodeCreated.Subscribe(OnTrainNodeCreated));
-        _dependencyHooks.Add(_map.onTrainPickedUpResource.Subscribe(OnTrainPickedUpResource));
-        _dependencyHooks.Add(_map.onTrainPushedResource.Subscribe(OnTrainPushedResource));
-
-        _dependencyHooks.Add(
-            _map.onBuildingStartedProcessing.Subscribe(OnBuildingStartedProcessing)
-        );
-        _dependencyHooks.Add(_map.onBuildingProducedItem.Subscribe(OnBuildingProducedItem));
-        _dependencyHooks.Add(
-            _map.onProducedResourcesPickedUp.Subscribe(OnProducedResourcesPickedUp)
-        );
     }
 
     void OnProducedResourcesPickedUp(E_ProducedResourcesPickedUp data) {
@@ -406,11 +419,11 @@ public class MapRenderer : MonoBehaviour {
         var item = Instantiate(_itemPrefab, _itemsLayer);
 
         var building = data.Building;
-        var scriptable = building.scriptableBuilding;
+        var scriptable = building.scriptable;
 
         var i = (building.producedResources.Count - 1) % scriptable.producedItemsPositions.Count;
         var itemOffset = scriptable.producedItemsPositions[i];
-        item.transform.localPosition = (Vector2)building.position;
+        item.transform.localPosition = (Vector2)building.pos;
         var itemGo = item.GetComponent<ItemGO>();
         itemGo.SetAs(data.Resource.script);
 
@@ -418,7 +431,7 @@ public class MapRenderer : MonoBehaviour {
             .To(
                 () => item.transform.localPosition,
                 val => item.transform.localPosition = val,
-                (Vector3)(building.position + itemOffset + Vector2.right / 2),
+                (Vector3)(building.pos + itemOffset + Vector2.right / 2),
                 _buildingMovingItemToTheWarehouseDuration / _gameManager.currentGameSpeed
             )
             .SetLink(item)
@@ -427,7 +440,7 @@ public class MapRenderer : MonoBehaviour {
         _storedItems.Add(data.Resource.id, itemGo);
     }
 
-    void OnSelectedItemChanged(SelectedItem item) {
+    void OnSelectedItemChanged(SelectedItemType itemType) {
     }
 
     void OnElementTileChanged(Vector2Int pos) {
@@ -463,8 +476,7 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void UpdateTileBasedOnRemainingResourcePercent(
-        Vector2Int pos,
-        float dataRemainingAmountPercent
+        Vector2Int pos, float dataRemainingAmountPercent
     ) {
         if (dataRemainingAmountPercent > 0) {
             return;
@@ -476,7 +488,7 @@ public class MapRenderer : MonoBehaviour {
 
     public void ResetRenderer() {
         DeleteOldTilemaps();
-        RegenerateTilemapGameObject();
+        RegenerateTilemapGameObjects();
         RegenerateDebugTilemapGameObject();
         UpdateGridPosition();
     }
@@ -491,7 +503,7 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    void RegenerateTilemapGameObject() {
+    void RegenerateTilemapGameObjects() {
         var maxHeight = 0;
         for (var y = 0; y < _mapSize.sizeY; y++) {
             for (var x = 0; x < _mapSize.sizeX; x++) {
@@ -505,7 +517,7 @@ public class MapRenderer : MonoBehaviour {
         // Buildings 2 (y=-0.0021)
         var terrainMaps = new List<Tilemap>();
         for (var i = 0; i <= maxHeight; i++) {
-            var terrain = GenerateTilemap(i, i, TerrainTilemapNameTemplate, _tilemapPrefab);
+            var terrain = GenerateTerrainTilemap(i, i, TerrainTilemapNameTemplate, _tilemapPrefab);
             terrainMaps.Add(terrain.GetComponent<Tilemap>());
         }
 
@@ -527,7 +539,7 @@ public class MapRenderer : MonoBehaviour {
             }
         }
 
-        _resourceTilemap = GenerateTilemap(
+        _resourceTilemap = GenerateTerrainTilemap(
             0, maxHeight + 1, ResourcesTilemapNameTemplate, _tilemapPrefab
         ).GetComponent<Tilemap>();
         for (var y = 0; y < _mapSize.sizeY; y++) {
@@ -540,7 +552,7 @@ public class MapRenderer : MonoBehaviour {
             }
         }
 
-        _buildingsTilemap = GenerateTilemap(
+        _buildingsTilemap = GenerateTerrainTilemap(
             0, maxHeight + 2, BuildingsTilemapNameTemplate, _tilemapBuildingsPrefab
         ).GetComponent<Tilemap>();
         foreach (var building in _map.buildings) {
@@ -549,13 +561,18 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void SetBuilding(Building building, float scaleX, float scaleY) {
-        var widthOffset = (building.scriptableBuilding.size.x - 1) / 2f;
-        var heightOffset = (building.scriptableBuilding.size.y - 1) / 2f;
+        var widthOffset = (building.scriptable.size.x - 1) / 2f;
+        var heightOffset = (building.scriptable.size.y - 1) / 2f;
+
+        var tile = building.scriptable.tile;
+        if (building.BuildingProgress < 1) {
+            tile = _tileUnfinishedBuilding;
+        }
 
         _buildingsTilemap.SetTile(
             new(
                 new(building.posX, building.posY, 0),
-                building.scriptableBuilding.tile,
+                tile,
                 Color.white,
                 Matrix4x4.TRS(
                     new(widthOffset, heightOffset),
@@ -565,6 +582,8 @@ public class MapRenderer : MonoBehaviour {
             ),
             false
         );
+
+        _movementSystemTilemap.SetTile(new(building.posX, building.posY, 0), _tileRoad);
     }
 
     void RegenerateDebugTilemapGameObject() {
@@ -579,7 +598,9 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    GameObject GenerateTilemap(int i, float order, string nameTemplate, GameObject prefabTemplate) {
+    GameObject GenerateTerrainTilemap(
+        int i, float order, string nameTemplate, GameObject prefabTemplate
+    ) {
         var terrainTilemap = Instantiate(prefabTemplate, _grid.transform);
         terrainTilemap.name = nameTemplate + i;
         terrainTilemap.transform.localPosition = new(0, -order / 100000f, 0);
@@ -593,37 +614,52 @@ public class MapRenderer : MonoBehaviour {
     void DisplayPreviewTile() {
         _previewTilemap.ClearAllTiles();
 
-        var tile = GetHoveredTile();
-        if (!_mapSize.Contains(tile)) {
+        var pos = GetHoveredTilePos();
+        if (!_mapSize.Contains(pos)) {
             return;
         }
 
         TileBase tilemapTile;
-        if (_gameManager.selectedItem == SelectedItem.Road) {
-            tilemapTile = _tileRoad;
-        }
-        else if (_gameManager.selectedItem == SelectedItem.Station) {
-            tilemapTile = _gameManager.selectedItemRotation % 2 == 0
-                ? _tileStationVertical
-                : _tileStationHorizontal;
-        }
-        else {
+        var item = _gameManager.SelectedItem;
+        if (item == null) {
             return;
         }
 
-        var buildable = _map.IsBuildable(tile);
+        switch (item.Type) {
+            case SelectedItemType.Road:
+                tilemapTile = _tileRoad;
+                break;
+            case SelectedItemType.Station:
+                tilemapTile = _gameManager.selectedItemRotation % 2 == 0
+                    ? _tileStationVertical
+                    : _tileStationHorizontal;
+                break;
+            case SelectedItemType.Building:
+                Assert.IsNotNull(item.Building);
+                tilemapTile = item.Building.tile;
+                break;
+            default:
+                return;
+        }
+
+        var buildable = _map.IsBuildable(pos);
+        var matrix = Matrix4x4.identity;
+        if (item.Type == SelectedItemType.Building) {
+            matrix = Matrix4x4.TRS(new(0, -0.5f, 0), Quaternion.identity, Vector3.one);
+        }
+
         _previewTilemap.SetTile(
             new(
-                new(tile.x, tile.y, 0),
+                new(pos.x, pos.y, 0),
                 tilemapTile,
                 buildable ? Color.white : _unbuildableTileColor,
-                _previewMatrix
+                matrix
             ),
             false
         );
     }
 
-    Vector2Int GetHoveredTile() {
+    Vector2Int GetHoveredTilePos() {
         var mousePos = _mouseMoveAction.ReadValue<Vector2>();
         var wPos = _camera.ScreenToWorldPoint(mousePos);
         return (Vector2Int)_previewTilemap.WorldToCell(wPos);
@@ -634,6 +670,11 @@ public class MapRenderer : MonoBehaviour {
     void OnHumanCreated(E_HumanCreated data) {
         var go = Instantiate(_humanPrefab, _grid.transform);
         _humans.Add(data.Human.ID, Tuple.Create(data.Human, go.GetComponent<HumanGO>()));
+    }
+
+    void OnHumanTransporterCreated(E_HumanTransporterCreated data) {
+        var go = Instantiate(_humanPrefab, _grid.transform);
+        _humanTransporters.Add(data.Human.ID, Tuple.Create(data.Human, go.GetComponent<HumanGO>()));
     }
 
     void OnHumanPickedUpResource(E_HumanPickedUpResource data) {
@@ -653,7 +694,7 @@ public class MapRenderer : MonoBehaviour {
         var item = Instantiate(_itemPrefab, _itemsLayer);
 
         var building = data.StoreBuilding;
-        var scriptable = building.scriptableBuilding;
+        var scriptable = building.scriptable;
 
         var i = building.storedResources.Count - 1;
         if (i >= scriptable.storedItemPositions.Count) {
@@ -662,7 +703,7 @@ public class MapRenderer : MonoBehaviour {
         }
 
         var itemOffset = scriptable.storedItemPositions[i];
-        item.transform.localPosition = building.position + itemOffset;
+        item.transform.localPosition = building.pos + itemOffset;
         var itemGo = item.GetComponent<ItemGO>();
         itemGo.SetAs(data.Resource.script);
 
@@ -672,6 +713,19 @@ public class MapRenderer : MonoBehaviour {
     void UpdateHumans() {
         foreach (var (human, go) in _humans.Values) {
             go.transform.localPosition = human.position + Vector2.one / 2;
+        }
+
+        foreach (var (human, go) in _humanTransporters.Values) {
+            var pos = human.movingFrom;
+            if (human.movingTo != null) {
+                pos = Vector2.Lerp(
+                    human.movingFrom,
+                    human.movingTo.Value,
+                    human.movingNormalized
+                );
+            }
+
+            go.transform.localPosition = pos + Vector2.one / 2;
         }
     }
 
@@ -706,7 +760,7 @@ public class MapRenderer : MonoBehaviour {
         var item = Instantiate(_itemPrefab, _itemsLayer);
 
         var building = data.Building;
-        var scriptable = building.scriptableBuilding;
+        var scriptable = building.scriptable;
 
         var i = (building.storedResources.Count - 1) % scriptable.storedItemPositions.Count;
         var itemOffset = scriptable.storedItemPositions[i];
@@ -722,7 +776,7 @@ public class MapRenderer : MonoBehaviour {
             .To(
                 () => item.transform.localPosition,
                 val => item.transform.localPosition = val,
-                (Vector3)(building.position + itemOffset + Vector2.right / 2),
+                (Vector3)(building.pos + itemOffset + Vector2.right / 2),
                 _itemPlacingDuration / _gameManager.currentGameSpeed
             )
             .SetEase(_itemPlacingCurve)
@@ -747,10 +801,10 @@ public class MapRenderer : MonoBehaviour {
                 }
                 else {
                     if (trainNode.Rotation == 0 || Math.Abs(trainNode.Rotation - 180) < 0.001f) {
-                        go.MainSpriteRenderer.sprite = WagonSprite_Right;
+                        go.MainSpriteRenderer.sprite = _wagonSprite_Right;
                     }
                     else {
-                        go.MainSpriteRenderer.sprite = WagonSprite_Up;
+                        go.MainSpriteRenderer.sprite = _wagonSprite_Up;
                     }
                 }
 

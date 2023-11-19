@@ -15,12 +15,13 @@ Unity Version: `2022.3.13f1`
 
 - -1 - Background
 - 0 - Terrain
-- 2 - Buildings, Humans
-- 4 - Horse, Wagons
-- 5 - Items
-- 6 - Preview
-- 100 - Debug_UnwalkableCells
-- 101 - Debug_MovementSystemTilemap
+- 100 - Roads
+- 200 - Buildings, Humans
+- 300 - Horse, Wagons
+- 400 - Items
+- 500 - Preview
+- 2000 - Debug_UnwalkableCells
+- 2100 - Debug_MovementSystemTilemap
 
 ## External Assets
 

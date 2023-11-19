@@ -43,13 +43,22 @@ public class InitialMapProvider : MonoBehaviour {
                 var tilemapTile = _movementSystemTilemap.GetTile(new(x, y));
 
                 var isStables = false;
+                var isCityHall = false;
+                Building foundBuilding = null;
                 foreach (var building in _map.buildings) {
-                    if (building.scriptableBuilding.type != BuildingType.SpecialStable) {
+                    if (building.scriptable.type != BuildingType.SpecialStable) {
                         continue;
                     }
 
                     if (building.posX == x && building.posY == y) {
-                        isStables = true;
+                        if (building.scriptable.type == BuildingType.SpecialCityHall) {
+                            isCityHall = true;
+                            foundBuilding = building;
+                        }
+                        else if (building.scriptable.type == BuildingType.SpecialStable) {
+                            isStables = true;
+                        }
+
                         break;
                     }
                 }
@@ -66,6 +75,9 @@ public class InitialMapProvider : MonoBehaviour {
                 }
                 else if (isStables) {
                     tile = new(ElementTileType.Stables, 0);
+                }
+                else if (isCityHall) {
+                    tile = new(ElementTileType.Building, foundBuilding);
                 }
                 else {
                     tile = ElementTile.None;

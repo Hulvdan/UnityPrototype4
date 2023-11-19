@@ -1,73 +1,35 @@
 ﻿using System;
 using JetBrains.Annotations;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace BFG.Runtime {
-[Serializable]
 public class Human {
-    [SerializeField]
-    [ReadOnly]
-    Building _harvestBuilding;
-
-    [SerializeField]
-    [ReadOnly]
-    [CanBeNull]
-    Building _storeBuilding;
-
-    [SerializeField]
-    Vector2 _position;
-
-    [SerializeField]
-    [ReadOnly]
-    float _harvestingElapsed;
-
-    [ShowInInspector]
-    [ReadOnly]
-    public Vector2Int _movingFrom;
-
-    [ShowInInspector]
-    [ReadOnly]
-    public readonly Guid ID;
-
-    Vector2Int? _harvestTilePosition;
-
-    public Human(Guid id, Building harvestBuilding, Vector2 position) {
+    public Human(Guid id, Building building, Vector2 position) {
         ID = id;
-        _harvestBuilding = harvestBuilding;
-        _position = position;
+        this.building = building;
+        this.position = position;
     }
 
-    public float harvestingElapsed {
-        get => _harvestingElapsed;
-        set => _harvestingElapsed = value;
-    }
+    public readonly Guid ID;
+    public Vector2Int MovingFrom;
 
-    public Vector2 position {
-        get => _position;
-        set => _position = value;
-    }
+    public float harvestingElapsed { get; set; }
 
-    [ShowInInspector]
-    [ReadOnly]
+    public Vector2 position { get; set; }
+
     public HumanState state { get; set; } = HumanState.Idle;
 
-    public Vector2Int? harvestTilePosition {
-        get => _harvestTilePosition;
-        set => _harvestTilePosition = value;
-    }
-
-    public Building harvestBuilding => _harvestBuilding;
+    public Vector2Int? harvestTilePosition { get; set; }
 
     [CanBeNull]
-    public Building storeBuilding {
-        get => _storeBuilding;
-        set => _storeBuilding = value;
-    }
+    public Building building { get; }
+
+    [CanBeNull]
+    public Building storeBuilding { get; set; }
 
     public Vector2Int movingFrom {
-        get => _movingFrom;
-        set => _movingFrom = value;
+        get => MovingFrom;
+        set => MovingFrom = value;
     }
 }
 }

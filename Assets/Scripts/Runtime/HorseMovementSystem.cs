@@ -163,7 +163,7 @@ public class HorseMovementSystem {
                     continue;
                 }
 
-                if (isStartingTile && ((int)startingDirection + 2) % 4 == i) {
+                if (isStartingTile && (int)startingDirection.Opposite() == i) {
                     continue;
                 }
 

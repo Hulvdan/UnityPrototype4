@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Assertions;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace BFG.Runtime {
@@ -48,10 +51,18 @@ public enum ButtonEnum {
 }
 
 public class BuildableButton : MonoBehaviour {
+    [FormerlySerializedAs("_item")]
     [SerializeField]
     [Required]
-    public SelectedItem _item;
+    public SelectedItemType ItemType;
 
+    [SerializeField]
+    [ShowIf("ItemType", SelectedItemType.Building)]
+    [Required]
+    [CanBeNull]
+    ScriptableBuilding _building;
+
+    [Space]
     [SerializeField]
     List<Image> _images;
 
@@ -76,7 +87,18 @@ public class BuildableButton : MonoBehaviour {
 
     Color _targetColor;
 
-    public SelectedItem item => _item;
+    public SelectedItem selectedItem {
+        get {
+            var item = new SelectedItem { Type = ItemType };
+
+            if (ItemType == SelectedItemType.Building) {
+                Assert.IsNotNull(_building);
+                item.Building = _building;
+            }
+
+            return item;
+        }
+    }
 
     void Update() {
         if (!_fading) {

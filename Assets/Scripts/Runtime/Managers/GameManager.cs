@@ -1,10 +1,15 @@
-﻿using System.Collections.Generic;
+﻿// ReSharper disable once RedundantUsingDirective
+
+using System.Collections.Generic;
 using System.Reactive.Subjects;
+using JetBrains.Annotations;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace BFG.Runtime {
+[ExecuteAlways]
 public class GameManager : MonoBehaviour {
     [Header("Dependencies")]
     [SerializeField]
@@ -38,7 +43,7 @@ public class GameManager : MonoBehaviour {
 
     readonly List<float> _zooms = new() { .25f, 0.5f, 1f, 2f, 4f };
 
-    public readonly Subject<SelectedItem> OnSelectedItemChanged = new();
+    public readonly Subject<SelectedItemType> OnSelectedItemChanged = new();
     public readonly Subject<int> OnSelectedItemRotationChanged = new();
     InputAction _actionChangeLanguage;
 
@@ -55,9 +60,12 @@ public class GameManager : MonoBehaviour {
 
     bool _movingMap;
 
-    SelectedItem _selectedItem = SelectedItem.None;
-
     int _selectedItemRotation;
+
+    bool _editMode_ReinitDependencies;
+
+    [CanBeNull]
+    public SelectedItem SelectedItem;
 
     public float currentGameSpeed => _gameSpeeds[_currentGameSpeedIndex];
     public float currentZoom => _zooms[_currentZoomIndex];
@@ -72,36 +80,12 @@ public class GameManager : MonoBehaviour {
 
     public float dt => Time.deltaTime * currentGameSpeed;
 
-    public SelectedItem selectedItem {
-        get => _selectedItem;
-        set {
-            _selectedItem = value;
-            OnSelectedItemChanged.OnNext(value);
-
-            selectedItemRotation = 0;
-        }
-    }
-
     void Awake() {
-        _inputActionMap = _inputActionAsset.FindActionMap("Gameplay");
-        _actionRotate = _inputActionMap.FindAction("Rotate");
-        _actionIncreaseGameSpeed = _inputActionMap.FindAction("IncreaseGameSpeed");
-        _actionDecreaseGameSpeed = _inputActionMap.FindAction("DecreaseGameSpeed");
-        _actionStartMapMovement = _inputActionMap.FindAction("StartMapMovement");
-        _actionMoveMap = _inputActionMap.FindAction("MoveMap");
-        _actionZoom = _inputActionMap.FindAction("ZoomMap");
-        _actionChangeLanguage = _inputActionMap.FindAction("ChangeLanguage");
+        InitDependencies();
     }
 
     void Start() {
-        _map.InitDependencies(this);
-        _mapRenderer.InitDependencies(this, _map, _map);
-        _buildablesPanel.InitDependencies(this);
-        _uiManager.InitDependencies(_map);
-        _cursorController.InitDependencies();
-
-        _map.Init();
-        _buildablesPanel.Init();
+        Init();
 
         _currentGameSpeedIndex =
             PlayerPrefs.GetInt("GameManager_CurrentGameSpeedIndex", 3) % _gameSpeeds.Count;
@@ -113,7 +97,45 @@ public class GameManager : MonoBehaviour {
         _map.transform.localScale = new(currentZoom, currentZoom, 1);
     }
 
+    [Button("Manually Init Dependencies")]
+    void EditMode_InitDependencies() {
+        InitDependencies();
+        Init();
+    }
+
+    void InitDependencies() {
+        _inputActionMap = _inputActionAsset.FindActionMap("Gameplay");
+        _actionRotate = _inputActionMap.FindAction("Rotate");
+        _actionIncreaseGameSpeed = _inputActionMap.FindAction("IncreaseGameSpeed");
+        _actionDecreaseGameSpeed = _inputActionMap.FindAction("DecreaseGameSpeed");
+        _actionStartMapMovement = _inputActionMap.FindAction("StartMapMovement");
+        _actionMoveMap = _inputActionMap.FindAction("MoveMap");
+        _actionZoom = _inputActionMap.FindAction("ZoomMap");
+        _actionChangeLanguage = _inputActionMap.FindAction("ChangeLanguage");
+    }
+
+    void Init() {
+        _map.InitDependencies(this);
+        _mapRenderer.InitDependencies(this, _map, _map);
+        _buildablesPanel.InitDependencies(this);
+        _uiManager.InitDependencies(_map);
+        _cursorController.InitDependencies();
+
+        _map.Init();
+        _buildablesPanel.Init();
+    }
+
     void Update() {
+        if (Application.isPlaying) {
+            UpdateWhenPlaying();
+        }
+        else if (_editMode_ReinitDependencies) {
+            _editMode_ReinitDependencies = false;
+            EditMode_InitDependencies();
+        }
+    }
+
+    void UpdateWhenPlaying() {
         if (_actionRotate.WasPressedThisFrame()) {
             selectedItemRotation += Mathf.RoundToInt(_actionRotate.ReadValue<float>());
         }
@@ -158,19 +180,27 @@ public class GameManager : MonoBehaviour {
     }
 
     void OnEnable() {
-        _inputActionMap.Enable();
+        if (Application.isPlaying) {
+            _inputActionMap.Enable();
+        }
     }
 
     void OnDisable() {
-        _inputActionMap.Disable();
+        if (Application.isPlaying) {
+            _inputActionMap.Disable();
+        }
     }
 
     void OnValidate() {
-        _mapRenderer.InitDependencies(this, _map, _map);
+        _editMode_ReinitDependencies = true;
+#if UNITY_EDITOR
+        EditorApplication.QueuePlayerLoopUpdate();
+#endif
     }
 
     void PreviousZoomLevel() {
         _currentZoomIndex -= 1;
+
         if (_currentZoomIndex < 0) {
             _currentZoomIndex = 0;
         }
