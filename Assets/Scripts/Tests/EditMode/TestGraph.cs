@@ -205,8 +205,8 @@ public class TestGraph {
 
         var expected = new List<Vector2Int> { new(0, 0), new(1, 0) };
         var centers = graph.GetCenters();
-        expected.Sort(Utils.StupidVector2IntComparation);
-        centers.Sort(Utils.StupidVector2IntComparation);
+        expected.Sort(Utils.StupidVector2IntComparison);
+        centers.Sort(Utils.StupidVector2IntComparison);
 
         Assert.AreEqual(expected, centers);
     }
@@ -220,8 +220,8 @@ public class TestGraph {
 
         var expected = new List<Vector2Int> { new(0, 0), new(0, 1) };
         var centers = graph.GetCenters();
-        expected.Sort(Utils.StupidVector2IntComparation);
-        centers.Sort(Utils.StupidVector2IntComparation);
+        expected.Sort(Utils.StupidVector2IntComparison);
+        centers.Sort(Utils.StupidVector2IntComparison);
 
         Assert.AreEqual(expected, centers);
     }
@@ -242,8 +242,8 @@ public class TestGraph {
 
         var expected = new List<Vector2Int> { new(1, 0), new(2, 0) };
         var centers = graph.GetCenters();
-        expected.Sort(Utils.StupidVector2IntComparation);
-        centers.Sort(Utils.StupidVector2IntComparation);
+        expected.Sort(Utils.StupidVector2IntComparison);
+        centers.Sort(Utils.StupidVector2IntComparison);
 
         Assert.AreEqual(expected, centers);
     }
@@ -277,8 +277,8 @@ public class TestGraph {
             new(2, 2),
         };
         var centers = graph.GetCenters();
-        expected.Sort(Utils.StupidVector2IntComparation);
-        centers.Sort(Utils.StupidVector2IntComparation);
+        expected.Sort(Utils.StupidVector2IntComparison);
+        centers.Sort(Utils.StupidVector2IntComparison);
 
         Assert.AreEqual(expected, centers);
     }

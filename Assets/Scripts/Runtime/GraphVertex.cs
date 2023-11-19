@@ -13,7 +13,7 @@ public class GraphVertex : IComparable<GraphVertex>, IEquatable<GraphVertex> {
     }
 
     public int CompareTo(GraphVertex other) {
-        return Utils.StupidVector2IntComparation(Pos, other.Pos);
+        return Utils.StupidVector2IntComparison(Pos, other.Pos);
     }
 
     public override string ToString() {

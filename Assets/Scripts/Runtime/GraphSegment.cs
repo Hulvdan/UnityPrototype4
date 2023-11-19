@@ -21,7 +21,7 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
         Graph = graph;
         vertexes.Sort();
         // TODO: Should be considered for removal
-        movementTiles.Sort(Utils.StupidVector2IntComparation);
+        movementTiles.Sort(Utils.StupidVector2IntComparison);
 
         // Duplication Checks
         for (var i = 0; i < vertexes.Count; i++) {
@@ -105,7 +105,7 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
         }
 
         for (var i = 0; i < MovementTiles.Count; i++) {
-            cmp = Utils.StupidVector2IntComparation(MovementTiles[i], other.MovementTiles[i]);
+            cmp = Utils.StupidVector2IntComparison(MovementTiles[i], other.MovementTiles[i]);
             if (cmp != 0) {
                 return cmp;
             }
