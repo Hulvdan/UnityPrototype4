@@ -66,7 +66,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         Assert.IsTrue(ContainsNode(destinationPos));
 
         var nodeIndex2Pos = new Dictionary<int, Vector2Int>();
-        var pos2IndexNode = new Dictionary<Vector2Int, int>();
+        var pos2NodeIndex = new Dictionary<Vector2Int, int>();
 
         var nodeIndex = 0;
         for (var y = 0; y < height; y++) {
@@ -77,7 +77,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
                 }
 
                 nodeIndex2Pos.Add(nodeIndex, new(x, y));
-                pos2IndexNode.Add(new(x, y), nodeIndex);
+                pos2NodeIndex.Add(new(x, y), nodeIndex);
                 nodeIndex += 1;
             }
         }
@@ -121,7 +121,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
                     }
 
                     var newPos = new Vector2Int(x, y) + dir.AsOffset();
-                    var newNodeIndex = pos2IndexNode[newPos];
+                    var newNodeIndex = pos2NodeIndex[newPos];
                     dist[nodeIndex][newNodeIndex] = 1;
                     prev[nodeIndex][newNodeIndex] = nodeIndex;
                 }
@@ -149,7 +149,13 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             }
         }
 
-        // Floyd-Warshall's algorithm
+        // Standard Floyd-Warshall
+        // for k from 1 to |V|
+        //     for i from 1 to |V|
+        //         for j from 1 to |V|
+        //             if dist[i][j] > dist[i][k] + dist[k][j] then
+        //                 dist[i][j] ← dist[i][k] + dist[k][j]
+        //                 prev[i][j] ← prev[k][j]
         for (var k = 0; k < _nodesCount; k++) {
             for (var j = 0; j < _nodesCount; j++) {
                 for (var i = 0; i < _nodesCount; i++) {
@@ -158,8 +164,10 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
                     var kj = dist[k][j];
 
                     if (ik != int.MaxValue && kj != int.MaxValue) {
-                        dist[i][j] = Math.Min(ij, ik + kj);
-                        prev[i][j] = prev[k][j];
+                        if (ij > ik + kj) {
+                            dist[i][j] = ik + kj;
+                            prev[i][j] = prev[k][j];
+                        }
                     }
                 }
             }
@@ -168,7 +176,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         return BuildPath(
             originPos,
             destinationPos,
-            pos2IndexNode,
+            pos2NodeIndex,
             nodeIndex2Pos,
             prev,
             _offset.Value
@@ -178,7 +186,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
     static List<Vector2Int> BuildPath(
         Vector2Int originPos,
         Vector2Int destinationPos,
-        IReadOnlyDictionary<Vector2Int, int> pos2IndexNode,
+        IReadOnlyDictionary<Vector2Int, int> pos2NodeIndex,
         IReadOnlyDictionary<int, Vector2Int> nodeIndex2Pos,
         IReadOnlyList<IReadOnlyList<int>> prev,
         Vector2Int offset
@@ -191,15 +199,17 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         //         v ← prev[u][v]
         //         path.prepend(v)
         //     return path
-        Assert.IsTrue(pos2IndexNode.ContainsKey(originPos - offset));
-        Assert.IsTrue(pos2IndexNode.ContainsKey(destinationPos - offset));
-        var originNodeIndex = pos2IndexNode[originPos - offset];
-        var destinationNodeIndex = pos2IndexNode[destinationPos - offset];
+        Assert.IsTrue(pos2NodeIndex.ContainsKey(originPos - offset));
+        Assert.IsTrue(pos2NodeIndex.ContainsKey(destinationPos - offset));
+        var originNodeIndex = pos2NodeIndex[originPos - offset];
+        var destinationNodeIndex = pos2NodeIndex[destinationPos - offset];
 
         var path = new List<Vector2Int> { destinationPos };
         var currentIteration = 0;
-        while (originNodeIndex != destinationNodeIndex
-               && currentIteration < DEV_NUMBER_OF_BUILD_PATH_ITERATIONS) {
+        while (
+            originNodeIndex != destinationNodeIndex
+            && currentIteration < DEV_NUMBER_OF_BUILD_PATH_ITERATIONS
+        ) {
             var i = prev[originNodeIndex][destinationNodeIndex];
             Assert.IsTrue(i != int.MinValue);
 
@@ -233,7 +243,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         Assert.IsTrue(width > 0);
 
         var nodeIndex2Pos = new Dictionary<int, Vector2Int>();
-        var pos2IndexNode = new Dictionary<Vector2Int, int>();
+        var pos2NodeIndex = new Dictionary<Vector2Int, int>();
 
         var nodeIndex = 0;
         for (var y = 0; y < height; y++) {
@@ -244,7 +254,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
                 }
 
                 nodeIndex2Pos.Add(nodeIndex, new(x, y));
-                pos2IndexNode.Add(new(x, y), nodeIndex);
+                pos2NodeIndex.Add(new(x, y), nodeIndex);
                 nodeIndex += 1;
             }
         }
@@ -290,7 +300,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
                     }
 
                     var newPos = new Vector2Int(x, y) + dir.AsOffset();
-                    var newNodeIndex = pos2IndexNode[newPos];
+                    var newNodeIndex = pos2NodeIndex[newPos];
                     dist[nodeIndex][newNodeIndex] = 1;
                 }
 
@@ -311,7 +321,9 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
                     var kj = dist[k][j];
 
                     if (ik != int.MaxValue && kj != int.MaxValue) {
-                        dist[i][j] = Math.Min(ij, ik + kj);
+                        if (ij > ik + kj) {
+                            dist[i][j] = ik + kj;
+                        }
                     }
                 }
             }

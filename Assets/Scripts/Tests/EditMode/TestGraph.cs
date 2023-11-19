@@ -394,7 +394,8 @@ public class TestGraph {
         var expected = new List<Vector2Int> {
             new(0, 1), new(1, 1), new(1, 2), new(1, 3),
         };
-        Assert.IsTrue(expected.SequenceEqual(actual));
+
+        Assert.That(actual, Is.EquivalentTo(expected));
     }
 
     [Test]
@@ -409,7 +410,8 @@ public class TestGraph {
         var expected = new List<Vector2Int> {
             new(10, 10), new(11, 10), new(12, 10),
         };
-        Assert.IsTrue(expected.SequenceEqual(actual));
+
+        Assert.That(actual, Is.EquivalentTo(expected));
     }
 
     [Test]
@@ -429,7 +431,28 @@ public class TestGraph {
         var expected = new List<Vector2Int> {
             new(8, 7), new(8, 6), new(9, 6), new(10, 6), new(11, 6),
         };
-        Assert.IsTrue(expected.SequenceEqual(actual));
+
+        Assert.That(actual, Is.EquivalentTo(expected));
+    }
+
+    [Test]
+    public void Test_GetShortestPath_WithOffset_3() {
+        var graph = new Graph();
+        graph.SetDirection(8, 7, Direction.Down);
+        graph.SetDirection(8, 6, Direction.Up);
+        graph.SetDirection(8, 6, Direction.Right);
+        graph.SetDirection(9, 6, Direction.Left);
+        graph.SetDirection(9, 6, Direction.Right);
+        graph.SetDirection(10, 6, Direction.Left);
+        graph.SetDirection(10, 6, Direction.Right);
+        graph.SetDirection(11, 6, Direction.Left);
+
+        var actual = graph.GetShortestPath(new(8, 7), new(11, 6));
+        var expected = new List<Vector2Int> {
+            new(8, 7), new(8, 6), new(9, 6), new(10, 6), new(11, 6),
+        };
+
+        Assert.That(actual, Is.EquivalentTo(expected));
     }
 
     [Test]

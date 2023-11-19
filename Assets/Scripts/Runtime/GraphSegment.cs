@@ -78,12 +78,12 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
             return true;
         }
 
-        var goodFukenListEquals = Utils.GoodFukenListEquals(Vertexes, other.Vertexes);
-        var fukenListEquals = Utils.GoodFukenListEquals(MovementTiles, other.MovementTiles);
-        var equals = Graph.Equals(other.Graph);
-        return goodFukenListEquals
-               && fukenListEquals
-               && equals;
+        var vertexesEqual = Utils.GoodFukenListEquals(Vertexes, other.Vertexes);
+        var movementTilesEqual = Utils.GoodFukenListEquals(MovementTiles, other.MovementTiles);
+        var graphEqual = Graph.Equals(other.Graph);
+        return vertexesEqual
+               && movementTilesEqual
+               && graphEqual;
     }
 
     public int CompareTo(GraphSegment other) {
