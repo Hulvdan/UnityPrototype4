@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
@@ -441,7 +440,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public float humanReturningBackDuration => _humanReturningBackDuration;
     public float humanTotalHarvestingDuration => _humanTotalHarvestingDuration;
 
-    List<HumanTransporter> _humanTransporters = new();
+    readonly List<HumanTransporter> _humanTransporters = new();
     public float humanTransporterMovingOneCellDuration => _humanTransporterMovingOneCellDuration;
 
     #endregion
