@@ -168,6 +168,7 @@ public class MapRenderer : MonoBehaviour {
     > _horses = new();
 
     readonly Dictionary<Guid, Tuple<Human, HumanGO>> _humans = new();
+    readonly Dictionary<Guid, Tuple<HumanTransporter, HumanGO>> _humanTransporters = new();
 
     readonly Dictionary<Guid, GameObject> _modals = new();
     readonly Dictionary<Guid, ItemGO> _storedItems = new();
@@ -291,6 +292,7 @@ public class MapRenderer : MonoBehaviour {
         hooks.Add(_map.onElementTileChanged.Subscribe(OnElementTileChanged));
 
         hooks.Add(_map.onHumanCreated.Subscribe(OnHumanCreated));
+        hooks.Add(_map.onHumanTransporterCreated.Subscribe(OnHumanTransporterCreated));
         hooks.Add(_map.onHumanPickedUpResource.Subscribe(OnHumanPickedUpResource));
         hooks.Add(_map.onHumanPlacedResource.Subscribe(OnHumanPlacedResource));
 
@@ -670,6 +672,11 @@ public class MapRenderer : MonoBehaviour {
         _humans.Add(data.Human.ID, Tuple.Create(data.Human, go.GetComponent<HumanGO>()));
     }
 
+    void OnHumanTransporterCreated(E_HumanTransporterCreated data) {
+        var go = Instantiate(_humanPrefab, _grid.transform);
+        _humanTransporters.Add(data.Human.ID, Tuple.Create(data.Human, go.GetComponent<HumanGO>()));
+    }
+
     void OnHumanPickedUpResource(E_HumanPickedUpResource data) {
         UpdateTileBasedOnRemainingResourcePercent(
             data.ResourceTilePosition,
@@ -706,6 +713,19 @@ public class MapRenderer : MonoBehaviour {
     void UpdateHumans() {
         foreach (var (human, go) in _humans.Values) {
             go.transform.localPosition = human.position + Vector2.one / 2;
+        }
+
+        foreach (var (human, go) in _humanTransporters.Values) {
+            var pos = human.movingFrom;
+            if (human.movingTo != null) {
+                pos = Vector2.Lerp(
+                    human.movingFrom,
+                    human.movingTo.Value,
+                    human.movingNormalized
+                );
+            }
+
+            go.transform.localPosition = pos + Vector2.one / 2;
         }
     }
 

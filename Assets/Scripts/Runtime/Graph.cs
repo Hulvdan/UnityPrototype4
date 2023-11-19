@@ -5,6 +5,8 @@ using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
 public class Graph : IEquatable<Graph>, IComparable<Graph> {
+    const int DEV_NUMBER_OF_BUILD_PATH_ITERATIONS = 256;
+
     public void SetDirection(
         Vector2Int pos, Direction direction, bool value = true
     ) {
@@ -57,14 +59,11 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         // It allows to efficiently reconstruct a path from any two connected vertices.
         // https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
 
-        Assert.IsTrue(_nodes.Count > 0);
-        Assert.IsTrue(_nodes[0].Count > 0);
+        Assert.IsTrue(height > 0);
+        Assert.IsTrue(width > 0);
 
         Assert.IsTrue(ContainsNode(originPos));
         Assert.IsTrue(ContainsNode(destinationPos));
-
-        var height = _nodes.Count;
-        var width = _nodes[0].Count;
 
         var nodeIndex2Pos = new Dictionary<int, Vector2Int>();
         var pos2IndexNode = new Dictionary<Vector2Int, int>();
@@ -166,7 +165,14 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             }
         }
 
-        return BuildPath(originPos, destinationPos, pos2IndexNode, nodeIndex2Pos, prev);
+        return BuildPath(
+            originPos,
+            destinationPos,
+            pos2IndexNode,
+            nodeIndex2Pos,
+            prev,
+            _offset.Value
+        );
     }
 
     static List<Vector2Int> BuildPath(
@@ -174,7 +180,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         Vector2Int destinationPos,
         IReadOnlyDictionary<Vector2Int, int> pos2IndexNode,
         IReadOnlyDictionary<int, Vector2Int> nodeIndex2Pos,
-        IReadOnlyList<IReadOnlyList<int>> prev
+        IReadOnlyList<IReadOnlyList<int>> prev,
+        Vector2Int offset
     ) {
         // procedure Path(u, v)
         //     if prev[u][v] = null then
@@ -184,18 +191,25 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         //         v ← prev[u][v]
         //         path.prepend(v)
         //     return path
-        Assert.IsTrue(pos2IndexNode.ContainsKey(originPos));
-        Assert.IsTrue(pos2IndexNode.ContainsKey(destinationPos));
-        var originNodeIndex = pos2IndexNode[originPos];
-        var destinationNodeIndex = pos2IndexNode[destinationPos];
+        Assert.IsTrue(pos2IndexNode.ContainsKey(originPos - offset));
+        Assert.IsTrue(pos2IndexNode.ContainsKey(destinationPos - offset));
+        var originNodeIndex = pos2IndexNode[originPos - offset];
+        var destinationNodeIndex = pos2IndexNode[destinationPos - offset];
 
         var path = new List<Vector2Int> { destinationPos };
-        while (originNodeIndex != destinationNodeIndex) {
+        var currentIteration = 0;
+        while (originNodeIndex != destinationNodeIndex
+               && currentIteration < DEV_NUMBER_OF_BUILD_PATH_ITERATIONS) {
             var i = prev[originNodeIndex][destinationNodeIndex];
             Assert.IsTrue(i != int.MinValue);
 
             destinationNodeIndex = i;
-            path.Add(nodeIndex2Pos[destinationNodeIndex]);
+            path.Add(nodeIndex2Pos[destinationNodeIndex] + offset);
+            currentIteration++;
+        }
+
+        if (currentIteration >= DEV_NUMBER_OF_BUILD_PATH_ITERATIONS) {
+            Debug.LogError("Expected Iterations Limit Exceeded!");
         }
 
         path.Reverse();
@@ -215,11 +229,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         // and graph partitioning according to the distance to the center
         // https://hal.science/hal-02304090/document
 
-        Assert.IsTrue(_nodes.Count > 0);
-        Assert.IsTrue(_nodes[0].Count > 0);
-
-        var height = _nodes.Count;
-        var width = _nodes[0].Count;
+        Assert.IsTrue(height > 0);
+        Assert.IsTrue(width > 0);
 
         var nodeIndex2Pos = new Dictionary<int, Vector2Int>();
         var pos2IndexNode = new Dictionary<Vector2Int, int>();
@@ -326,8 +337,10 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         }
 
         var centerNodePositions = new List<Vector2Int> { Capacity = centerNodeIndices.Count };
+
+        Assert.IsTrue(_offset.HasValue);
         foreach (var i in centerNodeIndices) {
-            centerNodePositions.Add(nodeIndex2Pos[i]);
+            centerNodePositions.Add(nodeIndex2Pos[i] + _offset.Value);
         }
 
         return centerNodePositions;
@@ -338,11 +351,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
     }
 
     public bool IsUndirected() {
-        Assert.IsTrue(_nodes.Count > 0);
-        Assert.IsTrue(_nodes[0].Count > 0);
-
-        var height = _nodes.Count;
-        var width = _nodes[0].Count;
+        Assert.IsTrue(height > 0);
+        Assert.IsTrue(width > 0);
 
         for (var y = 0; y < height; y++) {
             for (var x = 0; x < width; x++) {
@@ -374,7 +384,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
 
     public override string ToString() {
         var res = "";
-        foreach (var row in _nodes) {
+        for (var y = 0; y < height; y++) {
+            var row = _nodes[height - y - 1];
             foreach (var node in row) {
                 res += GraphNode.Repr(node);
             }
@@ -382,7 +393,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             res += "\n";
         }
 
-        if (_nodes.Count > 0) {
+        if (height > 0) {
             res = res.TrimEnd('\n');
         }
 
@@ -446,15 +457,15 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             }
         }
 
-        if (_nodes.Count > other._nodes.Count) {
+        if (height > other.height) {
             return 1;
         }
 
-        if (_nodes.Count < other._nodes.Count) {
+        if (height < other.height) {
             return 1;
         }
 
-        for (var y = 0; y < _nodes.Count; y++) {
+        for (var y = 0; y < height; y++) {
             if (_nodes[y].Count > other._nodes[y].Count) {
                 return 1;
             }
@@ -464,7 +475,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             }
         }
 
-        for (var y = 0; y < _nodes.Count; y++) {
+        for (var y = 0; y < height; y++) {
             for (var x = 0; x < _nodes[y].Count; x++) {
                 if (_nodes[y][x] > other._nodes[y][x]) {
                     return 1;
@@ -485,13 +496,12 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
 
     void ResizeIfNeeded(int x, int y) {
         Assert.IsTrue(_offset.HasValue);
-        Assert.IsTrue(_nodes.Count > 0);
-        Assert.IsTrue(_nodes[0].Count > 0);
+        Assert.IsTrue(height > 0);
+        Assert.IsTrue(width > 0);
 
         if (y < _offset.Value.y) {
             var newNodes = new List<List<byte>>();
 
-            var width = _nodes[0].Count;
             var addedRowsCount = _offset.Value.y - y;
 
             for (var yy = 0; yy < addedRowsCount; yy++) {
@@ -510,9 +520,9 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             _nodes = newNodes;
         }
 
-        if (y >= _nodes.Count) {
-            var addedRowsCount = y - _nodes.Count + 1;
-            var oldWidth = _nodes[0].Count;
+        if (y >= _offset.Value.y + height) {
+            var addedRowsCount = y - height - _offset.Value.y + 1;
+            var oldWidth = width;
 
             for (var i = 0; i < addedRowsCount; i++) {
                 var newRow = new List<byte> { Capacity = oldWidth };
@@ -525,11 +535,11 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         }
 
         if (x < _offset.Value.x) {
-            var oldWidth = _nodes[0].Count;
+            var oldWidth = width;
             var addedColumnsCount = _offset.Value.x - x;
-            var newWidth = _nodes[0].Count + addedColumnsCount;
+            var newWidth = width + addedColumnsCount;
 
-            for (var i = 0; i < _nodes.Count; i++) {
+            for (var i = 0; i < height; i++) {
                 var newRow = new List<byte> { Capacity = newWidth };
 
                 for (var xx = 0; xx < addedColumnsCount; xx++) {
@@ -544,8 +554,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             }
         }
 
-        if (x >= _nodes[0].Count) {
-            var addedColumnsCount = x - _nodes[0].Count + 1;
+        if (x >= _offset.Value.x + width) {
+            var addedColumnsCount = x - width - _offset.Value.x + 1;
 
             foreach (var row in _nodes) {
                 for (var i = 0; i < addedColumnsCount; i++) {
@@ -564,16 +574,23 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         var y = pos.y;
         var x = pos.x;
         return y >= _offset.Value.y
-               && y < _nodes.Count
+               && y < _offset.Value.y + height
                && x >= _offset.Value.x
-               && x < _nodes[0].Count;
+               && x < _offset.Value.x + width;
     }
 
     public static class Tests {
         public static List<List<byte>> GetNodes(Graph graph) {
             return graph._nodes;
         }
+
+        public static bool ContainsNode(Graph graph, int x, int y) {
+            return graph.ContainsNode(new(x, y));
+        }
     }
+
+    int height => _nodes.Count;
+    int width => _nodes[0].Count;
 
     Vector2Int? _offset;
     List<List<byte>> _nodes = new();
