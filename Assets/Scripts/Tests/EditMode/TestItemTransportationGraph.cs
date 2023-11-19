@@ -25,10 +25,10 @@ public class TestItemTransportationGraph {
         expectedGraph.SetDirection(1, 1, Direction.Down);
 
         Test(
-            new[] {
+            ParseAsElementTiles(
                 ".B",
-                "Cr",
-            },
+                "Cr"
+            ),
             1,
             new() {
                 new(
@@ -51,10 +51,10 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_1Building_1Road_0Segments() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "..",
-                "Cr",
-            },
+                "Cr"
+            ),
             0
         );
     }
@@ -63,10 +63,10 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_2AdjacentBuildings_0Segments() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "..",
-                "CB",
-            },
+                "CB"
+            ),
             0
         );
     }
@@ -75,10 +75,10 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_4AdjacentBuildings_0Segments() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "BB",
-                "CB",
-            },
+                "CB"
+            ),
             0
         );
     }
@@ -87,10 +87,10 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_2Buildings_1Flag_2Segments() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 ".B",
-                "CF",
-            },
+                "CF"
+            ),
             2
         );
     }
@@ -99,10 +99,10 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_2Buildings_1Flag_1Road_3Segments() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "FB",
-                "Cr",
-            },
+                "Cr"
+            ),
             3
         );
     }
@@ -111,10 +111,10 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_2Buildings_2Flags_3Segments() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "FF",
-                "CB",
-            },
+                "CB"
+            ),
             3
         );
     }
@@ -123,10 +123,10 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_2Buildings_2Flags_4Segments() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "FB",
-                "CF",
-            },
+                "CF"
+            ),
             4
         );
     }
@@ -134,33 +134,23 @@ public class TestItemTransportationGraph {
     [Test]
     [Timeout(1)]
     public void Test_Line_CrrFrB() {
-        Test(
-            new[] {
-                "CrrFrB",
-            },
-            2
-        );
+        Test(ParseAsElementTiles("CrrFrB"), 2);
     }
 
     [Test]
     [Timeout(1)]
     public void Test_Line_CrrrrB() {
-        Test(
-            new[] {
-                "CrrrrB",
-            },
-            1
-        );
+        Test(ParseAsElementTiles("CrrrrB"), 1);
     }
 
     [Test]
     [Timeout(1)]
     public void Test_Complex3() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "rrrrrr",
-                "CrrrrB",
-            },
+                "CrrrrB"
+            ),
             1
         );
     }
@@ -169,13 +159,13 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex4() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "...B..",
                 "..rrr.",
                 "BrrCrB",
                 "...r..",
-                "...B..",
-            },
+                "...B.."
+            ),
             2
         );
     }
@@ -184,13 +174,13 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex5() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "...B..",
                 "..rFr.",
                 "BrrCrB",
                 "...r..",
-                "...B..",
-            },
+                "...B.."
+            ),
             5
         );
     }
@@ -199,11 +189,11 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex6() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "...B..",
                 "..rrr.",
-                "CrrFrB",
-            },
+                "CrrFrB"
+            ),
             1
         );
     }
@@ -212,13 +202,13 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex7() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "...B..",
                 "..rrr.",
                 "CrrFrB",
                 "...r..",
-                "...B..",
-            },
+                "...B.."
+            ),
             2
         );
     }
@@ -227,13 +217,13 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex8() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "...B..",
                 "...r..",
                 "BrrCrB",
                 "...r..",
-                "...B..",
-            },
+                "...B.."
+            ),
             4
         );
     }
@@ -242,13 +232,13 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex9() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "...B..",
                 "..rrr.",
                 "BrrCrB",
                 "..rrr.",
-                "...B..",
-            },
+                "...B.."
+            ),
             1
         );
     }
@@ -257,13 +247,13 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex10() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "...B..",
                 "..rrr.",
                 "BrrCrB",
                 "..rr..",
-                "...B..",
-            },
+                "...B.."
+            ),
             1
         );
     }
@@ -272,12 +262,12 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex11() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "...B...",
                 "..rrrr.",
                 "CrrSSrB",
-                "....rr.",
-            },
+                "....rr."
+            ),
             1
         );
     }
@@ -286,12 +276,12 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex12() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "...B...",
                 "..rFrr.",
                 "CrrSSrB",
-                "....rr.",
-            },
+                "....rr."
+            ),
             4
         );
     }
@@ -300,12 +290,12 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex13() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "...B...",
                 "..rFFr.",
                 "CrrSSrB",
-                "....rr.",
-            },
+                "....rr."
+            ),
             6
         );
     }
@@ -314,12 +304,12 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex14() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "...B...",
                 "..rrFr.",
                 "CrrSSrB",
-                "....rr.",
-            },
+                "....rr."
+            ),
             3
         );
     }
@@ -328,10 +318,10 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex15() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "CrF",
-                ".rB",
-            },
+                ".rB"
+            ),
             2
         );
     }
@@ -340,10 +330,10 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex16() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "CrFr",
-                ".rSS",
-            },
+                ".rSS"
+            ),
             3
         );
     }
@@ -352,10 +342,10 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex17() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "Crrr",
-                ".rSS",
-            },
+                ".rSS"
+            ),
             1
         );
     }
@@ -364,11 +354,11 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex18() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 ".B.",
                 "CFB",
-                ".B.",
-            },
+                ".B."
+            ),
             4
         );
     }
@@ -377,13 +367,13 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_Complex19() {
         Test(
-            new[] {
+            ParseAsElementTiles(
                 "..B..",
                 "..r..",
                 "CrFrB",
                 "..r..",
-                "..B..",
-            },
+                "..B.."
+            ),
             4
         );
     }
@@ -391,28 +381,25 @@ public class TestItemTransportationGraph {
     [Test]
     [Timeout(1)]
     public void Test_Line_CrB() {
-        Test(
-            new[] {
-                "CrB",
-            },
-            1
-        );
+        Test(ParseAsElementTiles("CrB"), 1);
     }
 
     [Test]
     [Timeout(1)]
     public void Test_Line_CFB() {
-        Test(
-            new[] {
-                "CFB",
-            },
-            2
-        );
+        Test(ParseAsElementTiles("CFB"), 2);
     }
 
-    void Test(
-        string[] strings, int expectedSegmentsCount, List<GraphSegment> expectedGraphSegments = null
-    ) {
+    [Test]
+    public void Test_PlacingRoad_1() {
+    }
+
+    struct ParsedElementTiles {
+        public List<Building> Buildings;
+        public List<List<ElementTile>> ElementTiles;
+    }
+
+    ParsedElementTiles ParseAsElementTiles(params string[] strings) {
         strings = strings.Reverse().ToArray();
         var height = strings.Length;
         var width = strings[0].Length;
@@ -425,7 +412,7 @@ public class TestItemTransportationGraph {
 
         Building buildingSawmill = null;
 
-        var graph = new List<List<ElementTile>>();
+        var tiles = new List<List<ElementTile>>();
         for (var y = 0; y < height; y++) {
             var row = new List<ElementTile>();
             for (var x = 0; x < width; x++) {
@@ -466,12 +453,26 @@ public class TestItemTransportationGraph {
                 row.Add(tile);
             }
 
-            graph.Add(row);
+            tiles.Add(row);
         }
 
+        return new() {
+            Buildings = buildings,
+            ElementTiles = tiles,
+        };
+    }
+
+    void Test(
+        ParsedElementTiles data,
+        int expectedSegmentsCount,
+        List<GraphSegment> expectedGraphSegments = null
+    ) {
         var result = ItemTransportationGraph.BuildGraphSegments(
-            graph, MockMapSize_FromGraph(graph), buildings
+            data.ElementTiles,
+            MockMapSize_FromGraph(data.ElementTiles),
+            data.Buildings
         );
+
         Assert.AreEqual(expectedSegmentsCount, result.Count);
 
         if (expectedGraphSegments == null) {
