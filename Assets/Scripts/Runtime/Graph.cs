@@ -12,20 +12,64 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         SetDirection(pos.x, pos.y, direction);
     }
 
-    public void SetDirection(int x, int y, Direction direction) {
+    public void SetDirection(int x, int y, Direction direction, bool value = true) {
         if (_offset == null) {
             _offset = new Vector2Int(x, y);
 
-            var node = GraphNode.SetDirection(0, direction, true);
+            var node = GraphNode.SetDirection(0, direction, value);
             _nodes = new() { new() { node } };
         }
         else {
             ResizeIfNeeded(x, y);
 
             var node = _nodes[y - _offset.Value.y][x - _offset.Value.x];
-            node = GraphNode.SetDirection(node, direction, true);
+            node = GraphNode.SetDirection(node, direction, value);
             _nodes[y - _offset.Value.y][x - _offset.Value.x] = node;
         }
+    }
+
+    public List<Vector2Int> GetCentroids() {
+        return new();
+    }
+
+    public List<Vector2Int> GetCenters() {
+        Assert.IsTrue(IsUndirected());
+        return new();
+    }
+
+    public bool IsUndirected() {
+        Assert.IsTrue(_nodes.Count > 0);
+        Assert.IsTrue(_nodes[0].Count > 0);
+
+        var height = _nodes.Count;
+        var width = _nodes[0].Count;
+
+        for (var y = 0; y < height; y++) {
+            for (var x = 0; x < width; x++) {
+                var node = _nodes[y][x];
+
+                for (Direction dir = 0; dir < (Direction)4; dir++) {
+                    if (!GraphNode.Has(node, dir)) {
+                        continue;
+                    }
+
+                    var offset = dir.AsOffset();
+                    var newX = x + offset.x;
+                    var newY = y + offset.y;
+                    if (newX < 0 || newY < 0 || newX >= width || newY >= height) {
+                        return false;
+                    }
+
+                    var adjacentNode = _nodes[newY][newX];
+                    var opposite = GraphNode.Has(adjacentNode, dir.Opposite());
+                    if (!opposite) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     void ResizeIfNeeded(int x, int y) {
