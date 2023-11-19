@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using BFG.Runtime;
 using NUnit.Framework;
 using UnityEngine;
+using AssertionException = UnityEngine.Assertions.AssertionException;
 
 namespace Tests.EditMode {
 public class TestGraph {
@@ -86,7 +88,7 @@ public class TestGraph {
         );
     }
 
-    Graph FromStrings(string[] strings) {
+    Graph FromStrings(params string[] strings) {
         var graph = new Graph();
 
         var height = strings.Length;
@@ -192,22 +194,15 @@ public class TestGraph {
 
     [Test]
     public void Test_GetCenters_Empty2() {
-        var graph = FromStrings(
-            new[] {
-                ".",
-            }
-        );
+        var graph = FromStrings(".");
+
         var centers = graph.GetCenters();
         Assert.AreEqual(new(), centers);
     }
 
     [Test]
     public void Test_GetCenters_2() {
-        var graph = FromStrings(
-            new[] {
-                "╶╴",
-            }
-        );
+        var graph = FromStrings("╶╴");
 
         var expected = new List<Vector2Int> { new(0, 0), new(1, 0) };
         var centers = graph.GetCenters();
@@ -220,10 +215,8 @@ public class TestGraph {
     [Test]
     public void Test_GetCenters_2_Rotated() {
         var graph = FromStrings(
-            new[] {
-                "╷",
-                "╵",
-            }
+            "╷",
+            "╵"
         );
 
         var expected = new List<Vector2Int> { new(0, 0), new(0, 1) };
@@ -236,11 +229,7 @@ public class TestGraph {
 
     [Test]
     public void Test_GetCenters_3() {
-        var graph = FromStrings(
-            new[] {
-                "╶─╴",
-            }
-        );
+        var graph = FromStrings("╶─╴");
 
         var expected = new List<Vector2Int> { new(1, 0) };
         var centers = graph.GetCenters();
@@ -250,11 +239,7 @@ public class TestGraph {
 
     [Test]
     public void Test_GetCenters_4_1() {
-        var graph = FromStrings(
-            new[] {
-                "╶──╴",
-            }
-        );
+        var graph = FromStrings("╶──╴");
 
         var expected = new List<Vector2Int> { new(1, 0), new(2, 0) };
         var centers = graph.GetCenters();
@@ -267,10 +252,8 @@ public class TestGraph {
     [Test]
     public void Test_GetCenters_4_2() {
         var graph = FromStrings(
-            new[] {
-                ".╷.",
-                "╶┴╴",
-            }
+            ".╷.",
+            "╶┴╴"
         );
 
         var expected = new List<Vector2Int> { new(1, 0) };
@@ -282,12 +265,10 @@ public class TestGraph {
     [Test]
     public void Test_GetCenters_40() {
         var graph = FromStrings(
-            new[] {
-                ".╷..",
-                ".├┬╴",
-                "╶┴┤.",
-                "..╵.",
-            }
+            ".╷..",
+            ".├┬╴",
+            "╶┴┤.",
+            "..╵."
         );
 
         var expected = new List<Vector2Int> {
@@ -305,18 +286,14 @@ public class TestGraph {
 
     [Test]
     public void Test_IsUndirected_Empty_1() {
-        var graph = FromStrings(new string[] { });
-        Assert.Throws<UnityEngine.Assertions.AssertionException>(() => graph.IsUndirected());
+        var graph = FromStrings();
+        Assert.Throws<AssertionException>(() => graph.IsUndirected());
     }
 
     [Test]
     public void Test_IsUndirected_Empty_2() {
-        var graph = FromStrings(
-            new[] {
-                "",
-            }
-        );
-        Assert.Throws<UnityEngine.Assertions.AssertionException>(() => graph.IsUndirected());
+        var graph = FromStrings("");
+        Assert.Throws<AssertionException>(() => graph.IsUndirected());
     }
 
     [Test]
@@ -329,31 +306,21 @@ public class TestGraph {
 
     [Test]
     public void Test_IsUndirected_2() {
-        var graph = FromStrings(
-            new[] {
-                "╶╴",
-            }
-        );
+        var graph = FromStrings("╶╴");
         Assert.IsTrue(graph.IsUndirected());
     }
 
     [Test]
     public void Test_IsUndirected_2_Oriented() {
-        var graph = FromStrings(
-            new[] {
-                "╴╶",
-            }
-        );
+        var graph = FromStrings("╴╶");
         Assert.IsFalse(graph.IsUndirected());
     }
 
     [Test]
     public void Test_IsUndirected_2_Rotated() {
         var graph = FromStrings(
-            new[] {
-                "╷",
-                "╵",
-            }
+            "╷",
+            "╵"
         );
         Assert.IsTrue(graph.IsUndirected());
     }
@@ -361,15 +328,44 @@ public class TestGraph {
     [Test]
     public void Test_IsUndirected_10() {
         var graph = FromStrings(
-            new[] {
-                ".╷..",
-                ".├┬╴",
-                "╶┴┤.",
-                "..╵.",
-            }
+            ".╷..",
+            ".├┬╴",
+            "╶┴┤.",
+            "..╵."
         );
 
         Assert.IsTrue(graph.IsUndirected());
+    }
+
+    [Test]
+    public void Test_GetShortestPath_1() {
+        var graph = FromStrings("╶╴");
+
+        var actual = graph.GetShortestPath(new(0, 0), new(1, 0));
+        var expected = new List<Vector2Int> { new(0, 0), new(1, 0) };
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void Test_GetShortestPath_2() {
+        var graph = FromStrings(
+            ".╷..",
+            ".├┬╴",
+            "╶┴┤.",
+            "..╵."
+        );
+
+        var actual = graph.GetShortestPath(new(0, 1), new(3, 2));
+        var expected1 = new List<Vector2Int> {
+            new(0, 1), new(1, 1), new(2, 1), new(2, 2), new(3, 2),
+        };
+        var expected2 = new List<Vector2Int> {
+            new(0, 1), new(1, 1), new(1, 2), new(2, 2), new(3, 2),
+        };
+        Assert.IsTrue(
+            expected1.SequenceEqual(actual)
+            || expected2.SequenceEqual(actual)
+        );
     }
 }
 }
