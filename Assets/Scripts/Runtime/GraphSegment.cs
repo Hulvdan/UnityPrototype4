@@ -11,12 +11,16 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
     public readonly List<Vector2Int> MovementTiles;
 
     public GraphSegment(List<GraphVertex> vertexes, List<Vector2Int> movementTiles, Graph graph) {
+        Assert.IsNotNull(vertexes);
+        Assert.IsNotNull(movementTiles);
+        Assert.IsNotNull(graph);
+
         Vertexes = vertexes;
         MovementTiles = movementTiles;
 
-        // TODO: Should be considered for removal
         Graph = graph;
         vertexes.Sort();
+        // TODO: Should be considered for removal
         movementTiles.Sort(Utils.StupidVector2IntComparation);
 
         // Duplication Checks
@@ -41,6 +45,30 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
         }
     }
 
+    public static bool operator ==(GraphSegment obj1, GraphSegment obj2) {
+        if (ReferenceEquals(null, obj1) && ReferenceEquals(null, obj2)) {
+            return true;
+        }
+
+        if (ReferenceEquals(null, obj1)) {
+            return false;
+        }
+
+        return obj1.Equals(obj2);
+    }
+
+    public static bool operator !=(GraphSegment obj1, GraphSegment obj2) {
+        if (ReferenceEquals(null, obj1) && ReferenceEquals(null, obj2)) {
+            return false;
+        }
+
+        if (ReferenceEquals(null, obj1)) {
+            return true;
+        }
+
+        return !obj1.Equals(obj2);
+    }
+
     public bool Equals(GraphSegment other) {
         if (ReferenceEquals(null, other)) {
             return false;
@@ -50,45 +78,42 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
             return true;
         }
 
-        return Equals(Vertexes, other.Vertexes)
-               && Equals(Graph, other.Graph)
-               && Equals(MovementTiles, other.MovementTiles);
+        var goodFukenListEquals = Utils.GoodFukenListEquals(Vertexes, other.Vertexes);
+        var fukenListEquals = Utils.GoodFukenListEquals(MovementTiles, other.MovementTiles);
+        var equals = Graph.Equals(other.Graph);
+        return goodFukenListEquals
+               && fukenListEquals
+               && equals;
     }
 
     public int CompareTo(GraphSegment other) {
-        if (Vertexes.Count > other.Vertexes.Count) {
-            return 1;
+        var cmp = Vertexes.Count.CompareTo(other.Vertexes.Count);
+        if (cmp != 0) {
+            return cmp;
         }
 
-        if (Vertexes.Count < other.Vertexes.Count) {
-            return -1;
-        }
-
-        if (MovementTiles.Count > other.MovementTiles.Count) {
-            return 1;
-        }
-
-        if (MovementTiles.Count > other.MovementTiles.Count) {
-            return -1;
+        cmp = MovementTiles.Count.CompareTo(other.MovementTiles.Count);
+        if (cmp != 0) {
+            return cmp;
         }
 
         for (var i = 0; i < Vertexes.Count; i++) {
-            var cmp = Vertexes[i].CompareTo(other.Vertexes[i]);
+            cmp = Vertexes[i].CompareTo(other.Vertexes[i]);
             if (cmp != 0) {
                 return cmp;
             }
         }
 
         for (var i = 0; i < MovementTiles.Count; i++) {
-            var cmp = Utils.StupidVector2IntComparation(MovementTiles[i], other.MovementTiles[i]);
+            cmp = Utils.StupidVector2IntComparation(MovementTiles[i], other.MovementTiles[i]);
             if (cmp != 0) {
                 return cmp;
             }
         }
 
-        var graphCmp = Graph.CompareTo(other.Graph);
-        if (graphCmp != 0) {
-            return graphCmp;
+        cmp = Graph.CompareTo(other.Graph);
+        if (cmp != 0) {
+            return cmp;
         }
 
         return 0;

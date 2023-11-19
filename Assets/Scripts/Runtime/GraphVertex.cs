@@ -20,6 +20,30 @@ public class GraphVertex : IComparable<GraphVertex>, IEquatable<GraphVertex> {
         return Pos.ToString();
     }
 
+    public static bool operator ==(GraphVertex obj1, GraphVertex obj2) {
+        if (ReferenceEquals(null, obj1) && ReferenceEquals(null, obj2)) {
+            return true;
+        }
+
+        if (ReferenceEquals(null, obj1)) {
+            return false;
+        }
+
+        return obj1.Equals(obj2);
+    }
+
+    public static bool operator !=(GraphVertex obj1, GraphVertex obj2) {
+        if (ReferenceEquals(null, obj1) && ReferenceEquals(null, obj2)) {
+            return false;
+        }
+
+        if (ReferenceEquals(null, obj1)) {
+            return true;
+        }
+
+        return !obj1.Equals(obj2);
+    }
+
     public bool Equals(GraphVertex other) {
         if (ReferenceEquals(null, other)) {
             return false;
@@ -29,7 +53,15 @@ public class GraphVertex : IComparable<GraphVertex>, IEquatable<GraphVertex> {
             return true;
         }
 
-        return Pos.Equals(other.Pos);
+        if (!Pos.Equals(other.Pos)) {
+            return false;
+        }
+
+        if (!Utils.GoodFukenListEquals(Resources, other.Resources)) {
+            return false;
+        }
+
+        return true;
     }
 
     public override bool Equals(object obj) {
