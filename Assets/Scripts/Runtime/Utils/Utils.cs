@@ -12,7 +12,7 @@ public static class Utils {
         }
     }
 
-    public static int StupidVector2IntComparation(Vector2Int a, Vector2Int b) {
+    public static int StupidVector2IntComparison(Vector2Int a, Vector2Int b) {
         if (a.x > b.x) {
             return 1;
         }
