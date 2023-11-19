@@ -398,7 +398,25 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             return true;
         }
 
-        return Nullable.Equals(_offset, other._offset) && Equals(_nodes, other._nodes);
+        return _nodesCount.Equals(other._nodesCount)
+               && Nullable.Equals(_offset, other._offset)
+               && Utils.GoodFuken2DListEquals(_nodes, other._nodes);
+    }
+
+    public override bool Equals(object obj) {
+        if (ReferenceEquals(null, obj)) {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj)) {
+            return true;
+        }
+
+        if (obj.GetType() != GetType()) {
+            return false;
+        }
+
+        return Equals((Graph)obj);
     }
 
     public int CompareTo(Graph other) {
@@ -459,22 +477,6 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         }
 
         return 0;
-    }
-
-    public override bool Equals(object obj) {
-        if (ReferenceEquals(null, obj)) {
-            return false;
-        }
-
-        if (ReferenceEquals(this, obj)) {
-            return true;
-        }
-
-        if (obj.GetType() != GetType()) {
-            return false;
-        }
-
-        return Equals((Graph)obj);
     }
 
     public override int GetHashCode() {

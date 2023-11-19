@@ -474,14 +474,14 @@ public class TestItemTransportationGraph {
         );
         Assert.AreEqual(expectedSegmentsCount, result.Count);
 
-        // if (expectedGraphSegments == null) {
-        //     return;
-        // }
-        //
-        // expectedGraphSegments.Sort();
-        // result.Sort();
-        //
-        // Assert.AreEqual(expectedGraphSegments, result);
+        if (expectedGraphSegments == null) {
+            return;
+        }
+
+        expectedGraphSegments.Sort();
+        result.Sort();
+
+        Assert.IsTrue(expectedGraphSegments.SequenceEqual(result));
     }
 }
 }
