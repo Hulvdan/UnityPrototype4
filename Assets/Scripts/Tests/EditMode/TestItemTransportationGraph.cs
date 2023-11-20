@@ -392,16 +392,10 @@ public class TestItemTransportationGraph {
 
     [Test]
     public void Test_RoadPlaced_1() {
-        var elementTiles = ParseAsElementTiles(
+        var (elementTiles, segments) = MakeTilesWithInitialCalculation(
             ".B",
             ".F",
             "Cr"
-        );
-
-        var segments = ItemTransportationGraph.BuildGraphSegments(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings
         );
 
         Assert.IsTrue(elementTiles.ElementTiles[1][0].Type == ElementTileType.None);
@@ -420,15 +414,9 @@ public class TestItemTransportationGraph {
 
     [Test]
     public void Test_RoadPlaced_2() {
-        var elementTiles = ParseAsElementTiles(
+        var (elementTiles, segments) = MakeTilesWithInitialCalculation(
             ".B",
             "Cr"
-        );
-
-        var segments = ItemTransportationGraph.BuildGraphSegments(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings
         );
 
         Assert.IsTrue(elementTiles.ElementTiles[1][0].Type == ElementTileType.None);
@@ -447,15 +435,9 @@ public class TestItemTransportationGraph {
 
     [Test]
     public void Test_RoadPlaced_3() {
-        var elementTiles = ParseAsElementTiles(
+        var (elementTiles, segments) = MakeTilesWithInitialCalculation(
             ".B",
             "CF"
-        );
-
-        var segments = ItemTransportationGraph.BuildGraphSegments(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings
         );
 
         Assert.IsTrue(elementTiles.ElementTiles[1][0].Type == ElementTileType.None);
@@ -474,16 +456,10 @@ public class TestItemTransportationGraph {
 
     [Test]
     public void Test_FlagPlaced_1() {
-        var elementTiles = ParseAsElementTiles(
+        var (elementTiles, segments) = MakeTilesWithInitialCalculation(
             ".B",
             ".r",
             "Cr"
-        );
-
-        var segments = ItemTransportationGraph.BuildGraphSegments(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings
         );
 
         elementTiles.ElementTiles[1][1] = ElementTile.Flag;
@@ -501,16 +477,10 @@ public class TestItemTransportationGraph {
 
     [Test]
     public void Test_FlagPlaced_2() {
-        var elementTiles = ParseAsElementTiles(
+        var (elementTiles, segments) = MakeTilesWithInitialCalculation(
             ".B",
             ".r",
             "CF"
-        );
-
-        var segments = ItemTransportationGraph.BuildGraphSegments(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings
         );
 
         elementTiles.ElementTiles[1][1] = ElementTile.Flag;
@@ -528,15 +498,9 @@ public class TestItemTransportationGraph {
 
     [Test]
     public void Test_FlagPlaced_3() {
-        var elementTiles = ParseAsElementTiles(
+        var (elementTiles, segments) = MakeTilesWithInitialCalculation(
             ".B",
             "CF"
-        );
-
-        var segments = ItemTransportationGraph.BuildGraphSegments(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings
         );
 
         elementTiles.ElementTiles[1][0] = ElementTile.Flag;
@@ -554,15 +518,9 @@ public class TestItemTransportationGraph {
 
     [Test]
     public void Test_BuildingPlaced_1() {
-        var elementTiles = ParseAsElementTiles(
+        var (elementTiles, segments) = MakeTilesWithInitialCalculation(
             ".B",
             "CF"
-        );
-
-        var segments = ItemTransportationGraph.BuildGraphSegments(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings
         );
 
         var building = MakeBuilding(BuildingType.Produce, new(0, 1));
@@ -582,15 +540,9 @@ public class TestItemTransportationGraph {
 
     [Test]
     public void Test_BuildingPlaced_2() {
-        var elementTiles = ParseAsElementTiles(
+        var (elementTiles, segments) = MakeTilesWithInitialCalculation(
             "..",
             "CF"
-        );
-
-        var segments = ItemTransportationGraph.BuildGraphSegments(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings
         );
 
         var building = MakeBuilding(BuildingType.Produce, new(1, 1));
@@ -610,15 +562,9 @@ public class TestItemTransportationGraph {
 
     [Test]
     public void Test_BuildingRemoved_1() {
-        var elementTiles = ParseAsElementTiles(
+        var (elementTiles, segments) = MakeTilesWithInitialCalculation(
             ".B",
             "CF"
-        );
-
-        var segments = ItemTransportationGraph.BuildGraphSegments(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings
         );
 
         elementTiles.Buildings.RemoveAt(1);
@@ -701,6 +647,20 @@ public class TestItemTransportationGraph {
             Buildings = buildings,
             ElementTiles = tiles,
         };
+    }
+
+    Tuple<ParsedElementTiles, List<GraphSegment>> MakeTilesWithInitialCalculation(
+        params string[] strings
+    ) {
+        var elementTiles = ParseAsElementTiles(strings);
+
+        var segments = ItemTransportationGraph.BuildGraphSegments(
+            elementTiles.ElementTiles,
+            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
+            elementTiles.Buildings
+        );
+
+        return new(elementTiles, segments);
     }
 
     void Test(
