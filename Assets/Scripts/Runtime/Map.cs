@@ -113,6 +113,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     float _humanTransporterMovingOneCellDuration = 1f;
 
     Random _random;
+    List<GraphSegment> _segments = new();
 
     void Awake() {
         _random = new((int)Time.time);
@@ -179,16 +180,21 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             return;
         }
 
-        if (elementTiles[pos.y][pos.x].Type != ElementTileType.None) {
-            return;
-        }
-
         if (item.Type == SelectedItemType.Road) {
             var road = elementTiles[pos.y][pos.x];
             road.Type = ElementTileType.Road;
             elementTiles[pos.y][pos.x] = road;
 
             onElementTileChanged.OnNext(pos);
+
+            var res = ItemTransportationGraph.OnTilesUpdated(
+                elementTiles,
+                this,
+                buildings,
+                new() { new(TileUpdatedType.RoadPlaced, pos) },
+                _segments
+            );
+            UpdateSegments(res);
         }
         else if (item.Type == SelectedItemType.Station) {
             var tile = elementTiles[pos.y][pos.x];
@@ -209,19 +215,67 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
 
             onBuildingPlaced.OnNext(new() { Building = building });
+
+            var res = ItemTransportationGraph.OnTilesUpdated(
+                elementTiles,
+                this,
+                buildings,
+                new() { new(TileUpdatedType.BuildingPlaced, pos) },
+                _segments
+            );
+            UpdateSegments(res);
+        }
+        else if (item.Type == SelectedItemType.Flag) {
+            if (elementTiles[pos.y][pos.x].Type != ElementTileType.Road) {
+                return;
+            }
+
+            elementTiles[pos.y][pos.x] = ElementTile.Flag;
+            onElementTileChanged.OnNext(pos);
+
+            var res = ItemTransportationGraph.OnTilesUpdated(
+                elementTiles,
+                this,
+                buildings,
+                new() { new(TileUpdatedType.FlagPlaced, pos) },
+                _segments
+            );
+            UpdateSegments(res);
+        }
+    }
+
+    public bool CanBePlaced(Vector2Int pos, SelectedItemType itemType) {
+        if (!Contains(pos.x, pos.y)) {
+            Debug.LogError("WTF?");
+            return false;
         }
 
-        var segments = ItemTransportationGraph.BuildGraphSegments(elementTiles, this, buildings);
-        if (segments.Count > 0) {
-            CreateHuman_Transporter(
-                buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall),
-                segments[0]
-            );
+        switch (itemType) {
+            case SelectedItemType.Road:
+            case SelectedItemType.Building:
+                return IsBuildable(pos);
+            case SelectedItemType.Flag:
+                return elementTiles[pos.y][pos.x].Type == ElementTileType.Road;
+            default:
+                return false;
+        }
+    }
+
+    void UpdateSegments(ItemTransportationGraph.OnTilesUpdatedResult res) {
+        if (res.AddedSegments.Count > 0) {
+            foreach (var segment in res.AddedSegments) {
+                _segments.Add(segment);
+
+                CreateHuman_Transporter(
+                    buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall),
+                    segment
+                );
+            }
         }
     }
 
     public bool IsBuildable(int x, int y) {
-        if (y >= sizeY) {
+        if (!Contains(x, y)) {
             Debug.LogError("WTF?");
             return false;
         }
@@ -547,6 +601,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void CreateHuman_Transporter(Building building, GraphSegment segment) {
         var human = new HumanTransporter(Guid.NewGuid(), segment, building.pos);
+        segment.AssignedHuman = human;
         _humanTransporters.Add(human);
 
         var center = segment.Graph.GetCenters()[0];
