@@ -149,11 +149,39 @@ public static class ItemTransportationGraph {
         var graphSegments = new List<GraphSegment>();
 
         var bigFukenQueue = new Queue<Tuple<Direction, Vector2Int>>();
-        foreach (var (_, tilePos) in tiles) {
-            bigFukenQueue.Enqueue(new(Direction.Right, tilePos));
-            bigFukenQueue.Enqueue(new(Direction.Up, tilePos));
-            bigFukenQueue.Enqueue(new(Direction.Left, tilePos));
-            bigFukenQueue.Enqueue(new(Direction.Down, tilePos));
+        foreach (var (updatedType, tilePos) in tiles) {
+            switch (updatedType) {
+                case TileUpdatedType.RoadPlaced:
+                case TileUpdatedType.FlagRemoved:
+                case TileUpdatedType.FlagPlaced:
+                    bigFukenQueue.Enqueue(new(Direction.Right, tilePos));
+                    bigFukenQueue.Enqueue(new(Direction.Up, tilePos));
+                    bigFukenQueue.Enqueue(new(Direction.Left, tilePos));
+                    bigFukenQueue.Enqueue(new(Direction.Down, tilePos));
+                    break;
+                case TileUpdatedType.RoadRemoved:
+                case TileUpdatedType.BuildingPlaced:
+                case TileUpdatedType.BuildingRemoved:
+                    for (Direction dir = 0; dir < (Direction)4; dir++) {
+                        var newPos = tilePos + dir.AsOffset();
+                        if (!mapSize.Contains(newPos)) {
+                            continue;
+                        }
+
+                        if (elementTiles[newPos.y][newPos.x].Type == ElementTileType.None) {
+                            continue;
+                        }
+
+                        bigFukenQueue.Enqueue(new(Direction.Up, newPos));
+                        bigFukenQueue.Enqueue(new(Direction.Right, newPos));
+                        bigFukenQueue.Enqueue(new(Direction.Left, newPos));
+                        bigFukenQueue.Enqueue(new(Direction.Down, newPos));
+                    }
+
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         var queue = new Queue<Tuple<Direction, Vector2Int>>();

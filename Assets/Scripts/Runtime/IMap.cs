@@ -32,14 +32,14 @@ public interface IMap {
     Subject<E_TopBarResourceChanged> onResourceChanged { get; }
 
     void TryBuild(Vector2Int hoveredTile, SelectedItem item);
+    bool CanBePlaced(Vector2Int pos, SelectedItemType itemType);
+    bool IsBuildable(int x, int y);
+    bool IsBuildable(Vector2Int pos);
 
     bool AreThereAvailableResourcesForTheTrain(HorseTrain horse);
     void PickRandomItemForTheTrain(HorseTrain horse);
     bool AreThereAvailableSlotsTheTrainCanPassResourcesTo(HorseTrain horse);
     void PickRandomSlotForTheTrainToPassItemTo(HorseTrain horse);
-
-    bool IsBuildable(int x, int y);
-    bool IsBuildable(Vector2Int pos);
 
     bool CellContainsPickupableItems(Vector2Int hoveredTile);
     void CollectItems(Vector2Int hoveredTile);

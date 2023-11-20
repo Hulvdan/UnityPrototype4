@@ -31,6 +31,7 @@ Unity Version: `2022.3.13f1`
 - [Improved horses ( 4 colors ) for CP](https://www.nexusmods.com/stardewvalley/mods/1903?tab=description)
 - [Roguelike/RPG Items](https://opengameart.org/content/roguelikerpg-items)
 - [Pixel Items Inventory](https://www.deviantart.com/blackkarma3840/art/Pixel-Items-Inventory-882911608)
+- [free flag with animation](https://ankousse26.itch.io/free-flag-with-animation)
 
 ## More Refs
 

@@ -4,5 +4,6 @@ public enum SelectedItemType {
     Station,
     Horse,
     Building,
+    Flag,
 }
 }

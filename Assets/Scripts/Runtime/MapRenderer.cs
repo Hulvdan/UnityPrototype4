@@ -25,6 +25,10 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     Tilemap _movementSystemTilemap;
 
+    [SerializeField]
+    [Required]
+    Tilemap _flagsTilemap;
+
     [FormerlySerializedAs("WagonSprite_Right")]
     [SerializeField]
     [Required]
@@ -69,6 +73,10 @@ public class MapRenderer : MonoBehaviour {
     [SerializeField]
     [Required]
     TileBase _tileUnfinishedBuilding;
+
+    [SerializeField]
+    [Required]
+    TileBase _tileFlag;
 
     [SerializeField]
     [Required]
@@ -223,7 +231,10 @@ public class MapRenderer : MonoBehaviour {
                     ToggleStablesPanel(_hoveredBuilding);
                 }
             }
-            else if (_gameManager.SelectedItem != null && _map.IsBuildable(hoveredTile)) {
+            else if (
+                _gameManager.SelectedItem != null
+                && _map.CanBePlaced(hoveredTile, _gameManager.SelectedItem.Type)
+            ) {
                 _map.TryBuild(hoveredTile, _gameManager.SelectedItem);
             }
         }
@@ -454,6 +465,9 @@ public class MapRenderer : MonoBehaviour {
             case ElementTileType.Station:
                 tile = elementTile.Rotation == 0 ? _tileStationHorizontal : _tileStationVertical;
                 break;
+            case ElementTileType.Flag:
+                _flagsTilemap.SetTile(new(pos.x, pos.y), _tileFlag);
+                return;
             case ElementTileType.None:
                 return;
             default:
@@ -629,6 +643,9 @@ public class MapRenderer : MonoBehaviour {
             case SelectedItemType.Road:
                 tilemapTile = _tileRoad;
                 break;
+            case SelectedItemType.Flag:
+                tilemapTile = _tileFlag;
+                break;
             case SelectedItemType.Station:
                 tilemapTile = _gameManager.selectedItemRotation % 2 == 0
                     ? _tileStationVertical
@@ -642,7 +659,11 @@ public class MapRenderer : MonoBehaviour {
                 return;
         }
 
-        var buildable = _map.IsBuildable(pos);
+        var buildable = _map.CanBePlaced(pos, item.Type);
+        if (!buildable) {
+            return;
+        }
+
         var matrix = Matrix4x4.identity;
         if (item.Type == SelectedItemType.Building) {
             matrix = Matrix4x4.TRS(new(0, -0.5f, 0), Quaternion.identity, Vector3.one);
