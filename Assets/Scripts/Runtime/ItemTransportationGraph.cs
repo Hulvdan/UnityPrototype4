@@ -120,6 +120,9 @@ public static class ItemTransportationGraph {
         return graphSegments;
     }
 
+    /// <remarks>
+    ///     Remember to provide all tiles of buildings in case they were placed / removed.
+    /// </remarks>
     public static OnTilesUpdatedResult OnTilesUpdated(
         List<List<ElementTile>> elementTiles,
         IMapSize mapSize,
@@ -246,7 +249,7 @@ public static class ItemTransportationGraph {
     }
 
     static bool ShouldSegmentBeDeleted(
-        List<List<ElementTile>> elementTiles,
+        IReadOnlyList<List<ElementTile>> elementTiles,
         IMapSize mapSize,
         TileUpdatedType updatedType,
         Vector2Int tilePos,
@@ -254,6 +257,7 @@ public static class ItemTransportationGraph {
     ) {
         switch (updatedType) {
             case TileUpdatedType.RoadPlaced:
+            case TileUpdatedType.BuildingPlaced:
                 for (Direction dir = 0; dir < (Direction)4; dir++) {
                     var newPos = tilePos + dir.AsOffset();
                     if (!mapSize.Contains(newPos)) {
@@ -274,14 +278,11 @@ public static class ItemTransportationGraph {
             case TileUpdatedType.FlagPlaced:
             case TileUpdatedType.FlagRemoved:
             case TileUpdatedType.RoadRemoved:
+            case TileUpdatedType.BuildingRemoved:
                 if (segment.Graph.ContainsNode(tilePos)) {
                     return true;
                 }
 
-                break;
-            case TileUpdatedType.BuildingPlaced:
-                break;
-            case TileUpdatedType.BuildingRemoved:
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
