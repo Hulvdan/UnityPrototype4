@@ -460,11 +460,11 @@ public class TestGraph {
         var graph = new Graph();
         graph.SetDirection(7, 10, Direction.Right);
 
-        Assert.IsTrue(Graph.Tests.ContainsNode(graph, 7, 10));
-        Assert.IsFalse(Graph.Tests.ContainsNode(graph, 8, 10));
-        Assert.IsFalse(Graph.Tests.ContainsNode(graph, 6, 10));
-        Assert.IsFalse(Graph.Tests.ContainsNode(graph, 7, 11));
-        Assert.IsFalse(Graph.Tests.ContainsNode(graph, 7, 9));
+        Assert.IsTrue(graph.ContainsNode(7, 10));
+        Assert.IsFalse(graph.ContainsNode(8, 10));
+        Assert.IsFalse(graph.ContainsNode(6, 10));
+        Assert.IsFalse(graph.ContainsNode(7, 11));
+        Assert.IsFalse(graph.ContainsNode(7, 9));
     }
 }
 }

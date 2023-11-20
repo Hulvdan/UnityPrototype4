@@ -582,22 +582,20 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         );
     }
 
-    bool ContainsNode(Vector2Int pos) {
-        var y = pos.y;
-        var x = pos.x;
+    public bool ContainsNode(int x, int y) {
         return y >= _offset.Value.y
                && y < _offset.Value.y + height
                && x >= _offset.Value.x
                && x < _offset.Value.x + width;
     }
 
+    public bool ContainsNode(Vector2Int pos) {
+        return ContainsNode(pos.x, pos.y);
+    }
+
     public static class Tests {
         public static List<List<byte>> GetNodes(Graph graph) {
             return graph._nodes;
-        }
-
-        public static bool ContainsNode(Graph graph, int x, int y) {
-            return graph.ContainsNode(new(x, y));
         }
     }
 
