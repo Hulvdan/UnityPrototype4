@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BFG.Core;
+using BFG.Graphs;
 using BFG.Runtime;
 using NUnit.Framework;
 using UnityEngine;

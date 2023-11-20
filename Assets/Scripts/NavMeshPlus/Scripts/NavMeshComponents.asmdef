@@ -1,0 +1,22 @@
+{
+    "name": "NavMeshPlus",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b3c495b0cddfccf4099a63ba6859dcb9"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.modules.terrain",
+            "expression": "0",
+            "define": "IS_TERRAIN_USED"
+        }
+    ],
+    "noEngineReferences": false
+}

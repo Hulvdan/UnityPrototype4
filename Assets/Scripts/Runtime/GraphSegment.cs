@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using BFG.Core;
+using BFG.Graphs;
 using UnityEngine;
 using UnityEngine.Assertions;
 
