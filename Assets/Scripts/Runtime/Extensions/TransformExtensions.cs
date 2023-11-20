@@ -1,5 +1,6 @@
 ﻿// From YouTube by git-amend. Easy and Powerful Extension Methods | Unity C#.
 // https://youtu.be/Nk49EUf7yyU
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,12 +8,13 @@ using Object = UnityEngine.Object;
 
 public static class TransformExtensions {
     /// <summary>
-    /// Retrieves all the children of a given Transform.
+    ///     Retrieves all the children of a given Transform.
     /// </summary>
     /// <remarks>
-    /// This method can be used with LINQ to perform operations on all child Transforms. For example,
-    /// you could use it to find all children with a specific tag, to disable all children, etc.
-    /// Transform implements IEnumerable and the GetEnumerator method which returns an IEnumerator of all its children.
+    ///     This method can be used with LINQ to perform operations on all child Transforms. For example,
+    ///     you could use it to find all children with a specific tag, to disable all children, etc.
+    ///     Transform implements IEnumerable and the GetEnumerator method which returns an IEnumerator of
+    ///     all its children.
     /// </remarks>
     /// <param name="parent">The Transform to retrieve children from.</param>
     /// <returns>An IEnumerable&lt;Transform&gt; containing all the child Transforms of the parent.</returns>
@@ -23,7 +25,7 @@ public static class TransformExtensions {
     }
 
     /// <summary>
-    /// Resets transform's position, scale and rotation
+    ///     Resets transform's position, scale and rotation
     /// </summary>
     /// <param name="transform">Transform to use</param>
     public static void Reset(this Transform transform) {
@@ -33,7 +35,7 @@ public static class TransformExtensions {
     }
 
     /// <summary>
-    /// Destroys all child game objects of the given transform.
+    ///     Destroys all child game objects of the given transform.
     /// </summary>
     /// <param name="parent">The Transform whose child game objects are to be destroyed.</param>
     public static void DestroyChildren(this Transform parent) {
@@ -41,7 +43,7 @@ public static class TransformExtensions {
     }
 
     /// <summary>
-    /// Immediately destroys all child game objects of the given transform.
+    ///     Immediately destroys all child game objects of the given transform.
     /// </summary>
     /// <param name="parent">The Transform whose child game objects are to be immediately destroyed.</param>
     public static void DestroyChildrenImmediate(this Transform parent) {
@@ -49,7 +51,7 @@ public static class TransformExtensions {
     }
 
     /// <summary>
-    /// Enables all child game objects of the given transform.
+    ///     Enables all child game objects of the given transform.
     /// </summary>
     /// <param name="parent">The Transform whose child game objects are to be enabled.</param>
     public static void EnableChildren(this Transform parent) {
@@ -57,21 +59,21 @@ public static class TransformExtensions {
     }
 
     /// <summary>
-    /// Disables all child game objects of the given transform.
+    ///     Disables all child game objects of the given transform.
     /// </summary>
     /// <param name="parent">The Transform whose child game objects are to be disabled.</param>
     public static void DisableChildren(this Transform parent) {
         parent.ForEveryChild(child => child.gameObject.SetActive(false));
     }
 
-    static void ForEveryChild(this Transform parent, System.Action<Transform> action) {
+    static void ForEveryChild(this Transform parent, Action<Transform> action) {
         for (var i = parent.childCount - 1; i >= 0; i--) {
             action(parent.GetChild(i));
         }
     }
 
     [Obsolete("Renamed to ForEveryChild")]
-    static void PerformActionOnChildren(this Transform parent, System.Action<Transform> action) {
+    static void PerformActionOnChildren(this Transform parent, Action<Transform> action) {
         parent.ForEveryChild(action);
     }
 }
