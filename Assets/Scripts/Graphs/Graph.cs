@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using BFG.Core;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace BFG.Runtime {
+namespace BFG.Graphs {
 public class Graph : IEquatable<Graph>, IComparable<Graph> {
     const int DEV_NUMBER_OF_BUILD_PATH_ITERATIONS = 256;
 

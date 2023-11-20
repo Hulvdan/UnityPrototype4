@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
+using BFG.Core;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;

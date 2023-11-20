@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
+using BFG.Core;
 using SimplexNoise;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -113,7 +114,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     float _humanTransporterMovingOneCellDuration = 1f;
 
     Random _random;
-    List<GraphSegment> _segments = new();
+    readonly List<GraphSegment> _segments = new();
 
     void Awake() {
         _random = new((int)Time.time);

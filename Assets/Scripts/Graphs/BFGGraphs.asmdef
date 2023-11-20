@@ -1,0 +1,16 @@
+{
+    "name": "BFGGraphs",
+    "rootNamespace": "",
+    "references": [
+        "GUID:067380f2e327c864ca920038ce7873d6"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

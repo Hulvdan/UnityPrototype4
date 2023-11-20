@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
+using BFG.Core;
 
-namespace BFG.Runtime {
+namespace BFG.Graphs {
 public static class GraphNode {
     public static byte None = 0;
     public static byte Right = 1 << 0;

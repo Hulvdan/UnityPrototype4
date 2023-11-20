@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BFG.Core;
 using BFG.Runtime;
 using NUnit.Framework;
 using UnityEngine;

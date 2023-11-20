@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BFG.Core;
 using UnityEngine;
 
 namespace BFG.Runtime {

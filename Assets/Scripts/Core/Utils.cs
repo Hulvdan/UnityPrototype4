@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Random = System.Random;
 
-namespace BFG.Runtime {
+namespace BFG.Core {
 public static class Utils {
     public static void Shuffle<T>(IList<T> arr, Random random) {
         for (var i = 0; i < arr.Count; i++) {
