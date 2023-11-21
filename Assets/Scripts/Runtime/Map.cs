@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
 using BFG.Core;
-using NavMeshPlus.Components;
 using SimplexNoise;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using Random = System.Random;
@@ -107,6 +107,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [SerializeField]
     [Required]
     GameObject _navmeshAgentPrefab;
+
+    [FoldoutGroup("Debug", true)]
+    [SerializeField]
+    bool _hideEditorLogs;
 
     [FormerlySerializedAs("_compoundSystem")]
     [FormerlySerializedAs("_movementSystemInterface")]
@@ -284,27 +288,173 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void UpdateSegments(ItemTransportationGraph.OnTilesUpdatedResult res) {
+        if (!_hideEditorLogs) {
+            Debug.Log($"{res.AddedSegments.Count} segments added, {res.DeletedSegments} deleted");
+        }
+
+        Stack<HumanTransporter> humansThatNeedNewSegment = new(res.DeletedSegments.Count);
+        foreach (var segment in res.DeletedSegments) {
+            // segment.AssociatedNavMeshSurface.SetActive(false);
+            _segments.RemoveAt(_segments.FindIndex(i => i.Graph.ID == segment.Graph.ID));
+
+            if (segment.AssignedHuman != null) {
+                humansThatNeedNewSegment.Push(segment.AssignedHuman);
+            }
+        }
+
+        if (!_hideEditorLogs) {
+            Debug.Log(
+                $"{humansThatNeedNewSegment.Count} HumanTransporters need to find new segments"
+            );
+        }
+
         foreach (var segment in res.AddedSegments) {
             _segments.Add(segment);
 
-            var surface = Instantiate(_navmeshSurfacePrefab, _navmeshSurfacesContainer);
+            if (humansThatNeedNewSegment.Count == 0) {
+                CreateHuman_Transporter(
+                    buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall),
+                    segment
+                );
+            }
+            else {
+                // Human moves to the nearest tile in this segment
+                // TODO: Make it actually nearest
+                var human = humansThatNeedNewSegment.Pop();
+                segment.AssignedHuman = human;
+                human.state = HumanTransporterState.MovingToSegment;
 
-            var comp = surface.GetComponent<NavMeshSurface>();
-            comp.SetGraph(segment.Graph);
-            comp.BuildNavMesh();
+                if (human.movingPath.Count > 1) {
+                    human.movingPath.RemoveRange(1, human.movingPath.Count - 1);
+                }
 
-            segment.AssociatedNavMeshSurface = surface;
+                if (human.movingTo == null) {
+                    human.movingFrom = human.pos;
+                }
+                else {
+                    human.movingFrom = Vector2.Lerp(
+                        human.movingFrom, human.movingTo.Value, human.movingNormalized
+                    );
+                }
 
-            // CreateHuman_Transporter(
-            //     buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall),
-            //     segment
-            // );
+                var origin = human.pos;
+                if (human.movingPath.Count > 0) {
+                    origin = human.movingPath[0];
+                }
+
+                var path = FindPath(origin, segment.MovementTiles[0]);
+                Assert.IsTrue(path.Success);
+                foreach (var tile in path.Path) {
+                    human.movingPath.Add(tile);
+                }
+            }
         }
 
-        foreach (var segment in res.DeletedSegments) {
-           segment.AssociatedNavMeshSurface.SetActive(false);
-           _segments.RemoveAt(_segments.FindIndex(i => i.Graph.ID == segment.Graph.ID));
+        // TODO: If there are any humans in the humansThatNeedNewSegment,
+        // just find a path to the cityHall
+        foreach (var human in humansThatNeedNewSegment) {
+            human.state = HumanTransporterState.MovingToCityHall;
+            if (human.movingPath.Count > 1) {
+                human.movingPath.RemoveRange(1, human.movingPath.Count - 1);
+            }
+
+            var origin = human.pos;
+            if (human.movingPath.Count > 0) {
+                origin = human.movingPath[0];
+            }
+
+            var cityHall = buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall);
+
+            var res1 = FindPath(origin, cityHall.pos);
+            Assert.IsTrue(res1.Success);
+            human.movingPath = res1.Path;
         }
+    }
+
+    public PathFindResult FindPath(Vector2Int source, Vector2Int destination) {
+        if (source == destination) {
+            return new() {
+                Path = new() { Capacity = 0 },
+                Success = true,
+            };
+        }
+
+        var queue = new Queue<Vector2Int>();
+        queue.Enqueue(new(source.x, source.y));
+
+        var minX = source.x;
+        var minY = source.y;
+        var maxX = source.x;
+        var maxY = source.y;
+        var t = elementTiles[source.y][source.x];
+        t.BFS_Visited = true;
+        elementTiles[source.y][source.x] = t;
+
+        while (queue.Count > 0) {
+            var pos = queue.Dequeue();
+            // var tile = elementTiles[pos.y][pos.x];
+
+            for (var i = 0; i < 4; i++) {
+                var offset = DirectionOffsets.Offsets[i];
+                var newY = pos.y + offset.y;
+                var newX = pos.x + offset.x;
+                if (!Contains(newX, newY)) {
+                    continue;
+                }
+
+                var mTile = elementTiles[newY][newX];
+                if (mTile.BFS_Visited) {
+                    continue;
+                }
+
+                var newPos = new Vector2Int(newX, newY);
+
+                mTile.BFS_Visited = true;
+                mTile.BFS_Parent = pos;
+                elementTiles[newY][newX] = mTile;
+
+                minX = Math.Min(newX, minX);
+                maxX = Math.Max(newX, maxX);
+                minY = Math.Min(newY, minY);
+                maxY = Math.Max(newY, maxY);
+
+                if (newPos == destination) {
+                    ClearBFSCache(minY, maxY, minX, maxX);
+                    return BuildPath(elementTiles, newPos);
+                }
+
+                queue.Enqueue(newPos);
+            }
+        }
+
+        ClearBFSCache(minY, maxY, minX, maxX);
+        return new(false, null);
+    }
+
+    // ReSharper disable once InconsistentNaming
+    void ClearBFSCache(int minY, int maxY, int minX, int maxX) {
+        for (var y = minY; y <= maxY; y++) {
+            for (var x = minX; x <= maxX; x++) {
+                var node = elementTiles[y][x];
+                node.BFS_Parent = null;
+                node.BFS_Visited = false;
+                elementTiles[y][x] = node;
+            }
+        }
+    }
+
+    static PathFindResult BuildPath(
+        List<List<ElementTile>> graph, Vector2Int destination
+    ) {
+        var res = new List<Vector2Int> { destination };
+
+        while (graph[destination.y][destination.x].BFS_Parent != null) {
+            res.Add(graph[destination.y][destination.x].BFS_Parent.Value);
+            destination = graph[destination.y][destination.x].BFS_Parent.Value;
+        }
+
+        res.Reverse();
+        return new(true, res);
     }
 
     public bool IsBuildable(int x, int y) {
@@ -528,6 +678,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public float humanTotalHarvestingDuration => _humanTotalHarvestingDuration;
 
     readonly List<HumanTransporter> _humanTransporters = new();
+
     public float humanTransporterMovingOneCellDuration => _humanTransporterMovingOneCellDuration;
 
     #endregion
@@ -638,13 +789,13 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         _humanTransporters.Add(human);
 
         var center = segment.Graph.GetCenters()[0];
-        var movingPath = segment.Graph.GetShortestPath(building.pos, center);
+        var movingPath = segment.Graph.GetShortestPath(human.pos, center);
         for (var i = 0; i < movingPath.Count; i++) {
             if (i == 0) {
                 continue;
             }
 
-            human.movingPath.Enqueue(movingPath[i]);
+            human.movingPath.Add(movingPath[i]);
         }
 
         if (human.movingPath.Count == 0) {
@@ -652,7 +803,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
         else {
             human.state = HumanTransporterState.MovingToCenter;
-            human.position = building.pos;
+            human.pos = building.pos;
             human.movingFrom = building.pos;
             human.movingTo = movingPath[1];
         }
@@ -932,21 +1083,30 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void UpdateHumanTransporters(float dt) {
         foreach (var human in _humanTransporters) {
-            if (human.state == HumanTransporterState.MovingToCenter) {
-                human.movingElapsed += dt;
+            if (
+                human.state is HumanTransporterState.MovingToCenter
+                or HumanTransporterState.MovingToSegment
+            ) {
+                if (human.movingPath.Count > 0) {
+                    human.movingElapsed += dt;
+                }
 
                 while (
                     human.movingPath.Count > 0
                     && human.movingElapsed > humanTransporterMovingOneCellDuration
                 ) {
                     human.movingElapsed -= humanTransporterMovingOneCellDuration;
-                    human.position = human.movingPath.Dequeue();
-                    human.movingFrom = human.position;
+
+                    human.pos = human.movingPath[0];
+                    human.movingFrom = human.movingPath[0];
+                    human.movingPath.RemoveAt(0);
+
                     if (human.movingPath.Count == 0) {
+                        human.movingElapsed = 0;
                         human.movingTo = null;
                     }
                     else {
-                        human.movingTo = human.movingPath.Peek();
+                        human.movingTo = human.movingPath[0];
                     }
                 }
 
@@ -955,7 +1115,21 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 );
 
                 if (human.movingPath.Count == 0) {
-                    human.state = HumanTransporterState.Idle_NothingToDo;
+                    if (human.state == HumanTransporterState.MovingToSegment) {
+                        var center = human.segment.Graph.GetCenters()[0];
+                        human.movingPath = human.segment.Graph.GetShortestPath(
+                            human.movingTo ?? human.pos, center
+                        );
+                        human.movingFrom = human.pos;
+                        if (human.movingPath.Count > 0) {
+                            human.movingPath.RemoveAt(0);
+                        }
+
+                        human.state = HumanTransporterState.MovingToCenter;
+                    }
+                    else {
+                        human.state = HumanTransporterState.Idle_NothingToDo;
+                    }
                 }
             }
         }

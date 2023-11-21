@@ -282,6 +282,32 @@ public class MapRenderer : MonoBehaviour {
 
             Gizmos.DrawLineList(points);
         }
+
+        foreach (var (human, _) in _humanTransporters.Values) {
+            Gizmos.color = Color.cyan;
+            var offset = Vector2.one / 2;
+            Gizmos.DrawSphere(_grid.transform.TransformPoint(human.pos + offset), .2f);
+
+            if (human.movingTo != null) {
+                Gizmos.color = Color.red;
+                var humanMovingFrom = human.movingFrom + offset;
+                var humanMovingTo = human.movingTo.Value + offset;
+                Gizmos.DrawLine(
+                    _grid.transform.TransformPoint(humanMovingFrom),
+                    _grid.transform.TransformPoint(humanMovingTo)
+                );
+                Gizmos.DrawSphere(
+                    _grid.transform.TransformPoint(
+                        Vector2.Lerp(
+                            humanMovingFrom,
+                            humanMovingTo,
+                            human.movingNormalized
+                        )
+                    ),
+                    .2f
+                );
+            }
+        }
     }
 
     public void InitDependencies(GameManager gameManager, IMap map, IMapSize mapSize) {

@@ -5,5 +5,7 @@ public enum HumanTransporterState {
     Idle_NoSegmentFound,
     MovingToCenter,
     Transporting,
+    MovingToCityHall,
+    MovingToSegment,
 }
 }
