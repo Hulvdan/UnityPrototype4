@@ -139,6 +139,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     float _humanTransporterMovingOneCellDuration = 1f;
 
     Random _random;
+
+    public List<GraphSegment> segments => _segments;
     readonly List<GraphSegment> _segments = new();
 
     void Awake() {

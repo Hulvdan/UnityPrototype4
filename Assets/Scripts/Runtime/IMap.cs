@@ -11,6 +11,7 @@ public interface IMap {
 
     List<Building> buildings { get; }
     List<TopBarResource> resources { get; }
+    List<GraphSegment> segments { get; }
 
     Subject<E_HumanCreated> onHumanCreated { get; }
     Subject<E_HumanTransporterCreated> onHumanTransporterCreated { get; }
