@@ -367,6 +367,32 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             Assert.IsTrue(res1.Success);
             AddPathToHuman(human, res1.Path);
         }
+
+        for (var i = 0; i < _segments.Count; i++) {
+            for (var j = 0; j < _segments.Count; j++) {
+                if (i == j) {
+                    continue;
+                }
+
+                var g1 = _segments[i].Graph;
+                var g2 = _segments[j].Graph;
+                for (var y = 0; y < g1.height; y++) {
+                    for (var x = 0; x < g1.width; x++) {
+                        var g1x = x + g1.Offset.x;
+                        var g1y = y + g1.Offset.y;
+                        if (!g2.ContainsNode(g1x, g1y)) {
+                            continue;
+                        }
+
+                        var g2y = g1y - g2.Offset.y;
+                        var g2x = g1x - g2.Offset.x;
+                        var node = g2.Nodes[g2y][g2x];
+
+                        Assert.AreEqual(node & g1.Nodes[y][x], 0);
+                    }
+                }
+            }
+        }
     }
 
     public PathFindResult FindPath(Vector2Int source, Vector2Int destination,
