@@ -323,37 +323,28 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 // TODO: Make it actually nearest
                 var human = humansThatNeedNewSegment.Pop();
                 segment.AssignedHuman = human;
-                human.state = HumanTransporterState.MovingToSegment;
 
-                if (human.movingPath.Count > 1) {
-                    human.movingPath.RemoveRange(1, human.movingPath.Count - 1);
-                }
+                human.movingPath.Clear();
 
-                if (human.movingTo == null) {
-                    human.movingFrom = human.pos;
-                }
-                else {
-                    Assert.IsTrue(human.movingNormalized < 1);
-                    human.movingFrom = Vector2.Lerp(
-                        human.movingFrom, human.movingTo.Value, human.movingNormalized
-                    );
-                }
-
-                var origin = human.pos;
-                if (human.movingTo != null) {
-                    origin = human.movingTo.Value;
-                }
+                human.movingFrom = human.pos;
+                var origin = human.movingTo ?? human.pos;
 
                 var isHumanOutsideSegment = !segment.Graph.ContainsNode(origin);
                 if (isHumanOutsideSegment) {
+                    human.state = HumanTransporterState.MovingToSegment;
                     var path = FindPath(origin, segment.Graph.GetCenters()[0], true);
 
                     Assert.IsTrue(path.Success);
-                    foreach (var tile in path.Path) {
-                        human.movingPath.Add(tile);
-                        if (human.movingTo == null) {
-                            human.movingTo = human.movingPath[0];
-                        }
+                    AddPathToHuman(human, path.Path);
+                }
+                else {
+                    var center = segment.Graph.GetCenters()[0];
+                    if ((human.movingTo ?? human.pos) == center) {
+                        human.state = HumanTransporterState.Idle_NothingToDo;
+                    }
+                    else {
+                        human.state = HumanTransporterState.MovingToCenter;
+                        AddPathToHuman(human, segment.Graph.GetShortestPath(origin, center));
                     }
                 }
             }
@@ -363,20 +354,14 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         // just find a path to the cityHall
         foreach (var human in humansThatNeedNewSegment) {
             human.state = HumanTransporterState.MovingToCityHall;
-            if (human.movingPath.Count > 1) {
-                human.movingPath.RemoveRange(1, human.movingPath.Count - 1);
-            }
+            human.movingPath.Clear();
 
-            var origin = human.pos;
-            if (human.movingPath.Count > 0) {
-                origin = human.movingPath[0];
-            }
-
+            var origin = human.movingTo ?? human.pos;
             var cityHall = buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall);
 
             var res1 = FindPath(origin, cityHall.pos, true);
             Assert.IsTrue(res1.Success);
-            human.movingPath = res1.Path;
+            AddPathToHuman(human, res1.Path);
         }
     }
 
@@ -809,23 +794,37 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var center = segment.Graph.GetCenters()[0];
         // var movingPath = segment.Graph.GetShortestPath(human.pos, center);
         var movingPath = FindPath(human.pos, center, true).Path;
-        for (var i = 0; i < movingPath.Count; i++) {
-            if (i == 0) {
-                continue;
-            }
+        AddPathToHuman(human, movingPath);
 
-            human.movingPath.Add(movingPath[i]);
-        }
-
-        if (human.movingPath.Count == 0) {
+        if (human.movingTo == null) {
             human.state = HumanTransporterState.Idle_NothingToDo;
         }
         else {
             human.state = HumanTransporterState.MovingToCenter;
-            human.movingTo = human.movingPath[0];
         }
 
         onHumanTransporterCreated.OnNext(new() { Human = human });
+    }
+
+    void AddPathToHuman(HumanTransporter human, List<Vector2Int> path) {
+        var isFirst = true;
+        foreach (var tile in path) {
+            if (isFirst) {
+                isFirst = false;
+
+                if (tile != (human.movingTo ?? human.pos)) {
+                    human.movingPath.Add(tile);
+                }
+
+                continue;
+            }
+
+            human.movingPath.Add(tile);
+        }
+
+        if (human.movingTo == null) {
+            PopMovingTo(human);
+        }
     }
 
     void CreateHuman(Building building) {
@@ -1094,8 +1093,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                            - _humanHeadingToTheStoreBuildingDuration;
         var t = stateElapsed / _humanReturningBackDuration;
         var mt = _humanMovementCurve.Evaluate(t);
-        human.position =
-            Vector2.Lerp(human.movingFrom, human.building.pos, mt);
+        human.position = Vector2.Lerp(human.movingFrom, human.building.pos, mt);
     }
 
     void UpdateHumanTransporters(float dt) {
@@ -1107,45 +1105,34 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 human.state is HumanTransporterState.MovingToCenter
                 or HumanTransporterState.MovingToSegment
             ) {
-                if (human.movingPath.Count > 0) {
+                if (human.movingTo != null) {
                     human.movingElapsed += dt;
                 }
 
                 var iteration = 0;
                 while (
                     iteration++ < GUARD_MAX_ITERATIONS_COUNT
-                    && human.movingPath.Count > 0
+                    && human.movingTo != null
                     && human.movingElapsed > humanTransporterMovingOneCellDuration
                 ) {
                     human.movingElapsed -= humanTransporterMovingOneCellDuration;
 
-                    human.pos = human.movingPath[0];
-                    human.movingFrom = human.movingPath[0];
-                    human.movingPath.RemoveAt(0);
-
-                    if (human.movingPath.Count == 0) {
-                        human.movingElapsed = 0;
-                        human.movingTo = null;
-                    }
-                    else {
-                        human.movingTo = human.movingPath[0];
-                    }
+                    human.pos = human.movingTo.Value;
+                    human.movingFrom = human.pos;
+                    PopMovingTo(human);
                 }
 
                 human.movingNormalized = Mathf.Min(
                     1, human.movingElapsed / _humanTransporterMovingOneCellDuration
                 );
 
-                if (human.movingPath.Count == 0) {
+                if (human.movingTo == null) {
                     if (human.state == HumanTransporterState.MovingToSegment) {
                         var center = human.segment.Graph.GetCenters()[0];
-                        human.movingPath = human.segment.Graph.GetShortestPath(
+                        var path = human.segment.Graph.GetShortestPath(
                             human.movingTo ?? human.pos, center
                         );
-                        human.movingFrom = human.pos;
-                        if (human.movingPath.Count > 0) {
-                            human.movingPath.RemoveAt(0);
-                        }
+                        AddPathToHuman(human, path);
 
                         human.state = HumanTransporterState.MovingToCenter;
                     }
@@ -1154,6 +1141,17 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     }
                 }
             }
+        }
+    }
+
+    static void PopMovingTo(HumanTransporter human) {
+        if (human.movingPath.Count == 0) {
+            human.movingElapsed = 0;
+            human.movingTo = null;
+        }
+        else {
+            human.movingTo = human.movingPath[0];
+            human.movingPath.RemoveAt(0);
         }
     }
 
