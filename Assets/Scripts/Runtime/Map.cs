@@ -803,9 +803,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
         else {
             human.state = HumanTransporterState.MovingToCenter;
-            human.pos = building.pos;
-            human.movingFrom = building.pos;
-            human.movingTo = movingPath[1];
+            human.movingTo = human.movingPath[0];
         }
 
         onHumanTransporterCreated.OnNext(new() { Human = human });
