@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
 using BFG.Core;
+using NavMeshPlus.Components;
 using SimplexNoise;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -86,6 +87,26 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [SerializeField]
     [Required]
     InitialMapProvider _initialMapProvider;
+
+    [FoldoutGroup("Setup", true)]
+    [SerializeField]
+    [Required]
+    Transform _navmeshSurfacesContainer;
+
+    [FoldoutGroup("Setup", true)]
+    [SerializeField]
+    [Required]
+    Transform _navmeshAgentsContainer;
+
+    [FoldoutGroup("Setup", true)]
+    [SerializeField]
+    [Required]
+    GameObject _navmeshSurfacePrefab;
+
+    [FoldoutGroup("Setup", true)]
+    [SerializeField]
+    [Required]
+    GameObject _navmeshAgentPrefab;
 
     [FormerlySerializedAs("_compoundSystem")]
     [FormerlySerializedAs("_movementSystemInterface")]
@@ -263,15 +284,26 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void UpdateSegments(ItemTransportationGraph.OnTilesUpdatedResult res) {
-        if (res.AddedSegments.Count > 0) {
-            foreach (var segment in res.AddedSegments) {
-                _segments.Add(segment);
+        foreach (var segment in res.AddedSegments) {
+            _segments.Add(segment);
 
-                CreateHuman_Transporter(
-                    buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall),
-                    segment
-                );
-            }
+            var surface = Instantiate(_navmeshSurfacePrefab, _navmeshSurfacesContainer);
+
+            var comp = surface.GetComponent<NavMeshSurface>();
+            comp.SetGraph(segment.Graph);
+            comp.BuildNavMesh();
+
+            segment.AssociatedNavMeshSurface = surface;
+
+            // CreateHuman_Transporter(
+            //     buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall),
+            //     segment
+            // );
+        }
+
+        foreach (var segment in res.DeletedSegments) {
+           segment.AssociatedNavMeshSurface.SetActive(false);
+           _segments.RemoveAt(_segments.FindIndex(i => i.Graph.ID == segment.Graph.ID));
         }
     }
 

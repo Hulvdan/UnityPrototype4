@@ -594,14 +594,28 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         return ContainsNode(pos.x, pos.y);
     }
 
+    public Vector2Int Offset {
+        get {
+            if (!_offset.HasValue) {
+                Debug.LogError("WTF?");
+                return Vector2Int.zero;
+            }
+
+            return _offset.Value;
+        }
+    }
+
+    public readonly Guid ID = Guid.NewGuid();
+
+    public List<List<byte>> Nodes => _nodes;
+    public int height => _nodes.Count;
+    public int width => _nodes[0].Count;
+
     public static class Tests {
         public static List<List<byte>> GetNodes(Graph graph) {
             return graph._nodes;
         }
     }
-
-    int height => _nodes.Count;
-    int width => _nodes[0].Count;
 
     Vector2Int? _offset;
     List<List<byte>> _nodes = new();
