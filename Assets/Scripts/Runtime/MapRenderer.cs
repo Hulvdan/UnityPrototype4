@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
 using BFG.Core;
+using BFG.Graphs;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -306,6 +307,58 @@ public class MapRenderer : MonoBehaviour {
                     ),
                     .2f
                 );
+            }
+        }
+
+        var clri = 0;
+        var colors = new[] {
+            Color.white, Color.red, Color.cyan, Color.green, Color.magenta, Color.yellow,
+        };
+        foreach (var segment in _map.segments) {
+            Gizmos.color = colors[clri];
+
+            for (var y = 0; y < segment.Graph.height; y++) {
+                for (var x = 0; x < segment.Graph.width; x++) {
+                    var node = segment.Graph.Nodes[y][x];
+                    if (node == 0) {
+                        continue;
+                    }
+
+                    var pos = new Vector3(x, y) + Vector3.one / 2 +
+                              new Vector3(segment.Graph.Offset.x, segment.Graph.Offset.y);
+                    if (GraphNode.IsRight(node)) {
+                        Gizmos.DrawLine(
+                            _grid.transform.TransformPoint(pos),
+                            _grid.transform.TransformPoint(pos + Vector3.right / 2)
+                        );
+                    }
+
+                    if (GraphNode.IsUp(node)) {
+                        Gizmos.DrawLine(
+                            _grid.transform.TransformPoint(pos),
+                            _grid.transform.TransformPoint(pos + Vector3.up / 2)
+                        );
+                    }
+
+                    if (GraphNode.IsLeft(node)) {
+                        Gizmos.DrawLine(
+                            _grid.transform.TransformPoint(pos),
+                            _grid.transform.TransformPoint(pos + Vector3.left / 2)
+                        );
+                    }
+
+                    if (GraphNode.IsDown(node)) {
+                        Gizmos.DrawLine(
+                            _grid.transform.TransformPoint(pos),
+                            _grid.transform.TransformPoint(pos + Vector3.down / 2)
+                        );
+                    }
+                }
+            }
+
+            clri++;
+            if (clri >= colors.Length) {
+                clri = 0;
             }
         }
     }
