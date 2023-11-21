@@ -346,7 +346,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
                 var isHumanOutsideSegment = !segment.Graph.ContainsNode(origin);
                 if (isHumanOutsideSegment) {
-                    var path = FindPath(origin, segment.Graph.GetCenters()[0]);
+                    var path = FindPath(origin, segment.Graph.GetCenters()[0], true);
 
                     Assert.IsTrue(path.Success);
                     foreach (var tile in path.Path) {
@@ -374,13 +374,14 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
             var cityHall = buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall);
 
-            var res1 = FindPath(origin, cityHall.pos);
+            var res1 = FindPath(origin, cityHall.pos, true);
             Assert.IsTrue(res1.Success);
             human.movingPath = res1.Path;
         }
     }
 
-    public PathFindResult FindPath(Vector2Int source, Vector2Int destination) {
+    public PathFindResult FindPath(Vector2Int source, Vector2Int destination,
+        bool avoidHarvestableResources) {
         if (source == destination) {
             return new() {
                 Path = new() { Capacity = 0 },
@@ -414,6 +415,13 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 var mTile = elementTiles[newY][newX];
                 if (mTile.BFS_Visited) {
                     continue;
+                }
+
+                if (avoidHarvestableResources) {
+                    var terrainTile = terrainTiles[newY][newX];
+                    if (terrainTile.ResourceAmount > 0) {
+                        continue;
+                    }
                 }
 
                 var newPos = new Vector2Int(newX, newY);
@@ -800,7 +808,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         var center = segment.Graph.GetCenters()[0];
         // var movingPath = segment.Graph.GetShortestPath(human.pos, center);
-        var movingPath = FindPath(human.pos, center).Path;
+        var movingPath = FindPath(human.pos, center, true).Path;
         for (var i = 0; i < movingPath.Count; i++) {
             if (i == 0) {
                 continue;

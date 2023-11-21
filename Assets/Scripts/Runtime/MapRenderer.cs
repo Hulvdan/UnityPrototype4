@@ -722,7 +722,10 @@ public class MapRenderer : MonoBehaviour {
 
     void OnHumanTransporterCreated(E_HumanTransporterCreated data) {
         var go = Instantiate(_humanPrefab, _grid.transform);
-        _humanTransporters.Add(data.Human.ID, Tuple.Create(data.Human, go.GetComponent<HumanGO>()));
+        var humanGo = go.GetComponent<HumanGO>();
+
+        _humanTransporters.Add(data.Human.ID, Tuple.Create(data.Human, humanGo));
+        UpdateHumanTransporter(data.Human, humanGo);
     }
 
     void OnHumanPickedUpResource(E_HumanPickedUpResource data) {
@@ -764,17 +767,21 @@ public class MapRenderer : MonoBehaviour {
         }
 
         foreach (var (human, go) in _humanTransporters.Values) {
-            var pos = human.movingFrom;
-            if (human.movingTo != null) {
-                pos = Vector2.Lerp(
-                    human.movingFrom,
-                    human.movingTo.Value,
-                    human.movingNormalized
-                );
-            }
-
-            go.transform.localPosition = pos + Vector2.one / 2;
+            UpdateHumanTransporter(human, go);
         }
+    }
+
+    static void UpdateHumanTransporter(HumanTransporter human, HumanGO go) {
+        var pos = human.movingFrom;
+        if (human.movingTo != null) {
+            pos = Vector2.Lerp(
+                human.movingFrom,
+                human.movingTo.Value,
+                human.movingNormalized
+            );
+        }
+
+        go.transform.localPosition = pos + Vector2.one / 2;
     }
 
     #endregion
