@@ -23,6 +23,9 @@ public struct ElementTile {
         Type = type;
         Rotation = rotation;
         Building = null;
+
+        BFS_Visited = false;
+        BFS_Parent = null;
     }
 
     public ElementTile(ElementTileType type, [CanBeNull] Building building) {
@@ -43,11 +46,17 @@ public struct ElementTile {
         Type = type;
         Rotation = 0;
         Building = building;
+
+        BFS_Visited = false;
+        BFS_Parent = null;
     }
 
     public static ElementTile None = new(ElementTileType.None, null);
     public static ElementTile Road = new(ElementTileType.Road, null);
     public static ElementTile Flag = new(ElementTileType.Flag, null);
+
+    public Vector2Int? BFS_Parent;
+    public bool BFS_Visited;
 
     public override string ToString() {
         if (Type == ElementTileType.Building) {
