@@ -300,6 +300,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             _segments.RemoveAt(_segments.FindIndex(i => i.Graph.ID == segment.Graph.ID));
 
             if (segment.AssignedHuman != null) {
+                segment.AssignedHuman.segment = null;
                 humansThatNeedNewSegment.Push(segment.AssignedHuman);
             }
         }
@@ -325,6 +326,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 // TODO: Make it actually nearest
                 var human = humansThatNeedNewSegment.Pop();
                 segment.AssignedHuman = human;
+                human.segment = segment;
 
                 human.movingPath.Clear();
 
@@ -695,6 +697,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public Subject<E_HumanStateChanged> onHumanStateChanged { get; } = new();
     public Subject<E_HumanPickedUpResource> onHumanPickedUpResource { get; } = new();
     public Subject<E_HumanPlacedResource> onHumanPlacedResource { get; } = new();
+
+    public Subject<E_HumanReachedCityHall> onHumanReachedCityHall { get; } = new();
 
     public Subject<E_TrainCreated> onTrainCreated { get; } = new();
     public Subject<E_TrainNodeCreated> onTrainNodeCreated { get; } = new();
@@ -1102,10 +1106,12 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         // ReSharper disable once InconsistentNaming
         const int GUARD_MAX_ITERATIONS_COUNT = 256;
 
+        var humansToRemove = new List<HumanTransporter>();
         foreach (var human in _humanTransporters) {
             if (
                 human.state is HumanTransporterState.MovingToCenter
                 or HumanTransporterState.MovingToSegment
+                or HumanTransporterState.MovingToCityHall
             ) {
                 if (human.movingTo != null) {
                     human.movingElapsed += dt;
@@ -1138,11 +1144,19 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
                         human.state = HumanTransporterState.MovingToCenter;
                     }
+                    else if (human.state == HumanTransporterState.MovingToCityHall) {
+                        onHumanReachedCityHall.OnNext(new() { Human = human });
+                        humansToRemove.Add(human);
+                    }
                     else {
                         human.state = HumanTransporterState.Idle_NothingToDo;
                     }
                 }
             }
+        }
+
+        foreach (var human in humansToRemove) {
+            _humanTransporters.RemoveAt(_humanTransporters.FindIndex(i => i == human));
         }
     }
 
