@@ -386,6 +386,7 @@ public class MapRenderer : MonoBehaviour {
         hooks.Add(_map.onHumanTransporterCreated.Subscribe(OnHumanTransporterCreated));
         hooks.Add(_map.onHumanPickedUpResource.Subscribe(OnHumanPickedUpResource));
         hooks.Add(_map.onHumanPlacedResource.Subscribe(OnHumanPlacedResource));
+        hooks.Add(_map.onHumanReachedCityHall.Subscribe(OnHumanReachedCityHall));
 
         hooks.Add(_map.onTrainCreated.Subscribe(OnTrainCreated));
         hooks.Add(_map.onTrainNodeCreated.Subscribe(OnTrainNodeCreated));
@@ -812,6 +813,12 @@ public class MapRenderer : MonoBehaviour {
         itemGo.SetAs(data.Resource.script);
 
         _storedItems.Add(data.Resource.id, itemGo);
+    }
+
+    void OnHumanReachedCityHall(E_HumanReachedCityHall data) {
+        var human = _humanTransporters[data.Human.ID];
+        Destroy(human.Item2.gameObject);
+        _humanTransporters.Remove(data.Human.ID);
     }
 
     void UpdateHumans() {
