@@ -312,6 +312,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             _segments.Add(segment);
 
             if (humansThatNeedNewSegment.Count == 0) {
+                // TODO: Pathfinding from CityHall to segments that aren't connected straight to it.
                 CreateHuman_Transporter(
                     buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall),
                     segment
@@ -332,20 +333,28 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     human.movingFrom = human.pos;
                 }
                 else {
+                    Assert.IsTrue(human.movingNormalized < 1);
                     human.movingFrom = Vector2.Lerp(
                         human.movingFrom, human.movingTo.Value, human.movingNormalized
                     );
                 }
 
                 var origin = human.pos;
-                if (human.movingPath.Count > 0) {
-                    origin = human.movingPath[0];
+                if (human.movingTo != null) {
+                    origin = human.movingTo.Value;
                 }
 
-                var path = FindPath(origin, segment.MovementTiles[0]);
-                Assert.IsTrue(path.Success);
-                foreach (var tile in path.Path) {
-                    human.movingPath.Add(tile);
+                var isHumanOutsideSegment = !segment.Graph.ContainsNode(origin);
+                if (isHumanOutsideSegment) {
+                    var path = FindPath(origin, segment.Graph.GetCenters()[0]);
+
+                    Assert.IsTrue(path.Success);
+                    foreach (var tile in path.Path) {
+                        human.movingPath.Add(tile);
+                        if (human.movingTo == null) {
+                            human.movingTo = human.movingPath[0];
+                        }
+                    }
                 }
             }
         }
@@ -394,8 +403,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             var pos = queue.Dequeue();
             // var tile = elementTiles[pos.y][pos.x];
 
-            for (var i = 0; i < 4; i++) {
-                var offset = DirectionOffsets.Offsets[i];
+            for (Direction dir = 0; dir < (Direction)4; dir++) {
+                var offset = dir.AsOffset();
                 var newY = pos.y + offset.y;
                 var newX = pos.x + offset.x;
                 if (!Contains(newX, newY)) {
@@ -419,8 +428,9 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 maxY = Math.Max(newY, maxY);
 
                 if (newPos == destination) {
+                    var res = BuildPath(elementTiles, newPos);
                     ClearBFSCache(minY, maxY, minX, maxX);
-                    return BuildPath(elementTiles, newPos);
+                    return res;
                 }
 
                 queue.Enqueue(newPos);
@@ -789,7 +799,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         _humanTransporters.Add(human);
 
         var center = segment.Graph.GetCenters()[0];
-        var movingPath = segment.Graph.GetShortestPath(human.pos, center);
+        // var movingPath = segment.Graph.GetShortestPath(human.pos, center);
+        var movingPath = FindPath(human.pos, center).Path;
         for (var i = 0; i < movingPath.Count; i++) {
             if (i == 0) {
                 continue;
@@ -1080,6 +1091,9 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void UpdateHumanTransporters(float dt) {
+        // ReSharper disable once InconsistentNaming
+        const int GUARD_MAX_ITERATIONS_COUNT = 256;
+
         foreach (var human in _humanTransporters) {
             if (
                 human.state is HumanTransporterState.MovingToCenter
@@ -1089,8 +1103,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     human.movingElapsed += dt;
                 }
 
+                var iteration = 0;
                 while (
-                    human.movingPath.Count > 0
+                    iteration++ < GUARD_MAX_ITERATIONS_COUNT
+                    && human.movingPath.Count > 0
                     && human.movingElapsed > humanTransporterMovingOneCellDuration
                 ) {
                     human.movingElapsed -= humanTransporterMovingOneCellDuration;
