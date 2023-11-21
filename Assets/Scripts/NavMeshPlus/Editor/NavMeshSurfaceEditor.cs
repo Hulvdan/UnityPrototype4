@@ -20,12 +20,10 @@ namespace NavMeshPlus.Editors.Components
         SerializedProperty m_Center;
         SerializedProperty m_CollectObjects;
         SerializedProperty m_DefaultArea;
-        SerializedProperty m_LayerMask;
         SerializedProperty m_OverrideTileSize;
         SerializedProperty m_OverrideVoxelSize;
         SerializedProperty m_Size;
         SerializedProperty m_TileSize;
-        SerializedProperty m_UseGeometry;
         SerializedProperty m_VoxelSize;
 
 #if NAVMESHCOMPONENTS_SHOW_NAVMESHDATA_REF
@@ -66,12 +64,10 @@ namespace NavMeshPlus.Editors.Components
             m_Center = serializedObject.FindProperty("m_Center");
             m_CollectObjects = serializedObject.FindProperty("m_CollectObjects");
             m_DefaultArea = serializedObject.FindProperty("m_DefaultArea");
-            m_LayerMask = serializedObject.FindProperty("m_LayerMask");
             m_OverrideTileSize = serializedObject.FindProperty("m_OverrideTileSize");
             m_OverrideVoxelSize = serializedObject.FindProperty("m_OverrideVoxelSize");
             m_Size = serializedObject.FindProperty("m_Size");
             m_TileSize = serializedObject.FindProperty("m_TileSize");
-            m_UseGeometry = serializedObject.FindProperty("m_UseGeometry");
             m_VoxelSize = serializedObject.FindProperty("m_VoxelSize");
 
 #if NAVMESHCOMPONENTS_SHOW_NAVMESHDATA_REF
@@ -112,25 +108,8 @@ namespace NavMeshPlus.Editors.Components
             EditorGUILayout.Space();
 
             EditorGUILayout.PropertyField(m_CollectObjects);
-            if ((CollectObjects)m_CollectObjects.enumValueIndex == CollectObjects.Volume)
-            {
-                EditorGUI.indentLevel++;
-
-                EditMode.DoEditModeInspectorModeButton(EditMode.SceneViewEditMode.Collider, "Edit Volume",
-                    EditorGUIUtility.IconContent("EditCollider"), GetBounds, this);
-                EditorGUILayout.PropertyField(m_Size);
-                EditorGUILayout.PropertyField(m_Center);
-
-                EditorGUI.indentLevel--;
-            }
-            else
-            {
-                if (editingCollider)
-                    EditMode.QuitEditMode();
-            }
-
-            EditorGUILayout.PropertyField(m_LayerMask, s_Styles.m_LayerMask);
-            EditorGUILayout.PropertyField(m_UseGeometry);
+            if (editingCollider)
+                EditMode.QuitEditMode();
 
             EditorGUILayout.Space();
 
@@ -209,10 +188,6 @@ namespace NavMeshPlus.Editors.Components
                 // Calculating bounds is potentially expensive when unbounded - so here we just use the center/size.
                 // It means the validation is not checking vertical voxel limit correctly when the surface is set to something else than "in volume".
                 var bounds = new Bounds(Vector3.zero, Vector3.zero);
-                if (navSurface.collectObjects == CollectObjects.Volume)
-                {
-                    bounds = new Bounds(navSurface.center, navSurface.size);
-                }
 
                 var errors = settings.ValidationReport(bounds);
                 if (errors.Length > 0)
@@ -330,26 +305,10 @@ namespace NavMeshPlus.Editors.Components
             var localToWorld = Matrix4x4.TRS(navSurface.transform.position, navSurface.transform.rotation, Vector3.one);
             Gizmos.matrix = localToWorld;
 
-            if (navSurface.collectObjects == CollectObjects.Volume)
-            {
-                Gizmos.color = color;
-                Gizmos.DrawWireCube(navSurface.center, navSurface.size);
-
-                if (selected && navSurface.enabled)
-                {
-                    var colorTrans = new Color(color.r * 0.75f, color.g * 0.75f, color.b * 0.75f, color.a * 0.15f);
-                    Gizmos.color = colorTrans;
-                    Gizmos.DrawCube(navSurface.center, navSurface.size);
-                }
-            }
-            else
-            {
-                if (navSurface.navMeshData != null)
-                {
-                    var bounds = navSurface.navMeshData.sourceBounds;
-                    Gizmos.color = Color.grey;
-                    Gizmos.DrawWireCube(bounds.center, bounds.size);
-                }
+            if (navSurface.navMeshData != null) {
+                var bounds = navSurface.navMeshData.sourceBounds;
+                Gizmos.color = Color.grey;
+                Gizmos.DrawWireCube(bounds.center, bounds.size);
             }
 
             Gizmos.matrix = oldMatrix;
