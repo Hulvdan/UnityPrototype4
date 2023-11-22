@@ -367,7 +367,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     for (var x = 0; x < g1.width; x++) {
                         var g1x = x + g1.Offset.x;
                         var g1y = y + g1.Offset.y;
-                        if (!g2.ContainsNode(g1x, g1y)) {
+                        if (!g2.Contains(g1x, g1y)) {
                             continue;
                         }
 
@@ -1120,9 +1120,18 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
 
             HumanTransporter_Controller.Update(human, this, this, cityHall, dt);
+            var state = HumanTransporter_MovingInTheWorld_Controller.State.MovingToTheCityHall;
+            if (
+                human.stateMovingInTheWorld == state
+                && human.pos == cityHall.pos
+                && human.movingTo == null
+            ) {
+                humansToRemove.Add(human);
+            }
         }
 
         foreach (var human in humansToRemove) {
+            onHumanReachedCityHall.OnNext(new() { Human = human });
             _humanTransporters.RemoveAt(_humanTransporters.FindIndex(i => i == human));
         }
     }

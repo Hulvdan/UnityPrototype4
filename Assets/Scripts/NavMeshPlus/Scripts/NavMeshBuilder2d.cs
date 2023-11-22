@@ -218,7 +218,7 @@ namespace NavMeshPlus.Extensions
             var trianglesCount = 0;
             for (var y = 0; y < graph.height; y++) {
                 for (var x = 0; x < graph.width; x++) {
-                    if (!graph.ContainsNode(x, y)) {
+                    if (!graph.Contains(x, y)) {
                         verticesCount += 4;
                         trianglesCount += 6;
                     }
@@ -232,7 +232,7 @@ namespace NavMeshPlus.Extensions
             var ti = 0;
             for (var y = 0; y < graph.height; y++) {
                 for (var x = 0; x < graph.width; x++) {
-                    if (graph.ContainsNode(x, y)) {
+                    if (graph.Contains(x, y)) {
                         continue;
                     }
 

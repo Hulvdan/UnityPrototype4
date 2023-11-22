@@ -294,7 +294,7 @@ public static class ItemTransportationGraph {
                         continue;
                     }
 
-                    if (!segment.Graph.ContainsNode(newPos)) {
+                    if (!segment.Graph.Contains(newPos)) {
                         continue;
                     }
 
@@ -309,7 +309,7 @@ public static class ItemTransportationGraph {
             case TileUpdatedType.FlagRemoved:
             case TileUpdatedType.RoadRemoved:
             case TileUpdatedType.BuildingRemoved:
-                if (segment.Graph.ContainsNode(tilePos)) {
+                if (segment.Graph.Contains(tilePos)) {
                     return true;
                 }
 

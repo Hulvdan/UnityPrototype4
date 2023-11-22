@@ -63,8 +63,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
 
-        Assert.IsTrue(ContainsNode(originPos));
-        Assert.IsTrue(ContainsNode(destinationPos));
+        Assert.IsTrue(Contains(originPos));
+        Assert.IsTrue(Contains(destinationPos));
 
         var nodeIndex2Pos = new Dictionary<int, Vector2Int>();
         var pos2NodeIndex = new Dictionary<Vector2Int, int>();
@@ -583,15 +583,15 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         );
     }
 
-    public bool ContainsNode(int x, int y) {
+    public bool Contains(int x, int y) {
         return y >= _offset.Value.y
                && y < _offset.Value.y + height
                && x >= _offset.Value.x
                && x < _offset.Value.x + width;
     }
 
-    public bool ContainsNode(Vector2Int pos) {
-        return ContainsNode(pos.x, pos.y);
+    public bool Contains(Vector2Int pos) {
+        return Contains(pos.x, pos.y);
     }
 
     public Vector2Int Offset {

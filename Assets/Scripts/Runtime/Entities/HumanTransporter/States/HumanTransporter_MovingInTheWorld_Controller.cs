@@ -10,12 +10,6 @@ public static class HumanTransporter_MovingInTheWorld_Controller {
     public static void OnEnter(
         HumanTransporter human, IMap map, IMapSize mapSize, Building cityHall
     ) {
-        if (human.stateMovingInTheWorld == null) {
-            human.stateMovingInTheWorld = human.segment == null
-                ? State.MovingToTheCityHall
-                : State.MovingToSegment;
-        }
-
         UpdateStates(human, map, mapSize, cityHall, null);
     }
 
@@ -57,33 +51,22 @@ public static class HumanTransporter_MovingInTheWorld_Controller {
             ) {
                 human.stateMovingInTheWorld = State.MovingToSegment;
 
-                var path = map.FindPath(
-                    human.movingTo ?? human.pos,
-                    human.segment.Graph.GetCenters()[0],
-                    true
-                ).Path;
-
+                var center = human.segment.Graph.GetCenters()[0];
+                var path = map.FindPath(human.movingTo ?? human.pos, center, true).Path;
                 human.AddPath(path);
             }
 
-            if (human.segment.Graph.ContainsNode(human.pos)) {
+            if (human.segment.Graph.Contains(human.pos)) {
                 HumanTransporter_Controller.SetState(
                     human, HumanTransporterState.MovingInsideSegment, map, mapSize, cityHall
                 );
             }
         }
         else if (human.stateMovingInTheWorld != State.MovingToTheCityHall) {
-            if (!ReferenceEquals(oldSegment, human.segment)) {
-                human.stateMovingInTheWorld = State.MovingToTheCityHall;
+            human.stateMovingInTheWorld = State.MovingToTheCityHall;
 
-                var path = map.FindPath(
-                    human.movingTo ?? human.pos,
-                    cityHall.pos,
-                    true
-                ).Path;
-
-                human.AddPath(path);
-            }
+            var path = map.FindPath(human.movingTo ?? human.pos, cityHall.pos, true).Path;
+            human.AddPath(path);
         }
     }
 }
