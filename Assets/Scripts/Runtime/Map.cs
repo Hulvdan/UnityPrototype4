@@ -295,8 +295,23 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             Debug.Log($"{res.AddedSegments.Count} segments added, {res.DeletedSegments} deleted");
         }
 
+        var humansMovingToCityHall = 0;
+        foreach (var human in _humanTransporters) {
+            var state = HumanTransporter_MovingInTheWorld_Controller.State.MovingToTheCityHall;
+            if (human.stateMovingInTheWorld == state) {
+                humansMovingToCityHall++;
+            }
+        }
+
         Stack<Tuple<GraphSegment?, HumanTransporter>> humansThatNeedNewSegment =
-            new(res.DeletedSegments.Count);
+            new(res.DeletedSegments.Count + humansMovingToCityHall);
+        foreach (var human in _humanTransporters) {
+            var state = HumanTransporter_MovingInTheWorld_Controller.State.MovingToTheCityHall;
+            if (human.stateMovingInTheWorld == state) {
+                humansThatNeedNewSegment.Push(new(null, human));
+            }
+        }
+
         foreach (var segment in res.DeletedSegments) {
             // segment.AssociatedNavMeshSurface.SetActive(false);
             _segments.RemoveAt(_segments.FindIndex(i => i.Graph.ID == segment.Graph.ID));
