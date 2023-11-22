@@ -23,11 +23,13 @@ public static class HumanTransporter_Controller {
             switch (oldState) {
                 case HumanTransporterState.MovingInTheWorld:
                     HumanTransporter_MovingInTheWorld_Controller.OnExit(
-                        human, map, mapSize, cityHall);
+                        human, map, mapSize, cityHall
+                    );
                     break;
                 case HumanTransporterState.MovingInsideSegment:
                     HumanTransporter_MovingInsideSegment_Controller.OnExit(
-                        human, map, mapSize, cityHall);
+                        human, map, mapSize, cityHall
+                    );
                     break;
                 case HumanTransporterState.MovingItem:
                     HumanTransporter_MovingItem_Controller.OnExit(human, map, mapSize, cityHall);
@@ -43,7 +45,8 @@ public static class HumanTransporter_Controller {
                 break;
             case HumanTransporterState.MovingInsideSegment:
                 HumanTransporter_MovingInsideSegment_Controller.OnEnter(
-                    human, map, mapSize, cityHall);
+                    human, map, mapSize, cityHall
+                );
                 break;
             case HumanTransporterState.MovingItem:
                 HumanTransporter_MovingItem_Controller.OnEnter(human, map, mapSize, cityHall);
@@ -53,8 +56,13 @@ public static class HumanTransporter_Controller {
         }
     }
 
-    public static void Update(HumanTransporter human, IMap map, IMapSize mapSize, Building cityHall,
-        float dt) {
+    public static void Update(
+        HumanTransporter human,
+        Map map,
+        IMapSize mapSize,
+        Building cityHall,
+        float dt
+    ) {
         switch (human.state) {
             case HumanTransporterState.MovingInTheWorld:
                 HumanTransporter_MovingInTheWorld_Controller.Update(
@@ -67,13 +75,21 @@ public static class HumanTransporter_Controller {
                 );
                 break;
             case HumanTransporterState.MovingItem:
-                HumanTransporter_MovingItem_Controller.Update(human, map, mapSize, cityHall, dt);
+                HumanTransporter_MovingItem_Controller.Update(
+                    human, map, mapSize, cityHall, dt
+                );
                 break;
         }
     }
 
-    public static void OnSegmentChanged(HumanTransporter human, IMap map, IMapSize mapSize,
-        Building cityHall, [CanBeNull] GraphSegment oldSegment) {
+    public static void OnSegmentChanged(
+        HumanTransporter human,
+        IMap map,
+        IMapSize mapSize,
+        Building cityHall,
+        [CanBeNull]
+        GraphSegment oldSegment
+    ) {
         switch (human.state) {
             case HumanTransporterState.MovingInTheWorld:
                 HumanTransporter_MovingInTheWorld_Controller.OnSegmentChanged(
