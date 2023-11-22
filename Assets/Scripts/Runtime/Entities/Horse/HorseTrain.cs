@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BFG.Core;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Assertions;

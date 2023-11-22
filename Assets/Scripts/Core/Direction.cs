@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Core {
 public enum Direction {
     Right = 0,
     Up = 1,

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
+using BFG.Core;
+using BFG.Graphs;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -281,6 +283,84 @@ public class MapRenderer : MonoBehaviour {
 
             Gizmos.DrawLineList(points);
         }
+
+        foreach (var (human, _) in _humanTransporters.Values) {
+            Gizmos.color = Color.cyan;
+            var offset = Vector2.one / 2;
+            Gizmos.DrawSphere(_grid.transform.TransformPoint(human.pos + offset), .2f);
+
+            if (human.movingTo != null) {
+                Gizmos.color = Color.red;
+                var humanMovingFrom = human.movingFrom + offset;
+                var humanMovingTo = human.movingTo.Value + offset;
+                Gizmos.DrawLine(
+                    _grid.transform.TransformPoint(humanMovingFrom),
+                    _grid.transform.TransformPoint(humanMovingTo)
+                );
+                Gizmos.DrawSphere(
+                    _grid.transform.TransformPoint(
+                        Vector2.Lerp(
+                            humanMovingFrom,
+                            humanMovingTo,
+                            human.movingNormalized
+                        )
+                    ),
+                    .2f
+                );
+            }
+        }
+
+        var clri = 0;
+        var colors = new[] {
+            Color.white, Color.red, Color.cyan, Color.green, Color.magenta, Color.yellow,
+        };
+        foreach (var segment in _map.segments) {
+            Gizmos.color = colors[clri];
+
+            for (var y = 0; y < segment.Graph.height; y++) {
+                for (var x = 0; x < segment.Graph.width; x++) {
+                    var node = segment.Graph.Nodes[y][x];
+                    if (node == 0) {
+                        continue;
+                    }
+
+                    var pos = new Vector3(x, y) + Vector3.one / 2 +
+                              new Vector3(segment.Graph.Offset.x, segment.Graph.Offset.y);
+                    if (GraphNode.IsRight(node)) {
+                        Gizmos.DrawLine(
+                            _grid.transform.TransformPoint(pos),
+                            _grid.transform.TransformPoint(pos + Vector3.right / 2)
+                        );
+                    }
+
+                    if (GraphNode.IsUp(node)) {
+                        Gizmos.DrawLine(
+                            _grid.transform.TransformPoint(pos),
+                            _grid.transform.TransformPoint(pos + Vector3.up / 2)
+                        );
+                    }
+
+                    if (GraphNode.IsLeft(node)) {
+                        Gizmos.DrawLine(
+                            _grid.transform.TransformPoint(pos),
+                            _grid.transform.TransformPoint(pos + Vector3.left / 2)
+                        );
+                    }
+
+                    if (GraphNode.IsDown(node)) {
+                        Gizmos.DrawLine(
+                            _grid.transform.TransformPoint(pos),
+                            _grid.transform.TransformPoint(pos + Vector3.down / 2)
+                        );
+                    }
+                }
+            }
+
+            clri++;
+            if (clri >= colors.Length) {
+                clri = 0;
+            }
+        }
     }
 
     public void InitDependencies(GameManager gameManager, IMap map, IMapSize mapSize) {
@@ -306,6 +386,7 @@ public class MapRenderer : MonoBehaviour {
         hooks.Add(_map.onHumanTransporterCreated.Subscribe(OnHumanTransporterCreated));
         hooks.Add(_map.onHumanPickedUpResource.Subscribe(OnHumanPickedUpResource));
         hooks.Add(_map.onHumanPlacedResource.Subscribe(OnHumanPlacedResource));
+        hooks.Add(_map.onHumanReachedCityHall.Subscribe(OnHumanReachedCityHall));
 
         hooks.Add(_map.onTrainCreated.Subscribe(OnTrainCreated));
         hooks.Add(_map.onTrainNodeCreated.Subscribe(OnTrainNodeCreated));
@@ -695,7 +776,10 @@ public class MapRenderer : MonoBehaviour {
 
     void OnHumanTransporterCreated(E_HumanTransporterCreated data) {
         var go = Instantiate(_humanPrefab, _grid.transform);
-        _humanTransporters.Add(data.Human.ID, Tuple.Create(data.Human, go.GetComponent<HumanGO>()));
+        var humanGo = go.GetComponent<HumanGO>();
+
+        _humanTransporters.Add(data.Human.ID, Tuple.Create(data.Human, humanGo));
+        UpdateHumanTransporter(data.Human, humanGo);
     }
 
     void OnHumanPickedUpResource(E_HumanPickedUpResource data) {
@@ -731,23 +815,33 @@ public class MapRenderer : MonoBehaviour {
         _storedItems.Add(data.Resource.id, itemGo);
     }
 
+    void OnHumanReachedCityHall(E_HumanReachedCityHall data) {
+        var human = _humanTransporters[data.Human.ID];
+        Destroy(human.Item2.gameObject);
+        _humanTransporters.Remove(data.Human.ID);
+    }
+
     void UpdateHumans() {
         foreach (var (human, go) in _humans.Values) {
             go.transform.localPosition = human.position + Vector2.one / 2;
         }
 
         foreach (var (human, go) in _humanTransporters.Values) {
-            var pos = human.movingFrom;
-            if (human.movingTo != null) {
-                pos = Vector2.Lerp(
-                    human.movingFrom,
-                    human.movingTo.Value,
-                    human.movingNormalized
-                );
-            }
-
-            go.transform.localPosition = pos + Vector2.one / 2;
+            UpdateHumanTransporter(human, go);
         }
+    }
+
+    static void UpdateHumanTransporter(HumanTransporter human, HumanGO go) {
+        var pos = human.movingFrom;
+        if (human.movingTo != null) {
+            pos = Vector2.Lerp(
+                human.movingFrom,
+                human.movingTo.Value,
+                human.movingNormalized
+            );
+        }
+
+        go.transform.localPosition = pos + Vector2.one / 2;
     }
 
     #endregion

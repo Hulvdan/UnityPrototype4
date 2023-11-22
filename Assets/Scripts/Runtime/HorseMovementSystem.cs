@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
+using BFG.Core;
 using UnityEngine;
 using UnityEngine.Assertions;
 

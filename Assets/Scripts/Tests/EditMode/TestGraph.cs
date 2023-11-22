@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using BFG.Runtime;
+using BFG.Core;
+using BFG.Graphs;
 using NUnit.Framework;
 using UnityEngine;
 using AssertionException = UnityEngine.Assertions.AssertionException;
@@ -460,11 +461,11 @@ public class TestGraph {
         var graph = new Graph();
         graph.SetDirection(7, 10, Direction.Right);
 
-        Assert.IsTrue(graph.ContainsNode(7, 10));
-        Assert.IsFalse(graph.ContainsNode(8, 10));
-        Assert.IsFalse(graph.ContainsNode(6, 10));
-        Assert.IsFalse(graph.ContainsNode(7, 11));
-        Assert.IsFalse(graph.ContainsNode(7, 9));
+        Assert.IsTrue(graph.Contains(7, 10));
+        Assert.IsFalse(graph.Contains(8, 10));
+        Assert.IsFalse(graph.Contains(6, 10));
+        Assert.IsFalse(graph.Contains(7, 11));
+        Assert.IsFalse(graph.Contains(7, 9));
     }
 }
 }

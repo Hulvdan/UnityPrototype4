@@ -11,12 +11,14 @@ public interface IMap {
 
     List<Building> buildings { get; }
     List<TopBarResource> resources { get; }
+    List<GraphSegment> segments { get; }
 
     Subject<E_HumanCreated> onHumanCreated { get; }
     Subject<E_HumanTransporterCreated> onHumanTransporterCreated { get; }
     Subject<E_HumanStateChanged> onHumanStateChanged { get; }
     Subject<E_HumanPickedUpResource> onHumanPickedUpResource { get; }
     Subject<E_HumanPlacedResource> onHumanPlacedResource { get; }
+    Subject<E_HumanReachedCityHall> onHumanReachedCityHall { get; }
 
     Subject<E_TrainCreated> onTrainCreated { get; }
     Subject<E_TrainNodeCreated> onTrainNodeCreated { get; }
@@ -45,5 +47,9 @@ public interface IMap {
     void CollectItems(Vector2Int hoveredTile);
 
     void OnCreateHorse(HorseCreateData obj);
+
+    PathFindResult FindPath(
+        Vector2Int source, Vector2Int destination, bool avoidHarvestableResources
+    );
 }
 }

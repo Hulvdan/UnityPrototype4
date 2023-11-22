@@ -1,4 +1,4 @@
-﻿using BFG.Runtime;
+﻿using BFG.Graphs;
 using NUnit.Framework;
 
 namespace Tests.EditMode {

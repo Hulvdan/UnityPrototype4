@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using BFG.Core;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace BFG.Runtime {
+namespace BFG.Graphs {
 public class Graph : IEquatable<Graph>, IComparable<Graph> {
     const int DEV_NUMBER_OF_BUILD_PATH_ITERATIONS = 256;
 
@@ -62,8 +63,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
 
-        Assert.IsTrue(ContainsNode(originPos));
-        Assert.IsTrue(ContainsNode(destinationPos));
+        Assert.IsTrue(Contains(originPos));
+        Assert.IsTrue(Contains(destinationPos));
 
         var nodeIndex2Pos = new Dictionary<int, Vector2Int>();
         var pos2NodeIndex = new Dictionary<Vector2Int, int>();
@@ -582,25 +583,38 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         );
     }
 
-    public bool ContainsNode(int x, int y) {
+    public bool Contains(int x, int y) {
         return y >= _offset.Value.y
                && y < _offset.Value.y + height
                && x >= _offset.Value.x
                && x < _offset.Value.x + width;
     }
 
-    public bool ContainsNode(Vector2Int pos) {
-        return ContainsNode(pos.x, pos.y);
+    public bool Contains(Vector2Int pos) {
+        return Contains(pos.x, pos.y);
     }
+
+    public Vector2Int Offset {
+        get {
+            if (!_offset.HasValue) {
+                Debug.LogError("WTF?");
+                return Vector2Int.zero;
+            }
+
+            return _offset.Value;
+        }
+    }
+
+
+    public List<List<byte>> Nodes => _nodes;
+    public int height => _nodes.Count;
+    public int width => _nodes[0].Count;
 
     public static class Tests {
         public static List<List<byte>> GetNodes(Graph graph) {
             return graph._nodes;
         }
     }
-
-    int height => _nodes.Count;
-    int width => _nodes[0].Count;
 
     Vector2Int? _offset;
     List<List<byte>> _nodes = new();
