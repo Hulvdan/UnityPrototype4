@@ -293,7 +293,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         foreach (var segment in res.DeletedSegments) {
-            _segments.RemoveAt(_segments.FindIndex(i => i.Graph.ID == segment.Graph.ID));
+            _segments.RemoveAt(_segments.FindIndex(i => i.ID == segment.ID));
 
             var human = segment.AssignedHuman;
             if (human != null) {
