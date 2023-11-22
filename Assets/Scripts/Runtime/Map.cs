@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -294,14 +295,17 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             Debug.Log($"{res.AddedSegments.Count} segments added, {res.DeletedSegments} deleted");
         }
 
-        Stack<HumanTransporter> humansThatNeedNewSegment = new(res.DeletedSegments.Count);
+        Stack<Tuple<GraphSegment?, HumanTransporter>> humansThatNeedNewSegment =
+            new(res.DeletedSegments.Count);
         foreach (var segment in res.DeletedSegments) {
             // segment.AssociatedNavMeshSurface.SetActive(false);
             _segments.RemoveAt(_segments.FindIndex(i => i.Graph.ID == segment.Graph.ID));
 
-            if (segment.AssignedHuman != null) {
-                segment.AssignedHuman.segment = null;
-                humansThatNeedNewSegment.Push(segment.AssignedHuman);
+            var human = segment.AssignedHuman;
+            if (human != null) {
+                human.segment = null;
+                segment.AssignedHuman = null;
+                humansThatNeedNewSegment.Push(new(segment, human));
             }
         }
 
@@ -315,59 +319,27 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             _segments.Add(segment);
 
             if (humansThatNeedNewSegment.Count == 0) {
-                // TODO: Pathfinding from CityHall to segments that aren't connected straight to it.
-                CreateHuman_Transporter(
-                    buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall),
-                    segment
-                );
+                CreateHuman_Transporter(cityHall, segment);
             }
             else {
-                // Human moves to the nearest tile in this segment
-                // TODO: Make it actually nearest
-                var human = humansThatNeedNewSegment.Pop();
-                segment.AssignedHuman = human;
+                var (oldSegment, human) = humansThatNeedNewSegment.Pop();
                 human.segment = segment;
-
-                human.movingPath.Clear();
-
-                human.movingFrom = human.pos;
-                var origin = human.movingTo ?? human.pos;
-
-                var isHumanOutsideSegment = !segment.Graph.ContainsNode(origin);
-                if (isHumanOutsideSegment) {
-                    human.state = HumanTransporterState.MovingToSegment;
-                    var path = FindPath(origin, segment.Graph.GetCenters()[0], true);
-
-                    Assert.IsTrue(path.Success);
-                    AddPathToHuman(human, path.Path);
-                }
-                else {
-                    var center = segment.Graph.GetCenters()[0];
-                    if ((human.movingTo ?? human.pos) == center) {
-                        human.state = HumanTransporterState.Idle_NothingToDo;
-                    }
-                    else {
-                        human.state = HumanTransporterState.MovingToCenter;
-                        AddPathToHuman(human, segment.Graph.GetShortestPath(origin, center));
-                    }
-                }
+                segment.AssignedHuman = human;
+                HumanTransporter_Controller.OnSegmentChanged(
+                    human, this, this, cityHall, oldSegment
+                );
             }
         }
 
         // TODO: If there are any humans in the humansThatNeedNewSegment,
         // just find a path to the cityHall
-        foreach (var human in humansThatNeedNewSegment) {
-            human.state = HumanTransporterState.MovingToCityHall;
-            human.movingPath.Clear();
-
-            var origin = human.movingTo ?? human.pos;
-            var cityHall = buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall);
-
-            var res1 = FindPath(origin, cityHall.pos, true);
-            Assert.IsTrue(res1.Success);
-            AddPathToHuman(human, res1.Path);
+        foreach (var (oldSegment, human) in humansThatNeedNewSegment) {
+            HumanTransporter_Controller.OnSegmentChanged(
+                human, this, this, cityHall, oldSegment
+            );
         }
 
+        // Assert that segments don't have tiles with identical directions
         for (var i = 0; i < _segments.Count; i++) {
             for (var j = 0; j < _segments.Count; j++) {
                 if (i == j) {
@@ -674,6 +646,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         );
     }
 
+    Building cityHall => buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall);
+
     #region HumanSystem_Attributes
 
     [FoldoutGroup("Humans", true)]
@@ -823,40 +797,11 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         segment.AssignedHuman = human;
         _humanTransporters.Add(human);
 
-        var center = segment.Graph.GetCenters()[0];
-        // var movingPath = segment.Graph.GetShortestPath(human.pos, center);
-        var movingPath = FindPath(human.pos, center, true).Path;
-        AddPathToHuman(human, movingPath);
-
-        if (human.movingTo == null) {
-            human.state = HumanTransporterState.Idle_NothingToDo;
-        }
-        else {
-            human.state = HumanTransporterState.MovingToCenter;
-        }
+        HumanTransporter_Controller.SetState(
+            human, HumanTransporterState.MovingInTheWorld, this, this, cityHall
+        );
 
         onHumanTransporterCreated.OnNext(new() { Human = human });
-    }
-
-    void AddPathToHuman(HumanTransporter human, List<Vector2Int> path) {
-        var isFirst = true;
-        foreach (var tile in path) {
-            if (isFirst) {
-                isFirst = false;
-
-                if (tile != (human.movingTo ?? human.pos)) {
-                    human.movingPath.Add(tile);
-                }
-
-                continue;
-            }
-
-            human.movingPath.Add(tile);
-        }
-
-        if (human.movingTo == null) {
-            PopMovingTo(human);
-        }
     }
 
     void CreateHuman(Building building) {
@@ -1134,14 +1079,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         var humansToRemove = new List<HumanTransporter>();
         foreach (var human in _humanTransporters) {
-            if (
-                human.state is HumanTransporterState.MovingToCenter
-                or HumanTransporterState.MovingToSegment
-                or HumanTransporterState.MovingToCityHall
-            ) {
-                if (human.movingTo != null) {
-                    human.movingElapsed += dt;
-                }
+            if (human.movingTo != null) {
+                human.movingElapsed += dt;
 
                 var iteration = 0;
                 while (
@@ -1153,47 +1092,23 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
                     human.pos = human.movingTo.Value;
                     human.movingFrom = human.pos;
-                    PopMovingTo(human);
+                    human.PopMovingTo();
+                }
+
+                if (iteration >= GUARD_MAX_ITERATIONS_COUNT) {
+                    Debug.LogError("WTF?");
                 }
 
                 human.movingNormalized = Mathf.Min(
                     1, human.movingElapsed / _humanTransporterMovingOneCellDuration
                 );
-
-                if (human.movingTo == null) {
-                    if (human.state == HumanTransporterState.MovingToSegment) {
-                        var center = human.segment.Graph.GetCenters()[0];
-                        var path = human.segment.Graph.GetShortestPath(
-                            human.movingTo ?? human.pos, center
-                        );
-                        AddPathToHuman(human, path);
-
-                        human.state = HumanTransporterState.MovingToCenter;
-                    }
-                    else if (human.state == HumanTransporterState.MovingToCityHall) {
-                        onHumanReachedCityHall.OnNext(new() { Human = human });
-                        humansToRemove.Add(human);
-                    }
-                    else {
-                        human.state = HumanTransporterState.Idle_NothingToDo;
-                    }
-                }
             }
+
+            HumanTransporter_Controller.Update(human, this, this, cityHall, dt);
         }
 
         foreach (var human in humansToRemove) {
             _humanTransporters.RemoveAt(_humanTransporters.FindIndex(i => i == human));
-        }
-    }
-
-    static void PopMovingTo(HumanTransporter human) {
-        if (human.movingPath.Count == 0) {
-            human.movingElapsed = 0;
-            human.movingTo = null;
-        }
-        else {
-            human.movingTo = human.movingPath[0];
-            human.movingPath.RemoveAt(0);
         }
     }
 
