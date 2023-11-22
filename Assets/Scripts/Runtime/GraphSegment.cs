@@ -12,7 +12,6 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
     public readonly Graph Graph;
     public readonly List<Vector2Int> MovementTiles;
     public HumanTransporter AssignedHuman;
-    public GameObject AssignedNavMeshSurface;
 
     public GraphSegment(List<GraphVertex> vertexes, List<Vector2Int> movementTiles, Graph graph) {
         Assert.IsNotNull(vertexes);
