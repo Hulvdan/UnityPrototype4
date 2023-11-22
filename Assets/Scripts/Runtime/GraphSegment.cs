@@ -50,6 +50,29 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
         }
     }
 
+    public List<GraphSegment> LinkedSegments => _linkedSegments;
+    List<GraphSegment> _linkedSegments = new();
+
+    public bool HasSomeOfTheSameVertexes(GraphSegment other) {
+        foreach (var otherVertex in other.Vertexes) {
+            foreach (var vertex in Vertexes) {
+                if (otherVertex == vertex) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public void Link(GraphSegment other) {
+        _linkedSegments.Add(other);
+    }
+
+    public void Unlink(GraphSegment other) {
+        _linkedSegments.RemoveAt(_linkedSegments.FindIndex(i => i.ID == other.ID));
+    }
+
     public static bool operator ==(GraphSegment obj1, GraphSegment obj2) {
         if (ReferenceEquals(null, obj1) && ReferenceEquals(null, obj2)) {
             return true;

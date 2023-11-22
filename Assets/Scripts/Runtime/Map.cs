@@ -123,6 +123,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public List<GraphSegment> segments => _segments;
     readonly List<GraphSegment> _segments = new();
+    readonly Dictionary<Guid, List<GraphSegment>> _segmentLinks = new();
 
     void Awake() {
         _random = new((int)Time.time);
@@ -301,6 +302,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 segment.AssignedHuman = null;
                 humansThatNeedNewSegment.Push(new(segment, human));
             }
+
+            foreach (var linkedSegment in segment.LinkedSegments) {
+                linkedSegment.Unlink(segment);
+            }
         }
 
         if (!_hideEditorLogs) {
@@ -322,6 +327,18 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 HumanTransporter_Controller.OnSegmentChanged(
                     human, this, this, cityHall, oldSegment
                 );
+            }
+
+            foreach (var segmentToLink in _segments) {
+                if (ReferenceEquals(segment, segmentToLink)) {
+                    continue;
+                }
+
+                // Mb there Graph.CollidesWith(other.Graph) is needed for optimization
+                if (segmentToLink.HasSomeOfTheSameVertexes(segment)) {
+                    segment.Link(segmentToLink);
+                    segmentToLink.Link(segment);
+                }
             }
         }
 
