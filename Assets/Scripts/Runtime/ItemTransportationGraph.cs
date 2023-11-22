@@ -290,11 +290,12 @@ public static class ItemTransportationGraph {
             case TileUpdatedType.BuildingPlaced:
                 for (Direction dir = 0; dir < (Direction)4; dir++) {
                     var newPos = tilePos + dir.AsOffset();
-                    if (!mapSize.Contains(newPos)) {
+                    if (!mapSize.Contains(newPos) || !segment.Graph.Contains(newPos)) {
                         continue;
                     }
 
-                    if (!segment.Graph.Contains(newPos)) {
+                    var graphPos = newPos - segment.Graph.Offset;
+                    if (segment.Graph.Nodes[graphPos.y][graphPos.x] == 0) {
                         continue;
                     }
 
@@ -309,11 +310,17 @@ public static class ItemTransportationGraph {
             case TileUpdatedType.FlagRemoved:
             case TileUpdatedType.RoadRemoved:
             case TileUpdatedType.BuildingRemoved:
-                if (segment.Graph.Contains(tilePos)) {
-                    return true;
+                if (!segment.Graph.Contains(tilePos)) {
+                    break;
                 }
 
-                break;
+                var graphPos1 = tilePos - segment.Graph.Offset;
+                if (segment.Graph.Nodes[graphPos1.y][graphPos1.x] == 0) {
+                    break;
+                }
+
+                return true;
+
             default:
                 throw new ArgumentOutOfRangeException();
         }
