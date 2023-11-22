@@ -162,8 +162,6 @@ public static class ItemTransportationGraph {
                     bigFukenQueue.Enqueue(new(Direction.Down, tilePos));
                     break;
                 case TileUpdatedType.RoadRemoved:
-                case TileUpdatedType.BuildingPlaced:
-                case TileUpdatedType.BuildingRemoved:
                     for (Direction dir = 0; dir < (Direction)4; dir++) {
                         var newPos = tilePos + dir.AsOffset();
                         if (!mapSize.Contains(newPos)) {
@@ -180,6 +178,35 @@ public static class ItemTransportationGraph {
                         bigFukenQueue.Enqueue(new(Direction.Down, newPos));
                     }
 
+                    break;
+                case TileUpdatedType.BuildingPlaced:
+                    for (Direction dir = 0; dir < (Direction)4; dir++) {
+                        var newPos = tilePos + dir.AsOffset();
+                        if (!mapSize.Contains(newPos)) {
+                            continue;
+                        }
+
+                        if (elementTiles[newPos.y][newPos.x].Type == ElementTileType.None) {
+                            continue;
+                        }
+
+                        if (elementTiles[newPos.y][newPos.x].Type == ElementTileType.Building) {
+                            continue;
+                        }
+
+                        if (elementTiles[newPos.y][newPos.x].Type == ElementTileType.Flag) {
+                            bigFukenQueue.Enqueue(new(dir.Opposite(), newPos));
+                        }
+                        else {
+                            bigFukenQueue.Enqueue(new(Direction.Right, newPos));
+                            bigFukenQueue.Enqueue(new(Direction.Up, newPos));
+                            bigFukenQueue.Enqueue(new(Direction.Left, newPos));
+                            bigFukenQueue.Enqueue(new(Direction.Down, newPos));
+                        }
+                    }
+
+                    break;
+                case TileUpdatedType.BuildingRemoved:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
