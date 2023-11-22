@@ -457,6 +457,27 @@ public class TestItemTransportationGraph {
     }
 
     [Test]
+    public void Test_RoadPlaced_4() {
+        var (elementTiles, segments) = MakeTilesWithInitialCalculation(
+            ".B",
+            "CF"
+        );
+
+        Assert.IsTrue(elementTiles.ElementTiles[1][0].Type == ElementTileType.None);
+        elementTiles.ElementTiles[1][0] = ElementTile.Road;
+
+        var result = ItemTransportationGraph.OnTilesUpdated(
+            elementTiles.ElementTiles,
+            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
+            elementTiles.Buildings,
+            new() { new(TileUpdatedType.RoadPlaced, new(0, 1)) },
+            segments
+        );
+        Assert.AreEqual(0, result.DeletedSegments.Count);
+        Assert.AreEqual(1, result.AddedSegments.Count);
+    }
+
+    [Test]
     public void Test_FlagPlaced_1() {
         var (elementTiles, segments) = MakeTilesWithInitialCalculation(
             ".B",

@@ -89,26 +89,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [Required]
     InitialMapProvider _initialMapProvider;
 
-    [FoldoutGroup("Setup", true)]
-    [SerializeField]
-    [Required]
-    Transform _navmeshSurfacesContainer;
-
-    [FoldoutGroup("Setup", true)]
-    [SerializeField]
-    [Required]
-    Transform _navmeshAgentsContainer;
-
-    [FoldoutGroup("Setup", true)]
-    [SerializeField]
-    [Required]
-    GameObject _navmeshSurfacePrefab;
-
-    [FoldoutGroup("Setup", true)]
-    [SerializeField]
-    [Required]
-    GameObject _navmeshAgentPrefab;
-
     [FoldoutGroup("Debug", true)]
     [SerializeField]
     bool _hideEditorLogs;
@@ -313,7 +293,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         foreach (var segment in res.DeletedSegments) {
-            // segment.AssociatedNavMeshSurface.SetActive(false);
             _segments.RemoveAt(_segments.FindIndex(i => i.Graph.ID == segment.Graph.ID));
 
             var human = segment.AssignedHuman;
@@ -346,8 +325,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
         }
 
-        // TODO: If there are any humans in the humansThatNeedNewSegment,
-        // just find a path to the cityHall
         foreach (var (oldSegment, human) in humansThatNeedNewSegment) {
             HumanTransporter_Controller.OnSegmentChanged(
                 human, this, this, cityHall, oldSegment
