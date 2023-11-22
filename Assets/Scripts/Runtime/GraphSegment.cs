@@ -8,6 +8,8 @@ using UnityEngine.Assertions;
 namespace BFG.Runtime {
 // TODO: IComparable, IEquatable should be considered for removal
 public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> {
+    public readonly Guid ID = Guid.NewGuid();
+
     public readonly List<GraphVertex> Vertexes;
     public readonly Graph Graph;
     public readonly List<Vector2Int> MovementTiles;

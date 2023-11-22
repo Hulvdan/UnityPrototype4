@@ -605,7 +605,6 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         }
     }
 
-    public readonly Guid ID = Guid.NewGuid();
 
     public List<List<byte>> Nodes => _nodes;
     public int height => _nodes.Count;
