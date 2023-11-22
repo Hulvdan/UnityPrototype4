@@ -478,6 +478,69 @@ public class TestItemTransportationGraph {
     }
 
     [Test]
+    public void Test_RoadPlaced_5() {
+        var (elementTiles, segments) = MakeTilesWithInitialCalculation(
+            ".rr",
+            "Crr"
+        );
+
+        var mapSizeMock = MockMapSize_FromElementTiles(elementTiles.ElementTiles);
+        {
+            elementTiles.ElementTiles[0][1] = ElementTile.Flag;
+            var result = ItemTransportationGraph.OnTilesUpdated(
+                elementTiles.ElementTiles,
+                mapSizeMock,
+                elementTiles.Buildings,
+                new() { new(TileUpdatedType.FlagPlaced, new(1, 0)) },
+                segments
+            );
+            Assert.AreEqual(0, result.DeletedSegments.Count);
+            Assert.AreEqual(1, result.AddedSegments.Count);
+            UpdateSegments(result, segments);
+        }
+
+        {
+            elementTiles.ElementTiles[1][2] = ElementTile.Flag;
+            var result = ItemTransportationGraph.OnTilesUpdated(
+                elementTiles.ElementTiles,
+                mapSizeMock,
+                elementTiles.Buildings,
+                new() { new(TileUpdatedType.FlagPlaced, new(2, 1)) },
+                segments
+            );
+            Assert.AreEqual(0, result.DeletedSegments.Count);
+            Assert.AreEqual(2, result.AddedSegments.Count);
+            UpdateSegments(result, segments);
+        }
+
+        {
+            elementTiles.ElementTiles[1][0] = ElementTile.Road;
+            var result = ItemTransportationGraph.OnTilesUpdated(
+                elementTiles.ElementTiles,
+                mapSizeMock,
+                elementTiles.Buildings,
+                new() { new(TileUpdatedType.RoadPlaced, new(0, 1)) },
+                segments
+            );
+            Assert.AreEqual(1, result.DeletedSegments.Count);
+            Assert.AreEqual(1, result.AddedSegments.Count);
+            UpdateSegments(result, segments);
+        }
+    }
+
+    void UpdateSegments(
+        ItemTransportationGraph.OnTilesUpdatedResult result, List<GraphSegment> segments
+    ) {
+        foreach (var segment in result.DeletedSegments) {
+            segments.RemoveAt(segments.FindIndex(i => i.ID == segment.ID));
+        }
+
+        foreach (var segment in result.AddedSegments) {
+            segments.Add(segment);
+        }
+    }
+
+    [Test]
     public void Test_FlagPlaced_1() {
         var (elementTiles, segments) = MakeTilesWithInitialCalculation(
             ".B",
