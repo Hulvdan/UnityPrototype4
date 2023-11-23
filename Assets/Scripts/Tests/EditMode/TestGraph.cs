@@ -210,6 +210,8 @@ public class TestGraph {
         centers.Sort(Utils.StupidVector2IntComparison);
 
         Assert.AreEqual(expected, centers);
+        Assert.AreEqual(graph.Cost(new(0, 0), new(0, 0)), 0);
+        Assert.AreEqual(graph.Cost(new(0, 0), new(1, 0)), 1);
     }
 
     [Test]
@@ -380,6 +382,7 @@ public class TestGraph {
             expected1.SequenceEqual(actual)
             || expected2.SequenceEqual(actual)
         );
+        Assert.AreEqual(expected1.Count - 1, graph.Cost(new(0, 1), new(3, 2)));
     }
 
     [Test]
@@ -397,6 +400,7 @@ public class TestGraph {
         };
 
         Assert.That(actual, Is.EquivalentTo(expected));
+        Assert.AreEqual(expected.Count - 1, graph.Cost(new(0, 1), new(1, 3)));
     }
 
     [Test]
