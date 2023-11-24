@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Reflection;
+using JetBrains.Annotations;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
@@ -18,6 +19,9 @@ public class HumanTransporter_MovingInsideSegment_Controller {
         IMapSize mapSize,
         Building cityHall
     ) {
+        using var _ = Tracing.Scope();
+
+        Tracing.Log("OnEnter");
         Assert.AreEqual(human.movingTo, null);
         Assert.AreEqual(human.movingPath.Count, 0);
 
@@ -34,6 +38,9 @@ public class HumanTransporter_MovingInsideSegment_Controller {
         IMapSize mapSize,
         Building cityHall
     ) {
+        using var _ = Tracing.Scope();
+
+        Tracing.Log("OnExit");
         human.stateMovingInsideSegment = null;
         human.movingTo = null;
         human.movingPath.Clear();
@@ -57,6 +64,9 @@ public class HumanTransporter_MovingInsideSegment_Controller {
         [CanBeNull]
         GraphSegment oldSegment
     ) {
+        using var _ = Tracing.Scope();
+
+        Tracing.Log("_controller.SetState(human, HumanTransporterState.MovingInTheWorld)");
         _controller.SetState(human, HumanTransporterState.MovingInTheWorld);
     }
 
@@ -72,7 +82,10 @@ public class HumanTransporter_MovingInsideSegment_Controller {
         IMapSize mapSize,
         Building cityHall
     ) {
+        using var _ = Tracing.Scope();
+
         if (human.segment.resourcesReadyToBeTransported.Count > 0) {
+            Tracing.Log("_controller.SetState(human, HumanTransporterState.MovingItem)");
             _controller.SetState(human, HumanTransporterState.MovingItem);
         }
     }
