@@ -21,7 +21,7 @@ public class HumanTransporter {
     public Vector2 movingFrom { get; set; }
     public Vector2Int? movingTo { get; set; }
 
-    public List<Vector2Int> movingPath = new();
+    public readonly List<Vector2Int> movingPath = new();
 
     public HumanTransporterState? state { get; set; }
 
