@@ -119,5 +119,26 @@ public class HumanTransporter_Controller {
                 break;
         }
     }
+
+    public void OnHumanMovedToTheNextTile(HumanTransporter human) {
+        var data = new HumanTransporterData(_map, _mapSize, _cityHall, 1f, 1f);
+        switch (human.state) {
+            case HumanTransporterState.MovingInTheWorld:
+                _movingInTheWorld.OnHumanMovedToTheNextTile(
+                    human, data
+                );
+                break;
+            case HumanTransporterState.MovingInsideSegment:
+                _movingInsideSegment.OnHumanMovedToTheNextTile(
+                    human, data
+                );
+                break;
+            case HumanTransporterState.MovingItem:
+                _movingItem.OnHumanMovedToTheNextTile(
+                    human, data
+                );
+                break;
+        }
+    }
 }
 }

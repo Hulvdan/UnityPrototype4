@@ -77,7 +77,6 @@ public class HumanTransporter {
     #region HumanTransporter_MovingItem_Controller
 
     public HumanTransporter_MovingItem_Controller.State? stateMovingItem;
-    public bool justStartedMovingItem;
 
     public float stateMovingItem_pickingUpResourceElapsed;
     public float stateMovingItem_pickingUpResourceNormalized;

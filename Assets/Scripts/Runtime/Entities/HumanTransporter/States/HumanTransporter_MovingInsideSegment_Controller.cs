@@ -1,5 +1,5 @@
 ﻿using JetBrains.Annotations;
-using UnityEngine.AI;
+using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
 public class HumanTransporter_MovingInsideSegment_Controller {
@@ -18,6 +18,14 @@ public class HumanTransporter_MovingInsideSegment_Controller {
         IMapSize mapSize,
         Building cityHall
     ) {
+        Assert.AreEqual(human.movingTo, null);
+        Assert.AreEqual(human.movingPath.Count, 0);
+
+        if (human.segment.resourcesReadyToBeTransported.Count == 0) {
+            var center = human.segment.Graph.GetCenters()[0];
+            var path = map.FindPath(human.movingTo ?? human.pos, center, true).Path;
+            human.AddPath(path);
+        }
     }
 
     public void OnExit(
@@ -27,6 +35,8 @@ public class HumanTransporter_MovingInsideSegment_Controller {
         Building cityHall
     ) {
         human.stateMovingInsideSegment = null;
+        human.movingTo = null;
+        human.movingPath.Clear();
     }
 
     public void Update(
@@ -48,6 +58,12 @@ public class HumanTransporter_MovingInsideSegment_Controller {
         GraphSegment oldSegment
     ) {
         _controller.SetState(human, HumanTransporterState.MovingInTheWorld);
+    }
+
+    public void OnHumanMovedToTheNextTile(
+        HumanTransporter human,
+        HumanTransporterData data
+    ) {
     }
 
     void UpdateStates(
