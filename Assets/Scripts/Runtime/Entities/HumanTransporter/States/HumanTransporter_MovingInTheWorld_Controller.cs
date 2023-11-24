@@ -27,6 +27,8 @@ public class HumanTransporter_MovingInTheWorld_Controller {
         Building cityHall
     ) {
         human.stateMovingInTheWorld = null;
+        human.movingTo = null;
+        human.movingPath.Clear();
     }
 
     public void Update(
@@ -48,6 +50,12 @@ public class HumanTransporter_MovingInTheWorld_Controller {
         GraphSegment oldSegment
     ) {
         UpdateStates(human, map, mapSize, cityHall, oldSegment);
+    }
+
+    public void OnHumanMovedToTheNextTile(
+        HumanTransporter human,
+        HumanTransporterData data
+    ) {
     }
 
     void UpdateStates(

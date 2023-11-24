@@ -1156,7 +1156,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
                 var iteration = 0;
                 while (
-                    iteration++ < GUARD_MAX_ITERATIONS_COUNT
+                    iteration++ < 10 * GUARD_MAX_ITERATIONS_COUNT
                     && human.movingTo != null
                     && human.movingElapsed > humanTransporterMovingOneCellDuration
                 ) {
@@ -1165,10 +1165,13 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     human.pos = human.movingTo.Value;
                     human.movingFrom = human.pos;
                     human.PopMovingTo();
+
+                    _humanTransporterController.OnHumanMovedToTheNextTile(human);
                 }
 
+                Assert.IsTrue(iteration < 10 * GUARD_MAX_ITERATIONS_COUNT);
                 if (iteration >= GUARD_MAX_ITERATIONS_COUNT) {
-                    Debug.LogError("WTF?");
+                    Debug.LogWarning("WTF?");
                 }
 
                 human.movingNormalized = Mathf.Min(

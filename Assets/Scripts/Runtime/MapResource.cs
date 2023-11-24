@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace BFG.Runtime {
 public struct MapResource : IEquatable<MapResource> {

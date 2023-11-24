@@ -112,20 +112,17 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         var path = new List<Vector2Int> { destinationPos };
         var currentIteration = 0;
         while (
-            originNodeIndex != destinationNodeIndex
-            && currentIteration < DEV_NUMBER_OF_BUILD_PATH_ITERATIONS
+            currentIteration++ < DEV_NUMBER_OF_BUILD_PATH_ITERATIONS
+            && originNodeIndex != destinationNodeIndex
         ) {
             var i = prev[originNodeIndex][destinationNodeIndex];
             Assert.IsTrue(i != int.MinValue);
 
             destinationNodeIndex = i;
             path.Add(nodeIndex2Pos[destinationNodeIndex] + offset);
-            currentIteration++;
         }
 
-        if (currentIteration >= DEV_NUMBER_OF_BUILD_PATH_ITERATIONS) {
-            Debug.LogError("Expected Iterations Limit Exceeded!");
-        }
+        Assert.IsTrue(currentIteration < DEV_NUMBER_OF_BUILD_PATH_ITERATIONS);
 
         path.Reverse();
         return path;

@@ -77,8 +77,11 @@ public class ItemTransportationSystem {
             visitedTiles[destinationPos.y, destinationPos.x] = GraphNode.All;
 
             MapResource? foundResource = null;
-            while (iteration < DEV_MAX_ITERATIONS && foundResource == null && queue.Count > 0) {
-                iteration++;
+            while (
+                iteration++ < 10 * DEV_MAX_ITERATIONS
+                && foundResource == null
+                && queue.Count > 0
+            ) {
                 var (dir, pos) = queue.Dequeue();
 
                 var newPos = pos + dir.AsOffset();
@@ -140,14 +143,17 @@ public class ItemTransportationSystem {
                 }
             }
 
-            Assert.IsTrue(iteration < DEV_MAX_ITERATIONS);
+            Assert.IsTrue(iteration < 10 * DEV_MAX_ITERATIONS);
+            if (iteration >= DEV_MAX_ITERATIONS) {
+                Debug.LogWarning("WTF?");
+            }
 
             var iteration2 = 0;
             if (foundResource != null) {
                 var path = new List<Vector2Int>();
                 var destination = foundResource.Value.Pos;
                 while (
-                    iteration2 < DEV_MAX_ITERATIONS
+                    iteration2++ < 10 * DEV_MAX_ITERATIONS
                     && _map.elementTiles[destination.y][destination.x].BFS_Parent != null
                 ) {
                     iteration2++;
@@ -155,7 +161,10 @@ public class ItemTransportationSystem {
                     destination = _map.elementTiles[destination.y][destination.x].BFS_Parent.Value;
                 }
 
-                Assert.IsTrue(iteration2 < DEV_MAX_ITERATIONS);
+                Assert.IsTrue(iteration2 < 10 * DEV_MAX_ITERATIONS);
+                if (iteration2 >= DEV_MAX_ITERATIONS) {
+                    Debug.LogWarning("WTF?");
+                }
 
                 foundPairs.Add(new(resourceToBook, foundResource.Value, path));
             }
@@ -179,7 +188,6 @@ public class ItemTransportationSystem {
         ResourceToBook resourceToBook, MapResource mapResource, IReadOnlyList<Vector2Int> path
     ) {
         Assert.IsTrue(mapResource.TravellingSegments.Count == 0);
-        mapResource.TravellingSegments.Clear();
         for (var i = 0; i < path.Count - 1; i++) {
             var a = path[i];
             var b = path[i + 1];
@@ -195,27 +203,27 @@ public class ItemTransportationSystem {
                     continue;
                 }
 
-                if (AddWithoutDuplication(mapResource.TravellingSegments, segment)) {
-                    foreach (var vertex in segment.Vertexes) {
-                        if (vertex.Pos == b) {
-                            mapResource.ItemMovingVertices.Add(b);
-                        }
+                AddWithoutDuplication(mapResource.TravellingSegments, segment);
+                foreach (var vertex in segment.Vertexes) {
+                    if (vertex.Pos == b) {
+                        mapResource.ItemMovingVertices.Add(b);
+                        break;
                     }
                 }
             }
-        }
-
-        foreach (var segment in mapResource.TravellingSegments) {
-            segment.resourcesWithThisSegmentInPath.Add(mapResource);
         }
 
         // Updating booking. Needs to be changed in Map too
         mapResource.Booking = MapResourceBooking.FromResourceToBook(resourceToBook);
         mapResource.TravellingSegments[0].resourcesReadyToBeTransported.Enqueue(mapResource);
 
+        foreach (var segment in mapResource.TravellingSegments) {
+            segment.resourcesWithThisSegmentInPath.Add(mapResource);
+        }
+
         var list = _map.mapResources[mapResource.Pos.y][mapResource.Pos.x];
         for (var i = 0; i < list.Count; i++) {
-            if (list[i].Equals(mapResource)) {
+            if (list[i].ID == mapResource.ID) {
                 list[i] = mapResource;
                 break;
             }
@@ -224,15 +232,14 @@ public class ItemTransportationSystem {
         _resourcesToBook.Remove(resourceToBook);
     }
 
-    bool AddWithoutDuplication(List<GraphSegment> segments, GraphSegment segment) {
+    void AddWithoutDuplication(List<GraphSegment> segments, GraphSegment segment) {
         foreach (var s in segments) {
             if (s.ID == segment.ID) {
-                return false;
+                return;
             }
         }
 
         segments.Add(segment);
-        return true;
     }
 
     readonly IMap _map;
