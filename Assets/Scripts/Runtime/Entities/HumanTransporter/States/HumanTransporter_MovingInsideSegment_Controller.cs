@@ -1,29 +1,45 @@
 ﻿using JetBrains.Annotations;
+using UnityEngine.AI;
 
 namespace BFG.Runtime {
-public static class HumanTransporter_MovingInsideSegment_Controller {
+public class HumanTransporter_MovingInsideSegment_Controller {
     public enum State {
         MovingToCenter,
         Idle,
     }
 
-    public static void OnEnter(
-        HumanTransporter human, IMap map, IMapSize mapSize, Building cityHall
+    public HumanTransporter_MovingInsideSegment_Controller(HumanTransporter_Controller controller) {
+        _controller = controller;
+    }
+
+    public void OnEnter(
+        HumanTransporter human,
+        IMap map,
+        IMapSize mapSize,
+        Building cityHall
     ) {
     }
 
-    public static void OnExit(
-        HumanTransporter human, IMap map, IMapSize mapSize, Building cityHall
+    public void OnExit(
+        HumanTransporter human,
+        IMap map,
+        IMapSize mapSize,
+        Building cityHall
     ) {
         human.stateMovingInsideSegment = null;
     }
 
-    public static void Update(
-        HumanTransporter human, IMap map, IMapSize mapSize, Building cityHall, float dt
+    public void Update(
+        HumanTransporter human,
+        IMap map,
+        IMapSize mapSize,
+        Building cityHall,
+        float dt
     ) {
+        UpdateStates(human, map, mapSize, cityHall);
     }
 
-    public static void OnSegmentChanged(
+    public void OnSegmentChanged(
         HumanTransporter human,
         IMap map,
         IMapSize mapSize,
@@ -31,9 +47,20 @@ public static class HumanTransporter_MovingInsideSegment_Controller {
         [CanBeNull]
         GraphSegment oldSegment
     ) {
-        HumanTransporter_Controller.SetState(
-            human, HumanTransporterState.MovingInTheWorld, map, mapSize, cityHall
-        );
+        _controller.SetState(human, HumanTransporterState.MovingInTheWorld);
     }
+
+    void UpdateStates(
+        HumanTransporter human,
+        IMap map,
+        IMapSize mapSize,
+        Building cityHall
+    ) {
+        if (human.segment.resourcesReadyToBeTransported.Count > 0) {
+            _controller.SetState(human, HumanTransporterState.MovingItem);
+        }
+    }
+
+    readonly HumanTransporter_Controller _controller;
 }
 }

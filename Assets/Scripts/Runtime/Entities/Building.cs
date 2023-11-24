@@ -21,6 +21,8 @@ public class Building {
     readonly List<ResourceObj> _producedResources = new();
     readonly List<ResourceObj> _storedResources = new();
 
+    public readonly List<ResourceToBook> ResourcesToBook = new();
+
     public Building(
         Guid id, IScriptableBuilding scriptable, Vector2Int pos, float buildingProgress
     ) {

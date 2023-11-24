@@ -34,12 +34,12 @@ public class InitialMapProvider : MonoBehaviour {
     }
 
     public List<List<ElementTile>> LoadElementTiles() {
-        var elementTiles = new List<List<ElementTile>>(_mapSize.sizeY);
+        var elementTiles = new List<List<ElementTile>>(_mapSize.height);
 
-        for (var y = 0; y < _mapSize.sizeY; y++) {
-            var row = new List<ElementTile>(_mapSize.sizeX);
+        for (var y = 0; y < _mapSize.height; y++) {
+            var row = new List<ElementTile>(_mapSize.width);
 
-            for (var x = 0; x < _mapSize.sizeX; x++) {
+            for (var x = 0; x < _mapSize.width; x++) {
                 var tilemapTile = _movementSystemTilemap.GetTile(new(x, y));
 
                 var isStables = false;

@@ -76,7 +76,15 @@ public class HumanTransporter {
 
     #region HumanTransporter_MovingItem_Controller
 
-    public HumanTransporter_MovingItem_Controller.State? stateMovingItem { get; set; }
+    public HumanTransporter_MovingItem_Controller.State? stateMovingItem;
+    public bool justStartedMovingItem;
+
+    public float stateMovingItem_pickingUpResourceElapsed;
+    public float stateMovingItem_pickingUpResourceNormalized;
+    public float stateMovingItem_placingResourceElapsed;
+    public float stateMovingItem_placingResourceNormalized;
+
+    public MapResource? targetedResource = null;
 
     #endregion
 }

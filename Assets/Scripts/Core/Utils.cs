@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.Assertions;
 using Random = System.Random;
 
 namespace BFG.Core {
@@ -77,6 +79,34 @@ public static class Utils {
         }
 
         return true;
+    }
+
+    public static readonly Direction[] Directions = {
+        Core.Direction.Right, Core.Direction.Up, Core.Direction.Left, Core.Direction.Down,
+    };
+
+    public static Direction Direction(Vector2Int a, Vector2Int b) {
+        var c = b - a;
+        switch (c.x) {
+            case > 0:
+                return Core.Direction.Right;
+            case < 0:
+                return Core.Direction.Left;
+        }
+
+        switch (c.y) {
+            case > 0:
+                return Core.Direction.Up;
+            case < 0:
+                return Core.Direction.Down;
+        }
+
+        Assert.IsTrue(false);
+        return Core.Direction.Right;
+    }
+
+    public static (int min, int max) MinMax(int a, int b, int c) {
+        return (Math.Min(a, b), Math.Max(b, c));
     }
 }
 }

@@ -65,6 +65,9 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     [Min(1)]
     Vector2Int _size = Vector2Int.one;
 
+    [SerializeField]
+    List<RequiredResourceToBuild> _requiredResourcesToBuild;
+
     public BuildingType type => _type;
 
     public ScriptableResource harvestableResource {
@@ -110,6 +113,6 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     public Vector2Int size => _size;
     public Vector2Int pickupableItemsCellOffset => _pickupableItemsCellOffset;
 
-    public List<ResourceObj> requiredResources { get; } = new();
+    public List<RequiredResourceToBuild> requiredResourcesToBuild => _requiredResourcesToBuild;
 }
 }
