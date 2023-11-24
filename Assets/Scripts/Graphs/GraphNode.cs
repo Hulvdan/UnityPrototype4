@@ -8,6 +8,7 @@ public static class GraphNode {
     public static byte Up = 1 << 1;
     public static byte Left = 1 << 2;
     public static byte Down = 1 << 3;
+    public static byte All = (byte)(Right + Up + Left + Down);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Has(byte node, int dirIndex) {

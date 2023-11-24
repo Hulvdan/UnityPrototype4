@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using BFG.Core;
 using JetBrains.Annotations;
-using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -23,9 +22,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         return _nodes[y - _offset.Value.y][x - _offset.Value.x];
     }
 
-    public void SetDirection(
-        Vector2Int pos, Direction direction, bool value = true
-    ) {
+    public void SetDirection(Vector2Int pos, Direction direction, bool value = true) {
         SetDirection(pos.x, pos.y, direction, value);
     }
 
@@ -199,7 +196,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             for (var x = 0; x < width; x++) {
                 var node = _nodes[y][x];
 
-                for (Direction dir = 0; dir < (Direction)4; dir++) {
+                foreach (var dir in Utils.Directions) {
                     if (!GraphNode.Has(node, dir)) {
                         continue;
                     }
@@ -522,7 +519,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
                     continue;
                 }
 
-                for (Direction dir = 0; dir < (Direction)4; dir++) {
+                foreach (var dir in Utils.Directions) {
                     if (!GraphNode.Has(node, dir)) {
                         continue;
                     }
