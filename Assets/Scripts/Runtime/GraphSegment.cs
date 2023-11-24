@@ -59,7 +59,7 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
     }
 
     public List<GraphSegment> LinkedSegments => _linkedSegments;
-    List<GraphSegment> _linkedSegments = new();
+    readonly List<GraphSegment> _linkedSegments = new();
 
     public bool HasSomeOfTheSameVertexes(GraphSegment other) {
         foreach (var otherVertex in other.Vertexes) {
