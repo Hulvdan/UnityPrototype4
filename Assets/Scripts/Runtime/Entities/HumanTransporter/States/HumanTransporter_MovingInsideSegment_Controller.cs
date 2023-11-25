@@ -19,7 +19,6 @@ public class HumanTransporter_MovingInsideSegment_Controller {
         Building cityHall
     ) {
         using var _ = Tracing.Scope();
-        Tracing.Log("OnEnter");
 
         Assert.AreEqual(human.movingTo, null, "human.movingTo == null");
         Assert.AreEqual(human.movingPath.Count, 0, "human.movingPath.Count == 0");
@@ -39,7 +38,6 @@ public class HumanTransporter_MovingInsideSegment_Controller {
         Building cityHall
     ) {
         using var _ = Tracing.Scope();
-        Tracing.Log("OnExit");
 
         human.stateMovingInsideSegment = null;
         human.movingPath.Clear();
