@@ -94,6 +94,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [Required]
     InitialMapProvider _initialMapProvider = null!;
 
+    [SerializeField]
+    [Required]
+    ScriptableBuilding _lumberjacksHouse = null!;
+
     [FoldoutGroup("Debug", true)]
     [SerializeField]
     bool _hideEditorLogs;
@@ -136,10 +140,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void Update() {
         var dt = _gameManager.dt;
+        _itemTransportationSystem.PathfindItemsInQueue();
         UpdateHumans(dt);
         UpdateHumanTransporters(dt);
         UpdateBuildings(dt);
-        _itemTransportationSystem.PathfindItemsInQueue();
         // _horseCompoundSystem.UpdateDt(dt);
     }
 
@@ -201,6 +205,17 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         _itemTransportationSystem = new(this, this);
+
+        if (Application.isPlaying) {
+            TryBuild(new(7, 7), new() { Type = SelectedItemType.Road });
+            TryBuild(
+                new(6, 7),
+                new() {
+                    Type = SelectedItemType.Building,
+                    Building = _lumberjacksHouse,
+                }
+            );
+        }
     }
 
     void AddMapResource(Building building, ScriptableResource scriptable) {
@@ -645,22 +660,22 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     void UpdateBuildings(float dt) {
         foreach (var building in buildings) {
             if (building.BuildingProgress < 1) {
-                UpdateBuildingThatIsNotConstructedYet(dt, building);
+                UpdateBuilding_NotConstructed(dt, building);
             }
             else {
-                UpdateProductionBuilding(dt, building);
+                UpdateBuilding_Production(dt, building);
             }
         }
     }
 
-    void UpdateBuildingThatIsNotConstructedYet(float dt, Building building) {
+    void UpdateBuilding_NotConstructed(float dt, Building building) {
         if (building.ResourcesToBook.Count > 0) {
             _itemTransportationSystem.Add_ResourcesToBook(building.ResourcesToBook);
             building.ResourcesToBook.Clear();
         }
     }
 
-    void UpdateProductionBuilding(float dt, Building building) {
+    void UpdateBuilding_Production(float dt, Building building) {
         var scriptableBuilding = building.scriptable;
 
         if (scriptableBuilding.type == BuildingType.Produce) {
