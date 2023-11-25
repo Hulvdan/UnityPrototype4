@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using JetBrains.Annotations;
-using UnityEngine.UI;
+﻿using JetBrains.Annotations;
 
 namespace BFG.Runtime {
 public class HumanTransporter_MovingInTheWorld_Controller {
@@ -81,6 +79,27 @@ public class HumanTransporter_MovingInTheWorld_Controller {
         using var _ = Tracing.Scope();
 
         if (human.segment != null) {
+            if (human.movingTo != null) {
+                if (
+                    human.segment.Graph.Contains(human.movingTo.Value)
+                    && human.segment.Graph.Node(human.movingTo.Value) != 0
+                ) {
+                    human.movingPath.Clear();
+                    return;
+                }
+            }
+
+            if (
+                human.movingTo == null
+                && human.segment.Graph.Contains(human.pos)
+                && human.segment.Graph.Node(human.pos) != 0
+            ) {
+                Tracing.Log(
+                    "_controller.SetState(human, HumanTransporterState.MovingInsideSegment");
+                _controller.SetState(human, HumanTransporterState.MovingInsideSegment);
+                return;
+            }
+
             if (
                 !ReferenceEquals(oldSegment, human.segment)
                 || human.stateMovingInTheWorld != State.MovingToSegment
@@ -91,12 +110,6 @@ public class HumanTransporter_MovingInTheWorld_Controller {
                 var center = human.segment.Graph.GetCenters()[0];
                 var path = map.FindPath(human.movingTo ?? human.pos, center, true).Path;
                 human.AddPath(path);
-            }
-
-            if (human.segment.Graph.Contains(human.pos)) {
-                Tracing.Log(
-                    "_controller.SetState(human, HumanTransporterState.MovingInsideSegment");
-                _controller.SetState(human, HumanTransporterState.MovingInsideSegment);
             }
         }
         else if (human.stateMovingInTheWorld != State.MovingToTheCityHall) {

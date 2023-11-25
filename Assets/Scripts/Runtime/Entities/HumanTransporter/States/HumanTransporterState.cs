@@ -31,6 +31,9 @@ public class HumanTransporter_Controller {
         HumanTransporter human,
         HumanTransporterState newState
     ) {
+        using var _ = Tracing.Scope();
+        Tracing.Log("SetState");
+
         var oldState = human.state;
         human.state = newState;
 
@@ -100,6 +103,9 @@ public class HumanTransporter_Controller {
         [CanBeNull]
         GraphSegment oldSegment
     ) {
+        using var _ = Tracing.Scope();
+        Tracing.Log("OnSegmentChanged");
+
         var data = new HumanTransporterData(_map, _mapSize, _cityHall, 1f, 1f);
         switch (human.state) {
             case HumanTransporterState.MovingInTheWorld:
@@ -121,6 +127,9 @@ public class HumanTransporter_Controller {
     }
 
     public void OnHumanMovedToTheNextTile(HumanTransporter human) {
+        using var _ = Tracing.Scope();
+        Tracing.Log("OnHumanMovedToTheNextTile");
+
         var data = new HumanTransporterData(_map, _mapSize, _cityHall, 1f, 1f);
         switch (human.state) {
             case HumanTransporterState.MovingInTheWorld:
