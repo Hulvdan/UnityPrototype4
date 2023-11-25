@@ -48,13 +48,16 @@ public class HumanGO : MonoBehaviour {
 
     public void SetPickingUpResourceCoef(float normalized) {
         var coef = _itemPickupCurve.Evaluate(normalized);
-        _resourceSpriteRenderer.transform.localPosition =
-            Vector2.Lerp(Vector2.zero, _verticalOffset, coef);
+
+        var a = transform.TransformPoint(Vector3.zero);
+        var b = transform.TransformPoint(_verticalOffset);
+
+        _resourceSpriteRenderer.transform.position = Vector2.Lerp(a, b, coef);
     }
 
     public void OnStoppedPickingUpResource(ScriptableResource resource) {
-        _resourceSpriteRenderer.transform.localPosition =
-            Vector2.Lerp(Vector2.zero, _verticalOffset, 1);
+        var b = transform.TransformPoint(_verticalOffset);
+        _resourceSpriteRenderer.transform.position = b;
     }
 
     public void OnPlacedResource(float gameSpeed) {
@@ -74,8 +77,11 @@ public class HumanGO : MonoBehaviour {
 
     public void SetPlacingResourceCoef(float normalized) {
         var coef = _itemPlacingCurve.Evaluate(normalized);
-        _resourceSpriteRenderer.transform.localPosition =
-            Vector2.Lerp(_verticalOffset, Vector2.zero, coef);
+
+        var a = transform.TransformPoint(_verticalOffset);
+        var b = transform.TransformPoint(Vector3.zero);
+
+        _resourceSpriteRenderer.transform.position = Vector2.Lerp(a, b, coef);
     }
 
     public void OnStoppedPlacingResource(ScriptableResource resource) {

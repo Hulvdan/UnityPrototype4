@@ -414,6 +414,13 @@ public class MapRenderer : MonoBehaviour {
     void OnHumanTransporterPlacedResource(E_HumanTransporterPlacedResource data) {
         var (human, go) = _humanTransporters[data.Human.ID];
         go.OnStoppedPlacingResource(data.Resource.Scriptable);
+
+        var item = Instantiate(_itemPrefab, _itemsLayer);
+        item.transform.localPosition = new Vector2(human.pos.x, human.pos.y) + Vector2.one / 2;
+        var itemGo = item.GetComponent<ItemGO>();
+        itemGo.SetAs(data.Resource.Scriptable);
+
+        _storedItems.Add(data.Resource.ID, itemGo);
     }
 
     void OnHumanTransporterPickedUpResource(E_HumanTransporterPickedUpResource data) {
@@ -433,6 +440,11 @@ public class MapRenderer : MonoBehaviour {
     ) {
         var (human, go) = _humanTransporters[data.Human.ID];
         go.OnStartedPickingUpResource(data.Resource.Scriptable);
+
+        if (_storedItems.TryGetValue(data.Resource.ID, out var res)) {
+            Destroy(res.gameObject);
+            _storedItems.Remove(data.Resource.ID);
+        }
     }
 
     void OnBuildingPlaced(E_BuildingPlaced data) {
