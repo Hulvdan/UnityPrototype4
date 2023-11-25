@@ -152,11 +152,17 @@ public class HumanTransporter_MovingItem_Controller {
 
                 if (human.segment.resourcesToTransport.Count == 0) {
                     Tracing.Log("human.segment.resourcesToTransport.Count == 0");
+                    Tracing.Log(
+                        "_controller.SetState(human, HumanTransporterState.MovingInTheWorld)");
                     _controller.SetState(human, HumanTransporterState.MovingInTheWorld);
                 }
                 else {
+                    Tracing.Log("human.segment.resourcesToTransport.Count != 0");
+                    Tracing.Log("_controller.SetState(human, HumanTransporterState.MovingItem)");
                     _controller.SetState(human, HumanTransporterState.MovingItem);
                 }
+
+                return;
             }
         }
 
