@@ -208,8 +208,11 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         if (Application.isPlaying) {
             TryBuild(new(7, 7), new() { Type = SelectedItemType.Road });
+            TryBuild(new(6, 7), new() { Type = SelectedItemType.Road });
+            TryBuild(new(6, 7), new() { Type = SelectedItemType.Flag });
+            TryBuild(new(6, 6), new() { Type = SelectedItemType.Road });
             TryBuild(
-                new(6, 7),
+                new(5, 6),
                 new() {
                     Type = SelectedItemType.Building,
                     Building = _lumberjacksHouse,
