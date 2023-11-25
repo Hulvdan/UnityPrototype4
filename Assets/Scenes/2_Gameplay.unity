@@ -8578,6 +8578,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 45af1427840af3a4a98b31727bdd67b4, type: 2}
   - {fileID: 11400000, guid: ae832cc99114055458e3b3270e527dd6, type: 2}
   _initialMapProvider: {fileID: 795772558}
+  _lumberjacksHouse: {fileID: 11400000, guid: 59b7b8a76de0c50428e3ddae6cbf039b, type: 2}
   _hideEditorLogs: 0
   _horseCompoundSystem: {fileID: 1706615548}
   _horsesStationItemsGatheringRadius: 2
