@@ -388,6 +388,17 @@ public class MapRenderer : MonoBehaviour {
         hooks.Add(_map.onHumanPlacedResource.Subscribe(OnHumanPlacedResource));
         hooks.Add(_map.onHumanReachedCityHall.Subscribe(OnHumanReachedCityHall));
 
+        hooks.Add(
+            _map.onHumanTransporterStartedPickingUpResource.Subscribe(
+                OnHumanTransporterStartedPickingUpResource));
+        hooks.Add(
+            _map.onHumanTransporterPickedUpResource.Subscribe(OnHumanTransporterPickedUpResource));
+        hooks.Add(
+            _map.onHumanTransporterStartedPlacingResource.Subscribe(
+                OnHumanTransporterStartedPlacingResource));
+        hooks.Add(
+            _map.onHumanTransporterPlacedResource.Subscribe(OnHumanTransporterPlacedResource));
+
         hooks.Add(_map.onTrainCreated.Subscribe(OnTrainCreated));
         hooks.Add(_map.onTrainNodeCreated.Subscribe(OnTrainNodeCreated));
         hooks.Add(_map.onTrainPickedUpResource.Subscribe(OnTrainPickedUpResource));
@@ -398,6 +409,30 @@ public class MapRenderer : MonoBehaviour {
         hooks.Add(_map.onBuildingStartedProcessing.Subscribe(OnBuildingStartedProcessing));
         hooks.Add(_map.onBuildingProducedItem.Subscribe(OnBuildingProducedItem));
         hooks.Add(_map.onProducedResourcesPickedUp.Subscribe(OnProducedResourcesPickedUp));
+    }
+
+    void OnHumanTransporterPlacedResource(E_HumanTransporterPlacedResource data) {
+        var (human, go) = _humanTransporters[data.Human.ID];
+        go.OnStoppedPlacingResource(data.Resource.Scriptable);
+    }
+
+    void OnHumanTransporterPickedUpResource(E_HumanTransporterPickedUpResource data) {
+        var (human, go) = _humanTransporters[data.Human.ID];
+        go.OnStoppedPickingUpResource(data.Resource.Scriptable);
+    }
+
+    void OnHumanTransporterStartedPlacingResource(
+        E_HumanTransporterStartedPlacingResource data
+    ) {
+        var (human, go) = _humanTransporters[data.Human.ID];
+        go.OnStartedPlacingResource(data.Resource.Scriptable);
+    }
+
+    void OnHumanTransporterStartedPickingUpResource(
+        E_HumanTransportedStartedPickingUpResource data
+    ) {
+        var (human, go) = _humanTransporters[data.Human.ID];
+        go.OnStartedPickingUpResource(data.Resource.Scriptable);
     }
 
     void OnBuildingPlaced(E_BuildingPlaced data) {
@@ -842,6 +877,13 @@ public class MapRenderer : MonoBehaviour {
         }
 
         go.transform.localPosition = pos + Vector2.one / 2;
+        if (human.stateMovingItem == HumanTransporter_MovingItem_Controller.State.PickingUpItem) {
+            go.SetPickingUpResourceCoef(human.stateMovingItem_pickingUpResourceNormalized);
+        }
+
+        if (human.stateMovingItem == HumanTransporter_MovingItem_Controller.State.PlacingItem) {
+            go.SetPlacingResourceCoef(human.stateMovingItem_placingResourceNormalized);
+        }
     }
 
     #endregion

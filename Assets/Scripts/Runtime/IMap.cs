@@ -21,10 +21,17 @@ public interface IMap {
     Subject<E_HumanPlacedResource> onHumanPlacedResource { get; }
     Subject<E_HumanReachedCityHall> onHumanReachedCityHall { get; }
 
-    Subject<E_HumanReachedCityHall> onHumanTransporterStartedPickingUpResource { get; }
-    Subject<E_HumanReachedCityHall> onHumanTransporterPickedUpResource { get; }
-    Subject<E_HumanReachedCityHall> onHumanTransporterStartedPlacingResource { get; }
-    Subject<E_HumanReachedCityHall> onHumanTransporterPlacedResource { get; }
+    Subject<E_HumanTransportedStartedPickingUpResource> onHumanTransporterStartedPickingUpResource {
+        get;
+    }
+
+    Subject<E_HumanTransporterPickedUpResource> onHumanTransporterPickedUpResource { get; }
+
+    Subject<E_HumanTransporterStartedPlacingResource> onHumanTransporterStartedPlacingResource {
+        get;
+    }
+
+    Subject<E_HumanTransporterPlacedResource> onHumanTransporterPlacedResource { get; }
 
     Subject<E_TrainCreated> onTrainCreated { get; }
     Subject<E_TrainNodeCreated> onTrainNodeCreated { get; }
