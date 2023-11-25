@@ -21,7 +21,7 @@ public class HumanTransporter {
     public Vector2 movingFrom { get; set; }
     public Vector2Int? movingTo { get; set; }
 
-    public List<Vector2Int> movingPath = new();
+    public readonly List<Vector2Int> movingPath = new();
 
     public HumanTransporterState? state { get; set; }
 
@@ -76,7 +76,14 @@ public class HumanTransporter {
 
     #region HumanTransporter_MovingItem_Controller
 
-    public HumanTransporter_MovingItem_Controller.State? stateMovingItem { get; set; }
+    public HumanTransporter_MovingItem_Controller.State? stateMovingItem;
+
+    public float stateMovingItem_pickingUpResourceElapsed;
+    public float stateMovingItem_pickingUpResourceNormalized;
+    public float stateMovingItem_placingResourceElapsed;
+    public float stateMovingItem_placingResourceNormalized;
+
+    public MapResource? targetedResource = null;
 
     #endregion
 }

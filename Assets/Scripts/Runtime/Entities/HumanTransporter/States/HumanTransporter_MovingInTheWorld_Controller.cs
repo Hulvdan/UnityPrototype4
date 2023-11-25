@@ -1,31 +1,54 @@
 ﻿using JetBrains.Annotations;
 
 namespace BFG.Runtime {
-public static class HumanTransporter_MovingInTheWorld_Controller {
+public class HumanTransporter_MovingInTheWorld_Controller {
     public enum State {
         MovingToTheCityHall,
         MovingToSegment,
     }
 
-    public static void OnEnter(
-        HumanTransporter human, IMap map, IMapSize mapSize, Building cityHall
+    public HumanTransporter_MovingInTheWorld_Controller(HumanTransporter_Controller controller) {
+        _controller = controller;
+    }
+
+    public void OnEnter(
+        HumanTransporter human,
+        IMap map,
+        IMapSize mapSize,
+        Building cityHall
     ) {
+        using var _ = Tracing.Scope();
+
+        Tracing.Log("OnEnter");
+        human.movingElapsed = 0;
         UpdateStates(human, map, mapSize, cityHall, null);
     }
 
-    public static void OnExit(
-        HumanTransporter human, IMap map, IMapSize mapSize, Building cityHall
+    public void OnExit(
+        HumanTransporter human,
+        IMap map,
+        IMapSize mapSize,
+        Building cityHall
     ) {
+        using var _ = Tracing.Scope();
+
+        Tracing.Log("OnExit");
         human.stateMovingInTheWorld = null;
+        human.movingTo = null;
+        human.movingPath.Clear();
     }
 
-    public static void Update(
-        HumanTransporter human, IMap map, IMapSize mapSize, Building cityHall, float dt
+    public void Update(
+        HumanTransporter human,
+        IMap map,
+        IMapSize mapSize,
+        Building cityHall,
+        float dt
     ) {
         UpdateStates(human, map, mapSize, cityHall, human.segment);
     }
 
-    public static void OnSegmentChanged(
+    public void OnSegmentChanged(
         HumanTransporter human,
         IMap map,
         IMapSize mapSize,
@@ -33,10 +56,19 @@ public static class HumanTransporter_MovingInTheWorld_Controller {
         [CanBeNull]
         GraphSegment oldSegment
     ) {
+        using var _ = Tracing.Scope();
+
+        Tracing.Log("OnSegmentChanged");
         UpdateStates(human, map, mapSize, cityHall, oldSegment);
     }
 
-    static void UpdateStates(
+    public void OnHumanMovedToTheNextTile(
+        HumanTransporter human,
+        HumanTransporterData data
+    ) {
+    }
+
+    void UpdateStates(
         HumanTransporter human,
         IMap map,
         IMapSize mapSize,
@@ -44,30 +76,51 @@ public static class HumanTransporter_MovingInTheWorld_Controller {
         [CanBeNull]
         GraphSegment oldSegment
     ) {
+        using var _ = Tracing.Scope();
+
         if (human.segment != null) {
+            if (human.movingTo != null) {
+                if (
+                    human.segment.Graph.Contains(human.movingTo.Value)
+                    && human.segment.Graph.Node(human.movingTo.Value) != 0
+                ) {
+                    human.movingPath.Clear();
+                    return;
+                }
+            }
+
+            if (
+                human.movingTo == null
+                && human.segment.Graph.Contains(human.pos)
+                && human.segment.Graph.Node(human.pos) != 0
+            ) {
+                Tracing.Log(
+                    "_controller.SetState(human, HumanTransporterState.MovingInsideSegment)");
+                _controller.SetState(human, HumanTransporterState.MovingInsideSegment);
+                return;
+            }
+
             if (
                 !ReferenceEquals(oldSegment, human.segment)
                 || human.stateMovingInTheWorld != State.MovingToSegment
             ) {
+                Tracing.Log("Setting human.stateMovingInTheWorld = State.MovingToSegment");
                 human.stateMovingInTheWorld = State.MovingToSegment;
 
                 var center = human.segment.Graph.GetCenters()[0];
                 var path = map.FindPath(human.movingTo ?? human.pos, center, true).Path;
                 human.AddPath(path);
             }
-
-            if (human.segment.Graph.Contains(human.pos)) {
-                HumanTransporter_Controller.SetState(
-                    human, HumanTransporterState.MovingInsideSegment, map, mapSize, cityHall
-                );
-            }
         }
         else if (human.stateMovingInTheWorld != State.MovingToTheCityHall) {
+            Tracing.Log("human.stateMovingInTheWorld = State.MovingToTheCityHall");
             human.stateMovingInTheWorld = State.MovingToTheCityHall;
 
             var path = map.FindPath(human.movingTo ?? human.pos, cityHall.pos, true).Path;
             human.AddPath(path);
         }
     }
+
+    readonly HumanTransporter_Controller _controller;
 }
 }

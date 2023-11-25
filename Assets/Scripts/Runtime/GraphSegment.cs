@@ -14,16 +14,24 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
     public readonly Graph Graph;
     public readonly List<Vector2Int> MovementTiles;
     public HumanTransporter AssignedHuman;
+    public readonly List<MapResource> resourcesWithThisSegmentInPath;
+    public readonly Queue<MapResource> resourcesToTransport;
 
-    public GraphSegment(List<GraphVertex> vertexes, List<Vector2Int> movementTiles, Graph graph) {
+    public GraphSegment(
+        List<GraphVertex> vertexes,
+        List<Vector2Int> movementTiles,
+        Graph graph
+    ) {
         Assert.IsNotNull(vertexes);
         Assert.IsNotNull(movementTiles);
         Assert.IsNotNull(graph);
 
         Vertexes = vertexes;
         MovementTiles = movementTiles;
-
         Graph = graph;
+        resourcesWithThisSegmentInPath = new();
+        resourcesToTransport = new();
+
         vertexes.Sort();
         // TODO: Should be considered for removal
         movementTiles.Sort(Utils.StupidVector2IntComparison);
@@ -51,7 +59,7 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
     }
 
     public List<GraphSegment> LinkedSegments => _linkedSegments;
-    List<GraphSegment> _linkedSegments = new();
+    readonly List<GraphSegment> _linkedSegments = new();
 
     public bool HasSomeOfTheSameVertexes(GraphSegment other) {
         foreach (var otherVertex in other.Vertexes) {

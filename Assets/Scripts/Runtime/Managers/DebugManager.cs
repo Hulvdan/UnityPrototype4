@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
@@ -38,6 +39,10 @@ public class DebugManager : MonoBehaviour {
         _toggleDebugAction = _map.FindAction("Toggle");
         _toggleMovementSystemPathsAction = _map.FindAction("ToggleMovementSystem");
         _toggleBuildableTilesAction = _map.FindAction("ToggleBuildableCells");
+    }
+
+    void OnApplicationQuit() {
+        Tracing.DisposeWriter();
     }
 
     void Start() {

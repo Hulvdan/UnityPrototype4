@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using BFG.Core;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -8,9 +10,19 @@ namespace BFG.Graphs {
 public class Graph : IEquatable<Graph>, IComparable<Graph> {
     const int DEV_NUMBER_OF_BUILD_PATH_ITERATIONS = 256;
 
-    public void SetDirection(
-        Vector2Int pos, Direction direction, bool value = true
-    ) {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte Node(Vector2Int pos) {
+        return Node(pos.x, pos.y);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte Node(int x, int y) {
+        Assert.IsTrue(Contains(x, y));
+        Assert.IsTrue(_offset != null);
+        return _nodes[y - _offset.Value.y][x - _offset.Value.x];
+    }
+
+    public void SetDirection(Vector2Int pos, Direction direction, bool value = true) {
         SetDirection(pos.x, pos.y, direction, value);
     }
 
@@ -66,131 +78,19 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         Assert.IsTrue(Contains(originPos));
         Assert.IsTrue(Contains(destinationPos));
 
-        var nodeIndex2Pos = new Dictionary<int, Vector2Int>();
-        var pos2NodeIndex = new Dictionary<Vector2Int, int>();
-
-        var nodeIndex = 0;
-        for (var y = 0; y < height; y++) {
-            for (var x = 0; x < width; x++) {
-                var node = _nodes[y][x];
-                if (node == 0) {
-                    continue;
-                }
-
-                nodeIndex2Pos.Add(nodeIndex, new(x, y));
-                pos2NodeIndex.Add(new(x, y), nodeIndex);
-                nodeIndex += 1;
-            }
-        }
-
-        // NOTE: |V| = _nodesCount
-        // > let dist be a |V| × |V| array of minimum distances initialized to ∞ (infinity)
-        // > let prev be a |V| × |V| array of minimum distances initialized to null
-        var dist = new int[_nodesCount][];
-        var prev = new int[_nodesCount][];
-        for (var y = 0; y < _nodesCount; y++) {
-            var distRow = new int[_nodesCount];
-            for (var x = 0; x < _nodesCount; x++) {
-                distRow[x] = int.MaxValue;
-            }
-
-            dist[y] = distRow;
-
-            var prevRow = new int[_nodesCount];
-            for (var x = 0; x < _nodesCount; x++) {
-                prevRow[x] = int.MinValue;
-            }
-
-            prev[y] = prevRow;
-        }
-
-        // NOTE: edge (u, v) = (nodeIndex, newNodeIndex)
-        // > for each edge (u, v) do
-        // >     dist[u][v] ← w(u, v)  // The weight of the edge (u, v)
-        // >     prev[u][v] ← u
-        nodeIndex = 0;
-        for (var y = 0; y < height; y++) {
-            for (var x = 0; x < width; x++) {
-                var node = _nodes[y][x];
-                if (node == 0) {
-                    continue;
-                }
-
-                for (Direction dir = 0; dir < (Direction)4; dir++) {
-                    if (!GraphNode.Has(node, dir)) {
-                        continue;
-                    }
-
-                    var newPos = new Vector2Int(x, y) + dir.AsOffset();
-                    var newNodeIndex = pos2NodeIndex[newPos];
-                    dist[nodeIndex][newNodeIndex] = 1;
-                    prev[nodeIndex][newNodeIndex] = nodeIndex;
-                }
-
-                nodeIndex += 1;
-            }
-        }
-
-        // NOTE: vertex v = nodeIndex
-        // > for each vertex v do
-        // >     dist[v][v] ← 0
-        // >     prev[v][v] ← v
-        nodeIndex = 0;
-        for (var y = 0; y < height; y++) {
-            for (var x = 0; x < width; x++) {
-                var node = _nodes[y][x];
-                if (node == 0) {
-                    continue;
-                }
-
-                dist[nodeIndex][nodeIndex] = 0;
-                prev[nodeIndex][nodeIndex] = nodeIndex;
-
-                nodeIndex += 1;
-            }
-        }
-
-        // Standard Floyd-Warshall
-        // for k from 1 to |V|
-        //     for i from 1 to |V|
-        //         for j from 1 to |V|
-        //             if dist[i][j] > dist[i][k] + dist[k][j] then
-        //                 dist[i][j] ← dist[i][k] + dist[k][j]
-        //                 prev[i][j] ← prev[k][j]
-        for (var k = 0; k < _nodesCount; k++) {
-            for (var j = 0; j < _nodesCount; j++) {
-                for (var i = 0; i < _nodesCount; i++) {
-                    var ij = dist[i][j];
-                    var ik = dist[i][k];
-                    var kj = dist[k][j];
-
-                    if (ik != int.MaxValue && kj != int.MaxValue) {
-                        if (ij > ik + kj) {
-                            dist[i][j] = ik + kj;
-                            prev[i][j] = prev[k][j];
-                        }
-                    }
-                }
-            }
-        }
-
         return BuildPath(
             originPos,
             destinationPos,
-            pos2NodeIndex,
-            nodeIndex2Pos,
-            prev,
-            _offset.Value
+            _offset.Value,
+            GetData()
         );
     }
 
     static List<Vector2Int> BuildPath(
         Vector2Int originPos,
         Vector2Int destinationPos,
-        IReadOnlyDictionary<Vector2Int, int> pos2NodeIndex,
-        IReadOnlyDictionary<int, Vector2Int> nodeIndex2Pos,
-        IReadOnlyList<IReadOnlyList<int>> prev,
-        Vector2Int offset
+        Vector2Int offset,
+        CalculatedGraphPathData data
     ) {
         // procedure Path(u, v)
         //     if prev[u][v] = null then
@@ -200,6 +100,10 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         //         v ← prev[u][v]
         //         path.prepend(v)
         //     return path
+        var nodeIndex2Pos = data.nodeIndex2Pos;
+        var pos2NodeIndex = data.pos2NodeIndex;
+        var prev = data.prev;
+
         Assert.IsTrue(pos2NodeIndex.ContainsKey(originPos - offset));
         Assert.IsTrue(pos2NodeIndex.ContainsKey(destinationPos - offset));
         var originNodeIndex = pos2NodeIndex[originPos - offset];
@@ -208,20 +112,17 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         var path = new List<Vector2Int> { destinationPos };
         var currentIteration = 0;
         while (
-            originNodeIndex != destinationNodeIndex
-            && currentIteration < DEV_NUMBER_OF_BUILD_PATH_ITERATIONS
+            currentIteration++ < DEV_NUMBER_OF_BUILD_PATH_ITERATIONS
+            && originNodeIndex != destinationNodeIndex
         ) {
             var i = prev[originNodeIndex][destinationNodeIndex];
             Assert.IsTrue(i != int.MinValue);
 
             destinationNodeIndex = i;
             path.Add(nodeIndex2Pos[destinationNodeIndex] + offset);
-            currentIteration++;
         }
 
-        if (currentIteration >= DEV_NUMBER_OF_BUILD_PATH_ITERATIONS) {
-            Debug.LogError("Expected Iterations Limit Exceeded!");
-        }
+        Assert.IsTrue(currentIteration < DEV_NUMBER_OF_BUILD_PATH_ITERATIONS);
 
         path.Reverse();
         return path;
@@ -243,100 +144,24 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
 
-        var nodeIndex2Pos = new Dictionary<int, Vector2Int>();
-        var pos2NodeIndex = new Dictionary<Vector2Int, int>();
-
-        var nodeIndex = 0;
-        for (var y = 0; y < height; y++) {
-            for (var x = 0; x < width; x++) {
-                var node = _nodes[y][x];
-                if (node == 0) {
-                    continue;
-                }
-
-                nodeIndex2Pos.Add(nodeIndex, new(x, y));
-                pos2NodeIndex.Add(new(x, y), nodeIndex);
-                nodeIndex += 1;
-            }
+        if (_centers != null) {
+            return _centers;
         }
 
-        var dist = new int[_nodesCount][];
-        for (var y = 0; y < _nodesCount; y++) {
-            var distRow = new int[_nodesCount];
-            for (var x = 0; x < _nodesCount; x++) {
-                distRow[x] = int.MaxValue;
-            }
-
-            dist[y] = distRow;
-        }
-
-        nodeIndex = 0;
-        for (var y = 0; y < height; y++) {
-            for (var x = 0; x < width; x++) {
-                var node = _nodes[y][x];
-                if (node == 0) {
-                    continue;
-                }
-
-                dist[nodeIndex][nodeIndex] = 0;
-                nodeIndex += 1;
-            }
-        }
-
-        // NOTE: edge (u, v) = (nodeIndex, newNodeIndex)
-        // > for each edge (u, v) do
-        // >     dist[u][v] ← w(u, v)  // The weight of the edge (u, v)
-        // >     prev[u][v] ← u
-        nodeIndex = 0;
-        for (var y = 0; y < height; y++) {
-            for (var x = 0; x < width; x++) {
-                var node = _nodes[y][x];
-                if (node == 0) {
-                    continue;
-                }
-
-                for (Direction dir = 0; dir < (Direction)4; dir++) {
-                    if (!GraphNode.Has(node, dir)) {
-                        continue;
-                    }
-
-                    var newPos = new Vector2Int(x, y) + dir.AsOffset();
-                    var newNodeIndex = pos2NodeIndex[newPos];
-                    dist[nodeIndex][newNodeIndex] = 1;
-                }
-
-                nodeIndex += 1;
-            }
-        }
-
-        var nodeEccentricities = new int[_nodesCount];
-        var rad = int.MaxValue;
-        var diam = 0;
-
-        // Floyd-Warshall's algorithm
-        for (var k = 0; k < _nodesCount; k++) {
-            for (var j = 0; j < _nodesCount; j++) {
-                for (var i = 0; i < _nodesCount; i++) {
-                    var ij = dist[i][j];
-                    var ik = dist[i][k];
-                    var kj = dist[k][j];
-
-                    if (ik != int.MaxValue && kj != int.MaxValue) {
-                        if (ij > ik + kj) {
-                            dist[i][j] = ik + kj;
-                        }
-                    }
-                }
-            }
-        }
+        var data = GetData();
+        var dist = data.dist;
+        var nodeIndex2Pos = data.nodeIndex2Pos;
 
         // Counting values of eccentricity
+        var nodeEccentricities = new int[_nodesCount];
         for (var i = 0; i < _nodesCount; i++) {
             for (var j = 0; j < _nodesCount; j++) {
                 nodeEccentricities[i] = Math.Max(nodeEccentricities[i], dist[i][j]);
             }
         }
 
+        var rad = int.MaxValue;
+        var diam = 0;
         for (var i = 0; i < _nodesCount; i++) {
             rad = Math.Min(rad, nodeEccentricities[i]);
             diam = Math.Max(diam, nodeEccentricities[i]);
@@ -356,11 +181,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             centerNodePositions.Add(nodeIndex2Pos[i] + _offset.Value);
         }
 
+        _centers = centerNodePositions;
         return centerNodePositions;
-    }
-
-    public List<Vector2Int> GetCentroids() {
-        return new();
     }
 
     public bool IsUndirected() {
@@ -371,7 +193,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             for (var x = 0; x < width; x++) {
                 var node = _nodes[y][x];
 
-                for (Direction dir = 0; dir < (Direction)4; dir++) {
+                foreach (var dir in Utils.Directions) {
                     if (!GraphNode.Has(node, dir)) {
                         continue;
                     }
@@ -605,7 +427,6 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         }
     }
 
-
     public List<List<byte>> Nodes => _nodes;
     public int height => _nodes.Count;
     public int width => _nodes[0].Count;
@@ -619,5 +440,160 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
     Vector2Int? _offset;
     List<List<byte>> _nodes = new();
     int _nodesCount;
+
+    CalculatedGraphPathData GetData() {
+        if (_data == null) {
+            _data = RecalculateData();
+        }
+
+        return _data;
+    }
+
+    [CanBeNull]
+    CalculatedGraphPathData _data;
+
+    List<Vector2Int> _centers;
+
+    public int Cost(Vector2Int origin, Vector2Int destination) {
+        Assert.AreNotEqual(Node(origin), (byte)0);
+        Assert.AreNotEqual(Node(destination), (byte)0);
+
+        var data = GetData();
+        var iOrigin = data.pos2NodeIndex[origin];
+        var iDestination = data.pos2NodeIndex[destination];
+
+        return data.dist[iOrigin][iDestination];
+    }
+
+    CalculatedGraphPathData RecalculateData() {
+        var nodeIndex2Pos = new Dictionary<int, Vector2Int>();
+        var pos2NodeIndex = new Dictionary<Vector2Int, int>();
+
+        var nodeIndex = 0;
+        for (var y = 0; y < height; y++) {
+            for (var x = 0; x < width; x++) {
+                var node = _nodes[y][x];
+                if (node == 0) {
+                    continue;
+                }
+
+                nodeIndex2Pos.Add(nodeIndex, new(x, y));
+                pos2NodeIndex.Add(new(x, y), nodeIndex);
+                nodeIndex += 1;
+            }
+        }
+
+        // NOTE: |V| = _nodesCount
+        // > let dist be a |V| × |V| array of minimum distances initialized to ∞ (infinity)
+        // > let prev be a |V| × |V| array of minimum distances initialized to null
+        var dist = new int[_nodesCount][];
+        var prev = new int[_nodesCount][];
+        for (var y = 0; y < _nodesCount; y++) {
+            var distRow = new int[_nodesCount];
+            for (var x = 0; x < _nodesCount; x++) {
+                distRow[x] = int.MaxValue;
+            }
+
+            dist[y] = distRow;
+
+            var prevRow = new int[_nodesCount];
+            for (var x = 0; x < _nodesCount; x++) {
+                prevRow[x] = int.MinValue;
+            }
+
+            prev[y] = prevRow;
+        }
+
+        // NOTE: edge (u, v) = (nodeIndex, newNodeIndex)
+        // > for each edge (u, v) do
+        // >     dist[u][v] ← w(u, v)  // The weight of the edge (u, v)
+        // >     prev[u][v] ← u
+        nodeIndex = 0;
+        for (var y = 0; y < height; y++) {
+            for (var x = 0; x < width; x++) {
+                var node = _nodes[y][x];
+                if (node == 0) {
+                    continue;
+                }
+
+                foreach (var dir in Utils.Directions) {
+                    if (!GraphNode.Has(node, dir)) {
+                        continue;
+                    }
+
+                    var newPos = new Vector2Int(x, y) + dir.AsOffset();
+                    var newNodeIndex = pos2NodeIndex[newPos];
+                    dist[nodeIndex][newNodeIndex] = 1;
+                    prev[nodeIndex][newNodeIndex] = nodeIndex;
+                }
+
+                nodeIndex += 1;
+            }
+        }
+
+        // NOTE: vertex v = nodeIndex
+        // > for each vertex v do
+        // >     dist[v][v] ← 0
+        // >     prev[v][v] ← v
+        nodeIndex = 0;
+        for (var y = 0; y < height; y++) {
+            for (var x = 0; x < width; x++) {
+                var node = _nodes[y][x];
+                if (node == 0) {
+                    continue;
+                }
+
+                dist[nodeIndex][nodeIndex] = 0;
+                prev[nodeIndex][nodeIndex] = nodeIndex;
+
+                nodeIndex += 1;
+            }
+        }
+
+        // Standard Floyd-Warshall
+        // for k from 1 to |V|
+        //     for i from 1 to |V|
+        //         for j from 1 to |V|
+        //             if dist[i][j] > dist[i][k] + dist[k][j] then
+        //                 dist[i][j] ← dist[i][k] + dist[k][j]
+        //                 prev[i][j] ← prev[k][j]
+        for (var k = 0; k < _nodesCount; k++) {
+            for (var j = 0; j < _nodesCount; j++) {
+                for (var i = 0; i < _nodesCount; i++) {
+                    var ij = dist[i][j];
+                    var ik = dist[i][k];
+                    var kj = dist[k][j];
+
+                    if (ik != int.MaxValue && kj != int.MaxValue) {
+                        if (ij > ik + kj) {
+                            dist[i][j] = ik + kj;
+                            prev[i][j] = prev[k][j];
+                        }
+                    }
+                }
+            }
+        }
+
+        return new(dist, prev, nodeIndex2Pos, pos2NodeIndex);
+    }
+}
+
+internal class CalculatedGraphPathData {
+    public int[][] dist;
+    public int[][] prev;
+    public Dictionary<int, Vector2Int> nodeIndex2Pos;
+    public Dictionary<Vector2Int, int> pos2NodeIndex;
+
+    public CalculatedGraphPathData(
+        int[][] dist,
+        int[][] prev,
+        Dictionary<int, Vector2Int> nodeIndex2Pos,
+        Dictionary<Vector2Int, int> pos2NodeIndex
+    ) {
+        this.dist = dist;
+        this.prev = prev;
+        this.nodeIndex2Pos = nodeIndex2Pos;
+        this.pos2NodeIndex = pos2NodeIndex;
+    }
 }
 }

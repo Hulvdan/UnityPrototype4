@@ -63,12 +63,12 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     [FoldoutGroup("Setup", true)]
     [SerializeField]
-    public UnityEvent OnTerrainTilesRegenerated;
+    public UnityEvent OnTerrainTilesRegenerated = null!;
 
     [FormerlySerializedAs("_buildings")]
     [FoldoutGroup("Setup", true)]
     [SerializeField]
-    List<BuildingGO> _buildingGameObjects;
+    List<BuildingGO> _buildingGameObjects = null!;
 
     [FoldoutGroup("Setup", true)]
     [SerializeField]
@@ -77,17 +77,26 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [FoldoutGroup("Setup", true)]
     [SerializeField]
     [Required]
-    ScriptableResource _logResource;
+    ScriptableResource _logResource = null!;
 
     [FoldoutGroup("Setup", true)]
     [SerializeField]
     [Required]
-    List<ScriptableResource> _topBarResources;
+    ScriptableResource _planksResource = null!;
 
     [FoldoutGroup("Setup", true)]
     [SerializeField]
     [Required]
-    InitialMapProvider _initialMapProvider;
+    List<ScriptableResource> _topBarResources = null!;
+
+    [FoldoutGroup("Setup", true)]
+    [SerializeField]
+    [Required]
+    InitialMapProvider _initialMapProvider = null!;
+
+    [SerializeField]
+    [Required]
+    ScriptableBuilding _lumberjacksHouse = null!;
 
     [FoldoutGroup("Debug", true)]
     [SerializeField]
@@ -98,7 +107,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [FoldoutGroup("Horse Movement System", true)]
     [SerializeField]
     [Required]
-    HorseCompoundSystem _horseCompoundSystem;
+    HorseCompoundSystem _horseCompoundSystem = null!;
 
     [FormerlySerializedAs("_horsesGatheringAroundStationRadius")]
     [FoldoutGroup("Horse Movement System", true)]
@@ -106,7 +115,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [Min(1)]
     int _horsesStationItemsGatheringRadius = 2;
 
-    GameManager _gameManager;
+    GameManager _gameManager = null!;
 
     [FoldoutGroup("Humans", true)]
     [ShowInInspector]
@@ -119,7 +128,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [Min(0.01f)]
     float _humanTransporterMovingOneCellDuration = 1f;
 
-    Random _random;
+    Random _random = null!;
 
     public List<GraphSegment> segments => _segments;
     readonly List<GraphSegment> _segments = new();
@@ -131,6 +140,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void Update() {
         var dt = _gameManager.dt;
+        _itemTransportationSystem.PathfindItemsInQueue();
         UpdateHumans(dt);
         UpdateHumanTransporters(dt);
         UpdateBuildings(dt);
@@ -146,17 +156,22 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public List<TopBarResource> resources { get; } = new();
 
+    // List<MapResource> _mapResources = new();
+
     public Subject<Vector2Int> onElementTileChanged { get; } = new();
     public Subject<E_BuildingPlaced> onBuildingPlaced { get; } = new();
 
     // NOTE(Hulvdan): Indexes start from the bottom left corner and go to the top right one
-    public List<List<ElementTile>> elementTiles { get; private set; }
-    public List<List<TerrainTile>> terrainTiles { get; private set; }
+    public List<List<ElementTile>> elementTiles { get; private set; } = null!;
+    public List<List<TerrainTile>> terrainTiles { get; private set; } = null!;
 
     public List<Building> buildings { get; private set; } = new();
 
+    public List<List<List<MapResource>>> mapResources { get; private set; } = null!;
+
     public void Init() {
         _initialMapProvider.Init(this, this);
+        _humanTransporterController = new(this, this, cityHall);
 
         resources.Clear();
         foreach (var res in _topBarResources) {
@@ -165,7 +180,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         if (Application.isPlaying) {
             RegenerateTilemap();
-            OnTerrainTilesRegenerated?.Invoke();
+            OnTerrainTilesRegenerated.Invoke();
         }
 
         // _horseCompoundSystem.Init(this, this);
@@ -174,9 +189,38 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         // CreateHuman(_buildings[0]);
         // CreateHuman(_buildings[1]);
         // CreateHuman(_buildings[1]);
+
+        mapResources = new() { Capacity = height };
+        for (var y = 0; y < height; y++) {
+            var row = new List<List<MapResource>> { Capacity = width };
+            for (var x = 0; x < width; x++) {
+                row.Add(new());
+            }
+
+            mapResources.Add(row);
+        }
+
+        for (var i = 0; i < 5; i++) {
+            AddMapResource(cityHall, _planksResource);
+        }
+
+        _itemTransportationSystem = new(this, this);
+
+        if (Application.isPlaying) {
+            TryBuild(new(7, 7), new() { Type = SelectedItemType.Road });
+            TryBuild(
+                new(6, 7),
+                new() {
+                    Type = SelectedItemType.Building,
+                    Building = _lumberjacksHouse,
+                }
+            );
+        }
     }
 
-    List<GraphSegment> _graphSegments = new();
+    void AddMapResource(Building building, ScriptableResource scriptable) {
+        mapResources[building.posY][building.posX].Add(new(cityHall.pos, scriptable));
+    }
 
     public void InitDependencies(GameManager gameManager) {
         _gameManager = gameManager;
@@ -221,6 +265,18 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             for (var dy = 0; dy < building.scriptable.size.y; dy++) {
                 for (var dx = 0; dx < building.scriptable.size.x; dx++) {
                     elementTiles[pos.y + dy][pos.x + dx] = new(ElementTileType.Building, building);
+                }
+            }
+
+            foreach (var resource in building.scriptable.requiredResourcesToBuild) {
+                for (var i = 0; i < resource.Number; i++) {
+                    building.ResourcesToBook.Add(new() {
+                        ID = Guid.NewGuid(),
+                        Building = building,
+                        BookingType = MapResourceBookingType.Construction,
+                        Priority = 1,
+                        Scriptable = resource.Scriptable,
+                    });
                 }
             }
 
@@ -306,6 +362,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             foreach (var linkedSegment in segment.LinkedSegments) {
                 linkedSegment.Unlink(segment);
             }
+
+            _itemTransportationSystem.OnSegmentDeleted(segment);
         }
 
         if (!_hideEditorLogs) {
@@ -324,9 +382,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 var (oldSegment, human) = humansThatNeedNewSegment.Pop();
                 human.segment = segment;
                 segment.AssignedHuman = human;
-                HumanTransporter_Controller.OnSegmentChanged(
-                    human, this, this, cityHall, oldSegment
-                );
+                _humanTransporterController.OnSegmentChanged(human, oldSegment);
             }
 
             foreach (var segmentToLink in _segments) {
@@ -343,9 +399,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         foreach (var (oldSegment, human) in humansThatNeedNewSegment) {
-            HumanTransporter_Controller.OnSegmentChanged(
-                human, this, this, cityHall, oldSegment
-            );
+            _humanTransporterController.OnSegmentChanged(human, oldSegment);
         }
 
         // Assert that segments don't have tiles with identical directions
@@ -359,13 +413,17 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 var g2 = _segments[j].Graph;
                 for (var y = 0; y < g1.height; y++) {
                     for (var x = 0; x < g1.width; x++) {
+                        // ReSharper disable once InconsistentNaming
                         var g1x = x + g1.Offset.x;
+                        // ReSharper disable once InconsistentNaming
                         var g1y = y + g1.Offset.y;
                         if (!g2.Contains(g1x, g1y)) {
                             continue;
                         }
 
+                        // ReSharper disable once InconsistentNaming
                         var g2y = g1y - g2.Offset.y;
+                        // ReSharper disable once InconsistentNaming
                         var g2x = g1x - g2.Offset.x;
                         var node = g2.Nodes[g2y][g2x];
 
@@ -400,7 +458,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             var pos = queue.Dequeue();
             // var tile = elementTiles[pos.y][pos.x];
 
-            for (Direction dir = 0; dir < (Direction)4; dir++) {
+            foreach (var dir in Utils.Directions) {
                 var offset = dir.AsOffset();
                 var newY = pos.y + offset.y;
                 var newX = pos.x + offset.x;
@@ -463,8 +521,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var res = new List<Vector2Int> { destination };
 
         while (graph[destination.y][destination.x].BFS_Parent != null) {
-            res.Add(graph[destination.y][destination.x].BFS_Parent.Value);
-            destination = graph[destination.y][destination.x].BFS_Parent.Value;
+            res.Add(graph[destination.y][destination.x].BFS_Parent!.Value);
+            destination = graph[destination.y][destination.x].BFS_Parent!.Value;
         }
 
         res.Reverse();
@@ -568,15 +626,15 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         _horseCompoundSystem.TrySetNextDestinationAndBuildPath(horse);
     }
 
-    public int sizeY => _mapSizeY;
-    public int sizeX => _mapSizeX;
+    public int height => _mapSizeY;
+    public int width => _mapSizeX;
 
     public bool Contains(Vector2Int pos) {
         return Contains(pos.x, pos.y);
     }
 
     public bool Contains(int x, int y) {
-        return x >= 0 && x < sizeX && y >= 0 && y < sizeY;
+        return x >= 0 && x < width && y >= 0 && y < height;
     }
 
     void SpendResources(List<Tuple<int, ScriptableResource>> resourcesToSpend) {
@@ -601,30 +659,47 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void UpdateBuildings(float dt) {
         foreach (var building in buildings) {
-            var scriptableBuilding = building.scriptable;
-            if (scriptableBuilding.type == BuildingType.Produce) {
-                if (!building.IsProducing) {
-                    if (building.storedResources.Count > 0 && building.CanStartProcessing()) {
-                        building.IsProducing = true;
-                        building.ProducingElapsed = 0;
+            if (building.BuildingProgress < 1) {
+                UpdateBuilding_NotConstructed(dt, building);
+            }
+            else {
+                UpdateBuilding_Production(dt, building);
+            }
+        }
+    }
 
-                        var res = building.storedResources[0];
-                        building.storedResources.RemoveAt(0);
+    void UpdateBuilding_NotConstructed(float dt, Building building) {
+        if (building.ResourcesToBook.Count > 0) {
+            _itemTransportationSystem.Add_ResourcesToBook(building.ResourcesToBook);
+            building.ResourcesToBook.Clear();
+        }
+    }
 
-                        onBuildingStartedProcessing.OnNext(new() {
-                            Resource = res,
-                            Building = building,
-                        });
-                    }
+    void UpdateBuilding_Production(float dt, Building building) {
+        var scriptableBuilding = building.scriptable;
+
+        if (scriptableBuilding.type == BuildingType.Produce) {
+            if (!building.IsProducing) {
+                if (building.storedResources.Count > 0 && building.CanStartProcessing()) {
+                    building.IsProducing = true;
+                    building.ProducingElapsed = 0;
+
+                    var res = building.storedResources[0];
+                    building.storedResources.RemoveAt(0);
+
+                    onBuildingStartedProcessing.OnNext(new() {
+                        Resource = res,
+                        Building = building,
+                    });
                 }
+            }
 
-                if (building.IsProducing) {
-                    building.ProducingElapsed += dt;
+            if (building.IsProducing) {
+                building.ProducingElapsed += dt;
 
-                    if (building.ProducingElapsed >= scriptableBuilding.ItemProcessingDuration) {
-                        building.IsProducing = false;
-                        Produce(building);
-                    }
+                if (building.ProducingElapsed >= scriptableBuilding.ItemProcessingDuration) {
+                    building.IsProducing = false;
+                    Produce(building);
                 }
             }
         }
@@ -709,6 +784,16 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public Subject<E_HumanReachedCityHall> onHumanReachedCityHall { get; } = new();
 
+    public Subject<E_HumanReachedCityHall> onHumanTransporterStartedPickingUpResource { get; } =
+        new();
+
+    public Subject<E_HumanReachedCityHall> onHumanTransporterPickedUpResource { get; } = new();
+
+    public Subject<E_HumanReachedCityHall> onHumanTransporterStartedPlacingResource { get; } =
+        new();
+
+    public Subject<E_HumanReachedCityHall> onHumanTransporterPlacedResource { get; } = new();
+
     public Subject<E_TrainCreated> onTrainCreated { get; } = new();
     public Subject<E_TrainNodeCreated> onTrainNodeCreated { get; } = new();
 
@@ -734,7 +819,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [Button("RegenerateTilemap")]
     void RegenerateTilemapAndFireEvent() {
         RegenerateTilemap();
-        OnTerrainTilesRegenerated?.Invoke();
+        OnTerrainTilesRegenerated.Invoke();
     }
 
     void RegenerateTilemap() {
@@ -806,10 +891,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         segment.AssignedHuman = human;
         _humanTransporters.Add(human);
 
-        HumanTransporter_Controller.SetState(
-            human, HumanTransporterState.MovingInTheWorld, this, this, cityHall
-        );
-
+        _humanTransporterController.SetState(human, HumanTransporterState.MovingInTheWorld);
         onHumanTransporterCreated.OnNext(new() { Human = human });
     }
 
@@ -846,7 +928,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                         HumanFinishedHeadingToTheStoreBuilding(human);
 
                         PlaceResource(human);
-                        human.movingFrom = human.storeBuilding.pos;
+                        human.movingFrom = human.storeBuilding!.pos;
                         human.storeBuilding.isBooked = false;
                         human.storeBuilding = null;
 
@@ -863,7 +945,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                         HumanFinishedHarvesting(human);
 
                         PickUpResource(human);
-                        var pos = human.harvestTilePosition.Value;
+                        var pos = human.harvestTilePosition!.Value;
                         terrainTiles[pos.y][pos.x].IsBooked = false;
 
                         HumanStartedHeadingToTheStoreBuilding(human);
@@ -931,11 +1013,11 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void PickUpResource(Human human) {
-        var pos = human.harvestTilePosition.Value;
+        var pos = human.harvestTilePosition!.Value;
         var tile = terrainTiles[pos.y][pos.x];
         tile.ResourceAmount -= 1;
 
-        var res = human.building.scriptable.harvestableResource;
+        var res = human.building!.scriptable.harvestableResource;
         onHumanPickedUpResource.OnNext(
             new() {
                 Human = human,
@@ -956,9 +1038,9 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void PlaceResource(Human human) {
-        var scriptableResource = human.building.scriptable.harvestableResource;
+        var scriptableResource = human.building!.scriptable.harvestableResource;
         var resource = new ResourceObj(Guid.NewGuid(), scriptableResource);
-        human.storeBuilding.storedResources.Add(resource);
+        human.storeBuilding!.storedResources.Add(resource);
 
         onHumanPlacedResource.OnNext(
             new() {
@@ -981,10 +1063,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void UpdateHumanIdle(Human human) {
-        var r = human.building.scriptable.tilesRadius;
+        var r = human.building!.scriptable.tilesRadius;
         var leftInclusive = Math.Max(0, human.building.posX - r);
-        var rightInclusive = Math.Min(sizeX - 1, human.building.posX + r);
-        var topInclusive = Math.Min(sizeY - 1, human.building.posY + r);
+        var rightInclusive = Math.Min(width - 1, human.building.posX + r);
+        var topInclusive = Math.Min(height - 1, human.building.posY + r);
         var bottomInclusive = Math.Max(0, human.building.posY - r);
 
         var resource = human.building.scriptable.harvestableResource;
@@ -994,7 +1076,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         Utils.Shuffle(yy, _random);
         Utils.Shuffle(xx, _random);
 
-        Building storeBuildingCandidate = null;
+        Building? storeBuildingCandidate = null;
         Vector2Int? tileCandidate = null;
 
         var shouldBreak = false;
@@ -1055,8 +1137,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     void UpdateHumanHeadingToTheHarvestTile(Human human) {
         var t = human.harvestingElapsed / _humanHeadingDuration;
         var mt = _humanMovementCurve.Evaluate(t);
-        human.position =
-            Vector2.Lerp(human.building.pos, human.harvestTilePosition.Value, mt);
+        human.position = Vector2.Lerp(human.building!.pos, human.harvestTilePosition!.Value, mt);
     }
 
     void UpdateHumanHarvesting(Human human) {
@@ -1068,8 +1149,9 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                            - _humanHarvestingDuration;
         var t = stateElapsed / _humanHeadingToTheStoreBuildingDuration;
         var mt = _humanMovementCurve.Evaluate(t);
-        human.position =
-            Vector2.Lerp(human.harvestTilePosition.Value, human.storeBuilding.pos, mt);
+        human.position = Vector2.Lerp(
+            human.harvestTilePosition!.Value, human.storeBuilding!.pos, mt
+        );
     }
 
     void UpdateHumanHeadingBackToTheHarvestBuilding(Human human) {
@@ -1079,7 +1161,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                            - _humanHeadingToTheStoreBuildingDuration;
         var t = stateElapsed / _humanReturningBackDuration;
         var mt = _humanMovementCurve.Evaluate(t);
-        human.position = Vector2.Lerp(human.movingFrom, human.building.pos, mt);
+        human.position = Vector2.Lerp(human.movingFrom, human.building!.pos, mt);
     }
 
     void UpdateHumanTransporters(float dt) {
@@ -1093,19 +1175,25 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
                 var iteration = 0;
                 while (
-                    iteration++ < GUARD_MAX_ITERATIONS_COUNT
+                    iteration++ < 10 * GUARD_MAX_ITERATIONS_COUNT
                     && human.movingTo != null
                     && human.movingElapsed > humanTransporterMovingOneCellDuration
                 ) {
+                    using var _ = Tracing.Scope();
+                    Tracing.Log("Human reached the next tile");
+
                     human.movingElapsed -= humanTransporterMovingOneCellDuration;
 
                     human.pos = human.movingTo.Value;
                     human.movingFrom = human.pos;
                     human.PopMovingTo();
+
+                    _humanTransporterController.OnHumanMovedToTheNextTile(human);
                 }
 
+                Assert.IsTrue(iteration < 10 * GUARD_MAX_ITERATIONS_COUNT);
                 if (iteration >= GUARD_MAX_ITERATIONS_COUNT) {
-                    Debug.LogError("WTF?");
+                    Debug.LogWarning("WTF?");
                 }
 
                 human.movingNormalized = Mathf.Min(
@@ -1113,7 +1201,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 );
             }
 
-            HumanTransporter_Controller.Update(human, this, this, cityHall, dt);
+            _humanTransporterController.Update(human, dt);
             var state = HumanTransporter_MovingInTheWorld_Controller.State.MovingToTheCityHall;
             if (
                 human.stateMovingInTheWorld == state
@@ -1129,6 +1217,13 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             _humanTransporters.RemoveAt(_humanTransporters.FindIndex(i => i == human));
         }
     }
+
+    #endregion
+
+    #region ItemTransportationSystem
+
+    ItemTransportationSystem _itemTransportationSystem = null!;
+    HumanTransporter_Controller _humanTransporterController = null!;
 
     #endregion
 
@@ -1172,8 +1267,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         return new() {
             xMin = Math.Max(0, dimensions.xMin - _horsesStationItemsGatheringRadius),
             yMin = Math.Max(0, dimensions.yMin - _horsesStationItemsGatheringRadius),
-            xMax = Math.Min(sizeX, dimensions.xMax + _horsesStationItemsGatheringRadius),
-            yMax = Math.Min(sizeY, dimensions.yMax + _horsesStationItemsGatheringRadius),
+            xMax = Math.Min(width, dimensions.xMax + _horsesStationItemsGatheringRadius),
+            yMax = Math.Min(height, dimensions.yMax + _horsesStationItemsGatheringRadius),
         };
     }
 
@@ -1184,8 +1279,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             return new(pos.x, pos.y, 1, 1);
         }
 
-        var width = 1;
-        var height = 1;
+        var w = 1;
+        var h = 1;
         var leftX = pos.x;
         var bottomY = pos.y;
         if (tile.Rotation == 0) {
@@ -1195,17 +1290,17 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     break;
                 }
 
-                width += 1;
+                w += 1;
                 leftX = x;
             }
 
-            for (var x = pos.x + 1; x < sizeX; x++) {
+            for (var x = pos.x + 1; x < width; x++) {
                 var newTile = elementTiles[pos.y][x];
                 if (newTile.Type != ElementTileType.Station || newTile.Rotation != 0) {
                     break;
                 }
 
-                width += 1;
+                w += 1;
             }
         }
         else if (tile.Rotation == 1) {
@@ -1216,27 +1311,27 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 }
 
                 bottomY = y;
-                height += 1;
+                h += 1;
             }
 
-            for (var y = pos.y + 1; y < sizeY; y++) {
+            for (var y = pos.y + 1; y < height; y++) {
                 var newTile = elementTiles[y][pos.x];
                 if (newTile.Type != ElementTileType.Station || newTile.Rotation != 1) {
                     break;
                 }
 
-                height += 1;
+                h += 1;
             }
         }
         else {
             Debug.LogError("WTF?");
         }
 
-        return new(leftX, bottomY, width, height);
+        return new(leftX, bottomY, w, h);
     }
 
     public void PickRandomItemForTheTrain(HorseTrain horse) {
-        TrainNode foundNode = null;
+        TrainNode? foundNode = null;
         foreach (var node in horse.nodes) {
             if (node.canStoreResourceCount > node.storedResources.Count) {
                 foundNode = node;
@@ -1261,8 +1356,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var shuffledBuildings = buildings.ToArray();
         Utils.Shuffle(shuffledBuildings, _random);
 
-        Building foundBuilding = null;
-        ResourceObj foundResource = null;
+        Building? foundBuilding = null;
+        ResourceObj? foundResource = null;
         var foundResourceIndex = -1;
         var resourceSlotPosition = Vector2.zero;
         foreach (var building in shuffledBuildings) {
@@ -1346,7 +1441,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         var shuffledBuildings = buildings.ToArray();
         Utils.Shuffle(shuffledBuildings, _random);
 
-        Building foundBuilding = null;
+        Building? foundBuilding = null;
         foreach (var building in buildings) {
             if (building.scriptable.type != BuildingType.Produce) {
                 continue;
@@ -1367,7 +1462,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             return;
         }
 
-        TrainNode foundNode = null;
+        TrainNode? foundNode = null;
         foreach (var node in horse.nodes) {
             if (node.storedResources.Count > 0) {
                 foundNode = node;

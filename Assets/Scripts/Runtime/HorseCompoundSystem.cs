@@ -256,18 +256,18 @@ public class HorseCompoundSystem : MonoBehaviour {
             _debugTilemap.ClearAllTiles();
         }
 
-        _movementTiles = new(_mapSize.sizeY);
-        for (var y = 0; y < _mapSize.sizeY; y++) {
-            var row = new List<MovementGraphTile>(_mapSize.sizeX);
-            for (var x = 0; x < _mapSize.sizeX; x++) {
+        _movementTiles = new(_mapSize.height);
+        for (var y = 0; y < _mapSize.height; y++) {
+            var row = new List<MovementGraphTile>(_mapSize.width);
+            for (var x = 0; x < _mapSize.width; x++) {
                 row.Add(null);
             }
 
             _movementTiles.Add(row);
         }
 
-        for (var y = 0; y < _mapSize.sizeY; y++) {
-            for (var x = 0; x < _mapSize.sizeX; x++) {
+        for (var y = 0; y < _mapSize.height; y++) {
+            for (var x = 0; x < _mapSize.width; x++) {
                 UpdateTileAtPos(x, y);
             }
         }
@@ -313,7 +313,7 @@ public class HorseCompoundSystem : MonoBehaviour {
         MovementGraphTile mTile,
         List<List<ElementTile>> tiles
     ) {
-        mTile.Directions[0] = x < _mapSize.sizeX - 1
+        mTile.Directions[0] = x < _mapSize.width - 1
                               && (
                                   tiles[y][x + 1].Type == ElementTileType.Road
                                   || (
@@ -329,7 +329,7 @@ public class HorseCompoundSystem : MonoBehaviour {
                                       && tiles[y][x - 1].Rotation == 0
                                   )
                               );
-        mTile.Directions[1] = y < _mapSize.sizeY - 1
+        mTile.Directions[1] = y < _mapSize.height - 1
                               && (
                                   tiles[y + 1][x].Type == ElementTileType.Road
                                   || (
@@ -356,7 +356,7 @@ public class HorseCompoundSystem : MonoBehaviour {
         List<List<ElementTile>> tiles
     ) {
         if (tile.Rotation == 0) {
-            mTile.Directions[0] = x < _mapSize.sizeX - 1
+            mTile.Directions[0] = x < _mapSize.width - 1
                                   && (
                                       tiles[y][x + 1].Type == ElementTileType.Road
                                       || (
@@ -374,7 +374,7 @@ public class HorseCompoundSystem : MonoBehaviour {
                                   );
         }
         else if (tile.Rotation == 1) {
-            mTile.Directions[1] = y < _mapSize.sizeY - 1
+            mTile.Directions[1] = y < _mapSize.height - 1
                                   && (
                                       tiles[y + 1][x].Type == ElementTileType.Road
                                       || (
@@ -416,8 +416,8 @@ public class HorseCompoundSystem : MonoBehaviour {
             return;
         }
 
-        for (var y = 0; y < _mapSize.sizeY; y++) {
-            for (var x = 0; x < _mapSize.sizeX; x++) {
+        for (var y = 0; y < _mapSize.height; y++) {
+            for (var x = 0; x < _mapSize.width; x++) {
                 UpdateDebugTilemapAtPos(x, y);
             }
         }

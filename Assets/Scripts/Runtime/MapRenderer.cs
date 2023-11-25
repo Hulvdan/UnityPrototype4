@@ -600,8 +600,8 @@ public class MapRenderer : MonoBehaviour {
 
     void RegenerateTilemapGameObjects() {
         var maxHeight = 0;
-        for (var y = 0; y < _mapSize.sizeY; y++) {
-            for (var x = 0; x < _mapSize.sizeX; x++) {
+        for (var y = 0; y < _mapSize.height; y++) {
+            for (var x = 0; x < _mapSize.width; x++) {
                 maxHeight = Math.Max(maxHeight, _map.terrainTiles[y][x].Height);
             }
         }
@@ -617,12 +617,12 @@ public class MapRenderer : MonoBehaviour {
         }
 
         for (var h = 0; h <= maxHeight; h++) {
-            for (var y = 0; y < _mapSize.sizeY; y++) {
-                if (h > 0 && y == _mapSize.sizeY) {
+            for (var y = 0; y < _mapSize.height; y++) {
+                if (h > 0 && y == _mapSize.height) {
                     continue;
                 }
 
-                for (var x = 0; x < _mapSize.sizeX; x++) {
+                for (var x = 0; x < _mapSize.width; x++) {
                     if (
                         h == 0
                         || _map.terrainTiles[y][x].Height >= h
@@ -637,8 +637,8 @@ public class MapRenderer : MonoBehaviour {
         _resourceTilemap = GenerateTerrainTilemap(
             0, maxHeight + 1, ResourcesTilemapNameTemplate, _tilemapPrefab
         ).GetComponent<Tilemap>();
-        for (var y = 0; y < _mapSize.sizeY; y++) {
-            for (var x = 0; x < _mapSize.sizeX; x++) {
+        for (var y = 0; y < _mapSize.height; y++) {
+            for (var x = 0; x < _mapSize.width; x++) {
                 if (_map.terrainTiles[y][x].Resource != null
                     && _map.terrainTiles[y][x].Resource.name == _logResource.name) {
                     _resourceTilemap.SetTile(new(x, y, 0), _tileForest);
@@ -684,8 +684,8 @@ public class MapRenderer : MonoBehaviour {
     void RegenerateDebugTilemapGameObject() {
         _debugTilemap.ClearAllTiles();
 
-        for (var y = 0; y < _mapSize.sizeY; y++) {
-            for (var x = 0; x < _mapSize.sizeX; x++) {
+        for (var y = 0; y < _mapSize.height; y++) {
+            for (var x = 0; x < _mapSize.width; x++) {
                 if (!_map.IsBuildable(x, y)) {
                     _debugTilemap.SetTile(new(x, y, 0), _debugTileUnbuildable);
                 }
@@ -703,7 +703,7 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void UpdateGridPosition() {
-        _grid.transform.localPosition = new(-_mapSize.sizeX / 2f, -_mapSize.sizeY / 2f);
+        _grid.transform.localPosition = new(-_mapSize.width / 2f, -_mapSize.height / 2f);
     }
 
     void DisplayPreviewTile() {

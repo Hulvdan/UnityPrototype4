@@ -12,6 +12,7 @@ public interface IMap {
     List<Building> buildings { get; }
     List<TopBarResource> resources { get; }
     List<GraphSegment> segments { get; }
+    List<List<List<MapResource>>> mapResources { get; }
 
     Subject<E_HumanCreated> onHumanCreated { get; }
     Subject<E_HumanTransporterCreated> onHumanTransporterCreated { get; }
@@ -19,6 +20,11 @@ public interface IMap {
     Subject<E_HumanPickedUpResource> onHumanPickedUpResource { get; }
     Subject<E_HumanPlacedResource> onHumanPlacedResource { get; }
     Subject<E_HumanReachedCityHall> onHumanReachedCityHall { get; }
+
+    Subject<E_HumanReachedCityHall> onHumanTransporterStartedPickingUpResource { get; }
+    Subject<E_HumanReachedCityHall> onHumanTransporterPickedUpResource { get; }
+    Subject<E_HumanReachedCityHall> onHumanTransporterStartedPlacingResource { get; }
+    Subject<E_HumanReachedCityHall> onHumanTransporterPlacedResource { get; }
 
     Subject<E_TrainCreated> onTrainCreated { get; }
     Subject<E_TrainNodeCreated> onTrainNodeCreated { get; }

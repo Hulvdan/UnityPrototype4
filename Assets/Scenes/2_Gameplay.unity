@@ -8572,6 +8572,7 @@ MonoBehaviour:
     _posY: 8
     _buildingProgress: 1
   _logResource: {fileID: 11400000, guid: 361152873045e084892d56e677d6d740, type: 2}
+  _planksResource: {fileID: 11400000, guid: 10745982271be284fb0df31da327cdba, type: 2}
   _topBarResources:
   - {fileID: 11400000, guid: 10745982271be284fb0df31da327cdba, type: 2}
   - {fileID: 11400000, guid: 45af1427840af3a4a98b31727bdd67b4, type: 2}

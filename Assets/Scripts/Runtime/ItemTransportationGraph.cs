@@ -52,13 +52,12 @@ public static class ItemTransportationGraph {
                 var isFlag = tile.Type == ElementTileType.Flag;
                 var isBuilding = tile.Type == ElementTileType.Building;
                 var isCityHall = isBuilding
-                                 && tile.Building.scriptable.type ==
-                                 BuildingType.SpecialCityHall;
+                                 && tile.Building.scriptable.type == BuildingType.SpecialCityHall;
                 if (isFlag || isBuilding) {
                     AddWithoutDuplication(vertexes, pos);
                 }
 
-                for (Direction dirIndex = 0; dirIndex < (Direction)4; dirIndex++) {
+                foreach (var dirIndex in Utils.Directions) {
                     if ((isCityHall || isFlag) && dirIndex != dir) {
                         continue;
                     }
@@ -162,7 +161,7 @@ public static class ItemTransportationGraph {
                     bigFukenQueue.Enqueue(new(Direction.Down, tilePos));
                     break;
                 case TileUpdatedType.RoadRemoved:
-                    for (Direction dir = 0; dir < (Direction)4; dir++) {
+                    foreach (var dir in Utils.Directions) {
                         var newPos = tilePos + dir.AsOffset();
                         if (!mapSize.Contains(newPos)) {
                             continue;
@@ -180,7 +179,7 @@ public static class ItemTransportationGraph {
 
                     break;
                 case TileUpdatedType.BuildingPlaced:
-                    for (Direction dir = 0; dir < (Direction)4; dir++) {
+                    foreach (var dir in Utils.Directions) {
                         var newPos = tilePos + dir.AsOffset();
                         if (!mapSize.Contains(newPos)) {
                             continue;
@@ -238,7 +237,7 @@ public static class ItemTransportationGraph {
                     AddWithoutDuplication(vertexes, pos);
                 }
 
-                for (Direction dirIndex = 0; dirIndex < (Direction)4; dirIndex++) {
+                foreach (var dirIndex in Utils.Directions) {
                     if ((isCityHall || isFlag) && dirIndex != dir) {
                         continue;
                     }
@@ -315,7 +314,7 @@ public static class ItemTransportationGraph {
         switch (updatedType) {
             case TileUpdatedType.RoadPlaced:
             case TileUpdatedType.BuildingPlaced:
-                for (Direction dir = 0; dir < (Direction)4; dir++) {
+                foreach (var dir in Utils.Directions) {
                     var newPos = tilePos + dir.AsOffset();
                     if (!mapSize.Contains(newPos) || !segment.Graph.Contains(newPos)) {
                         continue;
@@ -356,9 +355,9 @@ public static class ItemTransportationGraph {
     }
 
     static byte[][] GetVisited(IMapSize mapSize) {
-        var visited = new byte[mapSize.sizeY][];
-        for (var index = 0; index < mapSize.sizeY; index++) {
-            visited[index] = new byte[mapSize.sizeX];
+        var visited = new byte[mapSize.height][];
+        for (var index = 0; index < mapSize.height; index++) {
+            visited[index] = new byte[mapSize.width];
         }
 
         return visited;
