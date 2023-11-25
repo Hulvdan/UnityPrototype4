@@ -793,15 +793,19 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public Subject<E_HumanReachedCityHall> onHumanReachedCityHall { get; } = new();
 
-    public Subject<E_HumanReachedCityHall> onHumanTransporterStartedPickingUpResource { get; } =
+    public Subject<E_HumanTransportedStartedPickingUpResource>
+        onHumanTransporterStartedPickingUpResource { get; } =
         new();
 
-    public Subject<E_HumanReachedCityHall> onHumanTransporterPickedUpResource { get; } = new();
-
-    public Subject<E_HumanReachedCityHall> onHumanTransporterStartedPlacingResource { get; } =
+    public Subject<E_HumanTransporterPickedUpResource> onHumanTransporterPickedUpResource { get; } =
         new();
 
-    public Subject<E_HumanReachedCityHall> onHumanTransporterPlacedResource { get; } = new();
+    public Subject<E_HumanTransporterStartedPlacingResource>
+        onHumanTransporterStartedPlacingResource { get; } =
+        new();
+
+    public Subject<E_HumanTransporterPlacedResource> onHumanTransporterPlacedResource { get; } =
+        new();
 
     public Subject<E_TrainCreated> onTrainCreated { get; } = new();
     public Subject<E_TrainNodeCreated> onTrainNodeCreated { get; } = new();

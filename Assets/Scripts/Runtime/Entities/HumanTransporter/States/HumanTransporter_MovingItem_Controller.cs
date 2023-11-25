@@ -102,6 +102,7 @@ public class HumanTransporter_MovingItem_Controller {
 
                 data.Map.onHumanTransporterPickedUpResource.OnNext(new() {
                     Human = human,
+                    Resource = res.Value,
                 });
 
                 human.stateMovingItem_pickingUpResourceNormalized = 0;
@@ -146,6 +147,7 @@ public class HumanTransporter_MovingItem_Controller {
 
                 data.Map.onHumanTransporterPlacedResource.OnNext(new() {
                     Human = human,
+                    Resource = res.Value,
                 });
 
                 if (human.segment.resourcesToTransport.Count == 0) {
@@ -253,6 +255,7 @@ public class HumanTransporter_MovingItem_Controller {
 
                 data.Map.onHumanTransporterStartedPlacingResource.OnNext(new() {
                     Human = human,
+                    Resource = res,
                 });
             }
         }
@@ -265,10 +268,11 @@ public class HumanTransporter_MovingItem_Controller {
         human.stateMovingItem = State.PickingUpItem;
         Tracing.Log($"human.stateMovingItem = {human.stateMovingItem}");
 
-        human.segment.resourcesToTransport.Dequeue();
+        var resource = human.segment.resourcesToTransport.Dequeue();
 
         data.Map.onHumanTransporterStartedPickingUpResource.OnNext(new() {
             Human = human,
+            Resource = resource,
         });
     }
 
