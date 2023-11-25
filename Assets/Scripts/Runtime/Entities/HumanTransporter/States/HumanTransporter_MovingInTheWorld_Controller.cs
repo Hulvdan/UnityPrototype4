@@ -24,7 +24,7 @@ public class HumanTransporter_MovingInTheWorld_Controller {
                 $"human.segment.resourcesToTransport.Count = {human.segment.resourcesToTransport.Count}");
         }
 
-        human.movingElapsed = 0;
+        human.movingPath.Clear();
         UpdateStates(human, map, mapSize, cityHall, null);
     }
 
