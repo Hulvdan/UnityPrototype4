@@ -1,12 +1,10 @@
 ﻿#nullable enable
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reactive.Disposables;
 using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
 public static class Tracing {
@@ -94,7 +92,8 @@ public static class Tracing {
     }
 
     static IDisposable Scope(params string[] name) {
-        _ = GetNew();
+        // _ = GetNew();
+        _current++;
 
         string joinedName;
         if (name.Length > 0) {
@@ -177,42 +176,42 @@ public static class Tracing {
         // scope.Traces.Add(new(level, text));
     }
 
-    static readonly List<TracingScope> Pool = new();
+    // static readonly List<TracingScope> Pool = new();
     static int _current = -1;
 
-    static TracingScope GetNew() {
-        if (_current < Pool.Count - 1) {
-            _current++;
-            return Pool[_current];
-        }
-
-        var scope = new TracingScope();
-        Pool.Add(scope);
-        _current = Pool.Count - 1;
-        return scope;
-    }
-
-    static TracingScope? Current() {
-        if (_current >= 0) {
-            return Pool[_current];
-        }
-
-        return null;
-    }
-
-    static TracingScope? Parent() {
-        if (_current - 1 >= 0) {
-            return Pool[_current - 1];
-        }
-
-        return null;
-    }
-
-    static void InvalidateTop() {
-        Assert.AreNotEqual(Pool.Count, 0);
-        Pool[_current].Traces.Clear();
-        _current--;
-    }
+    // static TracingScope GetNew() {
+    //     if (_current < Pool.Count - 1) {
+    //         _current++;
+    //         return Pool[_current];
+    //     }
+    //
+    //     var scope = new TracingScope();
+    //     Pool.Add(scope);
+    //     _current = Pool.Count - 1;
+    //     return scope;
+    // }
+    //
+    // static TracingScope? Current() {
+    //     if (_current >= 0) {
+    //         return Pool[_current];
+    //     }
+    //
+    //     return null;
+    // }
+    //
+    // static TracingScope? Parent() {
+    //     if (_current - 1 >= 0) {
+    //         return Pool[_current - 1];
+    //     }
+    //
+    //     return null;
+    // }
+    //
+    // static void InvalidateTop() {
+    //     Assert.AreNotEqual(Pool.Count, 0);
+    //     Pool[_current].Traces.Clear();
+    //     _current--;
+    // }
 
     public static string Prepend(LogType type, string text) {
         switch (type) {
@@ -232,31 +231,31 @@ public static class Tracing {
     }
 }
 
-internal class TracingScope {
-    public readonly List<(LogType, string)> Traces = new();
-
-    public string Format() {
-        var res = new List<string>();
-        foreach (var (type, text) in Traces) {
-            res.Add(Tracing.Prepend(type, text));
-        }
-
-        return string.Join('\n', res);
-    }
-
-    public string FormatErr() {
-        var res = new List<string>();
-        foreach (var (_, text) in Traces) {
-            res.Add("[ERROR] " + text);
-        }
-
-        return string.Join('\n', res);
-    }
-
-    public void FormatForParent(TracingScope parent) {
-        foreach (var (type, text) in Traces) {
-            parent.Traces.Add(new(0, "\t" + Tracing.Prepend(type, text)));
-        }
-    }
-}
+// internal class TracingScope {
+//     public readonly List<(LogType, string)> Traces = new();
+//
+//     public string Format() {
+//         var res = new List<string>();
+//         foreach (var (type, text) in Traces) {
+//             res.Add(Tracing.Prepend(type, text));
+//         }
+//
+//         return string.Join('\n', res);
+//     }
+//
+//     public string FormatErr() {
+//         var res = new List<string>();
+//         foreach (var (_, text) in Traces) {
+//             res.Add("[ERROR] " + text);
+//         }
+//
+//         return string.Join('\n', res);
+//     }
+//
+//     public void FormatForParent(TracingScope parent) {
+//         foreach (var (type, text) in Traces) {
+//             parent.Traces.Add(new(0, "\t" + Tracing.Prepend(type, text)));
+//         }
+//     }
+// }
 }
