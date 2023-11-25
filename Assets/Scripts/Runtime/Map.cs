@@ -1164,6 +1164,9 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     && human.movingTo != null
                     && human.movingElapsed > humanTransporterMovingOneCellDuration
                 ) {
+                    using var _ = Tracing.Scope();
+                    Tracing.Log("Human reached the next tile");
+
                     human.movingElapsed -= humanTransporterMovingOneCellDuration;
 
                     human.pos = human.movingTo.Value;

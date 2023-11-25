@@ -1,12 +1,9 @@
-﻿using System.Reflection;
-using JetBrains.Annotations;
-using UnityEngine;
-using UnityEngine.Android;
+﻿using JetBrains.Annotations;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
 public class HumanTransporterData {
-    public IMap Map;
+    public readonly IMap Map;
     public IMapSize MapSize;
     public Building CityHall;
 
@@ -45,9 +42,14 @@ public class HumanTransporter_MovingItem_Controller {
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
-
         Tracing.Log("OnEnter");
-        Assert.IsTrue(human.segment.resourcesReadyToBeTransported.Count > 0);
+
+        Assert.AreEqual(human.stateMovingItem, null, "human.stateMovingItem == null");
+        Assert.AreEqual(human.movingTo, null, "human.movingTo == null");
+        Assert.AreEqual(human.movingPath.Count, 0, "human.movingPath.Count == 0");
+        Assert.IsTrue(human.segment.resourcesToTransport.Count > 0,
+            "human.segment.resourcesToTransport.Count > 0");
+
         UpdateStates(human, data);
     }
 
@@ -56,9 +58,11 @@ public class HumanTransporter_MovingItem_Controller {
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
-
         Tracing.Log("OnExit");
+
         human.stateMovingItem = null;
+        Tracing.Log($"human.stateMovingItem = {human.stateMovingItem}");
+
         human.targetedResource = null;
 
         human.stateMovingItem_pickingUpResourceElapsed = 0;
@@ -75,7 +79,7 @@ public class HumanTransporter_MovingItem_Controller {
         var res = human.targetedResource;
 
         if (human.stateMovingItem == State.PickingUpItem) {
-            Assert.AreNotEqual(res, null);
+            Assert.AreNotEqual(res, null, "human.targetedResource != null");
 
             human.stateMovingItem_pickingUpResourceElapsed += dt;
             human.stateMovingItem_pickingUpResourceNormalized =
@@ -83,15 +87,18 @@ public class HumanTransporter_MovingItem_Controller {
 
             if (human.stateMovingItem_pickingUpResourceNormalized > 1) {
                 using var _ = Tracing.Scope();
+                Tracing.Log("Human just picked up resource");
 
-                Tracing.Log("human.stateMovingItem = State.MovingItem");
                 human.stateMovingItem = State.MovingItem;
+                Tracing.Log($"human.stateMovingItem = {human.stateMovingItem}");
+
                 human.stateMovingItem_pickingUpResourceNormalized = 1;
                 human.stateMovingItem_pickingUpResourceElapsed = data.PickingUpItemDuration;
 
-                Assert.AreEqual(human.movingPath.Count, 0);
+                Assert.AreEqual(human.movingTo, null, "human.movingTo == null");
+                Assert.AreEqual(human.movingPath.Count, 0, "human.movingPath.Count == 0");
                 var path = human.segment.Graph.GetShortestPath(
-                    human.pos, res.Value.ItemMovingVertices[0]
+                    human.pos, res!.Value.ItemMovingVertices[0]
                 );
                 human.AddPath(path);
 
@@ -105,25 +112,29 @@ public class HumanTransporter_MovingItem_Controller {
         }
 
         if (human.stateMovingItem == State.PlacingItem) {
-            Assert.AreNotEqual(res, null);
+            Assert.AreNotEqual(res, null, "human.targetedResource != null");
 
             human.stateMovingItem_placingResourceElapsed += dt;
             human.stateMovingItem_placingResourceNormalized =
                 human.stateMovingItem_placingResourceElapsed / data.PlacingItemDuration;
 
             if (human.stateMovingItem_placingResourceNormalized > 1) {
+                using var _ = Tracing.Scope();
+                Tracing.Log("Human just placed resource");
+
                 human.stateMovingItem_placingResourceNormalized = 1;
                 human.stateMovingItem_placingResourceElapsed = data.PlacingItemDuration;
 
-                res.Value.TravellingSegments.RemoveAt(0);
-                res.Value.ItemMovingVertices.RemoveAt(0);
+                var mapResource = res!.Value;
+                mapResource.TravellingSegments.RemoveAt(0);
+                mapResource.ItemMovingVertices.RemoveAt(0);
 
-                if (res.Value.TravellingSegments.Count > 0) {
-                    var mapResource = res.Value;
-
+                if (res!.Value.TravellingSegments.Count > 0) {
                     // TODO: Handle duplication of code from ItemTransportationSystem
                     // Updating booking. Needs to be changed in Map too
-                    mapResource.TravellingSegments[0].resourcesReadyToBeTransported
+                    mapResource
+                        .TravellingSegments[0]
+                        .resourcesToTransport
                         .Enqueue(mapResource);
 
                     var list = data.Map.mapResources[mapResource.Pos.y][mapResource.Pos.x];
@@ -139,10 +150,13 @@ public class HumanTransporter_MovingItem_Controller {
                     Human = human,
                 });
 
-                using var _ = Tracing.Scope();
-
-                Tracing.Log("_controller.SetState(human, HumanTransporterState.MovingInTheWorld)");
-                _controller.SetState(human, HumanTransporterState.MovingInTheWorld);
+                if (human.segment.resourcesToTransport.Count == 0) {
+                    Tracing.Log("human.segment.resourcesToTransport.Count == 0");
+                    _controller.SetState(human, HumanTransporterState.MovingInTheWorld);
+                }
+                else {
+                    _controller.SetState(human, HumanTransporterState.MovingItem);
+                }
             }
         }
 
@@ -162,10 +176,10 @@ public class HumanTransporter_MovingItem_Controller {
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
-
         Tracing.Log("OnHumanMovedToTheNextTile");
+
         if (human.stateMovingItem == State.MovingItem) {
-            var res = human.targetedResource.Value;
+            var res = human.targetedResource!.Value;
 
             var i = 0;
             var row = data.Map.mapResources[res.Pos.y][res.Pos.x];
@@ -192,33 +206,47 @@ public class HumanTransporter_MovingItem_Controller {
         var segment = human.segment;
 
         if (human.stateMovingItem == null) {
-            Assert.IsTrue(human.segment.resourcesReadyToBeTransported.Count > 0);
+            Assert.IsTrue(
+                human.segment.resourcesToTransport.Count > 0,
+                "human.segment.resourcesToTransport.Count > 0"
+            );
 
-            var resource = segment.resourcesReadyToBeTransported.Peek();
+            var resource = segment.resourcesToTransport.Peek();
             human.targetedResource = resource;
-            if (resource.Pos == human.pos) {
+            if (resource.Pos == human.pos && human.movingTo == null) {
                 StartPickingUpItem(human, data);
             }
             else {
-                Tracing.Log("human.stateMovingItem = State.MovingToItem;");
+                Tracing.Log("Human started moving to item");
+
                 human.stateMovingItem = State.MovingToItem;
-                human.AddPath(segment.Graph.GetShortestPath(human.pos, resource.Pos));
+                Tracing.Log($"human.stateMovingItem = {human.stateMovingItem}");
+
+                Assert.AreEqual(human.movingTo, null, "human.movingTo == null");
+                Assert.AreEqual(human.movingPath.Count, 0, "human.movingPath.Count == 0");
+                if (resource.Pos != human.pos) {
+                    human.AddPath(segment.Graph.GetShortestPath(human.pos, resource.Pos));
+                }
             }
         }
 
         if (human.stateMovingItem == State.MovingToItem) {
-            if (human.segment.resourcesReadyToBeTransported.Peek().Pos == human.pos) {
+            if (human.segment.resourcesToTransport.Peek().Pos == human.pos) {
                 StartPickingUpItem(human, data);
             }
         }
 
         if (human.stateMovingItem == State.MovingItem) {
-            Assert.IsTrue(human.targetedResource != null);
-            var res = human.targetedResource.Value;
+            Assert.IsTrue(
+                human.targetedResource != null, "Assert.IsTrue(human.targetedResource != null);"
+            );
+            var res = human.targetedResource!.Value;
 
             if (human.pos == res.ItemMovingVertices[0]) {
-                Tracing.Log("human.stateMovingItem = State.PlacingItem");
+                Tracing.Log("Human started placing item");
+
                 human.stateMovingItem = State.PlacingItem;
+                Tracing.Log($"human.stateMovingItem = {human.stateMovingItem}");
 
                 data.Map.onHumanTransporterStartedPlacingResource.OnNext(new() {
                     Human = human,
@@ -229,10 +257,12 @@ public class HumanTransporter_MovingItem_Controller {
 
     void StartPickingUpItem(HumanTransporter human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
+        Tracing.Log("Human started picking up item");
 
-        Tracing.Log("human.stateMovingItem = State.PickingUpItem");
         human.stateMovingItem = State.PickingUpItem;
-        human.segment.resourcesReadyToBeTransported.Dequeue();
+        Tracing.Log($"human.stateMovingItem = {human.stateMovingItem}");
+
+        human.segment.resourcesToTransport.Dequeue();
 
         data.Map.onHumanTransporterStartedPickingUpResource.OnNext(new() {
             Human = human,

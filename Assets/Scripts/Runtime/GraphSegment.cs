@@ -15,7 +15,7 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
     public readonly List<Vector2Int> MovementTiles;
     public HumanTransporter AssignedHuman;
     public readonly List<MapResource> resourcesWithThisSegmentInPath;
-    public readonly Queue<MapResource> resourcesReadyToBeTransported;
+    public readonly Queue<MapResource> resourcesToTransport;
 
     public GraphSegment(
         List<GraphVertex> vertexes,
@@ -30,7 +30,7 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
         MovementTiles = movementTiles;
         Graph = graph;
         resourcesWithThisSegmentInPath = new();
-        resourcesReadyToBeTransported = new();
+        resourcesToTransport = new();
 
         vertexes.Sort();
         // TODO: Should be considered for removal

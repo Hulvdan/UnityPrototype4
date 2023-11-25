@@ -215,7 +215,7 @@ public class ItemTransportationSystem {
 
         // Updating booking. Needs to be changed in Map too
         mapResource.Booking = MapResourceBooking.FromResourceToBook(resourceToBook);
-        mapResource.TravellingSegments[0].resourcesReadyToBeTransported.Enqueue(mapResource);
+        mapResource.TravellingSegments[0].resourcesToTransport.Enqueue(mapResource);
 
         foreach (var segment in mapResource.TravellingSegments) {
             segment.resourcesWithThisSegmentInPath.Add(mapResource);
