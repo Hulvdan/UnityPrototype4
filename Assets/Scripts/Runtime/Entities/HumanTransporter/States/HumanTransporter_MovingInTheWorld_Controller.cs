@@ -95,7 +95,7 @@ public class HumanTransporter_MovingInTheWorld_Controller {
                 && human.segment.Graph.Node(human.pos) != 0
             ) {
                 Tracing.Log(
-                    "_controller.SetState(human, HumanTransporterState.MovingInsideSegment");
+                    "_controller.SetState(human, HumanTransporterState.MovingInsideSegment)");
                 _controller.SetState(human, HumanTransporterState.MovingInsideSegment);
                 return;
             }

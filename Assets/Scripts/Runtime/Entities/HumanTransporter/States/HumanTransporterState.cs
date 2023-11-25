@@ -32,7 +32,7 @@ public class HumanTransporter_Controller {
         HumanTransporterState newState
     ) {
         using var _ = Tracing.Scope();
-        Tracing.Log("SetState");
+        Tracing.Log($"SetState '{human.state}' -> '{newState}'");
 
         var oldState = human.state;
         human.state = newState;

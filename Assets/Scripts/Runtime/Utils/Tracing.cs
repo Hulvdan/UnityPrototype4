@@ -9,19 +9,19 @@ using UnityEngine;
 namespace BFG.Runtime {
 public static class Tracing {
     static readonly bool TracingEnabled = Debug.isDebugBuild;
-    static StreamWriter? _writer;
+    static TextWriter? _writer;
     static bool _closing;
     static int _collapseNumber;
     static string _previousString = null!;
 
-    static StreamWriter? writer {
+    static TextWriter? writer {
         get {
             if (_closing) {
                 return null;
             }
 
             if (_writer == null) {
-                _writer = new(
+                _writer = TextWriter.Synchronized(new StreamWriter(
                     Application.dataPath
                     + Path.DirectorySeparatorChar
                     + ".."
@@ -31,7 +31,7 @@ public static class Tracing {
                     + "Tracing.log",
                     true,
                     Encoding.UTF8
-                );
+                ));
             }
 
             Application.logMessageReceived += (condition, trace, type) => {
@@ -162,6 +162,7 @@ public static class Tracing {
         }
 
         writer?.WriteLine(newString);
+        writer?.Flush();
         _previousString = newString;
 
         // var scope = Current();
