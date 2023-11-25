@@ -58,8 +58,7 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
         }
     }
 
-    public List<GraphSegment> LinkedSegments => _linkedSegments;
-    readonly List<GraphSegment> _linkedSegments = new();
+    public List<GraphSegment> LinkedSegments { get; } = new();
 
     public bool HasSomeOfTheSameVertexes(GraphSegment other) {
         foreach (var otherVertex in other.Vertexes) {
@@ -74,11 +73,11 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
     }
 
     public void Link(GraphSegment other) {
-        _linkedSegments.Add(other);
+        LinkedSegments.Add(other);
     }
 
     public void Unlink(GraphSegment other) {
-        _linkedSegments.RemoveAt(_linkedSegments.FindIndex(i => i.ID == other.ID));
+        LinkedSegments.RemoveAt(LinkedSegments.FindIndex(i => i.ID == other.ID));
     }
 
     public static bool operator ==(GraphSegment obj1, GraphSegment obj2) {

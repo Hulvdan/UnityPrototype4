@@ -19,7 +19,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
     public byte Node(int x, int y) {
         Assert.IsTrue(Contains(x, y));
         Assert.IsTrue(_offset != null);
-        return _nodes[y - _offset.Value.y][x - _offset.Value.x];
+        return Nodes[y - _offset.Value.y][x - _offset.Value.x];
     }
 
     public void SetDirection(Vector2Int pos, Direction direction, bool value = true) {
@@ -31,7 +31,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             _offset = new Vector2Int(x, y);
 
             var node = GraphNode.SetDirection(0, direction, value);
-            _nodes = new() { new() { node } };
+            Nodes = new() { new() { node } };
 
             if (node != 0) {
                 _nodesCount += 1;
@@ -40,7 +40,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         else {
             ResizeIfNeeded(x, y);
 
-            var node = _nodes[y - _offset.Value.y][x - _offset.Value.x];
+            var node = Nodes[y - _offset.Value.y][x - _offset.Value.x];
 
             var nodeIsZeroButWontBeAfter = node == 0 && value;
             var nodeIsNotZeroButWillBe = !value && node != 0 &&
@@ -53,7 +53,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             }
 
             node = GraphNode.SetDirection(node, direction, value);
-            _nodes[y - _offset.Value.y][x - _offset.Value.x] = node;
+            Nodes[y - _offset.Value.y][x - _offset.Value.x] = node;
         }
     }
 
@@ -191,7 +191,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
 
         for (var y = 0; y < height; y++) {
             for (var x = 0; x < width; x++) {
-                var node = _nodes[y][x];
+                var node = Nodes[y][x];
 
                 foreach (var dir in Utils.Directions) {
                     if (!GraphNode.Has(node, dir)) {
@@ -205,7 +205,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
                         return false;
                     }
 
-                    var adjacentNode = _nodes[newY][newX];
+                    var adjacentNode = Nodes[newY][newX];
                     var opposite = GraphNode.Has(adjacentNode, dir.Opposite());
                     if (!opposite) {
                         return false;
@@ -220,7 +220,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
     public override string ToString() {
         var res = "";
         for (var y = 0; y < height; y++) {
-            var row = _nodes[height - y - 1];
+            var row = Nodes[height - y - 1];
             foreach (var node in row) {
                 res += GraphNode.Repr(node);
             }
@@ -246,7 +246,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
 
         return _nodesCount.Equals(other._nodesCount)
                && Nullable.Equals(_offset, other._offset)
-               && Utils.GoodFuken2DListEquals(_nodes, other._nodes);
+               && Utils.GoodFuken2DListEquals(Nodes, other.Nodes);
     }
 
     public override bool Equals(object obj) {
@@ -301,22 +301,22 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         }
 
         for (var y = 0; y < height; y++) {
-            if (_nodes[y].Count > other._nodes[y].Count) {
+            if (Nodes[y].Count > other.Nodes[y].Count) {
                 return 1;
             }
 
-            if (_nodes[y].Count > other._nodes[y].Count) {
+            if (Nodes[y].Count > other.Nodes[y].Count) {
                 return -1;
             }
         }
 
         for (var y = 0; y < height; y++) {
-            for (var x = 0; x < _nodes[y].Count; x++) {
-                if (_nodes[y][x] > other._nodes[y][x]) {
+            for (var x = 0; x < Nodes[y].Count; x++) {
+                if (Nodes[y][x] > other.Nodes[y][x]) {
                     return 1;
                 }
 
-                if (_nodes[y][x] < other._nodes[y][x]) {
+                if (Nodes[y][x] < other.Nodes[y][x]) {
                     return -1;
                 }
             }
@@ -326,7 +326,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
     }
 
     public override int GetHashCode() {
-        return HashCode.Combine(_offset, _nodes);
+        return HashCode.Combine(_offset, Nodes);
     }
 
     void ResizeIfNeeded(int x, int y) {
@@ -348,11 +348,11 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
                 newNodes.Add(row);
             }
 
-            foreach (var row in _nodes) {
+            foreach (var row in Nodes) {
                 newNodes.Add(row);
             }
 
-            _nodes = newNodes;
+            Nodes = newNodes;
         }
 
         if (y >= _offset.Value.y + height) {
@@ -365,7 +365,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
                     newRow.Add(new());
                 }
 
-                _nodes.Add(newRow);
+                Nodes.Add(newRow);
             }
         }
 
@@ -382,17 +382,17 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
                 }
 
                 for (var xx = 0; xx < oldWidth; xx++) {
-                    newRow.Add(_nodes[i][xx]);
+                    newRow.Add(Nodes[i][xx]);
                 }
 
-                _nodes[i] = newRow;
+                Nodes[i] = newRow;
             }
         }
 
         if (x >= _offset.Value.x + width) {
             var addedColumnsCount = x - width - _offset.Value.x + 1;
 
-            foreach (var row in _nodes) {
+            foreach (var row in Nodes) {
                 for (var i = 0; i < addedColumnsCount; i++) {
                     row.Add(new());
                 }
@@ -427,18 +427,18 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         }
     }
 
-    public List<List<byte>> Nodes => _nodes;
-    public int height => _nodes.Count;
-    public int width => _nodes[0].Count;
+    public List<List<byte>> Nodes { get; private set; } = new();
+
+    public int height => Nodes.Count;
+    public int width => Nodes[0].Count;
 
     public static class Tests {
         public static List<List<byte>> GetNodes(Graph graph) {
-            return graph._nodes;
+            return graph.Nodes;
         }
     }
 
     Vector2Int? _offset;
-    List<List<byte>> _nodes = new();
     int _nodesCount;
 
     CalculatedGraphPathData GetData() {
@@ -472,7 +472,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         var nodeIndex = 0;
         for (var y = 0; y < height; y++) {
             for (var x = 0; x < width; x++) {
-                var node = _nodes[y][x];
+                var node = Nodes[y][x];
                 if (node == 0) {
                     continue;
                 }
@@ -511,7 +511,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         nodeIndex = 0;
         for (var y = 0; y < height; y++) {
             for (var x = 0; x < width; x++) {
-                var node = _nodes[y][x];
+                var node = Nodes[y][x];
                 if (node == 0) {
                     continue;
                 }
@@ -538,7 +538,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         nodeIndex = 0;
         for (var y = 0; y < height; y++) {
             for (var x = 0; x < width; x++) {
-                var node = _nodes[y][x];
+                var node = Nodes[y][x];
                 if (node == 0) {
                     continue;
                 }

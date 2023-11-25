@@ -1,10 +1,12 @@
 ﻿#nullable enable
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reactive.Disposables;
 using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace BFG.Runtime {
 public static class Tracing {
@@ -58,7 +60,7 @@ public static class Tracing {
             return Disposable.Empty;
         }
 
-        var method = new System.Diagnostics.StackTrace().GetFrame(1).GetMethod();
+        var method = new StackTrace().GetFrame(1).GetMethod();
         return Scope(method.DeclaringType!.Name, method.Name);
     }
 
