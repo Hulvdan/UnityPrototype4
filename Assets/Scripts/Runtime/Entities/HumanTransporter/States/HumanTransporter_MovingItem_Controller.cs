@@ -126,40 +126,10 @@ public class HumanTransporter_MovingItem_Controller {
                 human.stateMovingItem_placingResourceNormalized = 1;
                 human.stateMovingItem_placingResourceElapsed = data.PlacingItemDuration;
 
-                var mapResource = res!.Value;
-                mapResource.Pos = human.pos;
-                mapResource.TravellingSegments.RemoveAt(0);
-                mapResource.ItemMovingVertices.RemoveAt(0);
-
-                if (res!.Value.TravellingSegments.Count > 0) {
-                    // TODO: Handle duplication of code from ItemTransportationSystem
-                    // Updating booking. Needs to be changed in Map too
-                    mapResource
-                        .TravellingSegments[0]
-                        .resourcesToTransport
-                        .Enqueue(mapResource);
-
-                    var list = data.Map.mapResources[mapResource.Pos.y][mapResource.Pos.x];
-                    for (var i = 0; i < list.Count; i++) {
-                        if (list[i].ID == mapResource.ID) {
-                            list[i] = mapResource;
-                            break;
-                        }
-                    }
-                }
-                else if (
-                    mapResource.Booking != null
-                    && mapResource.Booking.Value.Building.pos == human.pos
-                ) {
-                    mapResource.Booking.Value.Building.resourcesForConstruction.Add(mapResource);
-                    human.segment.resourcesWithThisSegmentInPath.Remove(mapResource);
-
-                    mapResource.Booking = null;
-                }
-
+                OnHumanPlacedResource(human, data, res);
                 data.Map.onHumanTransporterPlacedResource.OnNext(new() {
                     Human = human,
-                    Resource = res.Value,
+                    Resource = res!.Value,
                 });
 
                 if (human.segment.resourcesToTransport.Count == 0) {
@@ -196,20 +166,6 @@ public class HumanTransporter_MovingItem_Controller {
         using var _ = Tracing.Scope();
 
         if (human.stateMovingItem == State.MovingItem) {
-            var res = human.targetedResource!.Value;
-
-            var i = 0;
-            var row = data.Map.mapResources[res.Pos.y][res.Pos.x];
-            foreach (var resource in row) {
-                if (resource.ID == res.ID) {
-                    row.RemoveAt(i);
-                    break;
-                }
-
-                i++;
-            }
-
-            data.Map.mapResources[human.pos.y][human.pos.x].Add(res);
             UpdateStates(human, data);
         }
     }
@@ -231,7 +187,7 @@ public class HumanTransporter_MovingItem_Controller {
             var resource = segment.resourcesToTransport.Peek();
             human.targetedResource = resource;
             if (resource.Pos == human.pos && human.movingTo == null) {
-                StartPickingUpItem(human, data);
+                OnHumanStartedPickingUpResource(human, data);
             }
             else {
                 Tracing.Log("Human started moving to item");
@@ -249,7 +205,7 @@ public class HumanTransporter_MovingItem_Controller {
 
         if (human.stateMovingItem == State.MovingToItem) {
             if (human.segment.resourcesToTransport.Peek().Pos == human.pos) {
-                StartPickingUpItem(human, data);
+                OnHumanStartedPickingUpResource(human, data);
             }
         }
 
@@ -273,7 +229,7 @@ public class HumanTransporter_MovingItem_Controller {
         }
     }
 
-    void StartPickingUpItem(HumanTransporter human, HumanTransporterData data) {
+    void OnHumanStartedPickingUpResource(HumanTransporter human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
         Tracing.Log("Human started picking up item");
 
@@ -281,11 +237,56 @@ public class HumanTransporter_MovingItem_Controller {
         Tracing.Log($"human.stateMovingItem = {human.stateMovingItem}");
 
         var resource = human.segment.resourcesToTransport.Dequeue();
+        data.Map.mapResources[resource.Pos.y][resource.Pos.x].Remove(resource);
 
         data.Map.onHumanTransporterStartedPickingUpResource.OnNext(new() {
             Human = human,
             Resource = resource,
         });
+    }
+
+    static void OnHumanPlacedResource(
+        HumanTransporter human,
+        HumanTransporterData data,
+        MapResource? res
+    ) {
+        var mapResource = res!.Value;
+        if (human.pos == mapResource.ItemMovingVertices[0]) {
+            mapResource
+                .TravellingSegments[0]
+                .resourcesWithThisSegmentInPath
+                .Remove(mapResource);
+        }
+
+        mapResource.Pos = human.pos;
+        mapResource.TravellingSegments.RemoveAt(0);
+        mapResource.ItemMovingVertices.RemoveAt(0);
+
+        if (res!.Value.TravellingSegments.Count > 0) {
+            // TODO: Handle duplication of code from ItemTransportationSystem
+            // Updating booking. Needs to be changed in Map too
+            mapResource
+                .TravellingSegments[0]
+                .resourcesToTransport
+                .Enqueue(mapResource);
+
+            var list = data.Map.mapResources[mapResource.Pos.y][mapResource.Pos.x];
+            for (var i = 0; i < list.Count; i++) {
+                if (list[i].ID == mapResource.ID) {
+                    list[i] = mapResource;
+                    break;
+                }
+            }
+        }
+        else if (
+            mapResource.Booking != null
+            && mapResource.Booking.Value.Building.pos == human.pos
+        ) {
+            mapResource.Booking.Value.Building.resourcesForConstruction.Add(mapResource);
+            human.segment.resourcesWithThisSegmentInPath.Remove(mapResource);
+
+            mapResource.Booking = null;
+        }
     }
 
     readonly HumanTransporter_Controller _controller;
