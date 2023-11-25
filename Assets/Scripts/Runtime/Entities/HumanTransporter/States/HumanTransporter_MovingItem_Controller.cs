@@ -58,6 +58,8 @@ public class HumanTransporter_MovingItem_Controller {
     ) {
         using var _ = Tracing.Scope();
 
+        Assert.IsTrue(human.stateMovingItem is State.MovingToItem or State.PlacingItem);
+
         human.stateMovingItem = null;
         Tracing.Log($"human.stateMovingItem = {human.stateMovingItem}");
 
@@ -125,6 +127,7 @@ public class HumanTransporter_MovingItem_Controller {
                 human.stateMovingItem_placingResourceElapsed = data.PlacingItemDuration;
 
                 var mapResource = res!.Value;
+                mapResource.Pos = human.pos;
                 mapResource.TravellingSegments.RemoveAt(0);
                 mapResource.ItemMovingVertices.RemoveAt(0);
 
