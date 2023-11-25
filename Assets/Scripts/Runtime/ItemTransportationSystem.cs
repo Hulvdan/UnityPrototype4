@@ -17,6 +17,8 @@ public class ItemTransportationSystem {
     }
 
     public void Add_ResourcesToBook(List<ResourceToBook> resources) {
+        using var _ = Tracing.Scope();
+
         foreach (var resource in resources) {
             _resourcesToBook.Enqueue(resource, resource.Priority);
         }

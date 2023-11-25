@@ -289,6 +289,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 new() { new(TileUpdatedType.BuildingPlaced, pos) },
                 _segments
             );
+
+            UpdateBuilding_NotConstructed(0, building);
             UpdateSegments(res);
         }
         else if (item.Type == SelectedItemType.Flag) {
@@ -328,6 +330,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void UpdateSegments(ItemTransportationGraph.OnTilesUpdatedResult res) {
+        using var _ = Tracing.Scope();
+
         if (!_hideEditorLogs) {
             Debug.Log($"{res.AddedSegments.Count} segments added, {res.DeletedSegments} deleted");
         }
@@ -375,16 +379,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         foreach (var segment in res.AddedSegments) {
             _segments.Add(segment);
 
-            if (humansThatNeedNewSegment.Count == 0) {
-                CreateHuman_Transporter(cityHall, segment);
-            }
-            else {
-                var (oldSegment, human) = humansThatNeedNewSegment.Pop();
-                human.segment = segment;
-                segment.AssignedHuman = human;
-                _humanTransporterController.OnSegmentChanged(human, oldSegment);
-            }
-
             foreach (var segmentToLink in _segments) {
                 if (ReferenceEquals(segment, segmentToLink)) {
                     continue;
@@ -395,6 +389,21 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     segment.Link(segmentToLink);
                     segmentToLink.Link(segment);
                 }
+            }
+        }
+
+        _itemTransportationSystem.PathfindItemsInQueue();
+        Tracing.Log($"_itemTransportationSystem.PathfindItemsInQueue()");
+
+        foreach (var segment in res.AddedSegments) {
+            if (humansThatNeedNewSegment.Count == 0) {
+                CreateHuman_Transporter(cityHall, segment);
+            }
+            else {
+                var (oldSegment, human) = humansThatNeedNewSegment.Pop();
+                human.segment = segment;
+                segment.AssignedHuman = human;
+                _humanTransporterController.OnSegmentChanged(human, oldSegment);
             }
         }
 

@@ -19,7 +19,11 @@ public class HumanTransporter_MovingInTheWorld_Controller {
     ) {
         using var _ = Tracing.Scope();
 
-        Tracing.Log("OnEnter");
+        if (human.segment != null) {
+            Tracing.Log(
+                $"human.segment.resourcesToTransport.Count = {human.segment.resourcesToTransport.Count}");
+        }
+
         human.movingElapsed = 0;
         UpdateStates(human, map, mapSize, cityHall, null);
     }
@@ -32,7 +36,6 @@ public class HumanTransporter_MovingInTheWorld_Controller {
     ) {
         using var _ = Tracing.Scope();
 
-        Tracing.Log("OnExit");
         human.stateMovingInTheWorld = null;
         human.movingTo = null;
         human.movingPath.Clear();

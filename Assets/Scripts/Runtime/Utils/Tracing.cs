@@ -32,6 +32,7 @@ public static class Tracing {
                     true,
                     Encoding.UTF8
                 ));
+                _writer.WriteLine($"\n\n\n===== RUN FROM {DateTime.Now:s}");
             }
 
             Application.logMessageReceived += (condition, trace, type) => {

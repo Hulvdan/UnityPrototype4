@@ -42,7 +42,6 @@ public class HumanTransporter_MovingItem_Controller {
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
-        Tracing.Log("OnEnter");
 
         Assert.AreEqual(human.stateMovingItem, null, "human.stateMovingItem == null");
         Assert.AreEqual(human.movingTo, null, "human.movingTo == null");
@@ -58,7 +57,6 @@ public class HumanTransporter_MovingItem_Controller {
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
-        Tracing.Log("OnExit");
 
         human.stateMovingItem = null;
         Tracing.Log($"human.stateMovingItem = {human.stateMovingItem}");
@@ -182,7 +180,6 @@ public class HumanTransporter_MovingItem_Controller {
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
-        Tracing.Log("OnHumanMovedToTheNextTile");
 
         if (human.stateMovingItem == State.MovingItem) {
             var res = human.targetedResource!.Value;
