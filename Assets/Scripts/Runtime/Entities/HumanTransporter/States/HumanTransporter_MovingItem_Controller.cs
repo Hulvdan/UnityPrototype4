@@ -147,6 +147,15 @@ public class HumanTransporter_MovingItem_Controller {
                         }
                     }
                 }
+                else if (
+                    mapResource.Booking != null
+                    && mapResource.Booking.Value.Building.pos == human.pos
+                ) {
+                    mapResource.Booking.Value.Building.resourcesForConstruction.Add(mapResource);
+                    human.segment.resourcesWithThisSegmentInPath.Remove(mapResource);
+
+                    mapResource.Booking = null;
+                }
 
                 data.Map.onHumanTransporterPlacedResource.OnNext(new() {
                     Human = human,
