@@ -1,14 +1,57 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reactive.Disposables;
 using System.Runtime.CompilerServices;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
 public static class Tracing {
     static readonly bool TracingEnabled = Debug.isDebugBuild;
+    static StreamWriter? _writer;
+    static bool _closing;
+    static int _collapseNumber;
+    static string _previousString = null!;
+
+    static StreamWriter? writer {
+        get {
+            if (_closing) {
+                return null;
+            }
+
+            if (_writer == null) {
+                _writer = new(
+                    Application.dataPath
+                    + Path.DirectorySeparatorChar
+                    + ".."
+                    + Path.DirectorySeparatorChar
+                    + "Logs"
+                    + Path.DirectorySeparatorChar
+                    + "Tracing.log",
+                    true,
+                    Encoding.UTF8
+                );
+            }
+
+            Application.logMessageReceived += (condition, trace, type) => {
+                switch (type) {
+                    case LogType.Error:
+                    case LogType.Assert:
+                    case LogType.Warning:
+                    case LogType.Exception:
+                        Log(type, condition + "\n" + trace);
+                        break;
+                    case LogType.Log:
+                    default:
+                        break;
+                }
+            };
+            return _writer;
+        }
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IDisposable Scope() {
@@ -17,74 +60,121 @@ public static class Tracing {
         }
 
         var method = new System.Diagnostics.StackTrace().GetFrame(1).GetMethod();
-        return Scope(method.DeclaringType.Name, method.Name);
+        return Scope(method.DeclaringType!.Name, method.Name);
     }
 
     public static void LogError(string text) {
-        Log(2, text);
+        Log(LogType.Error, text);
+    }
+
+    public static void LogAssert(string text) {
+        Log(LogType.Assert, text);
     }
 
     public static void LogWarning(string text) {
-        Log(1, text);
+        Log(LogType.Warning, text);
     }
 
     public static void Log(string text) {
-        Log(0, text);
+        Log(LogType.Log, text);
+    }
+
+    public static void LogException(string text) {
+        Log(LogType.Exception, text);
+    }
+
+    public static void DisposeWriter() {
+        _closing = true;
+        if (_writer == null) {
+            return;
+        }
+
+        _writer.Close();
+        _writer = null;
     }
 
     static IDisposable Scope(params string[] name) {
-        var scope = GetNew();
+        _ = GetNew();
+
+        string joinedName;
         if (name.Length > 0) {
-            var joinedName = string.Join('.', name);
-            scope.Traces.Add(new(0, ""));
-            scope.Traces.Add(new(0, $"[{joinedName}]"));
+            joinedName = string.Join('.', name);
+            // scope.Traces.Add(new(0, ""));
+        }
+        else {
+            joinedName = "-anonymous-scope-";
         }
 
-        return Disposable.Create(() => {
-            var current = Current()!;
-            var parent = Parent();
-            Assert.IsTrue(current != null);
+        var item2 = $"[{joinedName}]";
+        // scope.Traces.Add(new(0, item2));
 
-            if (parent == null) {
-                if (current!.Traces.Count > 2) {
-                    Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, current.Format());
-                }
-
-                InvalidateTop();
-            }
-            else {
-                if (current!.Traces.Count > 2) {
-                    current.FormatForParent(parent);
-                }
-
-                InvalidateTop();
-            }
-        });
+        Log(LogType.Log, item2);
+        // writer?.WriteLine(
+        //     new string('\t', Math.Max(0, _current)) + Prepend(LogType.Log, item2)
+        // );
+        return Disposable.Create(() => { _current--; });
+        // return Disposable.Create(() => {
+        //     var current = Current()!;
+        //     var parent = Parent();
+        //     Assert.IsTrue(current != null);
+        //
+        //     if (parent == null) {
+        //         if (current!.Traces.Count > 2) {
+        //             _writingToConsole = true;
+        //             Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, current.Format());
+        //             _writingToConsole = false;
+        //         }
+        //
+        //         InvalidateTop();
+        //     }
+        //     else {
+        //         if (current!.Traces.Count > 2) {
+        //             current.FormatForParent(parent);
+        //         }
+        //
+        //         InvalidateTop();
+        //     }
+        //
+        //     // if (_current >= 0) {
+        //     //     // for (var i = _current; i >= 1; i--) {
+        //     //     //     Pool[i].FormatForParent(Pool[i - 1]);
+        //     //     // }
+        //     //     //
+        //     //     // writer?.WriteLine(Pool[0].Format());
+        //     //     // Debug.LogFormat(LogType.Error, LogOption.NoStacktrace, null, formatErr);
+        //     // }
+        // });
     }
 
-    static void Log(int level, string text) {
+    static void Log(LogType type, string text) {
         if (!TracingEnabled) {
             return;
         }
 
-        var scope = Current();
-        if (scope == null) {
-            switch (level) {
-                case 0:
-                    Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, text);
-                    break;
-                case 1:
-                    Debug.LogFormat(LogType.Warning, LogOption.NoStacktrace, null, text);
-                    break;
-                case 2:
-                    Debug.LogFormat(LogType.Error, LogOption.NoStacktrace, null, text);
-                    break;
-            }
-
+        var newString = new string('\t', Math.Max(0, _current)) + Prepend(type, text);
+        if (_previousString == newString) {
+            _collapseNumber++;
             return;
         }
 
-        scope.Traces.Add(new(level, text));
+        if (_collapseNumber > 0) {
+            writer?.WriteLine($"<-- {_collapseNumber} more -->");
+            _collapseNumber = 0;
+        }
+
+        writer?.WriteLine(newString);
+        _previousString = newString;
+
+        // var scope = Current();
+        //
+        // if (scope == null) {
+        //     writer?.WriteLine(text);
+        //     // _writingToConsole = true;
+        //     // Debug.LogFormat(level, LogOption.NoStacktrace, null, text);
+        //     // _writingToConsole = false;
+        //     return;
+        // }
+        // scope.Traces.Add(new(level, text));
     }
 
     static readonly List<TracingScope> Pool = new();
@@ -123,43 +213,49 @@ public static class Tracing {
         Pool[_current].Traces.Clear();
         _current--;
     }
+
+    public static string Prepend(LogType type, string text) {
+        switch (type) {
+            case LogType.Error:
+                return "[ERROR] " + text;
+            case LogType.Assert:
+                return "[ASSERT] " + text;
+            case LogType.Warning:
+                return "[WARN] " + text;
+            case LogType.Log:
+                return text;
+            case LogType.Exception:
+                return "[EXCEPTION] " + text;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
 }
 
 internal class TracingScope {
-    public readonly List<(int, string)> Traces = new();
+    public readonly List<(LogType, string)> Traces = new();
 
     public string Format() {
         var res = new List<string>();
-        foreach (var (p, t) in Traces) {
-            switch (p) {
-                case 0:
-                    res.Add("" + t);
-                    break;
-                case 1:
-                    res.Add("[WARN] " + t);
-                    break;
-                case 2:
-                    res.Add("[ERROR] " + t);
-                    break;
-            }
+        foreach (var (type, text) in Traces) {
+            res.Add(Tracing.Prepend(type, text));
+        }
+
+        return string.Join('\n', res);
+    }
+
+    public string FormatErr() {
+        var res = new List<string>();
+        foreach (var (_, text) in Traces) {
+            res.Add("[ERROR] " + text);
         }
 
         return string.Join('\n', res);
     }
 
     public void FormatForParent(TracingScope parent) {
-        foreach (var (p, t) in Traces) {
-            switch (p) {
-                case 0:
-                    parent.Traces.Add(new(0, "\t" + t));
-                    break;
-                case 1:
-                    parent.Traces.Add(new(0, "\t[WARN] " + t));
-                    break;
-                case 2:
-                    parent.Traces.Add(new(0, "\t[ERROR] " + t));
-                    break;
-            }
+        foreach (var (type, text) in Traces) {
+            parent.Traces.Add(new(0, "\t" + Tracing.Prepend(type, text)));
         }
     }
 }
