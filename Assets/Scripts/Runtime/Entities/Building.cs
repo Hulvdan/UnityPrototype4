@@ -70,6 +70,7 @@ public class Building {
     }
 
     public RectInt rect => new(posX, posY, scriptable.size.x, scriptable.size.y);
+    public readonly List<MapResource> resourcesForConstruction = new();
 
     public bool Contains(Vector2Int pos) {
         return Contains(pos.x, pos.y);
