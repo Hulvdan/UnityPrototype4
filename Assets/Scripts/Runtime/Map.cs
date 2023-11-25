@@ -130,8 +130,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     Random _random = null!;
 
-    public List<GraphSegment> segments => _segments;
-    readonly List<GraphSegment> _segments = new();
+    public List<GraphSegment> segments { get; } = new();
+
     readonly Dictionary<Guid, List<GraphSegment>> _segmentLinks = new();
 
     void Awake() {
@@ -246,7 +246,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 this,
                 buildings,
                 new() { new(TileUpdatedType.RoadPlaced, pos) },
-                _segments
+                segments
             );
             UpdateSegments(res);
         }
@@ -287,7 +287,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 this,
                 buildings,
                 new() { new(TileUpdatedType.BuildingPlaced, pos) },
-                _segments
+                segments
             );
 
             UpdateBuilding_NotConstructed(0, building);
@@ -306,7 +306,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 this,
                 buildings,
                 new() { new(TileUpdatedType.FlagPlaced, pos) },
-                _segments
+                segments
             );
             UpdateSegments(res);
         }
@@ -354,7 +354,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         foreach (var segment in res.DeletedSegments) {
-            _segments.RemoveAt(_segments.FindIndex(i => i.ID == segment.ID));
+            segments.RemoveAt(segments.FindIndex(i => i.ID == segment.ID));
 
             var human = segment.AssignedHuman;
             if (human != null) {
@@ -377,9 +377,9 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         foreach (var segment in res.AddedSegments) {
-            _segments.Add(segment);
+            segments.Add(segment);
 
-            foreach (var segmentToLink in _segments) {
+            foreach (var segmentToLink in segments) {
                 if (ReferenceEquals(segment, segmentToLink)) {
                     continue;
                 }
@@ -393,7 +393,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         _itemTransportationSystem.PathfindItemsInQueue();
-        Tracing.Log($"_itemTransportationSystem.PathfindItemsInQueue()");
+        Tracing.Log("_itemTransportationSystem.PathfindItemsInQueue()");
 
         foreach (var segment in res.AddedSegments) {
             if (humansThatNeedNewSegment.Count == 0) {
@@ -412,14 +412,14 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         // Assert that segments don't have tiles with identical directions
-        for (var i = 0; i < _segments.Count; i++) {
-            for (var j = 0; j < _segments.Count; j++) {
+        for (var i = 0; i < segments.Count; i++) {
+            for (var j = 0; j < segments.Count; j++) {
                 if (i == j) {
                     continue;
                 }
 
-                var g1 = _segments[i].Graph;
-                var g2 = _segments[j].Graph;
+                var g1 = segments[i].Graph;
+                var g2 = segments[j].Graph;
                 for (var y = 0; y < g1.height; y++) {
                     for (var x = 0; x < g1.width; x++) {
                         // ReSharper disable once InconsistentNaming
