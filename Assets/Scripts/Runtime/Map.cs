@@ -218,6 +218,15 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     Building = _lumberjacksHouse,
                 }
             );
+
+            // TryBuild(new(7, 7), new() { Type = SelectedItemType.Road });
+            // TryBuild(
+            //     new(6, 7),
+            //     new() {
+            //         Type = SelectedItemType.Building,
+            //         Building = _lumberjacksHouse,
+            //     }
+            // );
         }
     }
 
