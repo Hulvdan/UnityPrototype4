@@ -140,7 +140,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void Update() {
         var dt = _gameManager.dt;
-        _itemTransportationSystem.PathfindItemsInQueue();
+        _resourceTransportationSystem.PathfindItemsInQueue();
         UpdateHumans(dt);
         UpdateHumanTransporters(dt);
         UpdateBuildings(dt);
@@ -171,7 +171,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public void Init() {
         _initialMapProvider.Init(this, this);
-        _humanTransporterController = new(this, this, cityHall, _itemTransportationSystem);
 
         resources.Clear();
         foreach (var res in _topBarResources) {
@@ -204,7 +203,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             AddMapResource(cityHall, _planksResource);
         }
 
-        _itemTransportationSystem = new(this, this);
+        _resourceTransportationSystem = new(this, this);
+        _humanTransporterController = new(this, this, cityHall, _resourceTransportationSystem);
 
         if (Application.isPlaying) {
             TryBuild(new(7, 7), new() { Type = SelectedItemType.Road });
@@ -381,7 +381,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 linkedSegment.Unlink(segment);
             }
 
-            _itemTransportationSystem.OnSegmentDeleted(segment);
+            _resourceTransportationSystem.OnSegmentDeleted(segment);
         }
 
         if (!_hideEditorLogs) {
@@ -406,7 +406,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
         }
 
-        _itemTransportationSystem.PathfindItemsInQueue();
+        _resourceTransportationSystem.PathfindItemsInQueue();
         Tracing.Log("_itemTransportationSystem.PathfindItemsInQueue()");
 
         foreach (var segment in res.AddedSegments) {
@@ -697,7 +697,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void UpdateBuilding_NotConstructed(float dt, Building building) {
         if (building.ResourcesToBook.Count > 0) {
-            _itemTransportationSystem.Add_ResourcesToBook(building.ResourcesToBook);
+            _resourceTransportationSystem.Add_ResourcesToBook(building.ResourcesToBook);
             building.ResourcesToBook.Clear();
         }
     }
@@ -1253,7 +1253,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     #region ItemTransportationSystem
 
-    ItemTransportationSystem _itemTransportationSystem = null!;
+    ResourceTransportationSystem _resourceTransportationSystem = null!;
     HumanTransporter_Controller _humanTransporterController = null!;
 
     #endregion

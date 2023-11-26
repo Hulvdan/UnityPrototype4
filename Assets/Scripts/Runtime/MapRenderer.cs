@@ -896,12 +896,14 @@ public class MapRenderer : MonoBehaviour {
         }
 
         go.transform.localPosition = pos + Vector2.one / 2;
-        if (human.stateMovingItem == HumanTransporter_MovingItem_Controller.State.PickingUpItem) {
-            go.SetPickingUpResourceCoef(human.stateMovingItem_pickingUpResourceNormalized);
+        if (human.stateMovingResource
+            == HumanTransporter_MovingResource_Controller.State.PickingUpResource) {
+            go.SetPickingUpResourceCoef(human.stateMovingResource_pickingUpResourceNormalized);
         }
 
-        if (human.stateMovingItem == HumanTransporter_MovingItem_Controller.State.PlacingItem) {
-            go.SetPlacingResourceCoef(human.stateMovingItem_placingResourceNormalized);
+        if (human.stateMovingResource
+            == HumanTransporter_MovingResource_Controller.State.PlacingResource) {
+            go.SetPlacingResourceCoef(human.stateMovingResource_placingResourceNormalized);
         }
     }
 

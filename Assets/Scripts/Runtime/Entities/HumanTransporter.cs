@@ -76,12 +76,12 @@ public class HumanTransporter {
 
     #region HumanTransporter_MovingItem_Controller
 
-    public HumanTransporter_MovingItem_Controller.State? stateMovingItem;
+    public HumanTransporter_MovingResource_Controller.State? stateMovingResource;
 
-    public float stateMovingItem_pickingUpResourceElapsed;
-    public float stateMovingItem_pickingUpResourceNormalized;
-    public float stateMovingItem_placingResourceElapsed;
-    public float stateMovingItem_placingResourceNormalized;
+    public float stateMovingResource_pickingUpResourceElapsed;
+    public float stateMovingResource_pickingUpResourceNormalized;
+    public float stateMovingResource_placingResourceElapsed;
+    public float stateMovingResource_placingResourceNormalized;
 
     public MapResource? targetedResource = null;
 

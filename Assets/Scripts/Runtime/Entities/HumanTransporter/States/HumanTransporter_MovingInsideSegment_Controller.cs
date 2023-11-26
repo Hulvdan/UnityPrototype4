@@ -84,7 +84,7 @@ public class HumanTransporter_MovingInsideSegment_Controller {
         if (human.segment.resourcesToTransport.Count > 0) {
             if (human.movingTo == null) {
                 Tracing.Log("_controller.SetState(human, HumanTransporterState.MovingItem)");
-                _controller.SetState(human, HumanTransporterState.MovingItem);
+                _controller.SetState(human, HumanTransporterState.MovingResource);
                 return;
             }
 
