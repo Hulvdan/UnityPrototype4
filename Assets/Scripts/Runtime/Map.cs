@@ -200,7 +200,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             mapResources.Add(row);
         }
 
-        for (var i = 0; i < 5; i++) {
+        for (var i = 0; i < 15; i++) {
             AddMapResource(cityHall, _planksResource);
         }
 
@@ -245,6 +245,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         if (!Contains(pos)) {
             return;
         }
+
+        using var _ = Tracing.Scope();
 
         if (item.Type == SelectedItemType.Road) {
             var road = elementTiles[pos.y][pos.x];

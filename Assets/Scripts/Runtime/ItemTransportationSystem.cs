@@ -11,9 +11,14 @@ public class ItemTransportationSystem {
     // ReSharper disable once InconsistentNaming
     const int DEV_MAX_ITERATIONS = 256;
 
+    readonly byte[,] _visitedTiles;
+    readonly Queue<(Direction, Vector2Int)> _queue = new();
+    readonly List<(ResourceToBook, MapResource, List<Vector2Int>)> _foundPairs = new();
+
     public ItemTransportationSystem(IMap map, IMapSize mapSize) {
         _map = map;
         _mapSize = mapSize;
+        _visitedTiles = new byte[_mapSize.height, _mapSize.width];
     }
 
     public void Add_ResourcesToBook(List<ResourceToBook> resources) {
@@ -40,28 +45,25 @@ public class ItemTransportationSystem {
         segment.resourcesWithThisSegmentInPath.Clear();
     }
 
-    public void OnResourceMovedToTheNextSegment() {
-    }
-
     public void PathfindItemsInQueue() {
         if (_resourcesToBook.Count == 0) {
             return;
         }
 
-        var foundPairs = FindPairs();
-        foreach (var (resourceToBook, foundResource, path) in foundPairs) {
+        FindPairs();
+        foreach (var (resourceToBook, foundResource, path) in _foundPairs) {
             BookResource(resourceToBook, foundResource, path);
         }
+
+        _foundPairs.Clear();
     }
 
-    List<(ResourceToBook, MapResource, List<Vector2Int>)> FindPairs() {
-        var visitedTiles = new byte[_mapSize.height, _mapSize.width];
-        var queue = new Queue<Tuple<Direction, Vector2Int>>();
-
-        var foundPairs = new List<(ResourceToBook, MapResource, List<Vector2Int>)>();
+    void FindPairs() {
         var bookedResources = new HashSet<Guid>();
 
-        var iteration = 0;
+        var iterationWarningEmitted = false;
+        var iteration2WarningEmitted = false;
+
         foreach (var resourceToBook in _resourcesToBook) {
             if (resourceToBook.BookingType != MapResourceBookingType.Construction) {
                 continue;
@@ -69,37 +71,40 @@ public class ItemTransportationSystem {
 
             var destinationPos = resourceToBook.Building.pos;
             foreach (var dir in Utils.Directions) {
-                queue.Enqueue(new(dir, destinationPos));
+                _queue.Enqueue(new(dir, destinationPos));
             }
 
             var minX = destinationPos.x;
             var maxX = destinationPos.x;
             var minY = destinationPos.y;
             var maxY = destinationPos.y;
-            visitedTiles[destinationPos.y, destinationPos.x] = GraphNode.All;
+            _visitedTiles[destinationPos.y, destinationPos.x] = GraphNode.All;
 
             MapResource? foundResource = null;
+
+            var iteration = 0;
             while (
                 iteration++ < 10 * DEV_MAX_ITERATIONS
                 && foundResource == null
-                && queue.Count > 0
+                && _queue.Count > 0
             ) {
-                var (dir, pos) = queue.Dequeue();
+                var (dir, pos) = _queue.Dequeue();
 
                 var newPos = pos + dir.AsOffset();
                 if (!_mapSize.Contains(newPos)) {
                     continue;
                 }
 
-                if (GraphNode.Has(visitedTiles[newPos.y, newPos.x], dir.Opposite())) {
+                if (GraphNode.Has(_visitedTiles[newPos.y, newPos.x], dir.Opposite())) {
                     continue;
                 }
 
                 (minX, maxX) = Utils.MinMax(minX, newPos.x, maxX);
                 (minY, maxY) = Utils.MinMax(minY, newPos.y, maxY);
-                visitedTiles[newPos.y, newPos.x] = GraphNode.MarkAs(
-                    visitedTiles[newPos.y, newPos.x], dir.Opposite()
+                _visitedTiles[newPos.y, newPos.x] = GraphNode.MarkAs(
+                    _visitedTiles[newPos.y, newPos.x], dir.Opposite()
                 );
+                _visitedTiles[pos.y, pos.x] = GraphNode.MarkAs(_visitedTiles[pos.y, pos.x], dir);
 
                 var tile = _map.elementTiles[pos.y][pos.x];
                 var newTile = _map.elementTiles[newPos.y][newPos.x];
@@ -137,18 +142,23 @@ public class ItemTransportationSystem {
                         continue;
                     }
 
-                    if (GraphNode.Has(visitedTiles[newPos.y, newPos.x], queueDir)) {
+                    if (GraphNode.Has(_visitedTiles[newPos.y, newPos.x], queueDir)) {
                         continue;
                     }
 
-                    queue.Enqueue(new(queueDir, newPos));
+                    _queue.Enqueue(new(queueDir, newPos));
                 }
             }
 
             Assert.IsTrue(iteration < 10 * DEV_MAX_ITERATIONS);
             if (iteration >= DEV_MAX_ITERATIONS) {
-                Debug.LogWarning("WTF?");
+                if (!iterationWarningEmitted) {
+                    iterationWarningEmitted = true;
+                    Debug.LogWarning("WTF?");
+                }
             }
+
+            _queue.Clear();
 
             var iteration2 = 0;
             if (foundResource != null) {
@@ -160,21 +170,31 @@ public class ItemTransportationSystem {
                 ) {
                     iteration2++;
                     path.Add(_map.elementTiles[destination.y][destination.x].BFS_Parent.Value);
+
+                    Assert.AreNotEqual(
+                        destination,
+                        _map.elementTiles[destination.y][destination.x].BFS_Parent.Value
+                    );
+
                     destination = _map.elementTiles[destination.y][destination.x].BFS_Parent.Value;
                 }
 
                 Assert.IsTrue(iteration2 < 10 * DEV_MAX_ITERATIONS);
                 if (iteration2 >= DEV_MAX_ITERATIONS) {
-                    Debug.LogWarning("WTF?");
+                    if (!iteration2WarningEmitted) {
+                        Debug.LogWarning("WTF?");
+                        iteration2WarningEmitted = true;
+                    }
                 }
 
-                foundPairs.Add(new(resourceToBook, foundResource.Value, path));
+                if (_map.elementTiles[destination.y][destination.x].BFS_Parent != null) {
+                    _foundPairs.Add(new(resourceToBook, foundResource.Value, path));
+                }
             }
 
-            queue.Clear();
             for (var y = minY; y <= maxY; y++) {
                 for (var x = minX; x <= maxX; x++) {
-                    visitedTiles[y, x] = 0;
+                    _visitedTiles[y, x] = 0;
 
                     var elementTile = _map.elementTiles[y][x];
                     elementTile.BFS_Parent = null;
@@ -182,8 +202,6 @@ public class ItemTransportationSystem {
                 }
             }
         }
-
-        return foundPairs;
     }
 
     void BookResource(
