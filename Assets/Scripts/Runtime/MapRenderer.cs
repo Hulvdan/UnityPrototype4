@@ -258,8 +258,11 @@ public class MapRenderer : MonoBehaviour {
         Gizmos.color = Color.cyan;
 
         foreach (var building in _map.buildings) {
-            if (building.scriptable == null
-                || building.scriptable.tilesRadius == 0) {
+            if (
+                building.scriptable == null
+                || building.scriptable.type == BuildingType.Harvest
+                || building.scriptable.tilesRadius == 0
+            ) {
                 continue;
             }
 
