@@ -71,6 +71,8 @@ public class ResourceTransportationSystem {
         GraphSegment seg,
         MapResource res
     ) {
+        using var _ = Tracing.Scope();
+
         Assert.AreNotEqual(res.Booking, null);
 
         if (pos == res.TransportationVertices[0]) {
@@ -80,19 +82,20 @@ public class ResourceTransportationSystem {
         }
 
         res.Pos = pos;
-        var movVert = res.TransportationVertices[0];
+        var vertex = res.TransportationVertices[0];
         res.TransportationSegments.RemoveAt(0);
         res.TransportationVertices.RemoveAt(0);
 
-        var movedToTheNextSegmentInPath = res.Pos == movVert
+        var movedToTheNextSegmentInPath = res.Pos == vertex
                                           && res.TransportationSegments.Count > 0;
         var movedInsideBuilding = res.Booking != null
                                   && res.Booking.Value.Building.pos == pos;
 
         if (movedToTheNextSegmentInPath) {
+            Tracing.Log("movedToTheNextSegmentInPath");
+
             // TODO: Handle duplication of code from ItemTransportationSystem
-            res
-                .TransportationSegments[0]
+            res.TransportationSegments[0]
                 .resourcesToTransport
                 .Enqueue(res);
 
@@ -105,21 +108,26 @@ public class ResourceTransportationSystem {
             }
         }
         else if (movedInsideBuilding) {
+            Tracing.Log("movedInsideBuilding");
+
             res.Booking.Value.Building.resourcesForConstruction.Add(res);
             seg.resourcesWithThisSegmentInPath.Remove(res);
 
             res.Booking = null;
         }
-        // Resource was just placed on the map
         else {
-            // foreach (var segment in res.TravellingSegments) {
-            //     // segment.resourcesWithThisSegmentInPath.Remove(res);
-            // }
-            _map.mapResources[res.Pos.y][res.Pos.x].Add(res);
+            Tracing.Log("Resource was placed on the map");
+
+            seg.resourcesWithThisSegmentInPath.Remove(res);
+            foreach (var segment in res.TransportationSegments) {
+                segment.resourcesWithThisSegmentInPath.Remove(res);
+            }
 
             res.TransportationSegments.Clear();
             res.TransportationVertices.Clear();
             res.Booking = null;
+
+            _map.mapResources[res.Pos.y][res.Pos.x].Add(res);
         }
     }
 
