@@ -230,6 +230,7 @@ public class HumanTransporter_MovingResource_Controller {
         Tracing.Log("human.stateMovingResource = State.PickingUpResource");
 
         var resource = human.segment.resourcesToTransport.Dequeue();
+        resource.isCarried = true;
         data.transportationSystem.OnHumanStartedPickingUpResource(resource);
 
         data.Map.onHumanTransporterStartedPickingUpResource.OnNext(new() {
