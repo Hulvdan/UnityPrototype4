@@ -36,15 +36,7 @@ public class ResourceTransportationSystem {
         }
     }
 
-    public void OnSegmentDeleted(GraphSegment segment) {
-        foreach (var resource in segment.linkedResources) {
-            Assert.IsTrue(resource.Booking.HasValue);
-            var building = resource.Booking.Value.Building;
-            building.ResourcesToBook.Add(ResourceToBook.FromMapResource(resource));
-        }
-
-        segment.linkedResources.Clear();
-    }
+    #region ResourcesPathfinding
 
     public void PathfindItemsInQueue() {
         if (_resourcesToBook.Count == 0) {
@@ -57,99 +49,6 @@ public class ResourceTransportationSystem {
         }
 
         _foundPairs.Clear();
-    }
-
-    public void OnHumanStartedPickingUpResource(MapResource res) {
-        using var _ = Tracing.Scope();
-
-        Assert.AreNotEqual(res.Booking, null);
-
-        _map.mapResources[res.Pos.y][res.Pos.x].Remove(res);
-    }
-
-    public void OnHumanPlacedResource(
-        Vector2Int pos,
-        GraphSegment? seg,
-        MapResource res,
-        bool segmentWasChanged
-    ) {
-        using var _ = Tracing.Scope();
-
-        Assert.AreNotEqual(res.Booking, null, "res.Booking != null");
-        Assert.AreEqual(
-            res.TransportationVertices.Count, res.TransportationSegments.Count,
-            "res.TransportationVertices.Count == res.TransportationSegments.Count"
-        );
-
-        bool movedToTheNextSegmentInPath;
-        bool movedInsideBuilding;
-        bool resourceWasPlacedOnMap;
-
-        if (seg == null) {
-            Assert.AreEqual(
-                res.TransportationVertices.Count, 0, "res.TransportationVertices.Count == 0"
-            );
-            movedToTheNextSegmentInPath = false;
-            movedInsideBuilding = false;
-            resourceWasPlacedOnMap = true;
-        }
-        else {
-            Assert.AreNotEqual(
-                res.TransportationVertices.Count, 0, "res.TransportationVertices.Count != 0"
-            );
-
-            if (pos == res.TransportationVertices[0]) {
-                res.TransportationSegments[0]
-                    .linkedResources
-                    .Remove(res);
-            }
-
-            res.Pos = pos;
-            var vertex = res.TransportationVertices[0];
-            res.TransportationSegments.RemoveAt(0);
-            res.TransportationVertices.RemoveAt(0);
-
-            movedToTheNextSegmentInPath = pos == vertex
-                                          && res.TransportationSegments.Count > 0;
-            movedInsideBuilding = res.Booking != null
-                                  && res.Booking.Value.Building.pos == pos;
-            resourceWasPlacedOnMap = segmentWasChanged
-                                     || (!movedToTheNextSegmentInPath && !movedInsideBuilding);
-        }
-
-        if (resourceWasPlacedOnMap) {
-            Tracing.Log("Resource was placed on the map");
-            if (seg != null) {
-                seg.linkedResources.Remove(res);
-            }
-
-            foreach (var segment in res.TransportationSegments) {
-                segment.linkedResources.Remove(res);
-            }
-
-            res.TransportationSegments.Clear();
-            res.TransportationVertices.Clear();
-            res.Booking = null;
-
-            _map.mapResources[res.Pos.y][res.Pos.x].Add(res);
-        }
-        else if (movedToTheNextSegmentInPath) {
-            Tracing.Log("movedToTheNextSegmentInPath");
-
-            // TODO: Handle duplication of code from ItemTransportationSystem
-            res.TransportationSegments[0]
-                .resourcesToTransport
-                .Enqueue(res);
-        }
-        else if (movedInsideBuilding) {
-            Tracing.Log("movedInsideBuilding");
-
-            var building = res.Booking.Value.Building;
-            res.Booking = null;
-            building.resourcesForConstruction.Add(res);
-
-            seg.linkedResources.Remove(res);
-        }
     }
 
     void FindPairs() {
@@ -302,7 +201,14 @@ public class ResourceTransportationSystem {
     ) {
         using var _ = Tracing.Scope();
 
-        Assert.IsTrue(mapResource.TransportationSegments.Count == 0);
+        Assert.AreEqual(
+            mapResource.TransportationSegments.Count, 0,
+            "mapResource.TransportationSegments.Count == 0"
+        );
+        Assert.AreEqual(
+            mapResource.TransportationVertices.Count, 0,
+            "mapResource.TransportationVertices.Count == 0"
+        );
         for (var i = 0; i < path.Count - 1; i++) {
             var a = path[i];
             var b = path[i + 1];
@@ -328,20 +234,17 @@ public class ResourceTransportationSystem {
             }
         }
 
-        // Updating booking. Needs to be changed in Map too
+        Assert.AreEqual(
+            mapResource.TransportationVertices.Count,
+            mapResource.TransportationSegments.Count,
+            "mapResource.TransportationVertices.Count == mapResource.TransportationSegments.Count"
+        );
+
         mapResource.Booking = MapResourceBooking.FromResourceToBook(resourceToBook);
         mapResource.TransportationSegments[0].resourcesToTransport.Enqueue(mapResource);
 
         foreach (var segment in mapResource.TransportationSegments) {
             segment.linkedResources.Add(mapResource);
-        }
-
-        var list = _map.mapResources[mapResource.Pos.y][mapResource.Pos.x];
-        for (var i = 0; i < list.Count; i++) {
-            if (list[i].ID == mapResource.ID) {
-                list[i] = mapResource;
-                break;
-            }
         }
 
         _resourcesToBook.Remove(resourceToBook);
@@ -356,6 +259,124 @@ public class ResourceTransportationSystem {
 
         segments.Add(segment);
     }
+
+    #endregion
+
+    #region Events
+
+    public void OnSegmentDeleted(GraphSegment segment) {
+        foreach (var res in segment.linkedResources) {
+            Assert.IsTrue(res.Booking.HasValue);
+
+            if (!res.isCarried) {
+                var building = res.Booking!.Value.Building;
+                building.ResourcesToBook.Add(ResourceToBook.FromMapResource(res));
+            }
+        }
+
+        segment.linkedResources.Clear();
+    }
+
+    public void OnHumanStartedPickingUpResource(MapResource res) {
+        using var _ = Tracing.Scope();
+
+        Assert.AreNotEqual(res.Booking, null);
+
+        _map.mapResources[res.Pos.y][res.Pos.x].Remove(res);
+    }
+
+    public void OnHumanPlacedResource(
+        Vector2Int pos,
+        GraphSegment? seg,
+        MapResource res,
+        bool segmentWasChanged
+    ) {
+        using var _ = Tracing.Scope();
+
+        Assert.AreNotEqual(res.Booking, null, "res.Booking != null");
+        Assert.AreEqual(
+            res.TransportationVertices.Count, res.TransportationSegments.Count,
+            "res.TransportationVertices.Count == res.TransportationSegments.Count"
+        );
+
+        res.isCarried = false;
+
+        var movedInsideBuilding = res.Booking != null
+                                  && res.Booking.Value.Building.pos == pos;
+
+        bool movedToTheNextSegmentInPath;
+        bool resourceWasPlacedOnMap;
+        if (seg == null) {
+            Assert.AreEqual(
+                res.TransportationVertices.Count, 0, "res.TransportationVertices.Count == 0"
+            );
+            movedToTheNextSegmentInPath = false;
+            resourceWasPlacedOnMap = !movedInsideBuilding;
+        }
+        else {
+            Assert.AreNotEqual(
+                res.TransportationVertices.Count, 0, "res.TransportationVertices.Count != 0"
+            );
+
+            if (pos == res.TransportationVertices[0]) {
+                res.TransportationSegments[0]
+                    .linkedResources
+                    .Remove(res);
+            }
+
+            res.Pos = pos;
+            var vertex = res.TransportationVertices[0];
+            res.TransportationSegments.RemoveAt(0);
+            res.TransportationVertices.RemoveAt(0);
+
+            movedToTheNextSegmentInPath = pos == vertex
+                                          && res.TransportationSegments.Count > 0;
+            resourceWasPlacedOnMap = segmentWasChanged
+                                     || (!movedToTheNextSegmentInPath && !movedInsideBuilding);
+        }
+
+        if (movedInsideBuilding) {
+            Tracing.Log("movedInsideBuilding");
+
+            var building = res.Booking!.Value.Building;
+
+            res.TransportationSegments.Clear();
+            res.TransportationVertices.Clear();
+            res.Booking = null;
+
+            building.resourcesForConstruction.Add(res);
+
+            if (seg != null) {
+                seg.linkedResources.Remove(res);
+            }
+        }
+        else if (movedToTheNextSegmentInPath) {
+            Tracing.Log("movedToTheNextSegmentInPath");
+
+            res.TransportationSegments[0].resourcesToTransport.Enqueue(res);
+        }
+        else if (resourceWasPlacedOnMap) {
+            Tracing.Log("Resource was placed on the map");
+            if (seg != null) {
+                seg.linkedResources.Remove(res);
+            }
+
+            var building = res.Booking!.Value.Building;
+            building.ResourcesToBook.Add(ResourceToBook.FromMapResource(res));
+
+            foreach (var segment in res.TransportationSegments) {
+                segment.linkedResources.Remove(res);
+            }
+
+            res.TransportationSegments.Clear();
+            res.TransportationVertices.Clear();
+            res.Booking = null;
+
+            _map.mapResources[res.Pos.y][res.Pos.x].Add(res);
+        }
+    }
+
+    #endregion
 
     readonly IMap _map;
     readonly IMapSize _mapSize;
