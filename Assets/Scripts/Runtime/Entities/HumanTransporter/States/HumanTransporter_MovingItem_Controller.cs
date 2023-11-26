@@ -126,7 +126,7 @@ public class HumanTransporter_MovingItem_Controller {
                 human.stateMovingItem_placingResourceNormalized = 1;
                 human.stateMovingItem_placingResourceElapsed = data.PlacingItemDuration;
 
-                OnHumanPlacedResource(human, data, res);
+                OnHumanPlacedResource(human, data, res!.Value);
                 data.Map.onHumanTransporterPlacedResource.OnNext(new() {
                     Human = human,
                     Resource = res!.Value,
@@ -157,6 +157,16 @@ public class HumanTransporter_MovingItem_Controller {
         [CanBeNull]
         GraphSegment oldSegment
     ) {
+        using var _ = Tracing.Scope();
+
+        Tracing.Log("human.movingPath.Clear()");
+        human.movingPath.Clear();
+
+        if (human.stateMovingItem == State.MovingToItem) {
+            Tracing.Log("_controller.SetState(human, HumanTransporterState.MovingInTheWorld)");
+
+            _controller.SetState(human, HumanTransporterState.MovingInTheWorld);
+        }
     }
 
     public void OnHumanMovedToTheNextTile(
@@ -215,7 +225,7 @@ public class HumanTransporter_MovingItem_Controller {
             );
             var res = human.targetedResource!.Value;
 
-            if (human.pos == res.ItemMovingVertices[0]) {
+            if (human.movingTo == null) {
                 Tracing.Log("Human started placing item");
 
                 human.stateMovingItem = State.PlacingItem;
@@ -248,44 +258,55 @@ public class HumanTransporter_MovingItem_Controller {
     static void OnHumanPlacedResource(
         HumanTransporter human,
         HumanTransporterData data,
-        MapResource? res
+        MapResource res
     ) {
-        var mapResource = res!.Value;
-        if (human.pos == mapResource.ItemMovingVertices[0]) {
-            mapResource
-                .TravellingSegments[0]
+        if (human.pos == res.ItemMovingVertices[0]) {
+            res.TravellingSegments[0]
                 .resourcesWithThisSegmentInPath
-                .Remove(mapResource);
+                .Remove(res);
         }
 
-        mapResource.Pos = human.pos;
-        mapResource.TravellingSegments.RemoveAt(0);
-        mapResource.ItemMovingVertices.RemoveAt(0);
+        res.Pos = human.pos;
+        var movVert = res.ItemMovingVertices[0];
+        res.TravellingSegments.RemoveAt(0);
+        res.ItemMovingVertices.RemoveAt(0);
 
-        if (res!.Value.TravellingSegments.Count > 0) {
+        var movedToTheNextSegmentInPath = res.Pos == movVert
+                                          && res.TravellingSegments.Count > 0;
+        var movedInsideBuilding = res.Booking != null
+                                  && res.Booking.Value.Building.pos == human.pos;
+
+        if (movedToTheNextSegmentInPath) {
             // TODO: Handle duplication of code from ItemTransportationSystem
-            // Updating booking. Needs to be changed in Map too
-            mapResource
+            res
                 .TravellingSegments[0]
                 .resourcesToTransport
-                .Enqueue(mapResource);
+                .Enqueue(res);
 
-            var list = data.Map.mapResources[mapResource.Pos.y][mapResource.Pos.x];
+            var list = data.Map.mapResources[res.Pos.y][res.Pos.x];
             for (var i = 0; i < list.Count; i++) {
-                if (list[i].ID == mapResource.ID) {
-                    list[i] = mapResource;
+                if (list[i].ID == res.ID) {
+                    list[i] = res;
                     break;
                 }
             }
         }
-        else if (
-            mapResource.Booking != null
-            && mapResource.Booking.Value.Building.pos == human.pos
-        ) {
-            mapResource.Booking.Value.Building.resourcesForConstruction.Add(mapResource);
-            human.segment.resourcesWithThisSegmentInPath.Remove(mapResource);
+        else if (movedInsideBuilding) {
+            res.Booking.Value.Building.resourcesForConstruction.Add(res);
+            human.segment.resourcesWithThisSegmentInPath.Remove(res);
 
-            mapResource.Booking = null;
+            res.Booking = null;
+        }
+        // Resource was just placed on the map
+        else {
+            foreach (var segment in res.TravellingSegments) {
+                res.Booking = null;
+                segment.resourcesWithThisSegmentInPath.Remove(res);
+                data.Map.mapResources[res.Pos.y][res.Pos.x].Add(res);
+            }
+
+            res.TravellingSegments.Clear();
+            res.ItemMovingVertices.Clear();
         }
     }
 

@@ -35,11 +35,12 @@ public class HumanGO : MonoBehaviour {
         _resourceSpriteRenderer.sprite = resource.smallerSprite;
         _resourceSpriteRenderer.transform.localPosition = _placingVerticalOffset;
         DOTween.To(
-            () => _resourceSpriteRenderer.transform.localPosition,
-            (Vector2 value) => _resourceSpriteRenderer.transform.localPosition = value,
-            _verticalOffset,
-            _itemPickupDuration / gameSpeed
-        ).SetEase(_itemPickupCurve);
+                () => _resourceSpriteRenderer.transform.localPosition,
+                (Vector2 value) => _resourceSpriteRenderer.transform.localPosition = value,
+                _verticalOffset,
+                _itemPickupDuration / gameSpeed
+            )
+            .SetEase(_itemPickupCurve);
     }
 
     public void OnStartedPickingUpResource(ScriptableResource resource) {
@@ -63,13 +64,15 @@ public class HumanGO : MonoBehaviour {
     public void OnPlacedResource(float gameSpeed) {
         _resourceSpriteRenderer.transform.localPosition = _verticalOffset;
         DOTween.To(
-            () => _resourceSpriteRenderer.transform.localPosition,
-            (Vector2 value) => _resourceSpriteRenderer.transform.localPosition = value,
-            _placingVerticalOffset,
-            _itemPlacingDuration / gameSpeed
-        ).SetEase(_itemPlacingCurve).OnComplete(
-            () => _resourceSpriteRenderer.sprite = null
-        );
+                () => _resourceSpriteRenderer.transform.localPosition,
+                (Vector2 value) => _resourceSpriteRenderer.transform.localPosition = value,
+                _placingVerticalOffset,
+                _itemPlacingDuration / gameSpeed
+            )
+            .SetEase(_itemPlacingCurve)
+            .OnComplete(
+                () => _resourceSpriteRenderer.sprite = null
+            );
     }
 
     public void OnStartedPlacingResource(ScriptableResource resource) {

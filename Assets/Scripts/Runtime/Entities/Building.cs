@@ -24,7 +24,10 @@ public class Building {
     public readonly List<ResourceToBook> ResourcesToBook = new();
 
     public Building(
-        Guid id, IScriptableBuilding scriptable, Vector2Int pos, float buildingProgress
+        Guid id,
+        IScriptableBuilding scriptable,
+        Vector2Int pos,
+        float buildingProgress
     ) {
         _id = id;
         this.scriptable = scriptable;

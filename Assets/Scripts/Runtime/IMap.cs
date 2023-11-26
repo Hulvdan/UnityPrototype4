@@ -62,7 +62,9 @@ public interface IMap {
     void OnCreateHorse(HorseCreateData obj);
 
     PathFindResult FindPath(
-        Vector2Int source, Vector2Int destination, bool avoidHarvestableResources
+        Vector2Int source,
+        Vector2Int destination,
+        bool avoidHarvestableResources
     );
 }
 }

@@ -205,7 +205,9 @@ public class ItemTransportationSystem {
     }
 
     void BookResource(
-        ResourceToBook resourceToBook, MapResource mapResource, IReadOnlyList<Vector2Int> path
+        ResourceToBook resourceToBook,
+        MapResource mapResource,
+        IReadOnlyList<Vector2Int> path
     ) {
         Assert.IsTrue(mapResource.TravellingSegments.Count == 0);
         for (var i = 0; i < path.Count - 1; i++) {
@@ -265,6 +267,7 @@ public class ItemTransportationSystem {
     readonly IMap _map;
     readonly IMapSize _mapSize;
 
-    readonly SimplePriorityQueue<ResourceToBook> _resourcesToBook = new();
+    readonly SimplePriorityQueue<ResourceToBook> _resourcesToBook =
+        new();
 }
 }

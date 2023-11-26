@@ -15,7 +15,10 @@ public static class Vector3Extensions {
     ///     </code>
     /// </example>
     public static Vector3 With(
-        this Vector3 vector, float? x = null, float? y = null, float? z = null
+        this Vector3 vector,
+        float? x = null,
+        float? y = null,
+        float? z = null
     ) {
         return new(
             x ?? vector.x,
@@ -34,7 +37,10 @@ public static class Vector3Extensions {
     ///     </code>
     /// </example>
     public static Vector3 Add(
-        this Vector3 vector, float? x = null, float? y = null, float? z = null
+        this Vector3 vector,
+        float? x = null,
+        float? y = null,
+        float? z = null
     ) {
         return new(
             vector.x + (x ?? 0),

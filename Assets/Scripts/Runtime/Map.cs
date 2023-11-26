@@ -457,8 +457,11 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
     }
 
-    public PathFindResult FindPath(Vector2Int source, Vector2Int destination,
-        bool avoidHarvestableResources) {
+    public PathFindResult FindPath(
+        Vector2Int source,
+        Vector2Int destination,
+        bool avoidHarvestableResources
+    ) {
         if (source == destination) {
             return new() {
                 Path = new() { Capacity = 0 },
@@ -539,7 +542,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     static PathFindResult BuildPath(
-        List<List<ElementTile>> graph, Vector2Int destination
+        List<List<ElementTile>> graph,
+        Vector2Int destination
     ) {
         var res = new List<Vector2Int> { destination };
 

@@ -9,9 +9,9 @@ indent_size = 4
 # Microsoft .NET properties
 csharp_indent_braces = false
 csharp_indent_switch_labels = true
-csharp_new_line_before_catch = true
-csharp_new_line_before_else = true
-csharp_new_line_before_finally = true
+csharp_new_line_before_catch = false
+csharp_new_line_before_else = false
+csharp_new_line_before_finally = false
 csharp_new_line_before_members_in_object_initializers = false
 csharp_new_line_before_open_brace = none
 csharp_new_line_between_query_expression_clauses = true
@@ -922,7 +922,7 @@ resharper_space_within_type_parameter_angles = false
 resharper_space_within_type_parameter_parentheses = false
 resharper_special_else_if_treatment = true
 resharper_static_members_qualify_members = none
-resharper_static_members_qualify_with = declared_type
+resharper_static_members_qualify_with = current_type
 resharper_stick_comment = true
 resharper_support_vs_event_naming_pattern = true
 resharper_t4_max_line_length = 100
@@ -984,7 +984,7 @@ resharper_wrap_before_type_parameter_langle = false
 resharper_wrap_braced_init_list_style = wrap_if_long
 resharper_wrap_chained_binary_expressions = wrap_if_long
 resharper_wrap_chained_binary_patterns = wrap_if_long
-resharper_wrap_chained_method_calls = wrap_if_long
+resharper_wrap_chained_method_calls = chop_if_long
 resharper_wrap_ctor_initializer_style = wrap_if_long
 resharper_wrap_enumeration_style = chop_if_long
 resharper_wrap_enum_declaration = chop_always
@@ -3479,6 +3479,12 @@ resharper_xaml_xaml_unknown_device_family_type_highlighting_highlighting = warni
 resharper_xaml_xaml_xamarin_forms_data_type_and_binding_context_type_mismatched_highlighting_highlighting = warning
 resharper_xaml_x_key_attribute_disallowed_highlighting = error
 resharper_xunit_xunit_test_with_console_output_highlighting = warning
+
+# ReSharper properties
+resharper_csharp_wrap_after_declaration_lpar = true
+resharper_csharp_wrap_before_binary_opsign = true
+resharper_csharp_wrap_before_declaration_rpar = true
+resharper_csharp_wrap_parameters_style = chop_if_long
 
 [{*.har,*.inputactions,*.jsb2,*.jsb3,*.json,.babelrc,.eslintrc,.stylelintrc,bowerrc,jest.config}]
 indent_size = 2

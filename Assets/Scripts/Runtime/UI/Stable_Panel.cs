@@ -83,8 +83,9 @@ public class Stable_Panel : MonoBehaviour {
         OnCreateHorse?.Invoke(new() {
             Building = building,
             RequiredResources = _requiredItems.Select(
-                i => new Tuple<int, ScriptableResource>(i.quantity, i.resource)
-            ).ToList(),
+                    i => new Tuple<int, ScriptableResource>(i.quantity, i.resource)
+                )
+                .ToList(),
         });
     }
 
