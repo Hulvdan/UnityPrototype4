@@ -12,8 +12,8 @@ public struct MapResource : IEquatable<MapResource> {
     public MapResourceType Type;
 
     public MapResourceBooking? Booking;
-    public readonly List<GraphSegment> TravellingSegments;
-    public readonly List<Vector2Int> ItemMovingVertices;
+    public readonly List<GraphSegment> TransportationSegments;
+    public readonly List<Vector2Int> TransportationVertices;
 
     public MapResource(
         Vector2Int pos,
@@ -25,8 +25,8 @@ public struct MapResource : IEquatable<MapResource> {
         Scriptable = scriptable;
         Booking = null;
         Type = type;
-        TravellingSegments = new();
-        ItemMovingVertices = new();
+        TransportationSegments = new();
+        TransportationVertices = new();
     }
 
     public bool Equals(MapResource other) {

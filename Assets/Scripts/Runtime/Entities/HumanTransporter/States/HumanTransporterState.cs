@@ -5,7 +5,7 @@ namespace BFG.Runtime {
 public enum HumanTransporterState {
     MovingInTheWorld,
     MovingInsideSegment,
-    MovingItem,
+    MovingResource,
 }
 
 public class HumanTransporter_Controller {
@@ -15,26 +15,26 @@ public class HumanTransporter_Controller {
 
     readonly HumanTransporter_MovingInTheWorld_Controller _movingInTheWorld;
     readonly HumanTransporter_MovingInsideSegment_Controller _movingInsideSegment;
-    readonly HumanTransporter_MovingItem_Controller _movingItem;
-    readonly ItemTransportationSystem _itemTransportationSystem;
+    readonly HumanTransporter_MovingResource_Controller _movingResource;
+    readonly ResourceTransportationSystem _resourceTransportationSystem;
     readonly HumanTransporterData _data;
 
     public HumanTransporter_Controller(
         IMap map,
         IMapSize mapSize,
         Building cityHall,
-        ItemTransportationSystem itemTransportationSystem
+        ResourceTransportationSystem resourceTransportationSystem
     ) {
         _map = map;
         _mapSize = mapSize;
         _cityHall = cityHall;
-        _itemTransportationSystem = itemTransportationSystem;
+        _resourceTransportationSystem = resourceTransportationSystem;
 
         _movingInTheWorld = new(this);
         _movingInsideSegment = new(this);
-        _movingItem = new(this);
+        _movingResource = new(this);
 
-        _data = new(_map, _mapSize, _cityHall, _itemTransportationSystem, 1f, 1f);
+        _data = new(_map, _mapSize, _cityHall, _resourceTransportationSystem, 1f, 1f);
     }
 
     public void SetState(
@@ -59,8 +59,8 @@ public class HumanTransporter_Controller {
                         human, _map, _mapSize, _cityHall
                     );
                     break;
-                case HumanTransporterState.MovingItem:
-                    _movingItem.OnExit(human, _data);
+                case HumanTransporterState.MovingResource:
+                    _movingResource.OnExit(human, _data);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(oldState), oldState, null);
@@ -78,8 +78,8 @@ public class HumanTransporter_Controller {
                     human, _map, _mapSize, _cityHall
                 );
                 break;
-            case HumanTransporterState.MovingItem:
-                _movingItem.OnEnter(
+            case HumanTransporterState.MovingResource:
+                _movingResource.OnEnter(
                     human, _data
                 );
                 break;
@@ -99,8 +99,8 @@ public class HumanTransporter_Controller {
             case HumanTransporterState.MovingInsideSegment:
                 _movingInsideSegment.Update(human, _map, _mapSize, _cityHall, dt);
                 break;
-            case HumanTransporterState.MovingItem:
-                _movingItem.Update(human, _data, dt);
+            case HumanTransporterState.MovingResource:
+                _movingResource.Update(human, _data, dt);
                 break;
         }
     }
@@ -124,8 +124,8 @@ public class HumanTransporter_Controller {
                     human, _map, _mapSize, _cityHall, oldSegment
                 );
                 break;
-            case HumanTransporterState.MovingItem:
-                _movingItem.OnSegmentChanged(
+            case HumanTransporterState.MovingResource:
+                _movingResource.OnSegmentChanged(
                     human, _data, oldSegment
                 );
                 break;
@@ -146,8 +146,8 @@ public class HumanTransporter_Controller {
                     human, _data
                 );
                 break;
-            case HumanTransporterState.MovingItem:
-                _movingItem.OnHumanMovedToTheNextTile(
+            case HumanTransporterState.MovingResource:
+                _movingResource.OnHumanMovedToTheNextTile(
                     human, _data
                 );
                 break;
