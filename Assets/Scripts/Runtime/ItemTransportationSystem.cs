@@ -58,6 +58,68 @@ public class ItemTransportationSystem {
         _foundPairs.Clear();
     }
 
+    public void OnHumanStartedPickingUpResource(MapResource resource) {
+        using var _ = Tracing.Scope();
+
+        _map.mapResources[resource.Pos.y][resource.Pos.x].Remove(resource);
+    }
+
+    public void OnHumanPlacedResource(
+        Vector2Int pos,
+        GraphSegment segment,
+        HumanTransporterData data,
+        MapResource res
+    ) {
+        if (pos == res.ItemMovingVertices[0]) {
+            res.TravellingSegments[0]
+                .resourcesWithThisSegmentInPath
+                .Remove(res);
+        }
+
+        res.Pos = pos;
+        var movVert = res.ItemMovingVertices[0];
+        res.TravellingSegments.RemoveAt(0);
+        res.ItemMovingVertices.RemoveAt(0);
+
+        var movedToTheNextSegmentInPath = res.Pos == movVert
+                                          && res.TravellingSegments.Count > 0;
+        var movedInsideBuilding = res.Booking != null
+                                  && res.Booking.Value.Building.pos == pos;
+
+        if (movedToTheNextSegmentInPath) {
+            // TODO: Handle duplication of code from ItemTransportationSystem
+            res
+                .TravellingSegments[0]
+                .resourcesToTransport
+                .Enqueue(res);
+
+            var list = data.Map.mapResources[res.Pos.y][res.Pos.x];
+            for (var i = 0; i < list.Count; i++) {
+                if (list[i].ID == res.ID) {
+                    list[i] = res;
+                    break;
+                }
+            }
+        }
+        else if (movedInsideBuilding) {
+            res.Booking.Value.Building.resourcesForConstruction.Add(res);
+            segment.resourcesWithThisSegmentInPath.Remove(res);
+
+            res.Booking = null;
+        }
+        // Resource was just placed on the map
+        else {
+            foreach (var tsegment in res.TravellingSegments) {
+                res.Booking = null;
+                tsegment.resourcesWithThisSegmentInPath.Remove(res);
+                data.Map.mapResources[res.Pos.y][res.Pos.x].Add(res);
+            }
+
+            res.TravellingSegments.Clear();
+            res.ItemMovingVertices.Clear();
+        }
+    }
+
     void FindPairs() {
         var bookedResources = new HashSet<Guid>();
 
@@ -151,19 +213,18 @@ public class ItemTransportationSystem {
             }
 
             Assert.IsTrue(iteration < 10 * DEV_MAX_ITERATIONS);
-            if (iteration >= DEV_MAX_ITERATIONS) {
-                if (!iterationWarningEmitted) {
-                    iterationWarningEmitted = true;
-                    Debug.LogWarning("WTF?");
-                }
+            if (iteration >= DEV_MAX_ITERATIONS && !iterationWarningEmitted) {
+                iterationWarningEmitted = true;
+                Debug.LogWarning("WTF?");
             }
 
             _queue.Clear();
 
-            var iteration2 = 0;
             if (foundResource != null) {
                 var path = new List<Vector2Int>();
                 var destination = foundResource.Value.Pos;
+
+                var iteration2 = 0;
                 while (
                     iteration2++ < 10 * DEV_MAX_ITERATIONS
                     && _map.elementTiles[destination.y][destination.x].BFS_Parent != null
@@ -180,11 +241,9 @@ public class ItemTransportationSystem {
                 }
 
                 Assert.IsTrue(iteration2 < 10 * DEV_MAX_ITERATIONS);
-                if (iteration2 >= DEV_MAX_ITERATIONS) {
-                    if (!iteration2WarningEmitted) {
-                        Debug.LogWarning("WTF?");
-                        iteration2WarningEmitted = true;
-                    }
+                if (iteration2 >= DEV_MAX_ITERATIONS && !iteration2WarningEmitted) {
+                    Debug.LogWarning("WTF?");
+                    iteration2WarningEmitted = true;
                 }
 
                 if (_map.elementTiles[destination.y][destination.x].BFS_Parent == null) {

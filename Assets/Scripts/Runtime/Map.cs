@@ -171,7 +171,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public void Init() {
         _initialMapProvider.Init(this, this);
-        _humanTransporterController = new(this, this, cityHall);
+        _humanTransporterController = new(this, this, cityHall, _itemTransportationSystem);
 
         resources.Clear();
         foreach (var res in _topBarResources) {
