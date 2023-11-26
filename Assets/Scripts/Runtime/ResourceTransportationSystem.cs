@@ -107,7 +107,8 @@ public class ResourceTransportationSystem {
                 }
 
                 if (tile.Type == ElementTileType.Road
-                    && newTile.Type == ElementTileType.Building) {
+                    && newTile.Type == ElementTileType.Building
+                    && newTile.Building.scriptable.type != BuildingType.SpecialCityHall) {
                     continue;
                 }
 

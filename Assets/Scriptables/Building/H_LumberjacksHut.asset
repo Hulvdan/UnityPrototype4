@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dc459d8e92948cf9d2b2b27d8efead2, type: 3}
   m_Name: H_LumberjacksHut
   m_EditorClassIdentifier: 
-  _type: 0
+  _type: 1
   _harvestableResource: {fileID: 11400000, guid: 361152873045e084892d56e677d6d740, type: 2}
   _tilesRadius: 2
   _storeItemsAmount: 1
