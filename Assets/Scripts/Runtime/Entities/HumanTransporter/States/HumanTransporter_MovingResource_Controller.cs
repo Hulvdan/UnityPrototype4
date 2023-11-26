@@ -2,32 +2,6 @@
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
-public class HumanTransporterData {
-    public ResourceTransportationSystem transportationSystem { get; }
-    public IMap Map { get; }
-    public IMapSize MapSize { get; }
-    public Building CityHall { get; }
-
-    public readonly float PickingUpResourceDuration;
-    public readonly float PlacingResourceDuration;
-
-    public HumanTransporterData(
-        IMap map,
-        IMapSize mapSize,
-        Building cityHall,
-        ResourceTransportationSystem transportationSystem,
-        float pickingUpResourceDuration,
-        float placingResourceDuration
-    ) {
-        Map = map;
-        MapSize = mapSize;
-        CityHall = cityHall;
-        PickingUpResourceDuration = pickingUpResourceDuration;
-        PlacingResourceDuration = placingResourceDuration;
-        this.transportationSystem = transportationSystem;
-    }
-}
-
 public class HumanTransporter_MovingResource_Controller {
     public enum State {
         MovingToResource,
@@ -61,12 +35,15 @@ public class HumanTransporter_MovingResource_Controller {
     ) {
         using var _ = Tracing.Scope();
 
-        Assert.IsTrue(human.stateMovingResource is State.MovingToResource or State.PlacingResource);
+        Assert.IsTrue(
+            human.stateMovingResource is State.MovingToResource or State.PlacingResource,
+            "human.stateMovingResource is State.MovingToResource or State.PlacingResource"
+        );
 
         human.stateMovingResource = null;
-        Tracing.Log("human.stateMovingResource = null;");
+        Tracing.Log("human.stateMovingResource = null");
 
-        human.targetedResource = null;
+        human.stateMovingResource_targetedResource = null;
 
         human.stateMovingResource_pickingUpResourceElapsed = 0;
         human.stateMovingResource_placingResourceElapsed = 0;
@@ -79,7 +56,7 @@ public class HumanTransporter_MovingResource_Controller {
         HumanTransporterData data,
         float dt
     ) {
-        var res = human.targetedResource;
+        var res = human.stateMovingResource_targetedResource;
 
         if (human.stateMovingResource == State.PickingUpResource) {
             Assert.AreNotEqual(res, null, "human.targetedResource != null");
@@ -201,7 +178,7 @@ public class HumanTransporter_MovingResource_Controller {
             );
 
             var resource = segment.resourcesToTransport.Peek();
-            human.targetedResource = resource;
+            human.stateMovingResource_targetedResource = resource;
             if (resource.Pos == human.pos && human.movingTo == null) {
                 OnHumanStartedPickingUpResource(human, data);
             }
@@ -227,9 +204,10 @@ public class HumanTransporter_MovingResource_Controller {
 
         if (human.stateMovingResource == State.MovingResource) {
             Assert.IsTrue(
-                human.targetedResource != null, "Assert.IsTrue(human.targetedResource != null);"
+                human.stateMovingResource_targetedResource != null,
+                "Assert.IsTrue(human.targetedResource != null);"
             );
-            var res = human.targetedResource!.Value;
+            var res = human.stateMovingResource_targetedResource!.Value;
 
             if (human.movingTo == null) {
                 Tracing.Log("Human started placing resource");
