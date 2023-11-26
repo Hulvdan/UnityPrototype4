@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace BFG.Runtime {
-public struct MapResource : IEquatable<MapResource> {
+public class MapResource : IEquatable<MapResource> {
     public readonly Guid ID;
     public readonly ScriptableResource Scriptable;
 

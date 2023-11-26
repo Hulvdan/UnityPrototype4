@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ public class HumanTransporter {
 
     public readonly Guid ID;
 
-    public GraphSegment segment { get; set; }
+    public GraphSegment? segment { get; set; }
 
     public Vector2Int pos { get; set; }
     public float movingElapsed { get; set; }
@@ -84,6 +85,10 @@ public class HumanTransporter {
     public float stateMovingResource_placingResourceNormalized;
 
     public MapResource? stateMovingResource_targetedResource = null;
+
+    // Used in case human was transporting the resource that was placed on the vertex in path,
+    // but this moving path was invalidated
+    public bool stateMovingResource_segmentWasChanged;
 
     #endregion
 }

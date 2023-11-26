@@ -14,8 +14,9 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
     public readonly Graph Graph;
     public readonly List<Vector2Int> MovementTiles;
     public HumanTransporter AssignedHuman;
-    public readonly List<MapResource> resourcesWithThisSegmentInPath;
+    public readonly List<MapResource> linkedResources;
     public readonly Queue<MapResource> resourcesToTransport;
+    public bool isDeleted;
 
     public GraphSegment(
         List<GraphVertex> vertexes,
@@ -29,7 +30,7 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
         Vertexes = vertexes;
         MovementTiles = movementTiles;
         Graph = graph;
-        resourcesWithThisSegmentInPath = new();
+        linkedResources = new();
         resourcesToTransport = new();
 
         vertexes.Sort();
