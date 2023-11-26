@@ -187,7 +187,7 @@ public class ItemTransportationSystem {
                     }
                 }
 
-                if (_map.elementTiles[destination.y][destination.x].BFS_Parent != null) {
+                if (_map.elementTiles[destination.y][destination.x].BFS_Parent == null) {
                     _foundPairs.Add(new(resourceToBook, foundResource.Value, path));
                 }
             }
