@@ -16,15 +16,25 @@ public class HumanTransporter_Controller {
     readonly HumanTransporter_MovingInTheWorld_Controller _movingInTheWorld;
     readonly HumanTransporter_MovingInsideSegment_Controller _movingInsideSegment;
     readonly HumanTransporter_MovingItem_Controller _movingItem;
+    readonly ItemTransportationSystem _itemTransportationSystem;
+    readonly HumanTransporterData _data;
 
-    public HumanTransporter_Controller(IMap map, IMapSize mapSize, Building cityHall) {
+    public HumanTransporter_Controller(
+        IMap map,
+        IMapSize mapSize,
+        Building cityHall,
+        ItemTransportationSystem itemTransportationSystem
+    ) {
         _map = map;
         _mapSize = mapSize;
         _cityHall = cityHall;
+        _itemTransportationSystem = itemTransportationSystem;
 
         _movingInTheWorld = new(this);
         _movingInsideSegment = new(this);
         _movingItem = new(this);
+
+        _data = new(_map, _mapSize, _cityHall, _itemTransportationSystem, 1f, 1f);
     }
 
     public void SetState(
@@ -36,8 +46,6 @@ public class HumanTransporter_Controller {
 
         var oldState = human.state;
         human.state = newState;
-
-        var data = new HumanTransporterData(_map, _mapSize, _cityHall, 1f, 1f);
 
         if (oldState != null) {
             switch (oldState) {
@@ -52,7 +60,7 @@ public class HumanTransporter_Controller {
                     );
                     break;
                 case HumanTransporterState.MovingItem:
-                    _movingItem.OnExit(human, data);
+                    _movingItem.OnExit(human, _data);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(oldState), oldState, null);
@@ -72,7 +80,7 @@ public class HumanTransporter_Controller {
                 break;
             case HumanTransporterState.MovingItem:
                 _movingItem.OnEnter(
-                    human, data
+                    human, _data
                 );
                 break;
             default:
@@ -84,7 +92,6 @@ public class HumanTransporter_Controller {
         HumanTransporter human,
         float dt
     ) {
-        var data = new HumanTransporterData(_map, _mapSize, _cityHall, 1f, 1f);
         switch (human.state) {
             case HumanTransporterState.MovingInTheWorld:
                 _movingInTheWorld.Update(human, _map, _mapSize, _cityHall, dt);
@@ -93,7 +100,7 @@ public class HumanTransporter_Controller {
                 _movingInsideSegment.Update(human, _map, _mapSize, _cityHall, dt);
                 break;
             case HumanTransporterState.MovingItem:
-                _movingItem.Update(human, data, dt);
+                _movingItem.Update(human, _data, dt);
                 break;
         }
     }
@@ -106,7 +113,6 @@ public class HumanTransporter_Controller {
         using var _ = Tracing.Scope();
         Tracing.Log("OnSegmentChanged");
 
-        var data = new HumanTransporterData(_map, _mapSize, _cityHall, 1f, 1f);
         switch (human.state) {
             case HumanTransporterState.MovingInTheWorld:
                 _movingInTheWorld.OnSegmentChanged(
@@ -120,7 +126,7 @@ public class HumanTransporter_Controller {
                 break;
             case HumanTransporterState.MovingItem:
                 _movingItem.OnSegmentChanged(
-                    human, data, oldSegment
+                    human, _data, oldSegment
                 );
                 break;
         }
@@ -129,21 +135,20 @@ public class HumanTransporter_Controller {
     public void OnHumanMovedToTheNextTile(HumanTransporter human) {
         using var _ = Tracing.Scope();
 
-        var data = new HumanTransporterData(_map, _mapSize, _cityHall, 1f, 1f);
         switch (human.state) {
             case HumanTransporterState.MovingInTheWorld:
                 _movingInTheWorld.OnHumanMovedToTheNextTile(
-                    human, data
+                    human, _data
                 );
                 break;
             case HumanTransporterState.MovingInsideSegment:
                 _movingInsideSegment.OnHumanMovedToTheNextTile(
-                    human, data
+                    human, _data
                 );
                 break;
             case HumanTransporterState.MovingItem:
                 _movingItem.OnHumanMovedToTheNextTile(
-                    human, data
+                    human, _data
                 );
                 break;
         }

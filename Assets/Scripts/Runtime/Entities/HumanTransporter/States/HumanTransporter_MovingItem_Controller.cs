@@ -3,9 +3,10 @@ using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
 public class HumanTransporterData {
-    public readonly IMap Map;
-    public IMapSize MapSize;
-    public Building CityHall;
+    public ItemTransportationSystem transportationSystem { get; }
+    public IMap Map { get; }
+    public IMapSize MapSize { get; }
+    public Building CityHall { get; }
 
     public readonly float PickingUpItemDuration;
     public readonly float PlacingItemDuration;
@@ -14,9 +15,11 @@ public class HumanTransporterData {
         IMap map,
         IMapSize mapSize,
         Building cityHall,
+        ItemTransportationSystem transportationSystem,
         float pickingUpItemDuration,
         float placingItemDuration
     ) {
+        this.transportationSystem = transportationSystem;
         Map = map;
         MapSize = mapSize;
         CityHall = cityHall;
@@ -126,7 +129,9 @@ public class HumanTransporter_MovingItem_Controller {
                 human.stateMovingItem_placingResourceNormalized = 1;
                 human.stateMovingItem_placingResourceElapsed = data.PlacingItemDuration;
 
-                OnHumanPlacedResource(human, data, res!.Value);
+                data.transportationSystem.OnHumanPlacedResource(
+                    human.pos, human.segment, data, res!.Value
+                );
                 data.Map.onHumanTransporterPlacedResource.OnNext(new() {
                     Human = human,
                     Resource = res!.Value,
@@ -247,67 +252,12 @@ public class HumanTransporter_MovingItem_Controller {
         Tracing.Log($"human.stateMovingItem = {human.stateMovingItem}");
 
         var resource = human.segment.resourcesToTransport.Dequeue();
-        data.Map.mapResources[resource.Pos.y][resource.Pos.x].Remove(resource);
+        data.transportationSystem.OnHumanStartedPickingUpResource(resource);
 
         data.Map.onHumanTransporterStartedPickingUpResource.OnNext(new() {
             Human = human,
             Resource = resource,
         });
-    }
-
-    static void OnHumanPlacedResource(
-        HumanTransporter human,
-        HumanTransporterData data,
-        MapResource res
-    ) {
-        if (human.pos == res.ItemMovingVertices[0]) {
-            res.TravellingSegments[0]
-                .resourcesWithThisSegmentInPath
-                .Remove(res);
-        }
-
-        res.Pos = human.pos;
-        var movVert = res.ItemMovingVertices[0];
-        res.TravellingSegments.RemoveAt(0);
-        res.ItemMovingVertices.RemoveAt(0);
-
-        var movedToTheNextSegmentInPath = res.Pos == movVert
-                                          && res.TravellingSegments.Count > 0;
-        var movedInsideBuilding = res.Booking != null
-                                  && res.Booking.Value.Building.pos == human.pos;
-
-        if (movedToTheNextSegmentInPath) {
-            // TODO: Handle duplication of code from ItemTransportationSystem
-            res
-                .TravellingSegments[0]
-                .resourcesToTransport
-                .Enqueue(res);
-
-            var list = data.Map.mapResources[res.Pos.y][res.Pos.x];
-            for (var i = 0; i < list.Count; i++) {
-                if (list[i].ID == res.ID) {
-                    list[i] = res;
-                    break;
-                }
-            }
-        }
-        else if (movedInsideBuilding) {
-            res.Booking.Value.Building.resourcesForConstruction.Add(res);
-            human.segment.resourcesWithThisSegmentInPath.Remove(res);
-
-            res.Booking = null;
-        }
-        // Resource was just placed on the map
-        else {
-            foreach (var segment in res.TravellingSegments) {
-                res.Booking = null;
-                segment.resourcesWithThisSegmentInPath.Remove(res);
-                data.Map.mapResources[res.Pos.y][res.Pos.x].Add(res);
-            }
-
-            res.TravellingSegments.Clear();
-            res.ItemMovingVertices.Clear();
-        }
     }
 
     readonly HumanTransporter_Controller _controller;
