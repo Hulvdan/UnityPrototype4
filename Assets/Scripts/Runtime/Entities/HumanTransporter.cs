@@ -83,7 +83,7 @@ public class HumanTransporter {
     public float stateMovingResource_placingResourceElapsed;
     public float stateMovingResource_placingResourceNormalized;
 
-    public MapResource? targetedResource = null;
+    public MapResource? stateMovingResource_targetedResource = null;
 
     #endregion
 }
