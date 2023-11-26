@@ -106,6 +106,11 @@ public class ResourceTransportationSystem {
                     continue;
                 }
 
+                if (tile.Type == ElementTileType.Road
+                    && newTile.Type == ElementTileType.Building) {
+                    continue;
+                }
+
                 if (tile.Type == ElementTileType.None
                     || newTile.Type == ElementTileType.None) {
                     continue;
@@ -152,7 +157,7 @@ public class ResourceTransportationSystem {
             _queue.Clear();
 
             if (foundResource != null) {
-                var path = new List<Vector2Int>();
+                var path = new List<Vector2Int> { foundResource.Pos };
                 var destination = foundResource.Pos;
 
                 var iteration2 = 0;
@@ -161,14 +166,14 @@ public class ResourceTransportationSystem {
                     && _map.elementTiles[destination.y][destination.x].BFS_Parent != null
                 ) {
                     iteration2++;
-                    path.Add(_map.elementTiles[destination.y][destination.x].BFS_Parent.Value);
+                    path.Add(_map.elementTiles[destination.y][destination.x].BFS_Parent!.Value);
 
                     Assert.AreNotEqual(
                         destination,
-                        _map.elementTiles[destination.y][destination.x].BFS_Parent.Value
+                        _map.elementTiles[destination.y][destination.x].BFS_Parent!.Value
                     );
 
-                    destination = _map.elementTiles[destination.y][destination.x].BFS_Parent.Value;
+                    destination = _map.elementTiles[destination.y][destination.x].BFS_Parent!.Value;
                 }
 
                 Assert.IsTrue(iteration2 < 10 * DEV_MAX_ITERATIONS);
@@ -225,6 +230,7 @@ public class ResourceTransportationSystem {
                 }
 
                 AddWithoutDuplication(mapResource.TransportationSegments, segment);
+
                 foreach (var vertex in segment.Vertices) {
                     if (vertex.Pos == b) {
                         mapResource.TransportationVertices.Add(b);
