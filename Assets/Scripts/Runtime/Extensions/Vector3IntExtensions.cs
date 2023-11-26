@@ -12,7 +12,10 @@ public static class Vector3IntExtensions {
     ///     </code>
     /// </example>
     public static Vector3Int With(
-        this Vector3Int vector, int? x = null, int? y = null, int? z = null
+        this Vector3Int vector,
+        int? x = null,
+        int? y = null,
+        int? z = null
     ) {
         return new(
             x ?? vector.x,
@@ -31,7 +34,10 @@ public static class Vector3IntExtensions {
     ///     </code>
     /// </example>
     public static Vector3Int Add(
-        this Vector3Int vector, int? x = null, int? y = null, int? z = null
+        this Vector3Int vector,
+        int? x = null,
+        int? y = null,
+        int? z = null
     ) {
         return new(
             vector.x + (x ?? 0),

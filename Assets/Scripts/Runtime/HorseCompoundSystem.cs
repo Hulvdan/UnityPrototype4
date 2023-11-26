@@ -87,7 +87,9 @@ public class HorseCompoundSystem : MonoBehaviour {
     }
 
     public HorseTrain CreateTrain(
-        int wagonsCount, Vector2Int initialPosition, Direction direction
+        int wagonsCount,
+        Vector2Int initialPosition,
+        Direction direction
     ) {
         var horse = new HorseTrain(Guid.NewGuid(), _horseSpeed, direction);
         _horses.Add(horse);

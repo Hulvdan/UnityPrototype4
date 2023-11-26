@@ -18,7 +18,9 @@ public enum TileUpdatedType {
 
 public static class ItemTransportationGraph {
     public static List<GraphSegment> BuildGraphSegments(
-        List<List<ElementTile>> elementTiles, IMapSize mapSize, List<Building> buildings
+        List<List<ElementTile>> elementTiles,
+        IMapSize mapSize,
+        List<Building> buildings
     ) {
         var graphSegments = new List<GraphSegment>();
 

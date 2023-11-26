@@ -618,7 +618,8 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void UpdateTileBasedOnRemainingResourcePercent(
-        Vector2Int pos, float dataRemainingAmountPercent
+        Vector2Int pos,
+        float dataRemainingAmountPercent
     ) {
         if (dataRemainingAmountPercent > 0) {
             return;
@@ -682,8 +683,9 @@ public class MapRenderer : MonoBehaviour {
         }
 
         _resourceTilemap = GenerateTerrainTilemap(
-            0, maxHeight + 1, ResourcesTilemapNameTemplate, _tilemapPrefab
-        ).GetComponent<Tilemap>();
+                0, maxHeight + 1, ResourcesTilemapNameTemplate, _tilemapPrefab
+            )
+            .GetComponent<Tilemap>();
         for (var y = 0; y < _mapSize.height; y++) {
             for (var x = 0; x < _mapSize.width; x++) {
                 if (_map.terrainTiles[y][x].Resource != null
@@ -695,8 +697,9 @@ public class MapRenderer : MonoBehaviour {
         }
 
         _buildingsTilemap = GenerateTerrainTilemap(
-            0, maxHeight + 2, BuildingsTilemapNameTemplate, _tilemapBuildingsPrefab
-        ).GetComponent<Tilemap>();
+                0, maxHeight + 2, BuildingsTilemapNameTemplate, _tilemapBuildingsPrefab
+            )
+            .GetComponent<Tilemap>();
         foreach (var building in _map.buildings) {
             SetBuilding(building, 1, 1);
         }
@@ -741,7 +744,10 @@ public class MapRenderer : MonoBehaviour {
     }
 
     GameObject GenerateTerrainTilemap(
-        int i, float order, string nameTemplate, GameObject prefabTemplate
+        int i,
+        float order,
+        string nameTemplate,
+        GameObject prefabTemplate
     ) {
         var terrainTilemap = Instantiate(prefabTemplate, _grid.transform);
         terrainTilemap.name = nameTemplate + i;
@@ -835,9 +841,10 @@ public class MapRenderer : MonoBehaviour {
             data.RemainingAmountPercent
         );
 
-        _humans[data.Human.ID].Item2.OnPickedUpResource(
-            data.Resource.script, _gameManager.currentGameSpeed
-        );
+        _humans[data.Human.ID]
+            .Item2.OnPickedUpResource(
+                data.Resource.script, _gameManager.currentGameSpeed
+            );
     }
 
     void OnHumanPlacedResource(E_HumanPlacedResource data) {
@@ -918,9 +925,10 @@ public class MapRenderer : MonoBehaviour {
         Destroy(_storedItems[resID].gameObject);
         _storedItems.Remove(resID);
 
-        _trainNodes[data.TrainNode.ID].Item2.OnPickedUpResource(
-            data.Resource.script, data.ResourceSlotPosition, _gameManager.currentGameSpeed
-        );
+        _trainNodes[data.TrainNode.ID]
+            .Item2.OnPickedUpResource(
+                data.Resource.script, data.ResourceSlotPosition, _gameManager.currentGameSpeed
+            );
     }
 
     void OnTrainPushedResource(E_TrainPushedResource data) {

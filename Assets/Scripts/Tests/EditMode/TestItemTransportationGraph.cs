@@ -529,7 +529,8 @@ public class TestItemTransportationGraph {
     }
 
     void UpdateSegments(
-        ItemTransportationGraph.OnTilesUpdatedResult result, List<GraphSegment> segments
+        ItemTransportationGraph.OnTilesUpdatedResult result,
+        List<GraphSegment> segments
     ) {
         foreach (var segment in result.DeletedSegments) {
             segments.RemoveAt(segments.FindIndex(i => i.ID == segment.ID));
