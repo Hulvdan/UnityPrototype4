@@ -16,7 +16,7 @@ public class HorseTrain {
     public Guid ID;
 
     [CanBeNull]
-    public Tuple<Vector2Int, Vector2Int> LastReachedSegmentVertexes;
+    public Tuple<Vector2Int, Vector2Int> LastReachedSegmentVertices;
 
     public float NormalisedSpeed = 1f;
 
@@ -32,9 +32,9 @@ public class HorseTrain {
     }
 
     public List<TrainNode> nodes { get; } = new();
-    public List<Vector2Int> segmentVertexes { get; } = new();
+    public List<Vector2Int> segmentVertices { get; } = new();
 
-    public int SegmentsCount => segmentVertexes.Count - 1;
+    public int SegmentsCount => segmentVertices.Count - 1;
 
     public TrainDestination? CurrentDestination {
         get {
@@ -103,15 +103,15 @@ public class HorseTrain {
     }
 
     public void AddSegmentVertex(Vector2Int vertex) {
-        // if (segmentVertexes.Count > 0 && segmentVertexes[^1] == vertex) {
+        // if (segmentVertices.Count > 0 && segmentVertices[^1] == vertex) {
         //     Debug.LogError("Vertex duplicated!");
         // }
 
-        segmentVertexes.Add(vertex);
+        segmentVertices.Add(vertex);
     }
 
     void PopBackSegmentVertex() {
-        segmentVertexes.RemoveAt(0);
+        segmentVertices.RemoveAt(0);
         foreach (var node in nodes) {
             node.SegmentIndex -= 1;
         }

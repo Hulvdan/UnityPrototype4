@@ -225,7 +225,7 @@ public class ResourceTransportationSystem {
                 }
 
                 AddWithoutDuplication(mapResource.TransportationSegments, segment);
-                foreach (var vertex in segment.Vertexes) {
+                foreach (var vertex in segment.Vertices) {
                     if (vertex.Pos == b) {
                         mapResource.TransportationVertices.Add(b);
                         break;

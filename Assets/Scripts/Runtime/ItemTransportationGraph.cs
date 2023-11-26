@@ -43,7 +43,7 @@ public static class ItemTransportationGraph {
             var p = bigFukenQueue.Dequeue();
             queue.Enqueue(p);
 
-            var vertexes = new List<GraphVertex>();
+            var vertices = new List<GraphVertex>();
             var segmentTiles = new List<Vector2Int> { p.Item2 };
             var graph = new Graph();
 
@@ -56,7 +56,7 @@ public static class ItemTransportationGraph {
                 var isCityHall = isBuilding
                                  && tile.Building.scriptable.type == BuildingType.SpecialCityHall;
                 if (isFlag || isBuilding) {
-                    AddWithoutDuplication(vertexes, pos);
+                    AddWithoutDuplication(vertices, pos);
                 }
 
                 foreach (var dirIndex in Utils.Directions) {
@@ -107,7 +107,7 @@ public static class ItemTransportationGraph {
                     AddWithoutDuplication(segmentTiles, newPos);
 
                     if (newIsBuilding || newIsFlag) {
-                        AddWithoutDuplication(vertexes, newPos);
+                        AddWithoutDuplication(vertices, newPos);
                     }
                     else {
                         queue.Enqueue(new(0, newPos));
@@ -115,8 +115,8 @@ public static class ItemTransportationGraph {
                 }
             }
 
-            if (vertexes.Count > 1) {
-                graphSegments.Add(new(vertexes, segmentTiles, graph));
+            if (vertices.Count > 1) {
+                graphSegments.Add(new(vertices, segmentTiles, graph));
             }
         }
 
@@ -222,7 +222,7 @@ public static class ItemTransportationGraph {
             var p = bigFukenQueue.Dequeue();
             queue.Enqueue(p);
 
-            var vertexes = new List<GraphVertex>();
+            var vertices = new List<GraphVertex>();
             var segmentTiles = new List<Vector2Int> { p.Item2 };
             var graph = new Graph();
 
@@ -236,7 +236,7 @@ public static class ItemTransportationGraph {
                                  && tile.Building.scriptable.type ==
                                  BuildingType.SpecialCityHall;
                 if (isFlag || isBuilding) {
-                    AddWithoutDuplication(vertexes, pos);
+                    AddWithoutDuplication(vertices, pos);
                 }
 
                 foreach (var dirIndex in Utils.Directions) {
@@ -287,7 +287,7 @@ public static class ItemTransportationGraph {
                     AddWithoutDuplication(segmentTiles, newPos);
 
                     if (newIsBuilding || newIsFlag) {
-                        AddWithoutDuplication(vertexes, newPos);
+                        AddWithoutDuplication(vertices, newPos);
                     }
                     else {
                         queue.Enqueue(new(0, newPos));
@@ -295,8 +295,8 @@ public static class ItemTransportationGraph {
                 }
             }
 
-            if (vertexes.Count > 1) {
-                graphSegments.Add(new(vertexes, segmentTiles, graph));
+            if (vertices.Count > 1) {
+                graphSegments.Add(new(vertices, segmentTiles, graph));
             }
         }
 

@@ -46,16 +46,16 @@ public class HorseMovementSystem {
             couldReachTheEnd = true;
         }
 
-        var v0 = horse.segmentVertexes[locomotive.SegmentIndex];
-        var v1 = horse.segmentVertexes[locomotive.SegmentIndex + 1];
+        var v0 = horse.segmentVertices[locomotive.SegmentIndex];
+        var v1 = horse.segmentVertices[locomotive.SegmentIndex + 1];
         if (v0 != v1) {
             horse.Direction = DirectionFromTiles(v0, v1);
         }
 
         if (couldReachTheEnd) {
             var pair = new Tuple<Vector2Int, Vector2Int>(v0, v1);
-            if (!Equals(horse.LastReachedSegmentVertexes, pair)) {
-                horse.LastReachedSegmentVertexes = pair;
+            if (!Equals(horse.LastReachedSegmentVertices, pair)) {
+                horse.LastReachedSegmentVertices = pair;
 
                 var destination = horse.CurrentDestination;
                 if (destination.HasValue && destination.Value.Pos == v1) {
@@ -104,11 +104,11 @@ public class HorseMovementSystem {
 
     public void RecalculateNodePositions(HorseTrain horse) {
         foreach (var node in horse.nodes) {
-            var v0 = Math.Min(node.SegmentIndex, horse.segmentVertexes.Count - 1);
-            var v1 = Math.Min(node.SegmentIndex + 1, horse.segmentVertexes.Count - 1);
+            var v0 = Math.Min(node.SegmentIndex, horse.segmentVertices.Count - 1);
+            var v1 = Math.Min(node.SegmentIndex + 1, horse.segmentVertices.Count - 1);
 
-            var vertex0 = horse.segmentVertexes[v0];
-            var vertex1 = horse.segmentVertexes[v1];
+            var vertex0 = horse.segmentVertices[v0];
+            var vertex1 = horse.segmentVertices[v1];
             node.Position = Vector2.Lerp(vertex0, vertex1, node.Progress);
             var dv = vertex1 - vertex0;
 
@@ -223,7 +223,7 @@ public class HorseMovementSystem {
             return;
         }
 
-        var path = FindPath(horse.segmentVertexes[^1], newDestination.Value.Pos, horse.Direction);
+        var path = FindPath(horse.segmentVertices[^1], newDestination.Value.Pos, horse.Direction);
 
         if (!path.Success) {
             Debug.LogError("Could not find the path");
