@@ -101,13 +101,7 @@ public class ResourceTransportationSystem {
 
                 var tile = _map.elementTiles[pos.y][pos.x];
                 var newTile = _map.elementTiles[newPos.y][newPos.x];
-                if (tile.Type == ElementTileType.Building
-                    && newTile.Type == ElementTileType.Building) {
-                    continue;
-                }
-
-                if (tile.Type == ElementTileType.Road
-                    && newTile.Type == ElementTileType.Building
+                if (newTile.Type == ElementTileType.Building
                     && newTile.Building.scriptable.type != BuildingType.SpecialCityHall) {
                     continue;
                 }
@@ -278,6 +272,10 @@ public class ResourceTransportationSystem {
             if (!res.isCarried) {
                 var building = res.Booking!.Value.Building;
                 building.ResourcesToBook.Add(ResourceToBook.FromMapResource(res));
+
+                res.Booking = null;
+                res.TransportationSegments.Clear();
+                res.TransportationVertices.Clear();
             }
         }
 
