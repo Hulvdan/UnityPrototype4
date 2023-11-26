@@ -10,7 +10,7 @@ namespace BFG.Runtime {
 public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> {
     public readonly Guid ID = Guid.NewGuid();
 
-    public readonly List<GraphVertex> Vertexes;
+    public readonly List<GraphVertex> Vertices;
     public readonly Graph Graph;
     public readonly List<Vector2Int> MovementTiles;
     public HumanTransporter AssignedHuman;
@@ -19,32 +19,32 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
     public bool isDeleted;
 
     public GraphSegment(
-        List<GraphVertex> vertexes,
+        List<GraphVertex> vertices,
         List<Vector2Int> movementTiles,
         Graph graph
     ) {
-        Assert.IsNotNull(vertexes);
+        Assert.IsNotNull(vertices);
         Assert.IsNotNull(movementTiles);
         Assert.IsNotNull(graph);
 
-        Vertexes = vertexes;
+        Vertices = vertices;
         MovementTiles = movementTiles;
         Graph = graph;
         linkedResources = new();
         resourcesToTransport = new();
 
-        vertexes.Sort();
+        vertices.Sort();
         // TODO: Should be considered for removal
         movementTiles.Sort(Utils.StupidVector2IntComparison);
 
         // Duplication Checks
-        for (var i = 0; i < vertexes.Count; i++) {
-            for (var j = 0; j < vertexes.Count; j++) {
+        for (var i = 0; i < vertices.Count; i++) {
+            for (var j = 0; j < vertices.Count; j++) {
                 if (i == j) {
                     continue;
                 }
 
-                Assert.AreNotEqual(vertexes[i], vertexes[j]);
+                Assert.AreNotEqual(vertices[i], vertices[j]);
             }
         }
 
@@ -61,9 +61,9 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
 
     public List<GraphSegment> LinkedSegments { get; } = new();
 
-    public bool HasSomeOfTheSameVertexes(GraphSegment other) {
-        foreach (var otherVertex in other.Vertexes) {
-            foreach (var vertex in Vertexes) {
+    public bool HasSomeOfTheSameVertices(GraphSegment other) {
+        foreach (var otherVertex in other.Vertices) {
+            foreach (var vertex in Vertices) {
                 if (otherVertex == vertex) {
                     return true;
                 }
@@ -114,16 +114,16 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
             return true;
         }
 
-        var vertexesEqual = Utils.GoodFukenListEquals(Vertexes, other.Vertexes);
+        var verticesEqual = Utils.GoodFukenListEquals(Vertices, other.Vertices);
         var movementTilesEqual = Utils.GoodFukenListEquals(MovementTiles, other.MovementTiles);
         var graphEqual = Graph.Equals(other.Graph);
-        return vertexesEqual
+        return verticesEqual
                && movementTilesEqual
                && graphEqual;
     }
 
     public int CompareTo(GraphSegment other) {
-        var cmp = Vertexes.Count.CompareTo(other.Vertexes.Count);
+        var cmp = Vertices.Count.CompareTo(other.Vertices.Count);
         if (cmp != 0) {
             return cmp;
         }
@@ -133,8 +133,8 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
             return cmp;
         }
 
-        for (var i = 0; i < Vertexes.Count; i++) {
-            cmp = Vertexes[i].CompareTo(other.Vertexes[i]);
+        for (var i = 0; i < Vertices.Count; i++) {
+            cmp = Vertices[i].CompareTo(other.Vertices[i]);
             if (cmp != 0) {
                 return cmp;
             }
@@ -172,12 +172,12 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
     }
 
     public override int GetHashCode() {
-        return HashCode.Combine(Vertexes, MovementTiles, Graph);
+        return HashCode.Combine(Vertices, MovementTiles, Graph);
     }
 
     public override string ToString() {
-        var str = "(Vertexes: [";
-        str += string.Join(", ", Vertexes);
+        var str = "(Vertices: [";
+        str += string.Join(", ", Vertices);
         str += "], MovementTiles: [";
         str += string.Join(", ", MovementTiles);
         str += "])";

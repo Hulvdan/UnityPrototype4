@@ -407,7 +407,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 }
 
                 // Mb there Graph.CollidesWith(other.Graph) is needed for optimization
-                if (segmentToLink.HasSomeOfTheSameVertexes(segment)) {
+                if (segmentToLink.HasSomeOfTheSameVertices(segment)) {
                     segment.Link(segmentToLink);
                     segmentToLink.Link(segment);
                 }
