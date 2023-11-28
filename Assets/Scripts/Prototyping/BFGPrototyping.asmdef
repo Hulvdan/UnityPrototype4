@@ -1,17 +1,18 @@
 {
-  "name": "Prototyping",
-  "rootNamespace": "",
-  "references": [
-    "GUID:067380f2e327c864ca920038ce7873d6",
-    "GUID:b3c495b0cddfccf4099a63ba6859dcb9"
-  ],
-  "includePlatforms": [],
-  "excludePlatforms": [],
-  "allowUnsafeCode": false,
-  "overrideReferences": false,
-  "precompiledReferences": [],
-  "autoReferenced": true,
-  "defineConstraints": [],
-  "versionDefines": [],
-  "noEngineReferences": false
+    "name": "Prototyping",
+    "rootNamespace": "",
+    "references": [
+        "GUID:067380f2e327c864ca920038ce7873d6",
+        "GUID:b3c495b0cddfccf4099a63ba6859dcb9",
+        "GUID:3d98018c79f55564ba22cd9515b9a45f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
