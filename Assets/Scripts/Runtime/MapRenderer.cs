@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reactive.Subjects;
 using BFG.Core;
 using BFG.Graphs;
+using BFG.Runtime.Extensions;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -155,6 +156,10 @@ public class MapRenderer : MonoBehaviour {
     [SerializeField]
     Color _unbuildableTileColor = Color.red;
 
+    [SerializeField]
+    [Required]
+    MovementPattern _movementPattern;
+
     [Header("Inputs")]
     [SerializeField]
     [Required]
@@ -177,13 +182,13 @@ public class MapRenderer : MonoBehaviour {
         Tuple<HorseTrain, List<Tuple<TrainNode, TrainNodeGO>>>
     > _horses = new();
 
-    readonly Dictionary<Guid, Tuple<Human, HumanGO>> _humans = new();
-    readonly Dictionary<Guid, Tuple<HumanTransporter, HumanGO>> _humanTransporters = new();
+    readonly Dictionary<Guid, (Human, HumanGO)> _humans = new();
+    readonly Dictionary<Guid, (HumanTransporter, HumanGO, HumanBinding)> _humanTransporters = new();
 
     readonly Dictionary<Guid, GameObject> _modals = new();
     readonly Dictionary<Guid, ItemGO> _storedItems = new();
 
-    readonly Dictionary<Guid, Tuple<TrainNode, TrainNodeGO>> _trainNodes = new();
+    readonly Dictionary<Guid, (TrainNode, TrainNodeGO)> _trainNodes = new();
 
     float _buildingScaleTimeline;
     Tilemap _buildingsTilemap;
@@ -287,7 +292,7 @@ public class MapRenderer : MonoBehaviour {
             Gizmos.DrawLineList(points);
         }
 
-        foreach (var (human, _) in _humanTransporters.Values) {
+        foreach (var (human, _, _) in _humanTransporters.Values) {
             Gizmos.color = Color.cyan;
             var offset = Vector2.one / 2;
             Gizmos.DrawSphere(_grid.transform.TransformPoint(human.pos + offset), .2f);
@@ -382,40 +387,65 @@ public class MapRenderer : MonoBehaviour {
     void InitializeDependencyHooks() {
         var hooks = _dependencyHooks;
 
-        hooks.Add(_gameManager.OnSelectedItemChanged.Subscribe(OnSelectedItemChanged));
-        hooks.Add(_map.onElementTileChanged.Subscribe(OnElementTileChanged));
+        hooks.Add(_gameManager.OnSelectedItemChanged.Subscribe(
+            OnSelectedItemChanged));
+        hooks.Add(_map.onElementTileChanged.Subscribe(
+            OnElementTileChanged));
 
-        hooks.Add(_map.onHumanCreated.Subscribe(OnHumanCreated));
-        hooks.Add(_map.onHumanTransporterCreated.Subscribe(OnHumanTransporterCreated));
-        hooks.Add(_map.onHumanPickedUpResource.Subscribe(OnHumanPickedUpResource));
-        hooks.Add(_map.onHumanPlacedResource.Subscribe(OnHumanPlacedResource));
-        hooks.Add(_map.onHumanReachedCityHall.Subscribe(OnHumanReachedCityHall));
+        hooks.Add(_map.onHumanCreated.Subscribe(
+            OnHumanCreated));
+        hooks.Add(_map.onHumanTransporterCreated.Subscribe(
+            OnHumanTransporterCreated));
+        hooks.Add(_map.onHumanPickedUpResource.Subscribe(
+            OnHumanPickedUpResource));
+        hooks.Add(_map.onHumanPlacedResource.Subscribe(
+            OnHumanPlacedResource));
+        hooks.Add(_map.onHumanReachedCityHall.Subscribe(
+            OnHumanReachedCityHall));
 
-        hooks.Add(
-            _map.onHumanTransporterStartedPickingUpResource.Subscribe(
-                OnHumanTransporterStartedPickingUpResource));
-        hooks.Add(
-            _map.onHumanTransporterPickedUpResource.Subscribe(OnHumanTransporterPickedUpResource));
-        hooks.Add(
-            _map.onHumanTransporterStartedPlacingResource.Subscribe(
-                OnHumanTransporterStartedPlacingResource));
-        hooks.Add(
-            _map.onHumanTransporterPlacedResource.Subscribe(OnHumanTransporterPlacedResource));
+        hooks.Add(_map.onHumanTransporterMovedToTheNextTile.Subscribe(
+            OnHumanTransporterMovedToTheNextTile));
+        hooks.Add(_map.onHumanTransporterStartedPickingUpResource.Subscribe(
+            OnHumanTransporterStartedPickingUpResource));
+        hooks.Add(_map.onHumanTransporterPickedUpResource.Subscribe(
+            OnHumanTransporterPickedUpResource));
+        hooks.Add(_map.onHumanTransporterStartedPlacingResource.Subscribe(
+            OnHumanTransporterStartedPlacingResource));
+        hooks.Add(_map.onHumanTransporterPlacedResource.Subscribe(
+            OnHumanTransporterPlacedResource));
 
-        hooks.Add(_map.onTrainCreated.Subscribe(OnTrainCreated));
-        hooks.Add(_map.onTrainNodeCreated.Subscribe(OnTrainNodeCreated));
-        hooks.Add(_map.onTrainPickedUpResource.Subscribe(OnTrainPickedUpResource));
-        hooks.Add(_map.onTrainPushedResource.Subscribe(OnTrainPushedResource));
+        hooks.Add(_map.onTrainCreated.Subscribe(
+            OnTrainCreated));
+        hooks.Add(_map.onTrainNodeCreated.Subscribe(
+            OnTrainNodeCreated));
+        hooks.Add(_map.onTrainPickedUpResource.Subscribe(
+            OnTrainPickedUpResource));
+        hooks.Add(_map.onTrainPushedResource.Subscribe(
+            OnTrainPushedResource));
 
-        hooks.Add(_map.onBuildingPlaced.Subscribe(OnBuildingPlaced));
+        hooks.Add(_map.onBuildingPlaced.Subscribe(
+            OnBuildingPlaced));
 
-        hooks.Add(_map.onBuildingStartedProcessing.Subscribe(OnBuildingStartedProcessing));
-        hooks.Add(_map.onBuildingProducedItem.Subscribe(OnBuildingProducedItem));
-        hooks.Add(_map.onProducedResourcesPickedUp.Subscribe(OnProducedResourcesPickedUp));
+        hooks.Add(_map.onBuildingStartedProcessing.Subscribe(
+            OnBuildingStartedProcessing));
+        hooks.Add(_map.onBuildingProducedItem.Subscribe(
+            OnBuildingProducedItem));
+        hooks.Add(_map.onProducedResourcesPickedUp.Subscribe(
+            OnProducedResourcesPickedUp));
+    }
+
+    void OnHumanTransporterMovedToTheNextTile(E_HumanTransporterMovedToTheNextTile data) {
+        var (human, go, binding) = _humanTransporters[data.Human.ID];
+        go.transform.localPosition = new Vector2(human.pos.x, human.pos.y) + Vector2.one / 2;
+
+        binding.CurvePerFeedback.Clear();
+        foreach (var feedback in _movementPattern.Feedbacks) {
+            binding.CurvePerFeedback.Add(feedback.GetRandomCurve());
+        }
     }
 
     void OnHumanTransporterPlacedResource(E_HumanTransporterPlacedResource data) {
-        var (human, go) = _humanTransporters[data.Human.ID];
+        var (human, go, _) = _humanTransporters[data.Human.ID];
         go.OnStoppedPlacingResource(data.Resource.Scriptable);
 
         var item = Instantiate(_itemPrefab, _itemsLayer);
@@ -427,7 +457,7 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void OnHumanTransporterPickedUpResource(E_HumanTransporterPickedUpResource data) {
-        var (human, go) = _humanTransporters[data.Human.ID];
+        var (human, go, _) = _humanTransporters[data.Human.ID];
         go.OnStoppedPickingUpResource(data.Resource.Scriptable);
 
         if (_storedItems.TryGetValue(data.Resource.ID, out var itemGo)) {
@@ -439,14 +469,14 @@ public class MapRenderer : MonoBehaviour {
     void OnHumanTransporterStartedPlacingResource(
         E_HumanTransporterStartedPlacingResource data
     ) {
-        var (human, go) = _humanTransporters[data.Human.ID];
+        var (human, go, t) = _humanTransporters[data.Human.ID];
         go.OnStartedPlacingResource(data.Resource.Scriptable);
     }
 
     void OnHumanTransporterStartedPickingUpResource(
         E_HumanTransportedStartedPickingUpResource data
     ) {
-        var (human, go) = _humanTransporters[data.Human.ID];
+        var (human, go, _) = _humanTransporters[data.Human.ID];
         go.OnStartedPickingUpResource(data.Resource.Scriptable);
 
         if (_storedItems.TryGetValue(data.Resource.ID, out var res)) {
@@ -832,15 +862,22 @@ public class MapRenderer : MonoBehaviour {
 
     void OnHumanCreated(E_HumanCreated data) {
         var go = Instantiate(_humanPrefab, _grid.transform);
-        _humans.Add(data.Human.ID, Tuple.Create(data.Human, go.GetComponent<HumanGO>()));
+        _humans.Add(data.Human.ID, new(data.Human, go.GetComponent<HumanGO>()));
     }
 
     void OnHumanTransporterCreated(E_HumanTransporterCreated data) {
         var go = Instantiate(_humanPrefab, _grid.transform);
         var humanGo = go.GetComponent<HumanGO>();
 
-        _humanTransporters.Add(data.Human.ID, Tuple.Create(data.Human, humanGo));
-        UpdateHumanTransporter(data.Human, humanGo);
+        var movementBinding = new HumanBinding {
+            CurvePerFeedback = new() { Capacity = _movementPattern.Feedbacks.Count },
+        };
+        foreach (var feedback in _movementPattern.Feedbacks) {
+            movementBinding.CurvePerFeedback.Add(feedback.GetRandomCurve());
+        }
+
+        _humanTransporters.Add(data.Human.ID, new(data.Human, humanGo, movementBinding));
+        UpdateHumanTransporter(data.Human, humanGo, movementBinding);
     }
 
     void OnHumanPickedUpResource(E_HumanPickedUpResource data) {
@@ -888,22 +925,33 @@ public class MapRenderer : MonoBehaviour {
             go.transform.localPosition = human.position + Vector2.one / 2;
         }
 
-        foreach (var (human, go) in _humanTransporters.Values) {
-            UpdateHumanTransporter(human, go);
+        foreach (var (human, go, binding) in _humanTransporters.Values) {
+            UpdateHumanTransporter(human, go, binding);
         }
     }
 
-    static void UpdateHumanTransporter(HumanTransporter human, HumanGO go) {
-        var pos = human.movingFrom;
-        if (human.movingTo != null) {
-            pos = Vector2.Lerp(
-                human.movingFrom,
-                human.movingTo.Value,
-                human.movingNormalized
-            );
+    void UpdateHumanTransporter(HumanTransporter human, HumanGO go, HumanBinding binding) {
+        if (human.movingTo == null) {
+            go.transform.localPosition = human.movingFrom;
+        }
+        else {
+            for (var i = 0; i < _movementPattern.Feedbacks.Count; i++) {
+                var feedback = _movementPattern.Feedbacks[i];
+                var curve = binding.CurvePerFeedback[i];
+                var coef = curve.Evaluate(human.movingNormalized);
+
+                feedback.UpdateData(
+                    Time.deltaTime,
+                    human.movingNormalized,
+                    coef,
+                    human.movingFrom,
+                    human.movingTo.Value,
+                    go.gameObject
+                );
+            }
         }
 
-        go.transform.localPosition = pos + Vector2.one / 2;
+        go.transform.localPosition += Vector3.one.With(z: 0) / 2;
         if (human.stateMovingResource
             == HumanTransporter_MovingResource_Controller.State.PickingUpResource) {
             go.SetPickingUpResourceCoef(human.stateMovingResource_pickingUpResourceNormalized);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace BFG.Prototyping {
+namespace BFG.Runtime {
 public abstract class MovementFeedback : MonoBehaviour {
     static readonly AnimationCurve LinearCurve = AnimationCurve.Linear(0, 0, 1, 1);
     public List<AnimationCurve> RandomCurves = new();
@@ -17,6 +17,13 @@ public abstract class MovementFeedback : MonoBehaviour {
         return RandomCurves[index];
     }
 
-    public abstract void UpdateData(float dt, float normalized, float coef, HumanBinding binding);
+    public abstract void UpdateData(
+        float dt,
+        float normalized,
+        float coef,
+        Vector2 from,
+        Vector2Int to,
+        GameObject human
+    );
 }
 }
