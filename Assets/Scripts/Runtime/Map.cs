@@ -819,9 +819,11 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public Subject<E_HumanReachedCityHall> onHumanReachedCityHall { get; } = new();
 
+    public Subject<E_HumanTransporterMovedToTheNextTile>
+        onHumanTransporterMovedToTheNextTile { get; } = new();
+
     public Subject<E_HumanTransportedStartedPickingUpResource>
-        onHumanTransporterStartedPickingUpResource { get; } =
-        new();
+        onHumanTransporterStartedPickingUpResource { get; } = new();
 
     public Subject<E_HumanTransporterPickedUpResource> onHumanTransporterPickedUpResource { get; } =
         new();
@@ -1228,6 +1230,9 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     human.PopMovingTo();
 
                     _humanTransporterController.OnHumanMovedToTheNextTile(human);
+                    onHumanTransporterMovedToTheNextTile.OnNext(new() {
+                        Human = human,
+                    });
                 }
 
                 Assert.IsTrue(iteration < 10 * GUARD_MAX_ITERATIONS_COUNT);

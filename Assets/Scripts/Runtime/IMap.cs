@@ -21,6 +21,8 @@ public interface IMap {
     Subject<E_HumanPlacedResource> onHumanPlacedResource { get; }
     Subject<E_HumanReachedCityHall> onHumanReachedCityHall { get; }
 
+    Subject<E_HumanTransporterMovedToTheNextTile> onHumanTransporterMovedToTheNextTile { get; }
+
     Subject<E_HumanTransportedStartedPickingUpResource> onHumanTransporterStartedPickingUpResource {
         get;
     }
