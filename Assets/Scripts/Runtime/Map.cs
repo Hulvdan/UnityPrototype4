@@ -312,7 +312,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 segments
             );
 
-            UpdateBuilding_NotConstructed(0, building);
+            UpdateBuilding_NotConstructed(building);
             UpdateSegments(res);
         }
         else if (item.Type == SelectedItemType.Flag) {
@@ -695,7 +695,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     void UpdateBuildings(float dt) {
         foreach (var building in buildings) {
             if (building.BuildingProgress < 1) {
-                UpdateBuilding_NotConstructed(dt, building);
+                UpdateBuilding_NotConstructed(building);
             }
             else {
                 UpdateBuilding_Production(dt, building);
@@ -703,7 +703,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
     }
 
-    void UpdateBuilding_NotConstructed(float dt, Building building) {
+    void UpdateBuilding_NotConstructed(Building building) {
         if (building.ResourcesToBook.Count > 0) {
             _resourceTransportationSystem.Add_ResourcesToBook(building.ResourcesToBook);
             building.ResourcesToBook.Clear();

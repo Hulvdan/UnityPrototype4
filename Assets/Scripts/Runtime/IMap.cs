@@ -59,7 +59,7 @@ public interface IMap {
     bool CellContainsPickupableItems(Vector2Int hoveredTile);
     void CollectItems(Vector2Int hoveredTile);
 
-    void OnCreateHorse(HorseCreateData obj);
+    void OnCreateHorse(HorseCreateData data);
 
     PathFindResult FindPath(
         Vector2Int source,
