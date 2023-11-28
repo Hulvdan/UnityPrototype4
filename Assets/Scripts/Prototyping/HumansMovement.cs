@@ -14,9 +14,12 @@ public class MovementPattern {
 
 [Serializable]
 public class HumanBinding {
+    [ReadOnly]
     public GameObject Human;
+
     public MovementPattern Pattern;
 
+    [HideInInspector]
     public List<Vector2Int> Path = new();
 
     [NonSerialized]
@@ -101,10 +104,10 @@ public class HumansMovement : MonoBehaviour {
     public int Columns = 4;
     public int ColumnsGap = 1;
     public int RowsGap = 1;
-    public int StartingRow = 0;
-    public int StartingColumn = 0;
+    public int StartingRow;
+    public int StartingColumn;
     public int TravelDistanceX = 2;
-    public int TravelDistanceY = 0;
+    public int TravelDistanceY;
 
     public Transform humansContainer;
     public GameObject humanPrefab;

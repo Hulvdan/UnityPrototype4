@@ -5,7 +5,7 @@ using Random = UnityEngine.Random;
 
 namespace BFG.Prototyping {
 public abstract class MovementFeedback : MonoBehaviour {
-    static AnimationCurve LinearCurve = AnimationCurve.Linear(0, 0, 1, 1);
+    static readonly AnimationCurve LinearCurve = AnimationCurve.Linear(0, 0, 1, 1);
     public List<AnimationCurve> RandomCurves = new();
 
     public AnimationCurve GetRandomCurve() {
