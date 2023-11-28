@@ -74,6 +74,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
 
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
+        Assert.IsTrue(_offset != null);
 
         Assert.IsTrue(Contains(originPos));
         Assert.IsTrue(Contains(destinationPos));
@@ -176,7 +177,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
 
         var centerNodePositions = new List<Vector2Int> { Capacity = centerNodeIndices.Count };
 
-        Assert.IsTrue(_offset.HasValue);
+        Assert.IsTrue(_offset != null);
         foreach (var i in centerNodeIndices) {
             centerNodePositions.Add(nodeIndex2Pos[i] + _offset.Value);
         }
@@ -330,7 +331,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
     }
 
     void ResizeIfNeeded(int x, int y) {
-        Assert.IsTrue(_offset.HasValue);
+        Assert.IsTrue(_offset != null);
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
 

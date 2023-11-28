@@ -207,13 +207,13 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         _humanTransporterController = new(this, this, cityHall, _resourceTransportationSystem);
 
         if (Application.isPlaying) {
-            TryBuild(new(8, 8), new() { Type = SelectedItemType.Road });
-            TryBuild(new(9, 8), new() { Type = SelectedItemType.Road });
-            TryBuild(new(10, 8), new() { Type = SelectedItemType.Road });
-            TryBuild(new(10, 7), new() { Type = SelectedItemType.Road });
-            TryBuild(new(10, 6), new() { Type = SelectedItemType.Road });
-            TryBuild(new(10, 5), new() { Type = SelectedItemType.Road });
-            TryBuild(new(10, 4), new() { Type = SelectedItemType.Road });
+            // TryBuild(new(8, 8), new() { Type = SelectedItemType.Road });
+            // TryBuild(new(9, 8), new() { Type = SelectedItemType.Road });
+            // TryBuild(new(10, 8), new() { Type = SelectedItemType.Road });
+            // TryBuild(new(10, 7), new() { Type = SelectedItemType.Road });
+            // TryBuild(new(10, 6), new() { Type = SelectedItemType.Road });
+            // TryBuild(new(10, 5), new() { Type = SelectedItemType.Road });
+            // TryBuild(new(10, 4), new() { Type = SelectedItemType.Road });
 
             // TryBuild(new(7, 7), new() { Type = SelectedItemType.Road });
             // TryBuild(new(6, 7), new() { Type = SelectedItemType.Road });
