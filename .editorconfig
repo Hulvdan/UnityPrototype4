@@ -15,7 +15,7 @@ csharp_new_line_before_finally = false
 csharp_new_line_before_members_in_object_initializers = false
 csharp_new_line_before_open_brace = none
 csharp_new_line_between_query_expression_clauses = true
-csharp_preferred_modifier_order = public, private, protected, internal, file, new, static, abstract, virtual, sealed, readonly, override, extern, unsafe, volatile, async, required:suggestion
+csharp_preferred_modifier_order = public, private, protected, internal, new, static, abstract, virtual, sealed, readonly, override, extern, unsafe, volatile, async
 csharp_prefer_braces = true:none
 csharp_preserve_single_line_blocks = true
 csharp_space_after_cast = false
@@ -441,9 +441,6 @@ dotnet_style_qualification_for_event = false:suggestion
 dotnet_style_qualification_for_field = false:suggestion
 dotnet_style_qualification_for_method = false:suggestion
 dotnet_style_qualification_for_property = false:suggestion
-file_header_template = # ReSharper properties
-
-
 
 resharper_accessor_owner_body = expression_body
 resharper_alignment_tab_fill_style = use_spaces
@@ -3498,10 +3495,16 @@ indent_size = 2
 [*.asmref]
 indent_size = 2
 
-[*.{appxmanifest,asax,ascx,aspx,axaml,build,c,c++,cc,cginc,compute,cp,cpp,cs,cshtml,cu,cuh,cxx,dtd,fs,fsi,fsscript,fsx,fx,fxh,h,hh,hlsl,hlsli,hlslinc,hpp,hxx,inc,inl,ino,ipp,ixx,master,ml,mli,mpp,mq4,mq5,mqh,nuspec,paml,razor,resw,resx,shader,skin,tpp,usf,ush,vb,xaml,xamlx,xoml,xsd}]
+[*.{appxmanifest,asax,ascx,aspx,axaml,build,c,c++,cc,cginc,compute,cp,cpp,cs,cshtml,cu,cuh,cxx,dtd,fs,fsi,fsscript,fsx,fx,fxh,h,hh,hlsl,hlsli,hlslinc,hpp,hxx,inc,inl,ino,ipp,ixx,master,ml,mli,mpp,mq4,mq5,mqh,nuspec,paml,razor,resw,resx,skin,tpp,usf,ush,vb,xaml,xamlx,xoml,xsd}]
 tab_width = 4
 
-[*.{appxmanifest,asax,ascx,aspx,axaml,build,c,c++,cc,cginc,compute,cp,cpp,cs,cshtml,cu,cuh,cxx,dtd,fs,fsi,fsscript,fsx,fx,fxh,h,hh,hlsl,hlsli,hlslinc,hpp,hxx,inc,inl,ino,ipp,master,ml,mli,mpp,mq4,mq5,mqh,nuspec,paml,razor,resw,resx,shader,skin,tpp,usf,ush,vb,xaml,xamlx,xoml,xsd}]
+[*.shader]
+tab_width = 4
+end_of_line = lf
+indent_style = space
+indent_size = 4
+
+[*.{appxmanifest,asax,ascx,aspx,axaml,build,c,c++,cc,cginc,compute,cp,cpp,cs,cshtml,cu,cuh,cxx,dtd,fs,fsi,fsscript,fsx,fx,fxh,h,hh,hlsl,hlsli,hlslinc,hpp,hxx,inc,inl,ino,ipp,master,ml,mli,mpp,mq4,mq5,mqh,nuspec,paml,razor,resw,resx,skin,tpp,usf,ush,vb,xaml,xamlx,xoml,xsd}]
 indent_style = space
 indent_size = 4
 tab_width = 4

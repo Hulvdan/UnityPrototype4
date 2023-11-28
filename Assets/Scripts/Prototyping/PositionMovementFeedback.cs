@@ -6,7 +6,7 @@ public sealed class PositionMovementFeedback : MovementFeedback {
         var from = binding.GetMovingFrom();
         var to = binding.GetMovingTo();
 
-        binding.Human.transform.position =
+        binding.Human.transform.localPosition =
             Vector2.Lerp(from, to, coef)
             + Vector2.one / 2;
     }
