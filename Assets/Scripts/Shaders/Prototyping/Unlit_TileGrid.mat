@@ -30,6 +30,6 @@ Material:
     m_Ints: []
     m_Floats:
     - _Strength: 0.4
-    - _Width: 0.05
+    - _Width: 0.041666668
     m_Colors: []
   m_BuildTextureStacks: []
