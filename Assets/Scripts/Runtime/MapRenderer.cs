@@ -429,6 +429,11 @@ public class MapRenderer : MonoBehaviour {
     void OnHumanTransporterPickedUpResource(E_HumanTransporterPickedUpResource data) {
         var (human, go) = _humanTransporters[data.Human.ID];
         go.OnStoppedPickingUpResource(data.Resource.Scriptable);
+
+        if (_storedItems.TryGetValue(data.Resource.ID, out var itemGo)) {
+            Destroy(itemGo.gameObject);
+            _storedItems.Remove(data.Resource.ID);
+        }
     }
 
     void OnHumanTransporterStartedPlacingResource(

@@ -71,18 +71,22 @@ public class HumanTransporter_MovingResource_Controller {
                 using var _ = Tracing.Scope();
                 Tracing.Log("Human just picked up resource");
 
-                human.stateMovingResource = State.MovingResource;
-                Tracing.Log("human.stateMovingResource = State.MovingResource;");
+                if (!human.stateMovingResource_segmentWasChanged) {
+                    human.stateMovingResource = State.MovingResource;
+                    Tracing.Log("human.stateMovingResource = State.MovingResource;");
 
-                human.stateMovingResource_pickingUpResourceNormalized = 1;
-                human.stateMovingResource_pickingUpResourceElapsed = data.PickingUpResourceDuration;
+                    human.stateMovingResource_pickingUpResourceNormalized = 1;
+                    human.stateMovingResource_pickingUpResourceElapsed =
+                        data.PickingUpResourceDuration;
 
-                Assert.AreEqual(human.movingTo, null, "human.movingTo == null");
-                Assert.AreEqual(human.movingPath.Count, 0, "human.movingPath.Count == 0");
-                var path = human.segment.Graph.GetShortestPath(
-                    human.pos, res!.TransportationVertices[0]
-                );
-                human.AddPath(path);
+                    Assert.AreEqual(human.movingTo, null, "human.movingTo == null");
+                    Assert.AreEqual(human.movingPath.Count, 0, "human.movingPath.Count == 0");
+                    Assert.AreNotEqual(human.segment, null, "human.segment != null");
+                    var path = human.segment!.Graph.GetShortestPath(
+                        human.pos, res!.TransportationVertices[0]
+                    );
+                    human.AddPath(path);
+                }
 
                 data.Map.onHumanTransporterPickedUpResource.OnNext(new() {
                     Human = human,
@@ -91,6 +95,10 @@ public class HumanTransporter_MovingResource_Controller {
 
                 human.stateMovingResource_pickingUpResourceNormalized = 0;
                 human.stateMovingResource_pickingUpResourceElapsed = 0;
+
+                if (human.stateMovingResource_segmentWasChanged) {
+                    StartPlacingResource(human, data, res);
+                }
             }
         }
 
@@ -210,15 +218,7 @@ public class HumanTransporter_MovingResource_Controller {
             var res = human.stateMovingResource_targetedResource!;
 
             if (human.movingTo == null) {
-                Tracing.Log("Human started placing resource");
-
-                human.stateMovingResource = State.PlacingResource;
-                Tracing.Log("human.stateMovingResource = State.PlacingResource");
-
-                data.Map.onHumanTransporterStartedPlacingResource.OnNext(new() {
-                    Human = human,
-                    Resource = res,
-                });
+                StartPlacingResource(human, data, res);
             }
         }
     }
@@ -236,6 +236,23 @@ public class HumanTransporter_MovingResource_Controller {
         data.Map.onHumanTransporterStartedPickingUpResource.OnNext(new() {
             Human = human,
             Resource = resource,
+        });
+    }
+
+    static void StartPlacingResource(
+        HumanTransporter human,
+        HumanTransporterData data,
+        MapResource res
+    ) {
+        using var _ = Tracing.Scope();
+        Tracing.Log("Human started placing resource");
+
+        human.stateMovingResource = State.PlacingResource;
+        Tracing.Log("human.stateMovingResource = State.PlacingResource");
+
+        data.Map.onHumanTransporterStartedPlacingResource.OnNext(new() {
+            Human = human,
+            Resource = res,
         });
     }
 
