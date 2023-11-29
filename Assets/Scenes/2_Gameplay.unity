@@ -9358,6 +9358,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 1
+  _humanSpawningDelay: 0.6
   _buildingGameObjects:
   - _scriptableBuilding: {fileID: 11400000, guid: 3e85720a0da7cfe4f8fca758c005d2de, type: 2}
     _posX: 7
