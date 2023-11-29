@@ -813,6 +813,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public Subject<E_HumanCreated> onHumanCreated { get; } = new();
     public Subject<E_HumanTransporterCreated> onHumanTransporterCreated { get; } = new();
+    public Subject<E_CityHallCreatedHuman> onCityHallCreatedHuman { get; } = new();
     public Subject<E_HumanStateChanged> onHumanStateChanged { get; } = new();
     public Subject<E_HumanPickedUpResource> onHumanPickedUpResource { get; } = new();
     public Subject<E_HumanPlacedResource> onHumanPlacedResource { get; } = new();
@@ -934,6 +935,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         _humanTransporterController.SetState(human, HumanTransporterState.MovingInTheWorld);
         onHumanTransporterCreated.OnNext(new() { Human = human });
+        onCityHallCreatedHuman.OnNext(new() { CityHall = cityHall });
     }
 
     void CreateHuman(Building building) {

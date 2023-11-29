@@ -122,6 +122,7 @@ public class GameManager : MonoBehaviour {
         _cursorController.InitDependencies();
 
         _map.Init();
+        _mapRenderer.Init();
         _buildablesPanel.Init();
     }
 

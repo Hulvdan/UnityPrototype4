@@ -16,6 +16,7 @@ public class Building {
     public int posY { get; }
 
     public Vector2Int pos => new(posX, posY);
+    public float lastTimeCreatedHuman { get; set; } = float.NegativeInfinity;
 
     Guid _id;
     readonly List<ResourceObj> _producedResources = new();
