@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
 using BFG.Core;
+using Priority_Queue;
 using SimplexNoise;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -116,17 +117,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     int _horsesStationItemsGatheringRadius = 2;
 
     GameManager _gameManager = null!;
-
-    [FoldoutGroup("Humans", true)]
-    [ShowInInspector]
-    [ReadOnly]
-    float _humanTotalHarvestingDuration;
-
-    [FoldoutGroup("Humans", true)]
-    [ShowInInspector]
-    [ReadOnly]
-    [Min(0.01f)]
-    float _humanTransporterMovingOneCellDuration = 1f;
 
     Random _random = null!;
 
@@ -390,6 +380,9 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
 
             _resourceTransportationSystem.OnSegmentDeleted(segment);
+            if (segmentsThatNeedHumans.Contains(segment)) {
+                segmentsThatNeedHumans.Remove(segment);
+            }
         }
 
         if (!_hideEditorLogs) {
@@ -417,9 +410,17 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         _resourceTransportationSystem.PathfindItemsInQueue();
         Tracing.Log("_itemTransportationSystem.PathfindItemsInQueue()");
 
+        while (humansThatNeedNewSegment.Count > 0 && segmentsThatNeedHumans.Count > 0) {
+            var (oldSegment, human) = humansThatNeedNewSegment.Pop();
+            var segment = segmentsThatNeedHumans.Dequeue();
+            human.segment = segment;
+            segment.AssignedHuman = human;
+            _humanTransporterController.OnSegmentChanged(human, oldSegment);
+        }
+
         foreach (var segment in res.AddedSegments) {
             if (humansThatNeedNewSegment.Count == 0) {
-                CreateHuman_Transporter(cityHall, segment);
+                segmentsThatNeedHumans.Enqueue(segment, 0);
             }
             else {
                 var (oldSegment, human) = humansThatNeedNewSegment.Pop();
@@ -464,6 +465,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
         }
     }
+
+    SimplePriorityQueue<GraphSegment> segmentsThatNeedHumans { get; } = new();
 
     public PathFindResult FindPath(
         Vector2Int source,
@@ -738,6 +741,15 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 }
             }
         }
+        else if (scriptableBuilding.type == BuildingType.SpecialCityHall) {
+            if (segmentsThatNeedHumans.Count != 0) {
+                var elapsed = Time.time - building.lastTimeCreatedHuman;
+                if (elapsed > _humanSpawningDelay) {
+                    CreateHuman_Transporter(cityHall, segmentsThatNeedHumans.Dequeue());
+                    building.lastTimeCreatedHuman = Time.time;
+                }
+            }
+        }
     }
 
     void Produce(Building building) {
@@ -770,6 +782,17 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     #region HumanSystem_Attributes
 
     [FoldoutGroup("Humans", true)]
+    [ShowInInspector]
+    [ReadOnly]
+    float _humanTotalHarvestingDuration;
+
+    [FoldoutGroup("Humans", true)]
+    [ShowInInspector]
+    [ReadOnly]
+    [Min(0.01f)]
+    float _humanTransporterMovingOneCellDuration = 1f;
+
+    [FoldoutGroup("Humans", true)]
     [SerializeField]
     [Min(0)]
     float _humanHeadingDuration;
@@ -793,15 +816,14 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [SerializeField]
     AnimationCurve _humanMovementCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
+    [FoldoutGroup("Humans", true)]
+    [SerializeField]
+    [Min(0)]
+    float _humanSpawningDelay = 1f;
+
     #endregion
 
     #region HumanSystem_Properties
-
-    public List<Human> humans => _humans;
-    public float humanHeadingDuration => _humanHeadingDuration;
-    public float humanHarvestingDuration => _humanHarvestingDuration;
-    public float humanReturningBackDuration => _humanReturningBackDuration;
-    public float humanTotalHarvestingDuration => _humanTotalHarvestingDuration;
 
     readonly List<HumanTransporter> _humanTransporters = new();
 
