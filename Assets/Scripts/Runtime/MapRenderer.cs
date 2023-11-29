@@ -134,6 +134,10 @@ public class MapRenderer : MonoBehaviour {
 
     [SerializeField]
     [Required]
+    BuildingFeedback _scaleFeedback;
+
+    [SerializeField]
+    [Required]
     AnimationCurve _itemPlacingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     [SerializeField]
@@ -191,6 +195,8 @@ public class MapRenderer : MonoBehaviour {
     readonly Dictionary<Guid, (TrainNode, TrainNodeGO)> _trainNodes = new();
 
     float _buildingScaleTimeline;
+
+    readonly Dictionary<Guid, (BuildingData, List<BuildingFeedback>)> _buildingFeedbacks = new();
     Tilemap _buildingsTilemap;
 
     Camera _camera;
@@ -384,6 +390,14 @@ public class MapRenderer : MonoBehaviour {
         InitializeDependencyHooks();
     }
 
+    public void Init() {
+        foreach (var building in _map.buildings) {
+            _buildingFeedbacks.Add(
+                building.id, new(BuildingData.Create(), new() { _scaleFeedback })
+            );
+        }
+    }
+
     void InitializeDependencyHooks() {
         var hooks = _dependencyHooks;
 
@@ -396,6 +410,8 @@ public class MapRenderer : MonoBehaviour {
             OnHumanCreated));
         hooks.Add(_map.onHumanTransporterCreated.Subscribe(
             OnHumanTransporterCreated));
+        hooks.Add(_map.onCityHallCreatedHuman.Subscribe(
+            OnCityHallCreatedHuman));
         hooks.Add(_map.onHumanPickedUpResource.Subscribe(
             OnHumanPickedUpResource));
         hooks.Add(_map.onHumanPlacedResource.Subscribe(
@@ -469,14 +485,14 @@ public class MapRenderer : MonoBehaviour {
     void OnHumanTransporterStartedPlacingResource(
         E_HumanTransporterStartedPlacingResource data
     ) {
-        var (human, go, t) = _humanTransporters[data.Human.ID];
+        var (_, go, t) = _humanTransporters[data.Human.ID];
         go.OnStartedPlacingResource(data.Resource.Scriptable);
     }
 
     void OnHumanTransporterStartedPickingUpResource(
         E_HumanTransportedStartedPickingUpResource data
     ) {
-        var (human, go, _) = _humanTransporters[data.Human.ID];
+        var (_, go, _) = _humanTransporters[data.Human.ID];
         go.OnStartedPickingUpResource(data.Resource.Scriptable);
 
         if (_storedItems.TryGetValue(data.Resource.ID, out var res)) {
@@ -486,7 +502,10 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void OnBuildingPlaced(E_BuildingPlaced data) {
-        SetBuilding(data.Building, 1, 1);
+        _buildingFeedbacks.Add(
+            data.Building.id, new(BuildingData.Create(), new() { _scaleFeedback })
+        );
+        SetBuilding(data.Building, 1, 1, Color.white);
     }
 
     void ToggleStablesPanel(Building building) {
@@ -516,33 +535,25 @@ public class MapRenderer : MonoBehaviour {
             _buildingScaleTimeline -= 2 * Mathf.PI * _sinCosScale;
         }
 
+        var prevData = BuildingData.Create();
+
         foreach (var building in _map.buildings) {
-            if (building.scriptable.type != BuildingType.Produce) {
+            var color = Color.white;
+            var (buildingData, feedbacks) = _buildingFeedbacks[building.id];
+
+            prevData.Scale = buildingData.Scale;
+            foreach (var feedback in feedbacks) {
+                feedback.UpdateData(building, ref buildingData);
+            }
+
+            if (prevData.Equals(buildingData)) {
                 continue;
             }
 
-            var scale = GetBuildingScale(
-                building.IsProducing,
-                building.ProducingElapsed,
-                building.scriptable.ItemProcessingDuration
-            );
-            SetBuilding(building, scale.x, scale.y);
+            prevData.Scale = Vector2.one;
+            _buildingFeedbacks[building.id] = new(buildingData, feedbacks);
+            SetBuilding(building, buildingData.Scale.x, buildingData.Scale.y, color);
         }
-    }
-
-    Vector2 GetBuildingScale(
-        bool isProcessing,
-        float buildingProcessingElapsed,
-        float scriptableBuildingItemProcessingDuration
-    ) {
-        if (!isProcessing || buildingProcessingElapsed == 0) {
-            return new(1, 1);
-        }
-
-        return new(
-            1 + _buildingScaleAmplitude * Mathf.Sin(_buildingScaleTimeline * _sinCosScale),
-            1 + _buildingScaleAmplitude * Mathf.Cos(_buildingScaleTimeline * _sinCosScale)
-        );
     }
 
     void UpdateHoveringState(Vector2Int hoveredTile) {
@@ -739,11 +750,11 @@ public class MapRenderer : MonoBehaviour {
             )
             .GetComponent<Tilemap>();
         foreach (var building in _map.buildings) {
-            SetBuilding(building, 1, 1);
+            SetBuilding(building, 1, 1, Color.white);
         }
     }
 
-    void SetBuilding(Building building, float scaleX, float scaleY) {
+    void SetBuilding(Building building, float scaleX, float scaleY, Color color) {
         var widthOffset = (building.scriptable.size.x - 1) / 2f;
         var heightOffset = (building.scriptable.size.y - 1) / 2f;
 
@@ -756,7 +767,7 @@ public class MapRenderer : MonoBehaviour {
             new(
                 new(building.posX, building.posY, 0),
                 tile,
-                Color.white,
+                color,
                 Matrix4x4.TRS(
                     new(widthOffset, heightOffset),
                     Quaternion.identity,
@@ -878,6 +889,10 @@ public class MapRenderer : MonoBehaviour {
 
         _humanTransporters.Add(data.Human.ID, new(data.Human, humanGo, movementBinding));
         UpdateHumanTransporter(data.Human, humanGo, movementBinding);
+    }
+
+    void OnCityHallCreatedHuman(E_CityHallCreatedHuman data) {
+        data.CityHall.lastTimeCreatedHuman = Time.time;
     }
 
     void OnHumanPickedUpResource(E_HumanPickedUpResource data) {
@@ -1049,5 +1064,49 @@ public class MapRenderer : MonoBehaviour {
     }
 
     #endregion
+}
+
+internal struct BuildingData : IEquatable<BuildingData> {
+    public Vector2 Scale;
+
+    public static BuildingData Create() {
+        return new(Vector2.one);
+    }
+
+    BuildingData(Vector2 scale) {
+        Scale = scale;
+    }
+
+    public bool Equals(BuildingData other) {
+        if (ReferenceEquals(null, other)) {
+            return false;
+        }
+
+        if (ReferenceEquals(this, other)) {
+            return true;
+        }
+
+        return Scale.Equals(other.Scale);
+    }
+
+    public override bool Equals(object obj) {
+        if (ReferenceEquals(null, obj)) {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj)) {
+            return true;
+        }
+
+        if (obj.GetType() != GetType()) {
+            return false;
+        }
+
+        return Equals((BuildingData)obj);
+    }
+
+    public override int GetHashCode() {
+        return Scale.GetHashCode();
+    }
 }
 }

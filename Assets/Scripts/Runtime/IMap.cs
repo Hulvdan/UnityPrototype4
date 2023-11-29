@@ -16,6 +16,7 @@ public interface IMap {
 
     Subject<E_HumanCreated> onHumanCreated { get; }
     Subject<E_HumanTransporterCreated> onHumanTransporterCreated { get; }
+    Subject<E_CityHallCreatedHuman> onCityHallCreatedHuman { get; }
     Subject<E_HumanStateChanged> onHumanStateChanged { get; }
     Subject<E_HumanPickedUpResource> onHumanPickedUpResource { get; }
     Subject<E_HumanPlacedResource> onHumanPlacedResource { get; }
