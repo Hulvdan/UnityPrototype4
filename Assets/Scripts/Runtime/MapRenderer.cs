@@ -470,6 +470,10 @@ public class MapRenderer : MonoBehaviour {
         itemGo.SetAs(data.Resource.Scriptable);
 
         _storedItems.Add(data.Resource.ID, itemGo);
+
+        if (data.Building != null) {
+            data.Building.lastTimeItemWasPlaced = Time.time;
+        }
     }
 
     void OnHumanTransporterPickedUpResource(E_HumanTransporterPickedUpResource data) {

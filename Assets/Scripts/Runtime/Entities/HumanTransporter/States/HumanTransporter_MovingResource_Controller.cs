@@ -116,6 +116,14 @@ public class HumanTransporter_MovingResource_Controller {
                 human.stateMovingResource_placingResourceNormalized = 1;
                 human.stateMovingResource_placingResourceElapsed = data.PlacingResourceDuration;
 
+                Building building = null;
+                if (res!.Booking != null) {
+                    var b = res!.Booking.Value.Building;
+                    if (b.pos == human.pos) {
+                        building = b;
+                    }
+                }
+
                 data.transportationSystem.OnHumanPlacedResource(
                     human.pos, human.segment, res!,
                     human.stateMovingResource_segmentWasChanged
@@ -123,6 +131,7 @@ public class HumanTransporter_MovingResource_Controller {
                 data.Map.onHumanTransporterPlacedResource.OnNext(new() {
                     Human = human,
                     Resource = res!,
+                    Building = building,
                 });
 
                 if (human.segment == null || human.segment.resourcesToTransport.Count == 0) {

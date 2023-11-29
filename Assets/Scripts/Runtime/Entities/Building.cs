@@ -17,6 +17,7 @@ public class Building {
 
     public Vector2Int pos => new(posX, posY);
     public float lastTimeCreatedHuman { get; set; } = float.NegativeInfinity;
+    public float lastTimeItemWasPlaced { get; set; } = float.NegativeInfinity;
 
     Guid _id;
     readonly List<ResourceObj> _producedResources = new();
@@ -74,6 +75,7 @@ public class Building {
     }
 
     public RectInt rect => new(posX, posY, scriptable.size.x, scriptable.size.y);
+
     public readonly List<MapResource> resourcesForConstruction = new();
 
     public bool Contains(Vector2Int pos) {
