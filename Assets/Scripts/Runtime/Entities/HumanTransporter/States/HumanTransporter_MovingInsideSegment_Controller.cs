@@ -80,6 +80,11 @@ public class HumanTransporter_MovingInsideSegment_Controller {
         Building cityHall
     ) {
         using var _ = Tracing.Scope();
+        if (human.segment == null) {
+            human.movingPath.Clear();
+            _controller.SetState(human, HumanTransporterState.MovingInTheWorld);
+            return;
+        }
 
         if (human.segment.resourcesToTransport.Count > 0) {
             if (human.movingTo == null) {
