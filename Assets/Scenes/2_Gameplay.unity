@@ -854,7 +854,7 @@ MonoBehaviour:
         Data2: 1187869595
         Data3: 813410196
         Data4: -1241333025
-      Path: event:/UI/ButtonClick
+      Path: event:/UI/ButtonSelected
     Sound: 0
   - Event:
       Guid:
@@ -862,7 +862,7 @@ MonoBehaviour:
         Data2: 1279163592
         Data3: -1221641311
         Data4: -1530510038
-      Path: event:/UI/ButtonUnclick
+      Path: event:/UI/ButtonDeselected
     Sound: 1
 --- !u!1001 &445830223
 PrefabInstance:

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using FMOD.Studio;
 using UnityEngine;
 using FMODUnity;
+using Foundation.Architecture;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
 public enum Sound {
-    UI_ButtonClick,
-    UI_ButtonUnclick,
+    UI_ButtonSelected,
+    UI_ButtonDeselected,
 }
 
 [Serializable]
@@ -38,6 +39,9 @@ public class AudioManager : MonoBehaviour {
         _masterBus.setVolume(_state.masterVolume);
         _sfxBus.setVolume(_state.sfxVolume);
         _musicBus.setVolume(_state.musicVolume);
+
+        DomainEvents<E_ButtonSelected>.Subscribe(_ => PlaySound(Sound.UI_ButtonSelected));
+        DomainEvents<E_ButtonDeselected>.Subscribe(_ => PlaySound(Sound.UI_ButtonDeselected));
     }
 
     AudioState LoadAudioSettings() {
