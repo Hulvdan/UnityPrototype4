@@ -15,6 +15,7 @@ public enum Sound {
     GP_FlagPlaced,
     GP_CityHallSpawnedHuman,
     GP_HumanFootsteps,
+    GP_ResourePlacedInsideBuilding,
 }
 
 [Serializable]
@@ -64,6 +65,9 @@ public class AudioManager : MonoBehaviour {
             _ => PlaySound(Sound.GP_CityHallSpawnedHuman)
         );
         DomainEvents<E_HumanFootstep>.Subscribe(_ => PlaySound(Sound.GP_HumanFootsteps));
+        DomainEvents<E_ResourcePlacedInsideBuilding>.Subscribe(
+            _ => PlaySound(Sound.GP_ResourePlacedInsideBuilding)
+        );
     }
 
     AudioState LoadAudioSettings() {

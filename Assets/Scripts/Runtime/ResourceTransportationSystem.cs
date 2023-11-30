@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using BFG.Core;
 using BFG.Graphs;
+using Foundation.Architecture;
 using Priority_Queue;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -354,6 +355,10 @@ public class ResourceTransportationSystem {
             if (seg != null) {
                 seg.linkedResources.Remove(res);
             }
+
+            DomainEvents<E_ResourcePlacedInsideBuilding>.Publish(new() {
+                Resource = res, Building = building,
+            });
         }
         else if (movedToTheNextSegmentInPath) {
             Tracing.Log("movedToTheNextSegmentInPath");
@@ -386,7 +391,11 @@ public class ResourceTransportationSystem {
     readonly IMap _map;
     readonly IMapSize _mapSize;
 
-    readonly SimplePriorityQueue<ResourceToBook> _resourcesToBook =
-        new();
+    readonly SimplePriorityQueue<ResourceToBook> _resourcesToBook = new();
+}
+
+public class E_ResourcePlacedInsideBuilding {
+    public MapResource Resource;
+    public Building Building;
 }
 }

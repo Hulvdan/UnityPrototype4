@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <objects serializationModel="Studio.02.02.00">
-	<object class="EventFolder" id="{872e9057-57f0-4e93-a653-7651e595b24e}">
+	<object class="EventFolder" id="{db804f5e-6369-4583-b44c-c55be578017d}">
 		<property name="name">
-			<value>Resource Placements</value>
+			<value>Buildings</value>
 		</property>
 		<relationship name="folder">
 			<destination>{dbc97aeb-3d7d-49df-8ac6-e73b013b2b46}</destination>

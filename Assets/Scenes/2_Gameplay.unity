@@ -870,7 +870,7 @@ MonoBehaviour:
         Data2: 1272053035
         Data3: 388051627
         Data4: 812272074
-      Path: event:/Gameplay/Item Placements/BuildingPlaced
+      Path: event:/Gameplay/Resource Placements/BuildingPlaced
     Sound: 3
   - Event:
       Guid:
@@ -878,7 +878,7 @@ MonoBehaviour:
         Data2: 1198976220
         Data3: 2048674978
         Data4: 340129965
-      Path: event:/Gameplay/Item Placements/CityHallSpawnedHuman
+      Path: event:/Gameplay/Resource Placements/CityHallSpawnedHuman
     Sound: 5
   - Event:
       Guid:
@@ -886,7 +886,7 @@ MonoBehaviour:
         Data2: 1138624726
         Data3: -80801115
         Data4: 1595428509
-      Path: event:/Gameplay/Item Placements/FlagPlaced
+      Path: event:/Gameplay/Resource Placements/FlagPlaced
     Sound: 4
   - Event:
       Guid:
@@ -894,7 +894,7 @@ MonoBehaviour:
         Data2: 1168555912
         Data3: -1100099947
         Data4: -254381693
-      Path: event:/Gameplay/Item Placements/RoadPlaced
+      Path: event:/Gameplay/Resource Placements/RoadPlaced
     Sound: 2
   - Event:
       Guid:
@@ -904,6 +904,14 @@ MonoBehaviour:
         Data4: -1701108188
       Path: event:/Gameplay/Humans/Footsteps
     Sound: 6
+  - Event:
+      Guid:
+        Data1: -1664409130
+        Data2: 1204178310
+        Data3: -2044484969
+        Data4: -825206866
+      Path: event:/Gameplay/Buildings/ResourcePlacedInside
+    Sound: 7
 --- !u!1001 &445830223
 PrefabInstance:
   m_ObjectHideFlags: 0
