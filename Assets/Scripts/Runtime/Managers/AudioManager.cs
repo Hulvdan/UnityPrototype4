@@ -42,9 +42,11 @@ public class AudioManager : MonoBehaviour {
         _sfxBus = RuntimeManager.GetBus("bus:/SFX");
         _musicBus = RuntimeManager.GetBus("bus:/Music");
 
-        _masterBus.setVolume(_state.masterVolume);
-        _sfxBus.setVolume(_state.sfxVolume);
-        _musicBus.setVolume(_state.musicVolume);
+        if (Application.isPlaying) {
+            _masterBus.setVolume(_state.masterVolume);
+            _sfxBus.setVolume(_state.sfxVolume);
+            _musicBus.setVolume(_state.musicVolume);
+        }
     }
 
     public AudioState LoadAudioSettings() {
