@@ -2,20 +2,18 @@
 using System.Collections.Generic;
 using FMOD.Studio;
 using UnityEngine;
-using Sirenix.OdinInspector;
 using FMODUnity;
 using UnityEngine.Assertions;
-using UnityEngine.Serialization;
 
 namespace BFG.Runtime {
 public class AudioState {
     public const string Key_MasterVolume = "Key_IsActive_MasterVolume";
-    public const string Key_SFXVolume = "Key_IsActive_SFXVolume";
+    public const string Key_SfxVolume = "Key_IsActive_SFXVolume";
     public const string Key_MusicVolume = "Key_IsActive_MusicVolume";
 
-    public float MasterVolume;
-    public float SFXVolume;
-    public float MusicVolume;
+    public float masterVolume { get; set; }
+    public float sfxVolume { get; set; }
+    public float musicVolume { get; set; }
 }
 
 public enum Sound {
@@ -44,23 +42,23 @@ public class AudioManager : MonoBehaviour {
         _sfxBus = RuntimeManager.GetBus("bus:/SFX");
         _musicBus = RuntimeManager.GetBus("bus:/Music");
 
-        _masterBus.setVolume(_state.MasterVolume);
-        _sfxBus.setVolume(_state.SFXVolume);
-        _musicBus.setVolume(_state.MusicVolume);
+        _masterBus.setVolume(_state.masterVolume);
+        _sfxBus.setVolume(_state.sfxVolume);
+        _musicBus.setVolume(_state.musicVolume);
     }
 
     public AudioState LoadAudioSettings() {
         return new() {
-            MasterVolume = PlayerPrefs.GetFloat(AudioState.Key_MasterVolume, .5f),
-            SFXVolume = PlayerPrefs.GetFloat(AudioState.Key_SFXVolume, .5f),
-            MusicVolume = PlayerPrefs.GetFloat(AudioState.Key_MusicVolume, .5f),
+            masterVolume = PlayerPrefs.GetFloat(AudioState.Key_MasterVolume, .5f),
+            sfxVolume = PlayerPrefs.GetFloat(AudioState.Key_SfxVolume, .5f),
+            musicVolume = PlayerPrefs.GetFloat(AudioState.Key_MusicVolume, .5f),
         };
     }
 
     public void SaveAudioSettings() {
-        PlayerPrefs.SetFloat(AudioState.Key_MasterVolume, _state.MasterVolume);
-        PlayerPrefs.SetFloat(AudioState.Key_SFXVolume, _state.SFXVolume);
-        PlayerPrefs.SetFloat(AudioState.Key_MusicVolume, _state.MusicVolume);
+        PlayerPrefs.SetFloat(AudioState.Key_MasterVolume, _state.masterVolume);
+        PlayerPrefs.SetFloat(AudioState.Key_SfxVolume, _state.sfxVolume);
+        PlayerPrefs.SetFloat(AudioState.Key_MusicVolume, _state.musicVolume);
     }
 
     void PlaySound(Sound sound) {

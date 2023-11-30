@@ -1,6 +1,4 @@
-﻿// ReSharper disable once RedundantUsingDirective
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reactive.Subjects;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;

@@ -434,6 +434,7 @@ MonoBehaviour:
   _mapRenderer: {fileID: 1879392621}
   _buildablesPanel: {fileID: 1600136909}
   _uiManager: {fileID: 2037697678}
+  _audioManager: {fileID: 391172546}
   _cursorController: {fileID: 1937440201}
   _inputActionAsset: {fileID: -944628639613478452, guid: 304fc82518949fc4abc5fceb1a7ffe52, type: 3}
   _mapMovementScale: 200
@@ -811,6 +812,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 391172545}
+  - component: {fileID: 391172546}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -833,6 +835,35 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2080007875}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &391172546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 391172544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79c399fc6f9e4a64b9297f83c00881ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _sounds:
+  - Event:
+      Guid:
+        Data1: 946250835
+        Data2: 1187869595
+        Data3: 813410196
+        Data4: -1241333025
+      Path: event:/UI/ButtonClick
+    Sound: 0
+  - Event:
+      Guid:
+        Data1: -1993055290
+        Data2: 1279163592
+        Data3: -1221641311
+        Data4: -1530510038
+      Path: event:/UI/ButtonUnclick
+    Sound: 1
 --- !u!1001 &445830223
 PrefabInstance:
   m_ObjectHideFlags: 0
