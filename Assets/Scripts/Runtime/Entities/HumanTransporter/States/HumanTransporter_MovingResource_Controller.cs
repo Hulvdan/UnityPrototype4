@@ -136,10 +136,12 @@ public class HumanTransporter_MovingResource_Controller {
             Assert.AreEqual(human.movingTo, null, "human.movingTo == null");
             Assert.AreEqual(human.movingPath.Count, 0, "human.movingPath.Count == 0");
             Assert.AreNotEqual(human.segment, null, "human.segment != null");
-            var path = human.segment!.Graph.GetShortestPath(
-                human.pos, res!.TransportationVertices[0]
-            );
-            human.AddPath(path);
+            if (res!.TransportationVertices.Count > 0) {
+                var path = human.segment!.Graph.GetShortestPath(
+                    human.pos, res!.TransportationVertices[0]
+                );
+                human.AddPath(path);
+            }
         }
 
         data.Map.onHumanTransporterPickedUpResource.OnNext(new() {
