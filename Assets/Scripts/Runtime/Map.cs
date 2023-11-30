@@ -369,7 +369,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         foreach (var segment in res.DeletedSegments) {
-            segments.RemoveAt(segments.FindIndex(i => i.ID == segment.ID));
+            segments.Remove(segment);
 
             var human = segment.AssignedHuman;
             if (human != null) {
@@ -382,7 +382,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 linkedSegment.Unlink(segment);
             }
 
-            _resourceTransportationSystem.OnSegmentDeleted(segment);
+            _resourceTransportationSystem.OnSegmentDeleted(segment, human);
             if (segmentsThatNeedHumans.Contains(segment)) {
                 segmentsThatNeedHumans.Remove(segment);
             }
@@ -395,27 +395,24 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         foreach (var segment in res.AddedSegments) {
-            segments.Add(segment);
-
             foreach (var segmentToLink in segments) {
-                if (ReferenceEquals(segment, segmentToLink)) {
-                    continue;
-                }
-
                 // Mb there Graph.CollidesWith(other.Graph) is needed for optimization
                 if (segmentToLink.HasSomeOfTheSameVertices(segment)) {
                     segment.Link(segmentToLink);
                     segmentToLink.Link(segment);
                 }
             }
+
+            segments.Add(segment);
         }
 
         _resourceTransportationSystem.PathfindItemsInQueue();
         Tracing.Log("_itemTransportationSystem.PathfindItemsInQueue()");
 
         while (humansThatNeedNewSegment.Count > 0 && segmentsThatNeedHumans.Count > 0) {
-            var (oldSegment, human) = humansThatNeedNewSegment.Pop();
             var segment = segmentsThatNeedHumans.Dequeue();
+
+            var (oldSegment, human) = humansThatNeedNewSegment.Pop();
             human.segment = segment;
             segment.AssignedHuman = human;
             _humanTransporterController.OnSegmentChanged(human, oldSegment);
@@ -424,16 +421,12 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         foreach (var segment in res.AddedSegments) {
             if (humansThatNeedNewSegment.Count == 0) {
                 segmentsThatNeedHumans.Enqueue(segment, 0);
+                continue;
             }
-            else {
-                var (oldSegment, human) = humansThatNeedNewSegment.Pop();
-                human.segment = segment;
-                segment.AssignedHuman = human;
-                _humanTransporterController.OnSegmentChanged(human, oldSegment);
-            }
-        }
 
-        foreach (var (oldSegment, human) in humansThatNeedNewSegment) {
+            var (oldSegment, human) = humansThatNeedNewSegment.Pop();
+            human.segment = segment;
+            segment.AssignedHuman = human;
             _humanTransporterController.OnSegmentChanged(human, oldSegment);
         }
 
