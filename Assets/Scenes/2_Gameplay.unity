@@ -864,6 +864,38 @@ MonoBehaviour:
         Data4: -1530510038
       Path: event:/UI/ButtonDeselected
     Sound: 1
+  - Event:
+      Guid:
+        Data1: 1279280097
+        Data2: 1272053035
+        Data3: 388051627
+        Data4: 812272074
+      Path: event:/Gameplay/Item Placements/BuildingPlaced
+    Sound: 3
+  - Event:
+      Guid:
+        Data1: 1639265599
+        Data2: 1198976220
+        Data3: 2048674978
+        Data4: 340129965
+      Path: event:/Gameplay/Item Placements/CityHallSpawnedHuman
+    Sound: 5
+  - Event:
+      Guid:
+        Data1: 218103772
+        Data2: 1138624726
+        Data3: -80801115
+        Data4: 1595428509
+      Path: event:/Gameplay/Item Placements/FlagPlaced
+    Sound: 4
+  - Event:
+      Guid:
+        Data1: 392891251
+        Data2: 1168555912
+        Data3: -1100099947
+        Data4: -254381693
+      Path: event:/Gameplay/Item Placements/RoadPlaced
+    Sound: 2
 --- !u!1001 &445830223
 PrefabInstance:
   m_ObjectHideFlags: 0
