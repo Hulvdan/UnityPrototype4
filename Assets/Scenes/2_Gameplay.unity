@@ -896,6 +896,14 @@ MonoBehaviour:
         Data4: -254381693
       Path: event:/Gameplay/Item Placements/RoadPlaced
     Sound: 2
+  - Event:
+      Guid:
+        Data1: -1223601413
+        Data2: 1206275127
+        Data3: 112857221
+        Data4: -1701108188
+      Path: event:/Gameplay/Humans/Footsteps
+    Sound: 6
 --- !u!1001 &445830223
 PrefabInstance:
   m_ObjectHideFlags: 0
