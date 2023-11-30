@@ -368,7 +368,7 @@ public class ResourceTransportationSystem {
             var building = res.Booking!.Value.Building;
             Assert.IsTrue(res.Booking != null);
 
-            ClearBooking(res);
+            ClearBooking(res, false);
 
             building.resourcesForConstruction.Add(res);
 
@@ -385,16 +385,18 @@ public class ResourceTransportationSystem {
             Tracing.Log("Resource was placed on the map");
 
             if (res.Booking != null) {
-                ClearBooking(res);
+                ClearBooking(res, segmentWasChanged);
             }
 
             _map.mapResources[res.Pos.y][res.Pos.x].Add(res);
         }
     }
 
-    static void ClearBooking(MapResource res) {
+    static void ClearBooking(MapResource res, bool needToRebookResources) {
         var building = res.Booking!.Value.Building;
-        building.ResourcesToBook.Add(ResourceToBook.FromMapResource(res));
+        if (needToRebookResources) {
+            building.ResourcesToBook.Add(ResourceToBook.FromMapResource(res));
+        }
 
         foreach (var segment in res.TransportationSegments) {
             segment.linkedResources.Remove(res);
