@@ -30,6 +30,10 @@ public class GameManager : MonoBehaviour {
 
     [SerializeField]
     [Required]
+    AudioManager _audioManager;
+
+    [SerializeField]
+    [Required]
     CursorController _cursorController;
 
     [SerializeField]
@@ -115,6 +119,8 @@ public class GameManager : MonoBehaviour {
     }
 
     void Init() {
+        _audioManager.Init();
+
         _map.InitDependencies(this);
         _mapRenderer.InitDependencies(this, _map, _map);
         _buildablesPanel.InitDependencies(this);
