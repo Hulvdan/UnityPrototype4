@@ -303,7 +303,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 segments
             );
 
-            UpdateBuilding_NotConstructed(building);
+            UpdateBuilding_NotConstructed(0, building);
             UpdateSegments(res);
         }
         else if (item.Type == SelectedItemType.Flag) {
@@ -701,24 +701,27 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     void UpdateBuildings(float dt) {
         foreach (var building in buildings) {
             if (building.BuildingProgress < 1) {
-                UpdateBuilding_NotConstructed(building);
+                UpdateBuilding_NotConstructed(dt, building);
             }
             else {
-                UpdateBuilding_Production(dt, building);
+                UpdateBuilding_Constructed(dt, building);
             }
         }
     }
 
-    void UpdateBuilding_NotConstructed(Building building) {
+    void UpdateBuilding_NotConstructed(float dt, Building building) {
+        if (!building.isBuilt) {
+            building.timeSinceItemWasPlaced += dt;
+        }
+
         if (building.ResourcesToBook.Count > 0) {
             _resourceTransportationSystem.Add_ResourcesToBook(building.ResourcesToBook);
             building.ResourcesToBook.Clear();
         }
     }
 
-    void UpdateBuilding_Production(float dt, Building building) {
+    void UpdateBuilding_Constructed(float dt, Building building) {
         var scriptableBuilding = building.scriptable;
-
         if (scriptableBuilding.type == BuildingType.Produce) {
             if (!building.IsProducing) {
                 if (building.storedResources.Count > 0 && building.CanStartProcessing()) {
@@ -745,11 +748,15 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
         }
         else if (scriptableBuilding.type == BuildingType.SpecialCityHall) {
+            building.timeSinceHumanWasCreated += dt;
+            if (building.timeSinceHumanWasCreated > _humanSpawningDelay) {
+                building.timeSinceHumanWasCreated = _humanSpawningDelay;
+            }
+
             if (segmentsThatNeedHumans.Count != 0) {
-                var elapsed = Time.time - building.lastTimeCreatedHuman;
-                if (elapsed > _humanSpawningDelay) {
+                if (building.timeSinceHumanWasCreated >= _humanSpawningDelay) {
+                    building.timeSinceHumanWasCreated -= _humanSpawningDelay;
                     CreateHuman_Transporter(cityHall, segmentsThatNeedHumans.Dequeue());
-                    building.lastTimeCreatedHuman = Time.time;
                 }
             }
         }

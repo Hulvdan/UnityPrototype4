@@ -13,16 +13,15 @@ internal class BuildingScaleFeedback : BuildingFeedback {
     float _duration = 1f;
 
     public override void UpdateData(Building building, ref BuildingData data) {
-        var coef = 1f;
         float elapsed;
-
         if (building.scriptable.type == BuildingType.SpecialCityHall) {
-            elapsed = Time.time - building.lastTimeCreatedHuman;
+            elapsed = building.timeSinceHumanWasCreated;
         }
         else {
-            elapsed = Time.time - building.lastTimeItemWasPlaced;
+            elapsed = building.timeSinceItemWasPlaced;
         }
 
+        var coef = 1f;
         if (elapsed < _duration) {
             coef = elapsed / _duration;
         }

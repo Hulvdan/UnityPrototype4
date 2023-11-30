@@ -475,7 +475,7 @@ public class MapRenderer : MonoBehaviour {
         _storedItems.Add(data.Resource.ID, itemGo);
 
         if (data.Building != null) {
-            data.Building.lastTimeItemWasPlaced = Time.time;
+            data.Building.timeSinceItemWasPlaced = 0;
         }
     }
 
@@ -899,7 +899,7 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void OnCityHallCreatedHuman(E_CityHallCreatedHuman data) {
-        data.CityHall.lastTimeCreatedHuman = Time.time;
+        data.CityHall.timeSinceHumanWasCreated = 0;
     }
 
     void OnHumanPickedUpResource(E_HumanPickedUpResource data) {
