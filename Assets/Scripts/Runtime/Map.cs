@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
 using BFG.Core;
+using Foundation.Architecture;
 using Priority_Queue;
 using SimplexNoise;
 using Sirenix.OdinInspector;
@@ -322,6 +323,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             );
             UpdateSegments(res);
         }
+
+        DomainEvents<E_ItemPlaced>.Publish(new() { Item = item.Type, Pos = pos });
     }
 
     public bool CanBePlaced(Vector2Int pos, SelectedItemType itemType) {
@@ -956,8 +959,11 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         _humanTransporters.Add(human);
 
         _humanTransporterController.SetState(human, HumanTransporterState.MovingInTheWorld);
+
         onHumanTransporterCreated.OnNext(new() { Human = human });
+
         onCityHallCreatedHuman.OnNext(new() { CityHall = cityHall });
+        DomainEvents<E_CityHallCreatedHuman>.Publish(new() { CityHall = cityHall });
     }
 
     void CreateHuman(Building building) {
@@ -1559,5 +1565,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     #endregion
+}
+
+public class E_ItemPlaced {
+    public SelectedItemType Item;
+    public Vector2Int Pos;
 }
 }

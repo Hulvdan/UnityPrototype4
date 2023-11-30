@@ -10,6 +10,10 @@ namespace BFG.Runtime {
 public enum Sound {
     UI_ButtonSelected,
     UI_ButtonDeselected,
+    GP_RoadPlaced,
+    GP_BuildingPlaced,
+    GP_FlagPlaced,
+    GP_CityHallSpawnedHuman,
 }
 
 [Serializable]
@@ -42,6 +46,22 @@ public class AudioManager : MonoBehaviour {
 
         DomainEvents<E_ButtonSelected>.Subscribe(_ => PlaySound(Sound.UI_ButtonSelected));
         DomainEvents<E_ButtonDeselected>.Subscribe(_ => PlaySound(Sound.UI_ButtonDeselected));
+        DomainEvents<E_ItemPlaced>.Subscribe(data => {
+            switch (data.Item) {
+                case SelectedItemType.Road:
+                    PlaySound(Sound.GP_RoadPlaced);
+                    break;
+                case SelectedItemType.Building:
+                    PlaySound(Sound.GP_BuildingPlaced);
+                    break;
+                case SelectedItemType.Flag:
+                    PlaySound(Sound.GP_FlagPlaced);
+                    break;
+            }
+        });
+        DomainEvents<E_CityHallCreatedHuman>.Subscribe(
+            _ => PlaySound(Sound.GP_CityHallSpawnedHuman)
+        );
     }
 
     AudioState LoadAudioSettings() {
