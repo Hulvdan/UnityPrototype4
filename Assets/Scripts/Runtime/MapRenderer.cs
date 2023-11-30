@@ -5,6 +5,7 @@ using BFG.Core;
 using BFG.Graphs;
 using BFG.Runtime.Extensions;
 using DG.Tweening;
+using Foundation.Architecture;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -458,6 +459,8 @@ public class MapRenderer : MonoBehaviour {
         foreach (var feedback in _movementPattern.Feedbacks) {
             binding.CurvePerFeedback.Add(feedback.GetRandomCurve());
         }
+
+        DomainEvents<E_HumanFootstep>.Publish(new() { Human = data.Human });
     }
 
     void OnHumanTransporterPlacedResource(E_HumanTransporterPlacedResource data) {

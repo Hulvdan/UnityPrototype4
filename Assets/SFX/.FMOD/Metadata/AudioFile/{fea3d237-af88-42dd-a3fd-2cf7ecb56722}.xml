@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{fea3d237-af88-42dd-a3fd-2cf7ecb56722}">
+		<property name="assetPath">
+			<value>minecraft-step-stone2.ogg</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>1</value>
+		</property>
+		<property name="length">
+			<value>0.48437641723356006</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{7a06b4e3-f21d-4053-af67-aa6ee6e6073d}</destination>
+		</relationship>
+	</object>
+</objects>
