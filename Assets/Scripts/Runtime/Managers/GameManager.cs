@@ -1,6 +1,4 @@
-﻿// ReSharper disable once RedundantUsingDirective
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reactive.Subjects;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;
@@ -27,6 +25,10 @@ public class GameManager : MonoBehaviour {
     [SerializeField]
     [Required]
     UIManager _uiManager;
+
+    [SerializeField]
+    [Required]
+    AudioManager _audioManager;
 
     [SerializeField]
     [Required]
@@ -115,6 +117,8 @@ public class GameManager : MonoBehaviour {
     }
 
     void Init() {
+        _audioManager.Init();
+
         _map.InitDependencies(this);
         _mapRenderer.InitDependencies(this, _map, _map);
         _buildablesPanel.InitDependencies(this);

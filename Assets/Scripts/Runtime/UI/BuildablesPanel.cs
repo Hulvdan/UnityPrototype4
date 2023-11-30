@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Foundation.Architecture;
 using UnityEngine;
 
 namespace BFG.Runtime {
@@ -38,6 +39,10 @@ public class BuildablesPanel : MonoBehaviour {
 
         if (selectedButtonInstanceID == null) {
             _gameManager.SelectedItem = null;
+            DomainEvents<E_ButtonDeselected>.Publish(new());
+        }
+        else {
+            DomainEvents<E_ButtonSelected>.Publish(new());
         }
     }
 }
