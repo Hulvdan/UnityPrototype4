@@ -372,9 +372,7 @@ public class ResourceTransportationSystem {
 
             building.resourcesForConstruction.Add(res);
 
-            DomainEvents<E_ResourcePlacedInsideBuilding>.Publish(new() {
-                Resource = res, Building = building,
-            });
+            DomainEvents<E_ResourcePlacedInsideBuilding>.Publish(new());
         }
         else if (movedToTheNextSegmentInPath) {
             Tracing.Log("movedToTheNextSegmentInPath");
@@ -413,10 +411,5 @@ public class ResourceTransportationSystem {
     readonly IMapSize _mapSize;
 
     readonly SimplePriorityQueue<ResourceToBook> _resourcesToBook = new();
-}
-
-public class E_ResourcePlacedInsideBuilding {
-    public MapResource Resource;
-    public Building Building;
 }
 }
