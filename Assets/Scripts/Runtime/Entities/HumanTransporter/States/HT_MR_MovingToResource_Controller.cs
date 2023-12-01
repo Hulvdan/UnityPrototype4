@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.Tracing;
-using UnityEngine.Assertions;
+﻿using UnityEngine.Assertions;
 using MRState = BFG.Runtime.HumanTransporter_MovingResource_Controller.State;
 
 namespace BFG.Runtime {
@@ -13,27 +12,29 @@ public class HT_MR_MovingToResource_Controller {
     public void OnEnter(HumanTransporter human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
-        Assert.AreEqual(human.stateMovingResource, null);
+        Assert.AreEqual(null, human.stateMovingResource);
+        Assert.AreNotEqual(null, human.segment);
         human.stateMovingResource = MRState.MovingToResource;
 
         var segment = human.segment;
-        var resource = segment.resourcesToTransport.First;
+        var res = segment!.resourcesToTransport.First;
+        Assert.AreNotEqual(null, res.Booking);
 
-        human.stateMovingResource_targetedResource = resource;
-        resource.TargetedHuman = human;
-        if (resource.Pos == human.pos && human.movingTo == null) {
+        human.stateMovingResource_targetedResource = res;
+        res.TargetedHuman = human;
+        if (res.Pos == human.pos && human.movingTo == null) {
             _controller.SetState(human, data, MRState.PickingUpResource);
             return;
         }
 
-        Assert.AreEqual(human.movingTo, null, "human.movingTo == null");
-        Assert.AreEqual(human.movingPath.Count, 0, "human.movingPath.Count == 0");
+        Assert.AreEqual(null, human.movingTo, "human.movingTo == null");
+        Assert.AreEqual(0, human.movingPath.Count, "human.movingPath.Count == 0");
 
         var graphContains = segment.Graph.Contains(human.pos);
         var nodeIsWalkable = segment.Graph.Node(human.pos) != 0;
 
-        if (resource.Pos != human.pos && graphContains && nodeIsWalkable) {
-            human.AddPath(segment.Graph.GetShortestPath(human.pos, resource.Pos));
+        if (res.Pos != human.pos && graphContains && nodeIsWalkable) {
+            human.AddPath(segment.Graph.GetShortestPath(human.pos, res.Pos));
         }
         else if (!graphContains || !nodeIsWalkable) {
             _controller.NestedState_Exit(human, data);
@@ -47,6 +48,7 @@ public class HT_MR_MovingToResource_Controller {
     }
 
     public void Update(HumanTransporter human, HumanTransporterData data, float dt) {
+        // TODO: Is this block really necessary?
         if (human.stateMovingResource_targetedResource == null) {
             _controller.NestedState_Exit(human, data);
         }

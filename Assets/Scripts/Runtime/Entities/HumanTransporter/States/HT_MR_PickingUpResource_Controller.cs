@@ -13,12 +13,15 @@ public class HT_MR_PickingUpResource_Controller {
         using var _ = Tracing.Scope();
 
         Assert.AreNotEqual(human.stateMovingResource, MRState.PickingUpResource);
-        Assert.AreNotEqual(human.stateMovingResource_targetedResource, null);
-
         human.stateMovingResource = MRState.PickingUpResource;
 
+        Assert.AreNotEqual(human.stateMovingResource_targetedResource, null);
+
         var res = human.segment!.resourcesToTransport.Dequeue();
+        Assert.AreNotEqual(res.Booking, null);
         Assert.AreEqual(res, human.stateMovingResource_targetedResource);
+        Assert.AreEqual(human.stateMovingResource_targetedResource!.CarryingHuman, null);
+        Assert.AreEqual(human.stateMovingResource_targetedResource!.TargetedHuman, human);
 
         res!.CarryingHuman = human;
 
@@ -31,6 +34,7 @@ public class HT_MR_PickingUpResource_Controller {
 
     public void OnExit(HumanTransporter human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
+
         human.stateMovingResource_pickingUpResourceElapsed = 0;
         human.stateMovingResource_pickingUpResourceNormalized = 0;
     }

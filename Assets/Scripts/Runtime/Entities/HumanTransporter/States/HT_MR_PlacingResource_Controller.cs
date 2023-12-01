@@ -13,6 +13,12 @@ public class HT_MR_PlacingResource_Controller {
         using var _ = Tracing.Scope();
 
         Assert.AreNotEqual(human.stateMovingResource, MRState.PlacingResource);
+        Assert.AreNotEqual(human.stateMovingResource_targetedResource, null);
+        Assert.AreEqual(human.stateMovingResource_targetedResource!.TargetedHuman, human);
+        Assert.AreEqual(human.stateMovingResource_targetedResource!.CarryingHuman, human);
+        Assert.AreEqual(0, human.stateMovingResource_placingResourceElapsed);
+        Assert.AreEqual(0, human.stateMovingResource_placingResourceNormalized);
+
         human.stateMovingResource = MRState.PlacingResource;
 
         data.Map.onHumanTransporterStartedPlacingResource.OnNext(new() {
@@ -24,7 +30,7 @@ public class HT_MR_PlacingResource_Controller {
     public void OnExit(HumanTransporter human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
-        human.stateMovingResource_targetedResource = null;
+        Assert.AreEqual(human.stateMovingResource_targetedResource, null);
         human.stateMovingResource_placingResourceElapsed = 0;
         human.stateMovingResource_placingResourceNormalized = 0;
     }
@@ -42,7 +48,6 @@ public class HT_MR_PlacingResource_Controller {
         human.stateMovingResource_placingResourceNormalized = 1;
 
         var res = human.stateMovingResource_targetedResource;
-        human.stateMovingResource_targetedResource = null;
 
         Building building = null;
         if (res!.Booking != null) {
@@ -51,6 +56,8 @@ public class HT_MR_PlacingResource_Controller {
                 building = b;
             }
         }
+
+        human.stateMovingResource_targetedResource = null;
 
         data.transportationSystem.OnHumanPlacedResource(human.pos, human.segment, res!, false);
         data.Map.onHumanTransporterPlacedResource.OnNext(new() {

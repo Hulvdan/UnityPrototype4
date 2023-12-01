@@ -11,12 +11,12 @@ public struct ResourceToBook : IEquatable<ResourceToBook> {
     public MapResourceBookingType BookingType;
     public Building Building;
 
-    public static ResourceToBook FromMapResource(MapResource resource) {
-        Assert.IsTrue(resource.Booking != null);
-        var booking = resource.Booking.Value;
+    public static ResourceToBook FromMapResource(MapResource res) {
+        Assert.IsTrue(res.Booking != null);
+        var booking = res.Booking.Value;
         return new() {
             ID = Guid.NewGuid(),
-            Scriptable = resource.Scriptable,
+            Scriptable = res.Scriptable,
             Priority = booking.Priority,
             BookingType = booking.Type,
             Building = booking.Building,

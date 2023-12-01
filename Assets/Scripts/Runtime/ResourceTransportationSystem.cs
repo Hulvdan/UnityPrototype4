@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using BFG.Core;
 using BFG.Graphs;
 using Foundation.Architecture;
@@ -234,9 +235,9 @@ public class ResourceTransportationSystem {
                 //     CrrFrrB
                 //       rrr
                 //
-                // We don't wanna see this flag in our vertices list.
+                // We don't wanna see the F (flag) in our vertices list.
                 // We need only ending vertex per segment.
-                // In this example there should only be B added in the list of vertices
+                // In this example there should only be B (building) added in the list of vertices
                 if (i + 2 <= path.Count - 1) {
                     var c = path[i + 2];
                     if (segment.Graph.Contains(c)) {
@@ -261,12 +262,12 @@ public class ResourceTransportationSystem {
         Assert.AreEqual(
             res.TransportationVertices.Count,
             res.TransportationSegments.Count,
-            "mapResource.TransportationVertices.Count == mapResource.TransportationSegments.Count"
+            "res.TransportationVertices.Count == res.TransportationSegments.Count"
         );
+        Assert.IsFalse(res.TransportationSegments[0].resourcesToTransport.Contains(res));
 
         res.Booking = MapResourceBooking.FromResourceToBook(resourceToBook);
-        res.TransportationSegments[0]
-            .resourcesToTransport.Enqueue(res, res.Booking.Value.Priority);
+        res.TransportationSegments[0].resourcesToTransport.Enqueue(res, res.Booking.Value.Priority);
 
         foreach (var segment in res.TransportationSegments) {
             if (!segment.linkedResources.Contains(res)) {
@@ -288,16 +289,25 @@ public class ResourceTransportationSystem {
             // TODO: Experiment with priority to ensure that the first resource
             // the human goes to after placing is this one (if it was booked)
             ClearBooking(res, true, segment);
+
             if (segment.resourcesToTransport.Contains(res)) {
                 segment.resourcesToTransport.Remove(res);
+                Assert.IsFalse(segment.resourcesToTransport.Contains(res));
             }
 
             var carrier = res.CarryingHuman;
             var targeter = res.TargetedHuman;
+
+            if (targeter != null) {
+                Assert.IsTrue(ReferenceEquals(res, targeter.stateMovingResource_targetedResource));
+            }
+
             if (carrier != null) {
+                Assert.IsTrue(ReferenceEquals(carrier, targeter));
                 carrier.movingPath.Clear();
             }
             else if (targeter != null) {
+                res.TargetedHuman = null;
                 targeter.stateMovingResource_targetedResource = null;
             }
         }
@@ -348,6 +358,12 @@ public class ResourceTransportationSystem {
 
         if (seg != null) {
             seg.linkedResources.Remove(res);
+
+            // TODO: is this necessary?
+            if (seg.resourcesToTransport.Contains(res)) {
+                seg.resourcesToTransport.Remove(res);
+                Assert.IsFalse(seg.resourcesToTransport.Contains(res));
+            }
         }
 
         if (placedInsideBuilding) {
@@ -365,7 +381,8 @@ public class ResourceTransportationSystem {
         else if (movedToTheNextSegmentInPath) {
             Tracing.Log("movedToTheNextSegmentInPath");
 
-            Assert.IsTrue(res.Booking != null, "res.Booking != null");
+            Assert.AreNotEqual(null, res.Booking, "res.Booking != null");
+            Assert.IsFalse(res.TransportationSegments[0].resourcesToTransport.Contains(res));
 
             res.TransportationSegments[0]
                 .resourcesToTransport.Enqueue(res, res.Booking!.Value.Priority);
@@ -374,20 +391,18 @@ public class ResourceTransportationSystem {
             Tracing.Log("Resource was placed on the map");
 
             if (res.Booking != null) {
-                ClearBooking(res, segmentWasChanged);
+                ClearBooking(res, true);
             }
 
             _map.mapResources[res.Pos.y][res.Pos.x].Add(res);
         }
     }
 
-    void ClearBooking(
-        MapResource res,
-        bool needToRebookResources,
-        GraphSegment? excludedSegment = null
-    ) {
+    void ClearBooking(MapResource res, bool needToRebook, GraphSegment? excludedSegment = null) {
+        Assert.IsTrue(res.Booking != null);
+
         var building = res.Booking!.Value.Building;
-        if (needToRebookResources) {
+        if (needToRebook) {
             building.ResourcesToBook.Add(ResourceToBook.FromMapResource(res));
         }
 

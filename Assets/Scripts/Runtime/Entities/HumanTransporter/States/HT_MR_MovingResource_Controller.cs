@@ -14,6 +14,8 @@ public class HT_MR_MovingResource_Controller {
 
         Assert.AreNotEqual(human.stateMovingResource, MRState.MovingResource);
         Assert.AreNotEqual(human.stateMovingResource_targetedResource, null);
+        Assert.AreEqual(human.stateMovingResource_targetedResource!.TargetedHuman, human);
+        Assert.AreEqual(human.stateMovingResource_targetedResource!.CarryingHuman, human);
 
         human.stateMovingResource = MRState.MovingResource;
     }

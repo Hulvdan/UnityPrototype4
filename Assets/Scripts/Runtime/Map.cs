@@ -385,6 +385,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             _resourceTransportationSystem.OnSegmentDeleted(segment);
             if (segmentsThatNeedHumans.Contains(segment)) {
                 segmentsThatNeedHumans.Remove(segment);
+                Assert.IsFalse(segmentsThatNeedHumans.Contains(segment));
             }
         }
 
