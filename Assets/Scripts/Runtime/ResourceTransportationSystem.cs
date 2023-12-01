@@ -1,7 +1,6 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using BFG.Core;
 using BFG.Graphs;
 using Foundation.Architecture;
@@ -29,12 +28,6 @@ public class ResourceTransportationSystem {
 
         foreach (var resource in resources) {
             _resourcesToBook.Enqueue(resource, resource.Priority);
-        }
-    }
-
-    public void Remove_ResourcesToBook(List<ResourceToBook> resources) {
-        foreach (var resource in resources) {
-            _resourcesToBook.Remove(resource);
         }
     }
 
@@ -264,15 +257,17 @@ public class ResourceTransportationSystem {
             res.TransportationSegments.Count,
             "res.TransportationVertices.Count == res.TransportationSegments.Count"
         );
-        Assert.IsFalse(res.TransportationSegments[0].resourcesToTransport.Contains(res));
+
+        foreach (var seg in res.TransportationSegments) {
+            Assert.IsFalse(seg.resourcesToTransport.Contains(res));
+            Assert.IsFalse(seg.linkedResources.Contains(res));
+        }
 
         res.Booking = MapResourceBooking.FromResourceToBook(resourceToBook);
         res.TransportationSegments[0].resourcesToTransport.Enqueue(res, res.Booking.Value.Priority);
 
         foreach (var segment in res.TransportationSegments) {
-            if (!segment.linkedResources.Contains(res)) {
-                segment.linkedResources.Add(res);
-            }
+            segment.linkedResources.Add(res);
         }
 
         _resourcesToBook.Remove(resourceToBook);
@@ -286,17 +281,20 @@ public class ResourceTransportationSystem {
         foreach (var res in segment.linkedResources) {
             Assert.IsTrue(res.Booking != null, "res.Booking != null");
 
+            var carrier = res.CarryingHuman;
+            var targeter = res.TargetedHuman;
+            var rebookImmediately = carrier == null;
+
             // TODO: Experiment with priority to ensure that the first resource
             // the human goes to after placing is this one (if it was booked)
-            ClearBooking(res, true, segment);
+            ClearBooking(res, rebookImmediately, segment);
 
             if (segment.resourcesToTransport.Contains(res)) {
+                Assert.AreEqual(null, res.CarryingHuman);
+
                 segment.resourcesToTransport.Remove(res);
                 Assert.IsFalse(segment.resourcesToTransport.Contains(res));
             }
-
-            var carrier = res.CarryingHuman;
-            var targeter = res.TargetedHuman;
 
             if (targeter != null) {
                 Assert.IsTrue(ReferenceEquals(res, targeter.stateMovingResource_targetedResource));
@@ -323,12 +321,7 @@ public class ResourceTransportationSystem {
         _map.mapResources[res.Pos.y][res.Pos.x].Remove(res);
     }
 
-    public void OnHumanPlacedResource(
-        Vector2Int pos,
-        GraphSegment? seg,
-        MapResource res,
-        bool segmentWasChanged
-    ) {
+    public void OnHumanPlacedResource(Vector2Int pos, GraphSegment? seg, MapResource res) {
         using var _ = Tracing.Scope();
 
         Assert.AreEqual(

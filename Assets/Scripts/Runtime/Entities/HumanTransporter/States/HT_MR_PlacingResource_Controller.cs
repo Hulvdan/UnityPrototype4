@@ -59,7 +59,7 @@ public class HT_MR_PlacingResource_Controller {
 
         human.stateMovingResource_targetedResource = null;
 
-        data.transportationSystem.OnHumanPlacedResource(human.pos, human.segment, res!, false);
+        data.transportationSystem.OnHumanPlacedResource(human.pos, human.segment, res!);
         data.Map.onHumanTransporterPlacedResource.OnNext(new() {
             Human = human,
             Resource = res!,
