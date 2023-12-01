@@ -53,7 +53,7 @@ public class HumanTransporter_MovingInsideSegment_Controller {
         UpdateStates(human, map, mapSize, cityHall);
     }
 
-    public void OnSegmentChanged(
+    public void OnHumanCurrentSegmentChanged(
         HumanTransporter human,
         IMap map,
         IMapSize mapSize,
