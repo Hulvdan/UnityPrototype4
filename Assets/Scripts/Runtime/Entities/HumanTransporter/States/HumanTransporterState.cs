@@ -1,5 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
+using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
 public enum HumanTransporterState {
@@ -105,7 +106,7 @@ public class HumanTransporter_Controller {
         }
     }
 
-    public void OnSegmentChanged(
+    public void OnHumanCurrentSegmentChanged(
         HumanTransporter human,
         [CanBeNull]
         GraphSegment oldSegment
@@ -113,22 +114,26 @@ public class HumanTransporter_Controller {
         using var _ = Tracing.Scope();
         Tracing.Log("OnSegmentChanged");
 
+        Assert.AreNotEqual(human.state, null);
+
         switch (human.state) {
             case HumanTransporterState.MovingInTheWorld:
-                _movingInTheWorld.OnSegmentChanged(
+                _movingInTheWorld.OnHumanCurrentSegmentChanged(
                     human, _map, _mapSize, _cityHall, oldSegment
                 );
                 break;
             case HumanTransporterState.MovingInsideSegment:
-                _movingInsideSegment.OnSegmentChanged(
+                _movingInsideSegment.OnHumanCurrentSegmentChanged(
                     human, _map, _mapSize, _cityHall, oldSegment
                 );
                 break;
             case HumanTransporterState.MovingResource:
-                _movingResource.OnSegmentChanged(
+                _movingResource.OnHumanCurrentSegmentChanged(
                     human, _data, oldSegment
                 );
                 break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 

@@ -86,10 +86,6 @@ public class HumanTransporter {
 
     public MapResource? stateMovingResource_targetedResource = null;
 
-    // Used in case human was transporting the resource that was placed on the vertex in path,
-    // but this moving path was invalidated
-    public bool stateMovingResource_segmentWasChanged;
-
     #endregion
 }
 }

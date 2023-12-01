@@ -382,7 +382,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 linkedSegment.Unlink(segment);
             }
 
-            _resourceTransportationSystem.OnSegmentDeleted(segment, human);
+            _resourceTransportationSystem.OnSegmentDeleted(segment);
             if (segmentsThatNeedHumans.Contains(segment)) {
                 segmentsThatNeedHumans.Remove(segment);
             }
@@ -415,7 +415,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             var (oldSegment, human) = humansThatNeedNewSegment.Pop();
             human.segment = segment;
             segment.AssignedHuman = human;
-            _humanTransporterController.OnSegmentChanged(human, oldSegment);
+            _humanTransporterController.OnHumanCurrentSegmentChanged(human, oldSegment);
         }
 
         foreach (var segment in res.AddedSegments) {
@@ -427,7 +427,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             var (oldSegment, human) = humansThatNeedNewSegment.Pop();
             human.segment = segment;
             segment.AssignedHuman = human;
-            _humanTransporterController.OnSegmentChanged(human, oldSegment);
+            _humanTransporterController.OnHumanCurrentSegmentChanged(human, oldSegment);
         }
 
         // Assert that segments don't have tiles with identical directions

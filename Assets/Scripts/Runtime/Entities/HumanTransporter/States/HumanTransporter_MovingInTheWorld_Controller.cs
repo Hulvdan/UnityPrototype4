@@ -51,7 +51,7 @@ public class HumanTransporter_MovingInTheWorld_Controller {
         UpdateStates(human, map, mapSize, cityHall, human.segment);
     }
 
-    public void OnSegmentChanged(
+    public void OnHumanCurrentSegmentChanged(
         HumanTransporter human,
         IMap map,
         IMapSize mapSize,

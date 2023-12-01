@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BFG.Core;
 using BFG.Graphs;
+using Priority_Queue;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -15,7 +16,7 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
     public readonly List<Vector2Int> MovementTiles;
     public HumanTransporter AssignedHuman;
     public readonly List<MapResource> linkedResources;
-    public readonly Queue<MapResource> resourcesToTransport;
+    public readonly SimplePriorityQueue<MapResource> resourcesToTransport;
     public bool isDeleted;
 
     public GraphSegment(

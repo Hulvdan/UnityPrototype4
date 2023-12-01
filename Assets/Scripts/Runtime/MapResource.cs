@@ -14,7 +14,9 @@ public class MapResource : IEquatable<MapResource> {
     public MapResourceBooking? Booking;
     public readonly List<GraphSegment> TransportationSegments;
     public readonly List<Vector2Int> TransportationVertices;
-    public bool isCarried;
+
+    public HumanTransporter? TargetedHuman;
+    public HumanTransporter? CarryingHuman;
 
     public MapResource(
         Vector2Int pos,
