@@ -403,6 +403,7 @@ public class ResourceTransportationSystem {
             }
 
             building.ResourcesToBook.Add(ResourceToBook.FromMapResource(res));
+            res.Booking = null;
         }
 
         foreach (var segment in res.TransportationSegments) {
@@ -417,7 +418,6 @@ public class ResourceTransportationSystem {
 
         res.TransportationSegments.Clear();
         res.TransportationVertices.Clear();
-        res.Booking = null;
     }
 
     #endregion
