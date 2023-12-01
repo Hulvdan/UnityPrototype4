@@ -11,6 +11,8 @@ public struct ResourceToBook : IEquatable<ResourceToBook> {
     public MapResourceBookingType BookingType;
     public Building Building;
 
+    public MapResource? Debug_PreviousResource;
+
     public static ResourceToBook FromMapResource(MapResource res) {
         Assert.IsTrue(res.Booking != null);
         var booking = res.Booking.Value;
@@ -20,6 +22,7 @@ public struct ResourceToBook : IEquatable<ResourceToBook> {
             Priority = booking.Priority,
             BookingType = booking.Type,
             Building = booking.Building,
+            Debug_PreviousResource = res,
         };
     }
 

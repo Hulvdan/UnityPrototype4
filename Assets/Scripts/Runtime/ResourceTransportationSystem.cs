@@ -396,12 +396,22 @@ public class ResourceTransportationSystem {
 
         var building = res.Booking!.Value.Building;
         if (needToRebook) {
+            foreach (var resourceToBook in building.ResourcesToBook) {
+                if (resourceToBook.Debug_PreviousResource != null) {
+                    Assert.IsFalse(ReferenceEquals(res, resourceToBook.Debug_PreviousResource));
+                }
+            }
+
             building.ResourcesToBook.Add(ResourceToBook.FromMapResource(res));
         }
 
         foreach (var segment in res.TransportationSegments) {
             if (!ReferenceEquals(segment, excludedSegment)) {
                 segment.linkedResources.Remove(res);
+
+                if (segment.resourcesToTransport.Contains(res)) {
+                    segment.resourcesToTransport.Remove(res);
+                }
             }
         }
 
