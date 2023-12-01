@@ -12,7 +12,9 @@ public class HT_MR_MovingResource_Controller {
     public void OnEnter(HumanTransporter human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
-        Assert.AreEqual(human.stateMovingResource, MRState.MovingResource);
+        Assert.AreNotEqual(human.stateMovingResource, MRState.MovingResource);
+        Assert.AreNotEqual(human.stateMovingResource_targetedResource, null);
+
         human.stateMovingResource = MRState.MovingResource;
     }
 

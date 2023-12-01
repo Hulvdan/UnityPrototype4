@@ -16,7 +16,14 @@ public class HT_MR_PickingUpResource_Controller {
         Assert.AreNotEqual(human.stateMovingResource_targetedResource, null);
 
         human.stateMovingResource = MRState.PickingUpResource;
-        human.stateMovingResource_targetedResource.CarryingHuman = human;
+        var res = human.stateMovingResource_targetedResource;
+        res!.CarryingHuman = human;
+
+        data.transportationSystem.OnHumanStartedPickingUpResource(res);
+        data.Map.onHumanTransporterStartedPickingUpResource.OnNext(new() {
+            Human = human,
+            Resource = res,
+        });
     }
 
     public void OnExit(HumanTransporter human, HumanTransporterData data) {
@@ -39,6 +46,11 @@ public class HT_MR_PickingUpResource_Controller {
 
         human.stateMovingResource_pickingUpResourceElapsed = data.PickingUpResourceDuration;
         human.stateMovingResource_pickingUpResourceNormalized = 1;
+
+        data.Map.onHumanTransporterPickedUpResource.OnNext(new() {
+            Human = human,
+            Resource = res,
+        });
 
         if (res!.TransportationVertices.Count > 0) {
             var path = human.segment!.Graph.GetShortestPath(
