@@ -36,15 +36,18 @@ public class HumanTransporter_MovingResource_Controller {
     ) {
         using var _ = Tracing.Scope();
         Assert.AreNotEqual(human.stateMovingResource, null);
-
         human.stateMovingResource = null;
-        human.stateMovingResource_pickingUpResourceElapsed = 0;
-        human.stateMovingResource_pickingUpResourceNormalized = 0;
-        human.stateMovingResource_placingResourceElapsed = 0;
-        human.stateMovingResource_placingResourceNormalized = 0;
+
+        Assert.AreEqual(human.stateMovingResource_targetedResource, null);
+        Assert.AreEqual(human.stateMovingResource_pickingUpResourceElapsed, 0);
+        Assert.AreEqual(human.stateMovingResource_pickingUpResourceNormalized, 0);
+        Assert.AreEqual(human.stateMovingResource_placingResourceElapsed, 0);
+        Assert.AreEqual(human.stateMovingResource_placingResourceNormalized, 0);
     }
 
     public void NestedState_Exit(HumanTransporter human, HumanTransporterData data) {
+        using var _ = Tracing.Scope();
+
         Assert.AreNotEqual(human.stateMovingResource, null);
 
         switch (human.stateMovingResource!.Value) {
@@ -129,7 +132,7 @@ public class HumanTransporter_MovingResource_Controller {
                 _movingToResource.OnHumanMovedToTheNextTile(human, data);
                 break;
             case State.MovingResource:
-                _movingResource.OnExit(human, data);
+                _movingResource.OnHumanMovedToTheNextTile(human, data);
                 break;
             case State.PickingUpResource:
             case State.PlacingResource:

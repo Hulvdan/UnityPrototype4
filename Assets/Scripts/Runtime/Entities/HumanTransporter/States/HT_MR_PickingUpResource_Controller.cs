@@ -16,7 +16,10 @@ public class HT_MR_PickingUpResource_Controller {
         Assert.AreNotEqual(human.stateMovingResource_targetedResource, null);
 
         human.stateMovingResource = MRState.PickingUpResource;
-        var res = human.stateMovingResource_targetedResource;
+
+        var res = human.segment!.resourcesToTransport.Dequeue();
+        Assert.AreEqual(res, human.stateMovingResource_targetedResource);
+
         res!.CarryingHuman = human;
 
         data.transportationSystem.OnHumanStartedPickingUpResource(res);
