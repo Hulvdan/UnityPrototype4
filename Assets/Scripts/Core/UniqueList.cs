@@ -66,6 +66,6 @@ public class UniqueList<T> : IList<T> {
         }
     }
 
-    List<T> _list = new();
+    readonly List<T> _list = new();
 }
 }

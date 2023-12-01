@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using FMOD.Studio;
-using UnityEngine;
 using FMODUnity;
 using Foundation.Architecture;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
@@ -98,7 +98,7 @@ public class AudioManager : MonoBehaviour {
     Bus _musicBus;
     Bus _sfxBus;
 
-    Dictionary<Sound, EventReference> _bindings = new();
+    readonly Dictionary<Sound, EventReference> _bindings = new();
 }
 
 internal class AudioState {
