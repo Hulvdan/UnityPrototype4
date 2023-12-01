@@ -45,6 +45,10 @@ public static class Utils {
             return false;
         }
 
+        if (obj1.Count != obj2.Count) {
+            return false;
+        }
+
         for (var i = 0; i < obj1.Count; i++) {
             var a = obj1[i];
             var b = obj2[i];
@@ -69,6 +73,10 @@ public static class Utils {
         }
 
         if ((null1 && !null2) || (!null1 && null2)) {
+            return false;
+        }
+
+        if (obj1.Count != obj2.Count) {
             return false;
         }
 

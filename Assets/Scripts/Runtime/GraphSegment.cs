@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using BFG.Core;
 using BFG.Graphs;
+using Priority_Queue;
 using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
-// TODO: IComparable, IEquatable should be considered for removal
 public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> {
     public readonly Guid ID = Guid.NewGuid();
 
@@ -14,8 +14,8 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
     public readonly Graph Graph;
     public readonly List<Vector2Int> MovementTiles;
     public HumanTransporter AssignedHuman;
-    public readonly List<MapResource> linkedResources;
-    public readonly Queue<MapResource> resourcesToTransport;
+    public readonly UniqueList<MapResource> linkedResources;
+    public readonly SimplePriorityQueue<MapResource> resourcesToTransport;
     public bool isDeleted;
 
     public GraphSegment(
@@ -78,7 +78,7 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
     }
 
     public void Unlink(GraphSegment other) {
-        LinkedSegments.RemoveAt(LinkedSegments.FindIndex(i => i.ID == other.ID));
+        LinkedSegments.Remove(other);
     }
 
     public static bool operator ==(GraphSegment obj1, GraphSegment obj2) {

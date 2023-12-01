@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using BFG.Core;
 using UnityEngine;
 
 namespace BFG.Runtime {
@@ -12,9 +13,11 @@ public class MapResource : IEquatable<MapResource> {
     public MapResourceType Type;
 
     public MapResourceBooking? Booking;
-    public readonly List<GraphSegment> TransportationSegments;
-    public readonly List<Vector2Int> TransportationVertices;
-    public bool isCarried;
+    public readonly UniqueList<GraphSegment> TransportationSegments;
+    public readonly UniqueList<Vector2Int> TransportationVertices;
+
+    public HumanTransporter? TargetedHuman;
+    public HumanTransporter? CarryingHuman;
 
     public MapResource(
         Vector2Int pos,
