@@ -31,7 +31,9 @@ public class RaycastBridge : EventTrigger {
     }
 
     public override void OnPointerUp(PointerEventData eventData) {
-        _mapRenderer.mouseBuildActionWasPressed = true;
+        if (eventData.button == PointerEventData.InputButton.Left) {
+            _mapRenderer.mouseBuildActionWasPressed = true;
+        }
     }
 
     public override void OnPointerExit(PointerEventData eventData) {
