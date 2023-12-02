@@ -155,20 +155,11 @@ public class MapRenderer : MonoBehaviour {
     float _sinCosScale;
 
     [SerializeField]
-    [Min(0)]
-    float _buildingScaleAmplitude = .2f;
-
-    [SerializeField]
     Color _unbuildableTileColor = Color.red;
 
     [SerializeField]
     [Required]
     MovementPattern _movementPattern;
-
-    [Header("Inputs")]
-    [SerializeField]
-    [Required]
-    InputActionAsset _inputActionAsset;
 
     [Header("Debug Dependencies")]
     [SerializeField]
@@ -200,45 +191,35 @@ public class MapRenderer : MonoBehaviour {
     readonly Dictionary<Guid, (BuildingData, List<BuildingFeedback>)> _buildingFeedbacks = new();
     Tilemap _buildingsTilemap;
 
-    Camera _camera;
-
     GameManager _gameManager;
-    InputActionMap _gameplayInputMap;
     Building _hoveredBuilding;
 
     bool _isHoveringOverItems;
     IMap _map;
     IMapSize _mapSize;
-    InputAction _mouseBuildAction;
-    InputAction _mouseMoveAction;
+
+    public bool mouseBuildActionWasPressed { get; set; }
+    public Vector2Int? hoveredTile { get; set; }
+
     Matrix4x4 _previewMatrix;
 
     Tilemap _resourceTilemap;
 
     public Subject<PickupableItemHoveringState> onPickupableItemHoveringChanged { get; } = new();
 
-    void Awake() {
-        _camera = Camera.main;
-
-        _gameplayInputMap = _inputActionAsset.FindActionMap("Gameplay");
-        _mouseMoveAction = _gameplayInputMap.FindAction("PreviewMouseMove");
-        _mouseBuildAction = _gameplayInputMap.FindAction("Build");
-    }
-
     void Update() {
         UpdateHumans();
         UpdateTrains(_gameManager.currentGameSpeed);
         UpdateBuildings();
 
-        var hoveredTile = GetHoveredTilePos();
-        UpdateHoveringState(hoveredTile);
+        UpdateHoveringState();
 
         DisplayPreviewTile();
 
         // TODO: Move inputs to GameManager
-        if (_mouseBuildAction.WasPressedThisFrame() && _mapSize.Contains(hoveredTile)) {
+        if (hoveredTile != null && mouseBuildActionWasPressed) {
             if (_isHoveringOverItems) {
-                _map.CollectItems(hoveredTile);
+                _map.CollectItems(hoveredTile.Value);
             }
             else if (_gameManager.SelectedItem == null && _hoveredBuilding != null) {
                 if (_hoveredBuilding.scriptable.type == BuildingType.SpecialStable) {
@@ -247,19 +228,11 @@ public class MapRenderer : MonoBehaviour {
             }
             else if (
                 _gameManager.SelectedItem != null
-                && _map.CanBePlaced(hoveredTile, _gameManager.SelectedItem.Type)
+                && _map.CanBePlaced(hoveredTile.Value, _gameManager.SelectedItem.Type)
             ) {
-                _map.TryBuild(hoveredTile, _gameManager.SelectedItem);
+                _map.TryBuild(hoveredTile.Value, _gameManager.SelectedItem);
             }
         }
-    }
-
-    void OnEnable() {
-        _gameplayInputMap.Enable();
-    }
-
-    void OnDisable() {
-        _gameplayInputMap.Disable();
     }
 
     void OnDrawGizmos() {
@@ -402,8 +375,6 @@ public class MapRenderer : MonoBehaviour {
     void InitializeDependencyHooks() {
         var hooks = _dependencyHooks;
 
-        hooks.Add(_gameManager.OnSelectedItemChanged.Subscribe(
-            OnSelectedItemChanged));
         hooks.Add(_map.onElementTileChanged.Subscribe(
             OnElementTileChanged));
 
@@ -563,31 +534,36 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    void UpdateHoveringState(Vector2Int hoveredTile) {
+    void UpdateHoveringState() {
         _hoveredBuilding = null;
-        foreach (var building in _map.buildings) {
-            if (building.Contains(hoveredTile)) {
-                _hoveredBuilding = building;
-                break;
-            }
-        }
 
-        var shouldStopHovering = false;
-        if (_mapSize.Contains(hoveredTile)) {
-            if (_map.CellContainsPickupableItems(hoveredTile)) {
-                if (!_isHoveringOverItems) {
-                    onPickupableItemHoveringChanged.OnNext(
-                        PickupableItemHoveringState.StartedHovering
-                    );
-                    _isHoveringOverItems = true;
+        var shouldStopHovering = true;
+
+        if (hoveredTile != null) {
+            shouldStopHovering = false;
+            foreach (var building in _map.buildings) {
+                if (building.Contains(hoveredTile.Value)) {
+                    _hoveredBuilding = building;
+                    break;
+                }
+            }
+
+            if (_mapSize.Contains(hoveredTile.Value)) {
+                if (_map.CellContainsPickupableItems(hoveredTile.Value)) {
+                    if (!_isHoveringOverItems) {
+                        onPickupableItemHoveringChanged.OnNext(
+                            PickupableItemHoveringState.StartedHovering
+                        );
+                        _isHoveringOverItems = true;
+                    }
+                }
+                else if (_isHoveringOverItems) {
+                    shouldStopHovering = true;
                 }
             }
             else if (_isHoveringOverItems) {
                 shouldStopHovering = true;
             }
-        }
-        else if (_isHoveringOverItems) {
-            shouldStopHovering = true;
         }
 
         if (shouldStopHovering && _isHoveringOverItems) {
@@ -633,9 +609,6 @@ public class MapRenderer : MonoBehaviour {
             .SetEase(_buildingMovingItemToTheWarehouseDurationCurve);
 
         _storedItems.Add(data.Resource.id, itemGo);
-    }
-
-    void OnSelectedItemChanged(SelectedItemType itemType) {
     }
 
     void OnElementTileChanged(Vector2Int pos) {
@@ -818,7 +791,12 @@ public class MapRenderer : MonoBehaviour {
     void DisplayPreviewTile() {
         _previewTilemap.ClearAllTiles();
 
-        var pos = GetHoveredTilePos();
+        var hover = hoveredTile;
+        if (hover == null) {
+            return;
+        }
+
+        var pos = hover.Value;
         if (!_mapSize.Contains(pos)) {
             return;
         }
@@ -868,12 +846,6 @@ public class MapRenderer : MonoBehaviour {
             ),
             false
         );
-    }
-
-    Vector2Int GetHoveredTilePos() {
-        var mousePos = _mouseMoveAction.ReadValue<Vector2>();
-        var wPos = _camera.ScreenToWorldPoint(mousePos);
-        return (Vector2Int)_previewTilemap.WorldToCell(wPos);
     }
 
     #region HumanSystem
