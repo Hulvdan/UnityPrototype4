@@ -9986,7 +9986,6 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   _sinCosScale: 8
-  _buildingScaleAmplitude: 0.05
   _unbuildableTileColor: {r: 1, g: 0, b: 0, a: 1}
   _movementPattern:
     Feedbacks:
@@ -9994,7 +9993,6 @@ MonoBehaviour:
     - {fileID: 1291946407}
     - {fileID: 469993244}
     - {fileID: 106514523}
-  _inputActionAsset: {fileID: -944628639613478452, guid: 304fc82518949fc4abc5fceb1a7ffe52, type: 3}
   _debugTilemap: {fileID: 869664077}
   _debugTileUnbuildable: {fileID: 11400000, guid: b5678ba17b4646b44a07e1b6fdf32816, type: 2}
 --- !u!224 &1911864412 stripped
@@ -10414,7 +10412,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _mapRenderer: {fileID: 1879392621}
   _cursors:
-  - texture: {fileID: 2800000, guid: dda6f9a52bb031c4a84576a314590376, type: 3}
+  - texture: {fileID: 2800000, guid: de47860a48c2e8e4cbffc39eb71b269f, type: 3}
     type: 0
     hotspot: {x: 0, y: 0}
   - texture: {fileID: 2800000, guid: f15fc0b42570dd04484c8ea125f77120, type: 3}
