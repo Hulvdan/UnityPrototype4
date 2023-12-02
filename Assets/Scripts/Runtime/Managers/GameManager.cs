@@ -39,6 +39,10 @@ public class GameManager : MonoBehaviour {
     InputActionAsset _inputActionAsset;
 
     [SerializeField]
+    [Required]
+    RaycastBridge _raycastBridge;
+
+    [SerializeField]
     float _mapMovementScale = 32f;
 
     readonly List<float> _gameSpeeds = new() { .1f, .25f, .5f, 1f, 2f, 4f };
@@ -124,6 +128,7 @@ public class GameManager : MonoBehaviour {
         _buildablesPanel.InitDependencies(this);
         _uiManager.InitDependencies(_map);
         _cursorController.InitDependencies();
+        _raycastBridge.InitDependencies(_mapRenderer);
 
         _map.Init();
         _mapRenderer.Init();
