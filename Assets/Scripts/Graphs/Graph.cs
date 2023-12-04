@@ -20,8 +20,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         Assert.IsTrue(Contains(x, y));
         Assert.AreNotEqual(_offset, null);
 
-        var offset = _offset!.Value;
-        return nodes[y - offset.y][x - offset.x];
+        var off = _offset!.Value;
+        return nodes[y - off.y][x - off.x];
     }
 
     public void Mark(Vector2Int pos, Direction direction, bool value = true) {
@@ -321,12 +321,12 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
 
-        var offset = _offset!.Value;
+        var off = _offset!.Value;
 
-        if (y < offset.y) {
+        if (y < off.y) {
             var newNodes = new List<List<byte>>();
 
-            var addedRowsCount = offset.y - y;
+            var addedRowsCount = off.y - y;
 
             for (var yy = 0; yy < addedRowsCount; yy++) {
                 var row = new List<byte> { Capacity = width };
@@ -344,8 +344,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             nodes = newNodes;
         }
 
-        if (y >= offset.y + height) {
-            var addedRowsCount = y - height - offset.y + 1;
+        if (y >= off.y + height) {
+            var addedRowsCount = y - height - off.y + 1;
             var oldWidth = width;
 
             for (var i = 0; i < addedRowsCount; i++) {
@@ -358,9 +358,9 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             }
         }
 
-        if (x < offset.x) {
+        if (x < off.x) {
             var oldWidth = width;
-            var addedColumnsCount = offset.x - x;
+            var addedColumnsCount = off.x - x;
             var newWidth = width + addedColumnsCount;
 
             for (var i = 0; i < height; i++) {
@@ -378,8 +378,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             }
         }
 
-        if (x >= offset.x + width) {
-            var addedColumnsCount = x - width - offset.x + 1;
+        if (x >= off.x + width) {
+            var addedColumnsCount = x - width - off.x + 1;
 
             foreach (var row in nodes) {
                 for (var i = 0; i < addedColumnsCount; i++) {
@@ -389,8 +389,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         }
 
         _offset = new Vector2Int(
-            Math.Min(x, offset.x),
-            Math.Min(y, offset.y)
+            Math.Min(x, off.x),
+            Math.Min(y, off.y)
         );
     }
 
