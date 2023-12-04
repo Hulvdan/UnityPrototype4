@@ -89,10 +89,10 @@ public class ResourceTransportationSystem {
 
                 (minX, maxX) = Utils.MinMax(minX, newPos.x, maxX);
                 (minY, maxY) = Utils.MinMax(minY, newPos.y, maxY);
-                _visitedTiles[newPos.y, newPos.x] = GraphNode.MarkAs(
+                _visitedTiles[newPos.y, newPos.x] = GraphNode.Mark(
                     _visitedTiles[newPos.y, newPos.x], dir.Opposite()
                 );
-                _visitedTiles[pos.y, pos.x] = GraphNode.MarkAs(_visitedTiles[pos.y, pos.x], dir);
+                _visitedTiles[pos.y, pos.x] = GraphNode.Mark(_visitedTiles[pos.y, pos.x], dir);
 
                 var tile = _map.elementTiles[pos.y][pos.x];
                 var newTile = _map.elementTiles[newPos.y][newPos.x];

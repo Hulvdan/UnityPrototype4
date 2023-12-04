@@ -97,12 +97,12 @@ public static class ItemTransportationGraph {
                         bigFukenQueue.Enqueue(new(Direction.Down, newPos));
                     }
 
-                    visited[pos.y][pos.x] = GraphNode.MarkAs(visited[pos.y][pos.x], dirIndex);
-                    visited[newPos.y][newPos.x] = GraphNode.MarkAs(
+                    visited[pos.y][pos.x] = GraphNode.Mark(visited[pos.y][pos.x], dirIndex);
+                    visited[newPos.y][newPos.x] = GraphNode.Mark(
                         visited[newPos.y][newPos.x], oppositeDirIndex
                     );
-                    graph.SetDirection(pos, dirIndex);
-                    graph.SetDirection(newPos, oppositeDirIndex);
+                    graph.Mark(pos, dirIndex);
+                    graph.Mark(newPos, oppositeDirIndex);
 
                     AddWithoutDuplication(segmentTiles, newPos);
 
@@ -277,12 +277,12 @@ public static class ItemTransportationGraph {
                         // bigFukenQueue.Enqueue(new(Direction.Down, newPos));
                     }
 
-                    visited[pos.y][pos.x] = GraphNode.MarkAs(visited[pos.y][pos.x], dirIndex);
-                    visited[newPos.y][newPos.x] = GraphNode.MarkAs(
+                    visited[pos.y][pos.x] = GraphNode.Mark(visited[pos.y][pos.x], dirIndex);
+                    visited[newPos.y][newPos.x] = GraphNode.Mark(
                         visited[newPos.y][newPos.x], oppositeDirIndex
                     );
-                    graph.SetDirection(pos, dirIndex);
-                    graph.SetDirection(newPos, oppositeDirIndex);
+                    graph.Mark(pos, dirIndex);
+                    graph.Mark(newPos, oppositeDirIndex);
 
                     AddWithoutDuplication(segmentTiles, newPos);
 

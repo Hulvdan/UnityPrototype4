@@ -22,15 +22,15 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         return Nodes[y - _offset.Value.y][x - _offset.Value.x];
     }
 
-    public void SetDirection(Vector2Int pos, Direction direction, bool value = true) {
-        SetDirection(pos.x, pos.y, direction, value);
+    public void Mark(Vector2Int pos, Direction direction, bool value = true) {
+        Mark(pos.x, pos.y, direction, value);
     }
 
-    public void SetDirection(int x, int y, Direction direction, bool value = true) {
+    public void Mark(int x, int y, Direction direction, bool value = true) {
         if (_offset == null) {
             _offset = new Vector2Int(x, y);
 
-            var node = GraphNode.SetDirection(0, direction, value);
+            var node = GraphNode.Mark(0, direction, value);
             Nodes = new() { new() { node } };
 
             if (node != 0) {
@@ -44,7 +44,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
 
             var nodeIsZeroButWontBeAfter = node == 0 && value;
             var nodeIsNotZeroButWillBe = !value && node != 0 &&
-                                         GraphNode.SetDirection(node, direction, false) == 0;
+                                         GraphNode.Mark(node, direction, false) == 0;
             if (nodeIsZeroButWontBeAfter) {
                 _nodesCount += 1;
             }
@@ -52,7 +52,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
                 _nodesCount -= 1;
             }
 
-            node = GraphNode.SetDirection(node, direction, value);
+            node = GraphNode.Mark(node, direction, value);
             Nodes[y - _offset.Value.y][x - _offset.Value.x] = node;
         }
     }
@@ -79,12 +79,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         Assert.IsTrue(Contains(originPos));
         Assert.IsTrue(Contains(destinationPos));
 
-        return BuildPath(
-            originPos,
-            destinationPos,
-            _offset.Value,
-            GetData()
-        );
+        return BuildPath(originPos, destinationPos, _offset!.Value, GetData());
     }
 
     static List<Vector2Int> BuildPath(
@@ -223,7 +218,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         for (var y = 0; y < height; y++) {
             var row = Nodes[height - y - 1];
             foreach (var node in row) {
-                res += GraphNode.Repr(node);
+                res += GraphNode.ToDisplayString(node);
             }
 
             res += "\n";
