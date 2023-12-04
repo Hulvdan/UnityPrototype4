@@ -189,24 +189,32 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
 
         for (var y = 0; y < height; y++) {
             for (var x = 0; x < width; x++) {
-                var node = nodes[y][x];
-
-                foreach (var dir in Utils.Directions) {
-                    if (!GraphNode.Has(node, dir)) {
-                        continue;
-                    }
-
-                    var newPos = new Vector2Int(x, y) + dir.AsOffset();
-                    if (newPos.x < 0 || newPos.y < 0 || newPos.x >= width || newPos.y >= height) {
-                        return false;
-                    }
-
-                    var adjacentNode = nodes[newPos.y][newPos.x];
-                    var opposite = GraphNode.Has(adjacentNode, dir.Opposite());
-                    if (!opposite) {
-                        return false;
-                    }
+                if (!AdjacentTilesAreConnected(x, y)) {
+                    return false;
                 }
+            }
+        }
+
+        return true;
+    }
+
+    bool AdjacentTilesAreConnected(int x, int y) {
+        var node = nodes[y][x];
+
+        foreach (var dir in Utils.Directions) {
+            if (!GraphNode.Has(node, dir)) {
+                continue;
+            }
+
+            var newPos = new Vector2Int(x, y) + dir.AsOffset();
+            if (newPos.x < 0 || newPos.y < 0 || newPos.x >= width || newPos.y >= height) {
+                return false;
+            }
+
+            var adjacentNode = nodes[newPos.y][newPos.x];
+            var opposite = GraphNode.Has(adjacentNode, dir.Opposite());
+            if (!opposite) {
+                return false;
             }
         }
 
