@@ -121,7 +121,6 @@ public class MapRenderer : MonoBehaviour {
 
     readonly List<IDisposable> _dependencyHooks = new();
 
-    readonly Dictionary<Guid, (Human, HumanGO)> _humans = new();
     readonly Dictionary<Guid, (HumanTransporter, HumanGO, HumanBinding)> _humanTransporters = new();
 
     readonly Dictionary<Guid, ItemGO> _storedItems = new();
@@ -133,14 +132,11 @@ public class MapRenderer : MonoBehaviour {
 
     GameManager _gameManager;
 
-    bool _isHoveringOverItems;
     IMap _map;
     IMapSize _mapSize;
 
     public bool mouseBuildActionWasPressed { get; set; }
     public Vector2Int? hoveredTile { get; set; }
-
-    Matrix4x4 _previewMatrix;
 
     Tilemap _resourceTilemap;
 
@@ -150,16 +146,11 @@ public class MapRenderer : MonoBehaviour {
         UpdateHumans();
         UpdateBuildings();
 
-        UpdateHoveringState();
-
         DisplayPreviewTile();
 
         // TODO: Move inputs to GameManager
         if (hoveredTile != null && mouseBuildActionWasPressed) {
-            if (_isHoveringOverItems) {
-                _map.CollectItems(hoveredTile.Value);
-            }
-            else if (
+            if (
                 _gameManager.SelectedItem != null
                 && _map.CanBePlaced(hoveredTile.Value, _gameManager.SelectedItem.Type)
             ) {
@@ -311,16 +302,10 @@ public class MapRenderer : MonoBehaviour {
         hooks.Add(_map.onElementTileChanged.Subscribe(
             OnElementTileChanged));
 
-        hooks.Add(_map.onHumanCreated.Subscribe(
-            OnHumanCreated));
         hooks.Add(_map.onHumanTransporterCreated.Subscribe(
             OnHumanTransporterCreated));
         hooks.Add(_map.onCityHallCreatedHuman.Subscribe(
             OnCityHallCreatedHuman));
-        hooks.Add(_map.onHumanPickedUpResource.Subscribe(
-            OnHumanPickedUpResource));
-        hooks.Add(_map.onHumanPlacedResource.Subscribe(
-            OnHumanPlacedResource));
         hooks.Add(_map.onHumanReachedCityHall.Subscribe(
             OnHumanReachedCityHall));
 
@@ -342,8 +327,6 @@ public class MapRenderer : MonoBehaviour {
             OnBuildingStartedProcessing));
         hooks.Add(_map.onBuildingProducedItem.Subscribe(
             OnBuildingProducedItem));
-        hooks.Add(_map.onProducedResourcesPickedUp.Subscribe(
-            OnProducedResourcesPickedUp));
     }
 
     void OnHumanTransporterMovedToTheNextTile(E_HumanTransporterMovedToTheNextTile data) {
@@ -437,50 +420,6 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    void UpdateHoveringState() {
-        var shouldStopHovering = true;
-
-        if (hoveredTile != null) {
-            shouldStopHovering = false;
-            foreach (var building in _map.buildings) {
-                if (building.Contains(hoveredTile.Value)) {
-                    break;
-                }
-            }
-
-            if (_mapSize.Contains(hoveredTile.Value)) {
-                if (_map.CellContainsPickupableItems(hoveredTile.Value)) {
-                    if (!_isHoveringOverItems) {
-                        onPickupableItemHoveringChanged.OnNext(
-                            PickupableItemHoveringState.StartedHovering
-                        );
-                        _isHoveringOverItems = true;
-                    }
-                }
-                else if (_isHoveringOverItems) {
-                    shouldStopHovering = true;
-                }
-            }
-            else if (_isHoveringOverItems) {
-                shouldStopHovering = true;
-            }
-        }
-
-        if (shouldStopHovering && _isHoveringOverItems) {
-            onPickupableItemHoveringChanged.OnNext(
-                PickupableItemHoveringState.FinishedHovering
-            );
-            _isHoveringOverItems = false;
-        }
-    }
-
-    void OnProducedResourcesPickedUp(E_ProducedResourcesPickedUp data) {
-        foreach (var res in data.Resources) {
-            Destroy(_storedItems[res.id].gameObject);
-            _storedItems.Remove(res.id);
-        }
-    }
-
     void OnBuildingStartedProcessing(E_BuildingStartedProcessing data) {
         Destroy(_storedItems[data.Resource.id].gameObject);
         _storedItems.Remove(data.Resource.id);
@@ -515,7 +454,7 @@ public class MapRenderer : MonoBehaviour {
         var elementTile = _map.elementTiles[pos.y][pos.x];
 
         TileBase tile;
-        switch (elementTile.Type) {
+        switch (elementTile.type) {
             case ElementTileType.Road:
                 tile = _tileRoad;
                 break;
@@ -713,7 +652,8 @@ public class MapRenderer : MonoBehaviour {
                 break;
             case SelectedItemType.Building:
                 Assert.AreNotEqual(item.Building, null);
-                tilemapTile = item!.Building.tile;
+                Assert.AreNotEqual(item.Building!.tile, null);
+                tilemapTile = item.Building.tile;
                 break;
             default:
                 return;
@@ -742,11 +682,6 @@ public class MapRenderer : MonoBehaviour {
 
     #region HumanSystem
 
-    void OnHumanCreated(E_HumanCreated data) {
-        var go = Instantiate(_humanPrefab, _grid.transform);
-        _humans.Add(data.Human.ID, new(data.Human, go.GetComponent<HumanGO>()));
-    }
-
     void OnHumanTransporterCreated(E_HumanTransporterCreated data) {
         var go = Instantiate(_humanPrefab, _grid.transform);
         var humanGo = go.GetComponent<HumanGO>();
@@ -766,40 +701,6 @@ public class MapRenderer : MonoBehaviour {
         data.CityHall.timeSinceHumanWasCreated = 0;
     }
 
-    void OnHumanPickedUpResource(E_HumanPickedUpResource data) {
-        UpdateTileBasedOnRemainingResourcePercent(
-            data.ResourceTilePosition,
-            data.RemainingAmountPercent
-        );
-
-        _humans[data.Human.ID]
-            .Item2.OnPickedUpResource(
-                data.Resource.script, _gameManager.currentGameSpeed
-            );
-    }
-
-    void OnHumanPlacedResource(E_HumanPlacedResource data) {
-        _humans[data.Human.ID].Item2.OnPlacedResource(_gameManager.currentGameSpeed);
-
-        var item = Instantiate(_itemPrefab, _itemsLayer);
-
-        var building = data.StoreBuilding;
-        var scriptable = building.scriptable;
-
-        var i = building.storedResources.Count - 1;
-        if (i >= scriptable.storedItemPositions.Count) {
-            Debug.LogError("WTF i >= scriptable.storedItemPositions.Count");
-            i = scriptable.storedItemPositions.Count - 1;
-        }
-
-        var itemOffset = scriptable.storedItemPositions[i];
-        item.transform.localPosition = building.pos + itemOffset;
-        var itemGo = item.GetComponent<ItemGO>();
-        itemGo.SetAs(data.Resource.script);
-
-        _storedItems.Add(data.Resource.id, itemGo);
-    }
-
     void OnHumanReachedCityHall(E_HumanReachedCityHall data) {
         var human = _humanTransporters[data.Human.ID];
         Destroy(human.Item2.gameObject);
@@ -807,10 +708,6 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void UpdateHumans() {
-        foreach (var (human, go) in _humans.Values) {
-            go.transform.localPosition = human.position + Vector2.one / 2;
-        }
-
         foreach (var (human, go, binding) in _humanTransporters.Values) {
             UpdateHumanTransporter(human, go, binding);
         }

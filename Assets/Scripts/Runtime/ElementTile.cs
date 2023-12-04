@@ -7,26 +7,10 @@ namespace BFG.Runtime {
 ///     Is it a road or lumberjack's hut?
 /// </summary>
 public struct ElementTile {
-    public ElementTileType Type;
-    public int Rotation;
+    public ElementTileType type { get; set; }
 
     [CanBeNull]
-    public Building Building;
-
-    // TODO: Remove this code
-    public ElementTile(ElementTileType type, int rotation) {
-        if ((type == ElementTileType.Road || type == ElementTileType.None) && rotation != 0) {
-            Debug.LogError("WTF IS GOING ON HERE?");
-            rotation = 0;
-        }
-
-        Type = type;
-        Rotation = rotation;
-        Building = null;
-
-        BFS_Visited = false;
-        BFS_Parent = null;
-    }
+    public Building building { get; }
 
     public ElementTile(ElementTileType type, [CanBeNull] Building building) {
         Assert.IsTrue(
@@ -43,28 +27,35 @@ public struct ElementTile {
             Assert.IsNull(building);
         }
 
-        Type = type;
-        Rotation = 0;
-        Building = building;
+        this.type = type;
+        this.building = building;
 
         BFS_Visited = false;
         BFS_Parent = null;
     }
 
-    public static ElementTile None = new(ElementTileType.None, null);
-    public static ElementTile Road = new(ElementTileType.Road, null);
-    public static ElementTile Flag = new(ElementTileType.Flag, null);
+    ElementTile(ElementTileType type) {
+        building = null;
+        this.type = type;
 
-    public Vector2Int? BFS_Parent;
-    public bool BFS_Visited;
+        BFS_Visited = false;
+        BFS_Parent = null;
+    }
+
+    public static readonly ElementTile None = new(ElementTileType.None);
+    public static readonly ElementTile Road = new(ElementTileType.Road);
+    public static readonly ElementTile Flag = new(ElementTileType.Flag);
+
+    public Vector2Int? BFS_Parent { get; set; }
+    public bool BFS_Visited { get; set; }
 
     public override string ToString() {
-        if (Type == ElementTileType.Building) {
-            Assert.IsNotNull(Building);
-            return $"ElementTile({Type}, {Building.scriptable.name})";
+        if (type == ElementTileType.Building) {
+            Assert.IsNotNull(building);
+            return $"ElementTile({type}, {building!.scriptable.name})";
         }
 
-        return $"ElementTile({Type})";
+        return $"ElementTile({type})";
     }
 }
 }

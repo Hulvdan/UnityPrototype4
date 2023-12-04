@@ -10,16 +10,11 @@ public interface IMap {
     Subject<Vector2Int> onElementTileChanged { get; }
 
     List<Building> buildings { get; }
-    List<TopBarResource> resources { get; }
     List<GraphSegment> segments { get; }
     List<List<List<MapResource>>> mapResources { get; }
 
-    Subject<E_HumanCreated> onHumanCreated { get; }
     Subject<E_HumanTransporterCreated> onHumanTransporterCreated { get; }
     Subject<E_CityHallCreatedHuman> onCityHallCreatedHuman { get; }
-    Subject<E_HumanStateChanged> onHumanStateChanged { get; }
-    Subject<E_HumanPickedUpResource> onHumanPickedUpResource { get; }
-    Subject<E_HumanPlacedResource> onHumanPlacedResource { get; }
     Subject<E_HumanReachedCityHall> onHumanReachedCityHall { get; }
 
     Subject<E_HumanTransporterMovedToTheNextTile> onHumanTransporterMovedToTheNextTile { get; }
@@ -41,16 +36,10 @@ public interface IMap {
     Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; }
     Subject<E_BuildingProducedItem> onBuildingProducedItem { get; }
 
-    Subject<E_ProducedResourcesPickedUp> onProducedResourcesPickedUp { get; }
-    Subject<E_TopBarResourceChanged> onResourceChanged { get; }
-
-    void TryBuild(Vector2Int hoveredTile, SelectedItem item);
+    void TryBuild(Vector2Int pos, SelectedItem item);
     bool CanBePlaced(Vector2Int pos, SelectedItemType itemType);
     bool IsBuildable(int x, int y);
     bool IsBuildable(Vector2Int pos);
-
-    bool CellContainsPickupableItems(Vector2Int hoveredTile);
-    void CollectItems(Vector2Int hoveredTile);
 
     PathFindResult FindPath(
         Vector2Int source,
