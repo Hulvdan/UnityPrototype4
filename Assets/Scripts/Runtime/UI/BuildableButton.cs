@@ -43,7 +43,7 @@ public struct ColorBlock {
     }
 }
 
-public enum ButtonEnum {
+public enum ButtonState {
     Disabled,
     Selected,
     Hovered,
@@ -51,10 +51,11 @@ public enum ButtonEnum {
 }
 
 public class BuildableButton : MonoBehaviour {
+    [FormerlySerializedAs("ItemType")]
     [FormerlySerializedAs("_item")]
     [SerializeField]
     [Required]
-    public SelectedItemType ItemType;
+    SelectedItemType _itemType;
 
     [SerializeField]
     [ShowIf("ItemType", SelectedItemType.Building)]
@@ -80,7 +81,7 @@ public class BuildableButton : MonoBehaviour {
 
     BuildablesPanel _panel;
 
-    ButtonEnum _state = ButtonEnum.Normal;
+    ButtonState _state = ButtonState.Normal;
     bool _stateHovered;
     bool _stateInteractable = true;
     bool _stateSelected;
@@ -89,9 +90,9 @@ public class BuildableButton : MonoBehaviour {
 
     public SelectedItem selectedItem {
         get {
-            var item = new SelectedItem { Type = ItemType };
+            var item = new SelectedItem { Type = _itemType };
 
-            if (ItemType == SelectedItemType.Building) {
+            if (_itemType == SelectedItemType.Building) {
                 Assert.IsNotNull(_building);
                 item.Building = _building;
             }
@@ -100,69 +101,8 @@ public class BuildableButton : MonoBehaviour {
         }
     }
 
-    void Update() {
-        if (!_fading) {
-            return;
-        }
-
-        _fadeElapsed += Time.deltaTime;
-
-        var t = _fadeElapsed / _fadeDuration;
-        if (t >= 1) {
-            _fading = false;
-            t = 1;
-        }
-
-        foreach (var image in _images) {
-            image.color = Color.Lerp(_fromColor, _targetColor, t);
-        }
-    }
-
     public void Init(BuildablesPanel panel) {
         _panel = panel;
-    }
-
-    void StartFading(Color target, bool instant = false) {
-        if (instant) {
-            foreach (var image in _images) {
-                image.color = target;
-            }
-
-            return;
-        }
-
-        _fading = true;
-        _fadeElapsed = 0;
-        _targetColor = target;
-        _fromColor = _images[0].color;
-    }
-
-    void RecalculateState(ButtonEnum state) {
-        if (_state == state) {
-            return;
-        }
-
-        int? selectedButtonInstanceID = null;
-        if (state == ButtonEnum.Selected) {
-            selectedButtonInstanceID = GetInstanceID();
-        }
-
-        if (_state == ButtonEnum.Selected || state == ButtonEnum.Selected) {
-            _panel.OnButtonChangedSelectedState(selectedButtonInstanceID);
-        }
-
-        _state = state;
-        StartFading(GetColor(state));
-    }
-
-    Color GetColor(ButtonEnum state) {
-        return state switch {
-            ButtonEnum.Disabled => _colorBlock.disabledColor,
-            ButtonEnum.Selected => _colorBlock.selectedColor,
-            ButtonEnum.Hovered => _colorBlock.highlightedColor,
-            ButtonEnum.Normal => _colorBlock.normalColor,
-            _ => _colorBlock.normalColor,
-        };
     }
 
     public void PointerClick() {
@@ -184,25 +124,6 @@ public class BuildableButton : MonoBehaviour {
         UpdateState();
     }
 
-    void UpdateState() {
-        if (!_stateInteractable) {
-            RecalculateState(ButtonEnum.Disabled);
-            return;
-        }
-
-        if (_stateSelected) {
-            RecalculateState(ButtonEnum.Selected);
-            return;
-        }
-
-        if (_stateHovered) {
-            RecalculateState(ButtonEnum.Hovered);
-            return;
-        }
-
-        RecalculateState(ButtonEnum.Normal);
-    }
-
     public void SetSelected(bool selected) {
         if (!_stateInteractable) {
             return;
@@ -215,6 +136,86 @@ public class BuildableButton : MonoBehaviour {
     public void SetInteractable(bool interactable) {
         _stateInteractable = interactable;
         UpdateState();
+    }
+
+    void UpdateState() {
+        if (!_stateInteractable) {
+            RecalculateState(ButtonState.Disabled);
+            return;
+        }
+
+        if (_stateSelected) {
+            RecalculateState(ButtonState.Selected);
+            return;
+        }
+
+        if (_stateHovered) {
+            RecalculateState(ButtonState.Hovered);
+            return;
+        }
+
+        RecalculateState(ButtonState.Normal);
+    }
+
+    void Update() {
+        if (!_fading) {
+            return;
+        }
+
+        _fadeElapsed += Time.deltaTime;
+
+        var t = _fadeElapsed / _fadeDuration;
+        if (t >= 1) {
+            _fading = false;
+            t = 1;
+        }
+
+        foreach (var image in _images) {
+            image.color = Color.Lerp(_fromColor, _targetColor, t);
+        }
+    }
+
+    void StartFading(Color target, bool instant = false) {
+        if (instant) {
+            foreach (var image in _images) {
+                image.color = target;
+            }
+
+            return;
+        }
+
+        _fading = true;
+        _fadeElapsed = 0;
+        _targetColor = target;
+        _fromColor = _images[0].color;
+    }
+
+    void RecalculateState(ButtonState state) {
+        if (_state == state) {
+            return;
+        }
+
+        int? selectedButtonInstanceID = null;
+        if (state == ButtonState.Selected) {
+            selectedButtonInstanceID = GetInstanceID();
+        }
+
+        if (_state == ButtonState.Selected || state == ButtonState.Selected) {
+            _panel.OnButtonChangedSelectedState(selectedButtonInstanceID);
+        }
+
+        _state = state;
+        StartFading(GetColor(state));
+    }
+
+    Color GetColor(ButtonState state) {
+        return state switch {
+            ButtonState.Disabled => _colorBlock.disabledColor,
+            ButtonState.Selected => _colorBlock.selectedColor,
+            ButtonState.Hovered => _colorBlock.highlightedColor,
+            ButtonState.Normal => _colorBlock.normalColor,
+            _ => _colorBlock.normalColor,
+        };
     }
 }
 }
