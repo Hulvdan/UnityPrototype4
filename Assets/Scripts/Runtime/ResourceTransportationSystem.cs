@@ -96,18 +96,18 @@ public class ResourceTransportationSystem {
 
                 var tile = _map.elementTiles[pos.y][pos.x];
                 var newTile = _map.elementTiles[newPos.y][newPos.x];
-                if (newTile.Type == ElementTileType.Building
-                    && newTile.Building.scriptable.type != BuildingType.SpecialCityHall) {
+                if (newTile.type == ElementTileType.Building
+                    && newTile.building.scriptable.type != BuildingType.SpecialCityHall) {
                     continue;
                 }
 
-                if (tile.Type == ElementTileType.Building
-                    && newTile.Type == ElementTileType.Building) {
+                if (tile.type == ElementTileType.Building
+                    && newTile.type == ElementTileType.Building) {
                     continue;
                 }
 
-                if (tile.Type == ElementTileType.None
-                    || newTile.Type == ElementTileType.None) {
+                if (tile.type == ElementTileType.None
+                    || newTile.type == ElementTileType.None) {
                     continue;
                 }
 
@@ -367,7 +367,7 @@ public class ResourceTransportationSystem {
 
             ClearBooking(res, false);
 
-            building.resourcesForConstruction.Add(res);
+            building.ResourcesForConstruction.Add(res);
 
             DomainEvents<E_ResourcePlacedInsideBuilding>.Publish(new());
         }

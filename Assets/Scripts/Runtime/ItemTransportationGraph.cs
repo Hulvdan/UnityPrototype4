@@ -51,10 +51,10 @@ public static class ItemTransportationGraph {
                 var (dir, pos) = queue.Dequeue();
 
                 var tile = elementTiles[pos.y][pos.x];
-                var isFlag = tile.Type == ElementTileType.Flag;
-                var isBuilding = tile.Type == ElementTileType.Building;
+                var isFlag = tile.type == ElementTileType.Flag;
+                var isBuilding = tile.type == ElementTileType.Building;
                 var isCityHall = isBuilding
-                                 && tile.Building.scriptable.type == BuildingType.SpecialCityHall;
+                                 && tile.building.scriptable.type == BuildingType.SpecialCityHall;
                 if (isFlag || isBuilding) {
                     AddWithoutDuplication(vertices, pos);
                 }
@@ -79,12 +79,12 @@ public static class ItemTransportationGraph {
                     }
 
                     var newTile = elementTiles[newPos.y][newPos.x];
-                    if (newTile.Type == ElementTileType.None) {
+                    if (newTile.type == ElementTileType.None) {
                         continue;
                     }
 
-                    var newIsBuilding = newTile.Type == ElementTileType.Building;
-                    var newIsFlag = newTile.Type == ElementTileType.Flag;
+                    var newIsBuilding = newTile.type == ElementTileType.Building;
+                    var newIsFlag = newTile.type == ElementTileType.Flag;
 
                     if (isBuilding && newIsBuilding) {
                         continue;
@@ -169,7 +169,7 @@ public static class ItemTransportationGraph {
                             continue;
                         }
 
-                        if (elementTiles[newPos.y][newPos.x].Type == ElementTileType.None) {
+                        if (elementTiles[newPos.y][newPos.x].type == ElementTileType.None) {
                             continue;
                         }
 
@@ -187,15 +187,15 @@ public static class ItemTransportationGraph {
                             continue;
                         }
 
-                        if (elementTiles[newPos.y][newPos.x].Type == ElementTileType.None) {
+                        if (elementTiles[newPos.y][newPos.x].type == ElementTileType.None) {
                             continue;
                         }
 
-                        if (elementTiles[newPos.y][newPos.x].Type == ElementTileType.Building) {
+                        if (elementTiles[newPos.y][newPos.x].type == ElementTileType.Building) {
                             continue;
                         }
 
-                        if (elementTiles[newPos.y][newPos.x].Type == ElementTileType.Flag) {
+                        if (elementTiles[newPos.y][newPos.x].type == ElementTileType.Flag) {
                             bigFukenQueue.Enqueue(new(dir.Opposite(), newPos));
                         }
                         else {
@@ -230,10 +230,10 @@ public static class ItemTransportationGraph {
                 var (dir, pos) = queue.Dequeue();
 
                 var tile = elementTiles[pos.y][pos.x];
-                var isFlag = tile.Type == ElementTileType.Flag;
-                var isBuilding = tile.Type == ElementTileType.Building;
+                var isFlag = tile.type == ElementTileType.Flag;
+                var isBuilding = tile.type == ElementTileType.Building;
                 var isCityHall = isBuilding
-                                 && tile.Building.scriptable.type ==
+                                 && tile.building.scriptable.type ==
                                  BuildingType.SpecialCityHall;
                 if (isFlag || isBuilding) {
                     AddWithoutDuplication(vertices, pos);
@@ -259,12 +259,12 @@ public static class ItemTransportationGraph {
                     }
 
                     var newTile = elementTiles[newPos.y][newPos.x];
-                    if (newTile.Type == ElementTileType.None) {
+                    if (newTile.type == ElementTileType.None) {
                         continue;
                     }
 
-                    var newIsBuilding = newTile.Type == ElementTileType.Building;
-                    var newIsFlag = newTile.Type == ElementTileType.Flag;
+                    var newIsBuilding = newTile.type == ElementTileType.Building;
+                    var newIsFlag = newTile.type == ElementTileType.Flag;
 
                     if (isBuilding && newIsBuilding) {
                         continue;
@@ -328,7 +328,7 @@ public static class ItemTransportationGraph {
                     }
 
                     var tile = elementTiles[newPos.y][newPos.x];
-                    if (tile.Type == ElementTileType.Road) {
+                    if (tile.type == ElementTileType.Road) {
                         return true;
                     }
                 }
