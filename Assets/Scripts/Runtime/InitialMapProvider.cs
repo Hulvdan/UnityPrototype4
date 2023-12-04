@@ -15,16 +15,6 @@ public class InitialMapProvider : MonoBehaviour {
     [Required]
     TileBase _roadTile;
 
-    [FoldoutGroup("Dependencies", true)]
-    [SerializeField]
-    [Required]
-    TileBase _stationHorizontalTile;
-
-    [FoldoutGroup("Dependencies", true)]
-    [SerializeField]
-    [Required]
-    TileBase _stationVerticalTile;
-
     IMap _map;
     IMapSize _mapSize;
 
@@ -42,7 +32,6 @@ public class InitialMapProvider : MonoBehaviour {
             for (var x = 0; x < _mapSize.width; x++) {
                 var tilemapTile = _movementSystemTilemap.GetTile(new(x, y));
 
-                var isStables = false;
                 var isCityHall = false;
                 Building foundBuilding = null;
                 foreach (var building in _map.buildings) {
@@ -55,9 +44,6 @@ public class InitialMapProvider : MonoBehaviour {
                             isCityHall = true;
                             foundBuilding = building;
                         }
-                        else if (building.scriptable.type == BuildingType.SpecialStable) {
-                            isStables = true;
-                        }
 
                         break;
                     }
@@ -66,15 +52,6 @@ public class InitialMapProvider : MonoBehaviour {
                 ElementTile tile;
                 if (tilemapTile == _roadTile) {
                     tile = ElementTile.Road;
-                }
-                else if (tilemapTile == _stationHorizontalTile) {
-                    tile = new(ElementTileType.Station, 0);
-                }
-                else if (tilemapTile == _stationVerticalTile) {
-                    tile = new(ElementTileType.Station, 1);
-                }
-                else if (isStables) {
-                    tile = new(ElementTileType.Stables, 0);
                 }
                 else if (isCityHall) {
                     tile = new(ElementTileType.Building, foundBuilding);

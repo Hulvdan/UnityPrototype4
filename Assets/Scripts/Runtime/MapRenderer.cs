@@ -32,16 +32,6 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     Tilemap _flagsTilemap;
 
-    [FormerlySerializedAs("WagonSprite_Right")]
-    [SerializeField]
-    [Required]
-    Sprite _wagonSprite_Right;
-
-    [FormerlySerializedAs("WagonSprite_Up")]
-    [SerializeField]
-    [Required]
-    Sprite _wagonSprite_Up;
-
     [SerializeField]
     [Required]
     Tilemap _previewTilemap;
@@ -56,14 +46,6 @@ public class MapRenderer : MonoBehaviour {
 
     [SerializeField]
     TileBase _tileRoad;
-
-    [SerializeField]
-    [Required]
-    TileBase _tileStationHorizontal;
-
-    [SerializeField]
-    [Required]
-    TileBase _tileStationVertical;
 
     [SerializeField]
     [Required]
@@ -99,46 +81,16 @@ public class MapRenderer : MonoBehaviour {
 
     [SerializeField]
     [Required]
-    ScriptableResource _planksResource;
-
-    [SerializeField]
-    [Required]
     Transform _itemsLayer;
 
     [SerializeField]
     [Required]
     GameObject _itemPrefab;
 
-    [SerializeField]
-    [Required]
-    GameObject _locomotivePrefab;
-
-    [SerializeField]
-    [Required]
-    GameObject _wagonPrefab;
-
-    [SerializeField]
-    [Required]
-    Transform _buildingModalsContainer;
-
-    [SerializeField]
-    [Required]
-    [AssetsOnly]
-    Stable_Panel _stablesModalPrefab;
-
     [Header("Setup")]
     [SerializeField]
     [Required]
-    [Min(.1f)]
-    float _itemPlacingDuration = 1f;
-
-    [SerializeField]
-    [Required]
     BuildingFeedback _scaleFeedback;
-
-    [SerializeField]
-    [Required]
-    AnimationCurve _itemPlacingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     [SerializeField]
     [Min(0.1f)]
@@ -152,9 +104,6 @@ public class MapRenderer : MonoBehaviour {
     [SerializeField]
     [Min(.1f)]
     float _sinCosScale;
-
-    [SerializeField]
-    Color _unbuildableTileColor = Color.red;
 
     [SerializeField]
     [Required]
@@ -172,18 +121,10 @@ public class MapRenderer : MonoBehaviour {
 
     readonly List<IDisposable> _dependencyHooks = new();
 
-    readonly Dictionary<
-        Guid,
-        Tuple<HorseTrain, List<Tuple<TrainNode, TrainNodeGO>>>
-    > _horses = new();
-
     readonly Dictionary<Guid, (Human, HumanGO)> _humans = new();
     readonly Dictionary<Guid, (HumanTransporter, HumanGO, HumanBinding)> _humanTransporters = new();
 
-    readonly Dictionary<Guid, GameObject> _modals = new();
     readonly Dictionary<Guid, ItemGO> _storedItems = new();
-
-    readonly Dictionary<Guid, (TrainNode, TrainNodeGO)> _trainNodes = new();
 
     float _buildingScaleTimeline;
 
@@ -191,7 +132,6 @@ public class MapRenderer : MonoBehaviour {
     Tilemap _buildingsTilemap;
 
     GameManager _gameManager;
-    Building _hoveredBuilding;
 
     bool _isHoveringOverItems;
     IMap _map;
@@ -208,7 +148,6 @@ public class MapRenderer : MonoBehaviour {
 
     void Update() {
         UpdateHumans();
-        UpdateTrains(_gameManager.currentGameSpeed);
         UpdateBuildings();
 
         UpdateHoveringState();
@@ -219,11 +158,6 @@ public class MapRenderer : MonoBehaviour {
         if (hoveredTile != null && mouseBuildActionWasPressed) {
             if (_isHoveringOverItems) {
                 _map.CollectItems(hoveredTile.Value);
-            }
-            else if (_gameManager.SelectedItem == null && _hoveredBuilding != null) {
-                if (_hoveredBuilding.scriptable.type == BuildingType.SpecialStable) {
-                    ToggleStablesPanel(_hoveredBuilding);
-                }
             }
             else if (
                 _gameManager.SelectedItem != null
@@ -401,15 +335,6 @@ public class MapRenderer : MonoBehaviour {
         hooks.Add(_map.onHumanTransporterPlacedResource.Subscribe(
             OnHumanTransporterPlacedResource));
 
-        hooks.Add(_map.onTrainCreated.Subscribe(
-            OnTrainCreated));
-        hooks.Add(_map.onTrainNodeCreated.Subscribe(
-            OnTrainNodeCreated));
-        hooks.Add(_map.onTrainPickedUpResource.Subscribe(
-            OnTrainPickedUpResource));
-        hooks.Add(_map.onTrainPushedResource.Subscribe(
-            OnTrainPushedResource));
-
         hooks.Add(_map.onBuildingPlaced.Subscribe(
             OnBuildingPlaced));
 
@@ -450,7 +375,7 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void OnHumanTransporterPickedUpResource(E_HumanTransporterPickedUpResource data) {
-        var (human, go, _) = _humanTransporters[data.Human.ID];
+        var (_, go, _) = _humanTransporters[data.Human.ID];
         go.OnStoppedPickingUpResource(data.Resource.Scriptable);
 
         if (_storedItems.TryGetValue(data.Resource.ID, out var itemGo)) {
@@ -462,7 +387,7 @@ public class MapRenderer : MonoBehaviour {
     void OnHumanTransporterStartedPlacingResource(
         E_HumanTransporterStartedPlacingResource data
     ) {
-        var (_, go, t) = _humanTransporters[data.Human.ID];
+        var (_, go, _) = _humanTransporters[data.Human.ID];
         go.OnStartedPlacingResource(data.Resource.Scriptable);
     }
 
@@ -483,27 +408,6 @@ public class MapRenderer : MonoBehaviour {
             data.Building.id, new(BuildingData.Create(), new() { _scaleFeedback })
         );
         SetBuilding(data.Building, 1, 1, Color.white);
-    }
-
-    void ToggleStablesPanel(Building building) {
-        foreach (var modal in _modals.Values) {
-            if (modal.GetComponent<Stable_Panel>().building == building) {
-                modal.GetComponent<Stable_Panel>().Close();
-                return;
-            }
-        }
-
-        var createdModal = Instantiate(_stablesModalPrefab, _buildingModalsContainer);
-        var panel = createdModal.GetComponent<Stable_Panel>();
-        panel.Init(Guid.NewGuid(), _map, _gameManager, building, new() { new(1, _planksResource) });
-        panel.OnCreateHorse += _map.OnCreateHorse;
-        panel.OnClose += OnModalClose;
-        _modals.Add(panel.id, createdModal.gameObject);
-    }
-
-    void OnModalClose(Stable_Panel panel) {
-        _modals.Remove(panel.id);
-        Destroy(panel.gameObject);
     }
 
     void UpdateBuildings() {
@@ -534,15 +438,12 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void UpdateHoveringState() {
-        _hoveredBuilding = null;
-
         var shouldStopHovering = true;
 
         if (hoveredTile != null) {
             shouldStopHovering = false;
             foreach (var building in _map.buildings) {
                 if (building.Contains(hoveredTile.Value)) {
-                    _hoveredBuilding = building;
                     break;
                 }
             }
@@ -617,9 +518,6 @@ public class MapRenderer : MonoBehaviour {
         switch (elementTile.Type) {
             case ElementTileType.Road:
                 tile = _tileRoad;
-                break;
-            case ElementTileType.Station:
-                tile = elementTile.Rotation == 0 ? _tileStationHorizontal : _tileStationVertical;
                 break;
             case ElementTileType.Flag:
                 _flagsTilemap.SetTile(new(pos.x, pos.y), _tileFlag);
@@ -813,14 +711,9 @@ public class MapRenderer : MonoBehaviour {
             case SelectedItemType.Flag:
                 tilemapTile = _tileFlag;
                 break;
-            case SelectedItemType.Station:
-                tilemapTile = _gameManager.selectedItemRotation % 2 == 0
-                    ? _tileStationVertical
-                    : _tileStationHorizontal;
-                break;
             case SelectedItemType.Building:
-                Assert.IsNotNull(item.Building);
-                tilemapTile = item.Building.tile;
+                Assert.AreNotEqual(item.Building, null);
+                tilemapTile = item!.Building.tile;
                 break;
             default:
                 return;
@@ -840,7 +733,7 @@ public class MapRenderer : MonoBehaviour {
             new(
                 new(pos.x, pos.y, 0),
                 tilemapTile,
-                buildable ? Color.white : _unbuildableTileColor,
+                Color.white,
                 matrix
             ),
             false
@@ -957,91 +850,6 @@ public class MapRenderer : MonoBehaviour {
     }
 
     #endregion
-
-    #region TrainSystem
-
-    void OnTrainCreated(E_TrainCreated data) {
-        _horses.Add(data.Horse.ID, new(data.Horse, new()));
-    }
-
-    void OnTrainNodeCreated(E_TrainNodeCreated data) {
-        var go = Instantiate(data.IsLocomotive ? _locomotivePrefab : _wagonPrefab, _grid.transform);
-        var trainNodeGo = go.GetComponent<TrainNodeGO>();
-        _horses[data.Horse.ID].Item2.Add(new(data.Node, trainNodeGo));
-        _trainNodes.Add(data.Node.ID, new(data.Node, trainNodeGo));
-    }
-
-    void OnTrainPickedUpResource(E_TrainPickedUpResource data) {
-        var resID = data.Resource.id;
-        Destroy(_storedItems[resID].gameObject);
-        _storedItems.Remove(resID);
-
-        _trainNodes[data.TrainNode.ID]
-            .Item2.OnPickedUpResource(
-                data.Resource.script, data.ResourceSlotPosition, _gameManager.currentGameSpeed
-            );
-    }
-
-    void OnTrainPushedResource(E_TrainPushedResource data) {
-        _trainNodes[data.TrainNode.ID].Item2.OnPushedResource();
-
-        var item = Instantiate(_itemPrefab, _itemsLayer);
-
-        var building = data.Building;
-        var scriptable = building.scriptable;
-
-        var i = (building.storedResources.Count - 1) % scriptable.storedItemPositions.Count;
-        var itemOffset = scriptable.storedItemPositions[i];
-
-        item.transform.localPosition = data.TrainNode.Position + Vector2.one / 2f;
-        var itemGo = item.GetComponent<ItemGO>();
-        itemGo.SetAs(data.Resource.script);
-
-        var resId = data.Resource.id;
-        _storedItems.Add(resId, itemGo);
-
-        DOTween
-            .To(
-                () => item.transform.localPosition,
-                val => item.transform.localPosition = val,
-                (Vector3)(building.pos + itemOffset + Vector2.right / 2),
-                _itemPlacingDuration / _gameManager.currentGameSpeed
-            )
-            .SetEase(_itemPlacingCurve)
-            .OnComplete(() => {
-                if (data.StoreResourceResult == StoreResourceResult.AddedToProcessingImmediately) {
-                    Destroy(_storedItems[resId].gameObject);
-                    _storedItems.Remove(resId);
-                }
-            });
-    }
-
-    void UpdateTrains(float gameSpeed) {
-        foreach (var horse in _horses.Values) {
-            foreach (var (trainNode, go) in horse.Item2) {
-                go.transform.localPosition = trainNode.Position + Vector2.one / 2;
-
-                if (trainNode.isLocomotive) {
-                    var animator = go.LocomotiveAnimator;
-                    animator.SetFloat("speedX", Mathf.Cos(Mathf.Deg2Rad * trainNode.Rotation));
-                    animator.SetFloat("speedY", Mathf.Sin(Mathf.Deg2Rad * trainNode.Rotation));
-                    animator.SetFloat("speed", horse.Item1.NormalisedSpeed * gameSpeed);
-                }
-                else {
-                    if (trainNode.Rotation == 0 || Math.Abs(trainNode.Rotation - 180) < 0.001f) {
-                        go.MainSpriteRenderer.sprite = _wagonSprite_Right;
-                    }
-                    else {
-                        go.MainSpriteRenderer.sprite = _wagonSprite_Up;
-                    }
-                }
-
-                go.MainSpriteRenderer.flipX = Math.Abs(trainNode.Rotation - 180) < 0.001f;
-            }
-        }
-    }
-
-    #endregion
 }
 
 internal struct BuildingData : IEquatable<BuildingData> {
@@ -1056,24 +864,12 @@ internal struct BuildingData : IEquatable<BuildingData> {
     }
 
     public bool Equals(BuildingData other) {
-        if (ReferenceEquals(null, other)) {
-            return false;
-        }
-
-        if (ReferenceEquals(this, other)) {
-            return true;
-        }
-
         return Scale.Equals(other.Scale);
     }
 
     public override bool Equals(object obj) {
         if (ReferenceEquals(null, obj)) {
             return false;
-        }
-
-        if (ReferenceEquals(this, obj)) {
-            return true;
         }
 
         if (obj.GetType() != GetType()) {
