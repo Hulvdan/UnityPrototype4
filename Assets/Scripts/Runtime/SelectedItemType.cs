@@ -1,9 +1,7 @@
 ﻿namespace BFG.Runtime {
 public enum SelectedItemType {
-    Road,
-    Station,
-    Horse,
-    Building,
-    Flag,
+    Road = 0,
+    Building = 3,
+    Flag = 4,
 }
 }
