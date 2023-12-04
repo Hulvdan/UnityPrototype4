@@ -141,6 +141,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
         Assert.AreNotEqual(_offset, null);
+        Assert.IsTrue(IsUndirected());
 
         if (_centers != null) {
             return _centers;
@@ -182,7 +183,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         return centerNodePositions;
     }
 
-    public bool IsUndirected() {
+    bool IsUndirected() {
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
 
@@ -195,14 +196,12 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
                         continue;
                     }
 
-                    var offset = dir.AsOffset();
-                    var newX = x + offset.x;
-                    var newY = y + offset.y;
-                    if (newX < 0 || newY < 0 || newX >= width || newY >= height) {
+                    var newPos = new Vector2Int(x, y) + dir.AsOffset();
+                    if (newPos.x < 0 || newPos.y < 0 || newPos.x >= width || newPos.y >= height) {
                         return false;
                     }
 
-                    var adjacentNode = nodes[newY][newX];
+                    var adjacentNode = nodes[newPos.y][newPos.x];
                     var opposite = GraphNode.Has(adjacentNode, dir.Opposite());
                     if (!opposite) {
                         return false;
@@ -396,13 +395,11 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
     }
 
     public bool Contains(int x, int y) {
-        Assert.AreNotEqual(_offset, null);
-        var offset = _offset!.Value;
-
-        return y >= offset.y
-               && y < offset.y + height
-               && x >= offset.x
-               && x < offset.x + width;
+        var off = offset;
+        return y >= off.y
+               && y < off.y + height
+               && x >= off.x
+               && x < off.x + width;
     }
 
     public bool Contains(Vector2Int pos) {
