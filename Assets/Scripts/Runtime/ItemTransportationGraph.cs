@@ -322,8 +322,8 @@ public static class ItemTransportationGraph {
                         continue;
                     }
 
-                    var graphPos = newPos - segment.Graph.Offset;
-                    if (segment.Graph.Nodes[graphPos.y][graphPos.x] == 0) {
+                    var graphPos = newPos - segment.Graph.offset;
+                    if (segment.Graph.nodes[graphPos.y][graphPos.x] == 0) {
                         continue;
                     }
 
@@ -342,8 +342,8 @@ public static class ItemTransportationGraph {
                     break;
                 }
 
-                var graphPos1 = tilePos - segment.Graph.Offset;
-                if (segment.Graph.Nodes[graphPos1.y][graphPos1.x] == 0) {
+                var graphPos1 = tilePos - segment.Graph.offset;
+                if (segment.Graph.nodes[graphPos1.y][graphPos1.x] == 0) {
                     break;
                 }
 
