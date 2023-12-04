@@ -38,12 +38,12 @@ public class TestGraph {
             },
             new() {
                 new() {
-                    (byte)(GraphNode.Right | GraphNode.Up),
-                    (byte)(GraphNode.Left | GraphNode.Up),
+                    GraphNode.Right | GraphNode.Up,
+                    GraphNode.Left | GraphNode.Up,
                 },
                 new() {
-                    (byte)(GraphNode.Right | GraphNode.Down),
-                    (byte)(GraphNode.Left | GraphNode.Down),
+                    GraphNode.Right | GraphNode.Down,
+                    GraphNode.Left | GraphNode.Down,
                 },
             }
         );
@@ -89,7 +89,7 @@ public class TestGraph {
         );
     }
 
-    Graph FromStrings(params string[] strings) {
+    static Graph FromStrings(params string[] strings) {
         var graph = new Graph();
 
         var height = strings.Length;
@@ -206,12 +206,10 @@ public class TestGraph {
 
         var expected = new List<Vector2Int> { new(0, 0), new(1, 0) };
         var centers = graph.GetCenters();
-        expected.Sort(Utils.StupidVector2IntComparison);
-        centers.Sort(Utils.StupidVector2IntComparison);
 
-        Assert.AreEqual(expected, centers);
-        Assert.AreEqual(graph.Cost(new(0, 0), new(0, 0)), 0);
-        Assert.AreEqual(graph.Cost(new(0, 0), new(1, 0)), 1);
+        TestUtils.AssertSetEquals(expected, centers);
+        Assert.AreEqual(0, graph.Cost(new(0, 0), new(0, 0)));
+        Assert.AreEqual(1, graph.Cost(new(0, 0), new(1, 0)));
     }
 
     [Test]
@@ -223,10 +221,8 @@ public class TestGraph {
 
         var expected = new List<Vector2Int> { new(0, 0), new(0, 1) };
         var centers = graph.GetCenters();
-        expected.Sort(Utils.StupidVector2IntComparison);
-        centers.Sort(Utils.StupidVector2IntComparison);
 
-        Assert.AreEqual(expected, centers);
+        TestUtils.AssertSetEquals(expected, centers);
     }
 
     [Test]
@@ -236,7 +232,7 @@ public class TestGraph {
         var expected = new List<Vector2Int> { new(1, 0) };
         var centers = graph.GetCenters();
 
-        Assert.AreEqual(expected, centers);
+        TestUtils.AssertSetEquals(expected, centers);
     }
 
     [Test]
@@ -245,10 +241,8 @@ public class TestGraph {
 
         var expected = new List<Vector2Int> { new(1, 0), new(2, 0) };
         var centers = graph.GetCenters();
-        expected.Sort(Utils.StupidVector2IntComparison);
-        centers.Sort(Utils.StupidVector2IntComparison);
 
-        Assert.AreEqual(expected, centers);
+        TestUtils.AssertSetEquals(expected, centers);
     }
 
     [Test]
@@ -261,7 +255,7 @@ public class TestGraph {
         var expected = new List<Vector2Int> { new(1, 0) };
         var centers = graph.GetCenters();
 
-        Assert.AreEqual(expected, centers);
+        TestUtils.AssertSetEquals(expected, centers);
     }
 
     [Test]
@@ -280,10 +274,8 @@ public class TestGraph {
             new(2, 2),
         };
         var centers = graph.GetCenters();
-        expected.Sort(Utils.StupidVector2IntComparison);
-        centers.Sort(Utils.StupidVector2IntComparison);
 
-        Assert.AreEqual(expected, centers);
+        TestUtils.AssertSetEquals(expected, centers);
     }
 
     [Test]
@@ -297,19 +289,19 @@ public class TestGraph {
         var centers = graph.GetCenters();
         var expected = new List<Vector2Int> { new(11, 10) };
 
-        Assert.AreEqual(expected, centers);
+        TestUtils.AssertSetEquals(expected, centers);
     }
 
     [Test]
     public void Test_IsUndirected_Empty_1() {
         var graph = FromStrings();
-        Assert.Throws<AssertionException>(() => graph.IsUndirected());
+        Assert.Throws<AssertionException>(() => Graph.Tests.IsUndirected(graph));
     }
 
     [Test]
     public void Test_IsUndirected_Empty_2() {
         var graph = FromStrings("");
-        Assert.Throws<AssertionException>(() => graph.IsUndirected());
+        Assert.Throws<AssertionException>(() => Graph.Tests.IsUndirected(graph));
     }
 
     [Test]
@@ -317,19 +309,19 @@ public class TestGraph {
         var graph = new Graph();
         graph.Mark(0, 0, Direction.Right, false);
 
-        Assert.IsTrue(graph.IsUndirected());
+        Assert.IsTrue(Graph.Tests.IsUndirected(graph));
     }
 
     [Test]
     public void Test_IsUndirected_2() {
         var graph = FromStrings("╶╴");
-        Assert.IsTrue(graph.IsUndirected());
+        Assert.IsTrue(Graph.Tests.IsUndirected(graph));
     }
 
     [Test]
     public void Test_IsUndirected_2_Oriented() {
         var graph = FromStrings("╴╶");
-        Assert.IsFalse(graph.IsUndirected());
+        Assert.IsFalse(Graph.Tests.IsUndirected(graph));
     }
 
     [Test]
@@ -338,7 +330,7 @@ public class TestGraph {
             "╷",
             "╵"
         );
-        Assert.IsTrue(graph.IsUndirected());
+        Assert.IsTrue(Graph.Tests.IsUndirected(graph));
     }
 
     [Test]
@@ -350,7 +342,7 @@ public class TestGraph {
             "..╵."
         );
 
-        Assert.IsTrue(graph.IsUndirected());
+        Assert.IsTrue(Graph.Tests.IsUndirected(graph));
     }
 
     [Test]
@@ -359,7 +351,8 @@ public class TestGraph {
 
         var actual = graph.GetShortestPath(new(0, 0), new(1, 0));
         var expected = new List<Vector2Int> { new(0, 0), new(1, 0) };
-        Assert.AreEqual(expected, actual);
+
+        Assert.IsTrue(expected.SequenceEqual(actual));
     }
 
     [Test]
@@ -378,6 +371,7 @@ public class TestGraph {
         var expected2 = new List<Vector2Int> {
             new(0, 1), new(1, 1), new(1, 2), new(2, 2), new(3, 2),
         };
+
         Assert.IsTrue(
             expected1.SequenceEqual(actual)
             || expected2.SequenceEqual(actual)

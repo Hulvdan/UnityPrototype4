@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime {
-public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> {
+public class GraphSegment : IEquatable<GraphSegment> {
     public readonly Guid ID = Guid.NewGuid();
 
     public readonly List<GraphVertex> Vertices;
@@ -16,7 +16,6 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
     public HumanTransporter AssignedHuman;
     public readonly UniqueList<MapResource> linkedResources;
     public readonly SimplePriorityQueue<MapResource> resourcesToTransport;
-    public bool isDeleted;
 
     public GraphSegment(
         List<GraphVertex> vertices,
@@ -32,10 +31,6 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
         Graph = graph;
         linkedResources = new();
         resourcesToTransport = new();
-
-        vertices.Sort();
-        // TODO: Should be considered for removal
-        movementTiles.Sort(Utils.StupidVector2IntComparison);
 
         // Duplication Checks
         for (var i = 0; i < vertices.Count; i++) {
@@ -120,39 +115,6 @@ public class GraphSegment : IComparable<GraphSegment>, IEquatable<GraphSegment> 
         return verticesEqual
                && movementTilesEqual
                && graphEqual;
-    }
-
-    public int CompareTo(GraphSegment other) {
-        var cmp = Vertices.Count.CompareTo(other.Vertices.Count);
-        if (cmp != 0) {
-            return cmp;
-        }
-
-        cmp = MovementTiles.Count.CompareTo(other.MovementTiles.Count);
-        if (cmp != 0) {
-            return cmp;
-        }
-
-        for (var i = 0; i < Vertices.Count; i++) {
-            cmp = Vertices[i].CompareTo(other.Vertices[i]);
-            if (cmp != 0) {
-                return cmp;
-            }
-        }
-
-        for (var i = 0; i < MovementTiles.Count; i++) {
-            cmp = Utils.StupidVector2IntComparison(MovementTiles[i], other.MovementTiles[i]);
-            if (cmp != 0) {
-                return cmp;
-            }
-        }
-
-        cmp = Graph.CompareTo(other.Graph);
-        if (cmp != 0) {
-            return cmp;
-        }
-
-        return 0;
     }
 
     public override bool Equals(object obj) {
