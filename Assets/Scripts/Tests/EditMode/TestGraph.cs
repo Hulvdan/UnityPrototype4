@@ -53,7 +53,7 @@ public class TestGraph {
     [Timeout(1)]
     public void Test_3() {
         var graph = new Graph();
-        graph.SetDirection(1, 1, Direction.Right);
+        graph.Mark(1, 1, Direction.Right);
 
         var actual = Graph.Tests.GetNodes(graph);
         Assert.AreEqual(
@@ -70,8 +70,8 @@ public class TestGraph {
     [Timeout(1)]
     public void Test_4() {
         var graph = new Graph();
-        graph.SetDirection(1, 1, Direction.Right);
-        graph.SetDirection(0, 0, Direction.Left);
+        graph.Mark(1, 1, Direction.Right);
+        graph.Mark(0, 0, Direction.Left);
 
         var actual = Graph.Tests.GetNodes(graph);
         Assert.AreEqual(
@@ -106,66 +106,66 @@ public class TestGraph {
             for (var x = 0; x < width; x++) {
                 switch (strings[height - y - 1][x]) {
                     case '╶':
-                        graph.SetDirection(x, y, Direction.Right);
+                        graph.Mark(x, y, Direction.Right);
                         break;
                     case '╵':
-                        graph.SetDirection(x, y, Direction.Up);
+                        graph.Mark(x, y, Direction.Up);
                         break;
                     case '╴':
-                        graph.SetDirection(x, y, Direction.Left);
+                        graph.Mark(x, y, Direction.Left);
                         break;
                     case '╷':
-                        graph.SetDirection(x, y, Direction.Down);
+                        graph.Mark(x, y, Direction.Down);
                         break;
                     case '┌':
-                        graph.SetDirection(x, y, Direction.Down);
-                        graph.SetDirection(x, y, Direction.Right);
+                        graph.Mark(x, y, Direction.Down);
+                        graph.Mark(x, y, Direction.Right);
                         break;
                     case '┐':
-                        graph.SetDirection(x, y, Direction.Left);
-                        graph.SetDirection(x, y, Direction.Down);
+                        graph.Mark(x, y, Direction.Left);
+                        graph.Mark(x, y, Direction.Down);
                         break;
                     case '└':
-                        graph.SetDirection(x, y, Direction.Up);
-                        graph.SetDirection(x, y, Direction.Right);
+                        graph.Mark(x, y, Direction.Up);
+                        graph.Mark(x, y, Direction.Right);
                         break;
                     case '┘':
-                        graph.SetDirection(x, y, Direction.Up);
-                        graph.SetDirection(x, y, Direction.Left);
+                        graph.Mark(x, y, Direction.Up);
+                        graph.Mark(x, y, Direction.Left);
                         break;
                     case '─':
-                        graph.SetDirection(x, y, Direction.Left);
-                        graph.SetDirection(x, y, Direction.Right);
+                        graph.Mark(x, y, Direction.Left);
+                        graph.Mark(x, y, Direction.Right);
                         break;
                     case '│':
-                        graph.SetDirection(x, y, Direction.Up);
-                        graph.SetDirection(x, y, Direction.Down);
+                        graph.Mark(x, y, Direction.Up);
+                        graph.Mark(x, y, Direction.Down);
                         break;
                     case '├':
-                        graph.SetDirection(x, y, Direction.Up);
-                        graph.SetDirection(x, y, Direction.Down);
-                        graph.SetDirection(x, y, Direction.Right);
+                        graph.Mark(x, y, Direction.Up);
+                        graph.Mark(x, y, Direction.Down);
+                        graph.Mark(x, y, Direction.Right);
                         break;
                     case '┬':
-                        graph.SetDirection(x, y, Direction.Left);
-                        graph.SetDirection(x, y, Direction.Down);
-                        graph.SetDirection(x, y, Direction.Right);
+                        graph.Mark(x, y, Direction.Left);
+                        graph.Mark(x, y, Direction.Down);
+                        graph.Mark(x, y, Direction.Right);
                         break;
                     case '┴':
-                        graph.SetDirection(x, y, Direction.Up);
-                        graph.SetDirection(x, y, Direction.Left);
-                        graph.SetDirection(x, y, Direction.Right);
+                        graph.Mark(x, y, Direction.Up);
+                        graph.Mark(x, y, Direction.Left);
+                        graph.Mark(x, y, Direction.Right);
                         break;
                     case '┤':
-                        graph.SetDirection(x, y, Direction.Up);
-                        graph.SetDirection(x, y, Direction.Down);
-                        graph.SetDirection(x, y, Direction.Left);
+                        graph.Mark(x, y, Direction.Up);
+                        graph.Mark(x, y, Direction.Down);
+                        graph.Mark(x, y, Direction.Left);
                         break;
                     case '┼':
-                        graph.SetDirection(x, y, Direction.Up);
-                        graph.SetDirection(x, y, Direction.Down);
-                        graph.SetDirection(x, y, Direction.Right);
-                        graph.SetDirection(x, y, Direction.Left);
+                        graph.Mark(x, y, Direction.Up);
+                        graph.Mark(x, y, Direction.Down);
+                        graph.Mark(x, y, Direction.Right);
+                        graph.Mark(x, y, Direction.Left);
                         break;
                     case '.':
                         break;
@@ -289,10 +289,10 @@ public class TestGraph {
     [Test]
     public void Test_GetCenters_WithOffset() {
         var graph = new Graph();
-        graph.SetDirection(10, 10, Direction.Right);
-        graph.SetDirection(11, 10, Direction.Right);
-        graph.SetDirection(11, 10, Direction.Left);
-        graph.SetDirection(12, 10, Direction.Left);
+        graph.Mark(10, 10, Direction.Right);
+        graph.Mark(11, 10, Direction.Right);
+        graph.Mark(11, 10, Direction.Left);
+        graph.Mark(12, 10, Direction.Left);
 
         var centers = graph.GetCenters();
         var expected = new List<Vector2Int> { new(11, 10) };
@@ -315,7 +315,7 @@ public class TestGraph {
     [Test]
     public void Test_IsUndirected_1() {
         var graph = new Graph();
-        graph.SetDirection(0, 0, Direction.Right, false);
+        graph.Mark(0, 0, Direction.Right, false);
 
         Assert.IsTrue(graph.IsUndirected());
     }
@@ -406,10 +406,10 @@ public class TestGraph {
     [Test]
     public void Test_GetShortestPath_WithOffset() {
         var graph = new Graph();
-        graph.SetDirection(10, 10, Direction.Right);
-        graph.SetDirection(11, 10, Direction.Right);
-        graph.SetDirection(11, 10, Direction.Left);
-        graph.SetDirection(12, 10, Direction.Left);
+        graph.Mark(10, 10, Direction.Right);
+        graph.Mark(11, 10, Direction.Right);
+        graph.Mark(11, 10, Direction.Left);
+        graph.Mark(12, 10, Direction.Left);
 
         var actual = graph.GetShortestPath(new(10, 10), new(12, 10));
         var expected = new List<Vector2Int> {
@@ -422,15 +422,15 @@ public class TestGraph {
     [Test]
     public void Test_GetShortestPath_WithOffset_2() {
         var graph = new Graph();
-        graph.SetDirection(8, 7, Direction.Down);
-        graph.SetDirection(8, 6, Direction.Up);
-        graph.SetDirection(8, 6, Direction.Right);
-        graph.SetDirection(9, 6, Direction.Left);
-        graph.SetDirection(9, 6, Direction.Right);
-        graph.SetDirection(10, 6, Direction.Left);
-        graph.SetDirection(10, 6, Direction.Right);
-        graph.SetDirection(11, 6, Direction.Left);
-        graph.SetDirection(13, 13, Direction.Right, false);
+        graph.Mark(8, 7, Direction.Down);
+        graph.Mark(8, 6, Direction.Up);
+        graph.Mark(8, 6, Direction.Right);
+        graph.Mark(9, 6, Direction.Left);
+        graph.Mark(9, 6, Direction.Right);
+        graph.Mark(10, 6, Direction.Left);
+        graph.Mark(10, 6, Direction.Right);
+        graph.Mark(11, 6, Direction.Left);
+        graph.Mark(13, 13, Direction.Right, false);
 
         var actual = graph.GetShortestPath(new(8, 7), new(11, 6));
         var expected = new List<Vector2Int> {
@@ -443,14 +443,14 @@ public class TestGraph {
     [Test]
     public void Test_GetShortestPath_WithOffset_3() {
         var graph = new Graph();
-        graph.SetDirection(8, 7, Direction.Down);
-        graph.SetDirection(8, 6, Direction.Up);
-        graph.SetDirection(8, 6, Direction.Right);
-        graph.SetDirection(9, 6, Direction.Left);
-        graph.SetDirection(9, 6, Direction.Right);
-        graph.SetDirection(10, 6, Direction.Left);
-        graph.SetDirection(10, 6, Direction.Right);
-        graph.SetDirection(11, 6, Direction.Left);
+        graph.Mark(8, 7, Direction.Down);
+        graph.Mark(8, 6, Direction.Up);
+        graph.Mark(8, 6, Direction.Right);
+        graph.Mark(9, 6, Direction.Left);
+        graph.Mark(9, 6, Direction.Right);
+        graph.Mark(10, 6, Direction.Left);
+        graph.Mark(10, 6, Direction.Right);
+        graph.Mark(11, 6, Direction.Left);
 
         var actual = graph.GetShortestPath(new(8, 7), new(11, 6));
         var expected = new List<Vector2Int> {
@@ -463,7 +463,7 @@ public class TestGraph {
     [Test]
     public void Test_ContainsNode() {
         var graph = new Graph();
-        graph.SetDirection(7, 10, Direction.Right);
+        graph.Mark(7, 10, Direction.Right);
 
         Assert.IsTrue(graph.Contains(7, 10));
         Assert.IsFalse(graph.Contains(8, 10));

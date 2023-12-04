@@ -21,10 +21,10 @@ public class TestItemTransportationGraph {
     [Timeout(1)]
     public void Test_2Buildings_1Road_1Segment() {
         var expectedGraph = new Graph();
-        expectedGraph.SetDirection(0, 0, Direction.Right);
-        expectedGraph.SetDirection(1, 0, Direction.Left);
-        expectedGraph.SetDirection(1, 0, Direction.Up);
-        expectedGraph.SetDirection(1, 1, Direction.Down);
+        expectedGraph.Mark(0, 0, Direction.Right);
+        expectedGraph.Mark(1, 0, Direction.Left);
+        expectedGraph.Mark(1, 0, Direction.Up);
+        expectedGraph.Mark(1, 1, Direction.Down);
 
         Test(
             ParseAsElementTiles(

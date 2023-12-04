@@ -1,23 +1,29 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using BFG.Core;
+using UnityEngine.Assertions;
 
 namespace BFG.Graphs {
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
 public static class GraphNode {
-    public static byte None = 0;
-    public static byte Right = 1 << 0;
-    public static byte Up = 1 << 1;
-    public static byte Left = 1 << 2;
-    public static byte Down = 1 << 3;
-    public static byte All = (byte)(Right + Up + Left + Down);
+    public const byte None = 0;
+    public const byte Right = 1 << 0;
+    public const byte Up = 1 << 1;
+    public const byte Left = 1 << 2;
+    public const byte Down = 1 << 3;
+    public const byte All = Right + Up + Left + Down;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool Has(byte node, int dirIndex) {
-        return (node & (1 << dirIndex)) > 0;
+    public static bool Has(byte node, int direction) {
+        Assert.IsTrue(direction is >= 0 and < 4);
+
+        return (node & (1 << direction)) > 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool Has(byte node, Direction dirIndex) {
-        return Has(node, (int)dirIndex);
+    public static bool Has(byte node, Direction direction) {
+        return Has(node, (int)direction);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -40,18 +46,10 @@ public static class GraphNode {
         return Has(node, 3);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte MarkAs(byte node, Direction dirIndex) {
-        return MarkAs(node, (int)dirIndex);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte MarkAs(byte node, int dirIndex) {
-        return (byte)(node | (byte)(1 << dirIndex));
-    }
-
-    public static byte SetDirection(byte node, Direction direction, bool value) {
+    public static byte Mark(byte node, Direction direction, bool value = true) {
         var dir = (byte)direction;
+        Assert.IsTrue(dir < 4);
+
         if (value) {
             node |= (byte)(1 << dir);
         }
@@ -59,10 +57,13 @@ public static class GraphNode {
             node &= (byte)(15 ^ (1 << dir));
         }
 
+        Assert.IsTrue(node < 16);
         return node;
     }
 
     public static string ToString(byte node) {
+        Assert.IsTrue(node < 16);
+
         var str = "[";
         if (IsRight(node)) {
             str += "Right, ";
@@ -90,7 +91,9 @@ public static class GraphNode {
         return str + "]";
     }
 
-    public static string Repr(byte node) {
+#pragma warning disable S3776
+    public static string ToDisplayString(byte node) {
+#pragma warning restore S3776
         var right = IsRight(node);
         var up = IsUp(node);
         var left = IsLeft(node);
