@@ -14,45 +14,23 @@ public static class Utils {
         }
     }
 
-    public static int StupidVector2IntComparison(Vector2Int a, Vector2Int b) {
-        if (a.x > b.x) {
-            return 1;
-        }
-
-        if (a.x < b.x) {
-            return -1;
-        }
-
-        if (a.y > b.y) {
-            return 1;
-        }
-
-        if (a.y < b.y) {
-            return -1;
-        }
-
-        return 0;
-    }
-
-    public static bool GoodFukenListEquals<T>([CanBeNull] List<T> obj1, [CanBeNull] List<T> obj2) {
-        var null1 = ReferenceEquals(null, obj1);
-        var null2 = ReferenceEquals(null, obj2);
-        if (null1 && null2) {
+    public static bool GoodFukenListEquals<T>([CanBeNull] List<T> a, [CanBeNull] List<T> b) {
+        if (a == null && b == null) {
             return true;
         }
 
-        if ((null1 && !null2) || (!null1 && null2)) {
+        if (a == null || b == null) {
             return false;
         }
 
-        if (obj1.Count != obj2.Count) {
+        if (a.Count != b.Count) {
             return false;
         }
 
-        for (var i = 0; i < obj1.Count; i++) {
-            var a = obj1[i];
-            var b = obj2[i];
-            if (!a.Equals(b)) {
+        for (var i = 0; i < a.Count; i++) {
+            var aItem = a[i];
+            var bItem = b[i];
+            if (!aItem.Equals(bItem)) {
                 return false;
             }
         }
@@ -62,26 +40,24 @@ public static class Utils {
 
     public static bool GoodFuken2DListEquals<T>(
         [CanBeNull]
-        List<List<T>> obj1,
+        List<List<T>> a,
         [CanBeNull]
-        List<List<T>> obj2
+        List<List<T>> b
     ) {
-        var null1 = ReferenceEquals(null, obj1);
-        var null2 = ReferenceEquals(null, obj2);
-        if (null1 && null2) {
+        if (a == null && b == null) {
             return true;
         }
 
-        if ((null1 && !null2) || (!null1 && null2)) {
+        if (a == null || b == null) {
             return false;
         }
 
-        if (obj1.Count != obj2.Count) {
+        if (a.Count != b.Count) {
             return false;
         }
 
-        for (var i = 0; i < obj1.Count; i++) {
-            if (!GoodFukenListEquals(obj1[i], obj2[i])) {
+        for (var i = 0; i < a.Count; i++) {
+            if (!GoodFukenListEquals(a[i], b[i])) {
                 return false;
             }
         }
@@ -90,7 +66,10 @@ public static class Utils {
     }
 
     public static readonly Direction[] Directions = {
-        Core.Direction.Right, Core.Direction.Up, Core.Direction.Left, Core.Direction.Down,
+        Core.Direction.Right,
+        Core.Direction.Up,
+        Core.Direction.Left,
+        Core.Direction.Down,
     };
 
     public static Direction Direction(Vector2Int a, Vector2Int b) {
