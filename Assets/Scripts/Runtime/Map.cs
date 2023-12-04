@@ -444,20 +444,20 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 for (var y = 0; y < g1.height; y++) {
                     for (var x = 0; x < g1.width; x++) {
                         // ReSharper disable once InconsistentNaming
-                        var g1x = x + g1.Offset.x;
+                        var g1x = x + g1.offset.x;
                         // ReSharper disable once InconsistentNaming
-                        var g1y = y + g1.Offset.y;
+                        var g1y = y + g1.offset.y;
                         if (!g2.Contains(g1x, g1y)) {
                             continue;
                         }
 
                         // ReSharper disable once InconsistentNaming
-                        var g2y = g1y - g2.Offset.y;
+                        var g2y = g1y - g2.offset.y;
                         // ReSharper disable once InconsistentNaming
-                        var g2x = g1x - g2.Offset.x;
-                        var node = g2.Nodes[g2y][g2x];
+                        var g2x = g1x - g2.offset.x;
+                        var node = g2.nodes[g2y][g2x];
 
-                        Assert.AreEqual(node & g1.Nodes[y][x], 0);
+                        Assert.AreEqual(node & g1.nodes[y][x], 0);
                     }
                 }
             }

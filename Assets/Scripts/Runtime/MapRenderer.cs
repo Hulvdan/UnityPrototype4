@@ -306,13 +306,13 @@ public class MapRenderer : MonoBehaviour {
 
             for (var y = 0; y < segment.Graph.height; y++) {
                 for (var x = 0; x < segment.Graph.width; x++) {
-                    var node = segment.Graph.Nodes[y][x];
+                    var node = segment.Graph.nodes[y][x];
                     if (node == 0) {
                         continue;
                     }
 
                     var pos = new Vector3(x, y) + Vector3.one / 2 +
-                              new Vector3(segment.Graph.Offset.x, segment.Graph.Offset.y);
+                              new Vector3(segment.Graph.offset.x, segment.Graph.offset.y);
                     if (GraphNode.IsRight(node)) {
                         Gizmos.DrawLine(
                             _grid.transform.TransformPoint(pos),
