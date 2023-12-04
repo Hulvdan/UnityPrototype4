@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace BFG.Graphs {
-public class Graph : IEquatable<Graph>, IComparable<Graph> {
+public class Graph : IEquatable<Graph> {
     const int DEV_NUMBER_OF_BUILD_PATH_ITERATIONS = 256;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -269,57 +269,6 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         return Equals((Graph)obj);
     }
 
-    public int CompareTo(Graph other) {
-        int cmp;
-        if (_offset == null && other._offset != null) {
-            return 1;
-        }
-
-        if (_offset != null && other._offset == null) {
-            return -1;
-        }
-
-        if (_offset != null && other._offset != null) {
-            cmp = _offset.Value.x.CompareTo(other._offset.Value.x);
-            if (cmp != 0) {
-                return cmp;
-            }
-
-            cmp = _offset.Value.y.CompareTo(other._offset.Value.y);
-            if (cmp != 0) {
-                return cmp;
-            }
-        }
-
-        cmp = height.CompareTo(other.height);
-        if (cmp != 0) {
-            return cmp;
-        }
-
-        cmp = width.CompareTo(other.width);
-        if (cmp != 0) {
-            return cmp;
-        }
-
-        for (var y = 0; y < height; y++) {
-            cmp = nodes[y].Count.CompareTo(other.nodes[y].Count);
-            if (cmp != 0) {
-                return cmp;
-            }
-        }
-
-        for (var y = 0; y < height; y++) {
-            for (var x = 0; x < nodes[y].Count; x++) {
-                cmp = nodes[y][x].CompareTo(other.nodes[y][x]);
-                if (cmp != 0) {
-                    return cmp;
-                }
-            }
-        }
-
-        return 0;
-    }
-
     public override int GetHashCode() {
         return HashCode.Combine(_offset, nodes);
     }
@@ -429,6 +378,10 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
     public static class Tests {
         public static List<List<byte>> GetNodes(Graph graph) {
             return graph.nodes;
+        }
+
+        public static bool IsUndirected(Graph graph) {
+            return graph.IsUndirected();
         }
     }
 

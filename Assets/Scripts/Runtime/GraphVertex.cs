@@ -4,17 +4,13 @@ using BFG.Core;
 using UnityEngine;
 
 namespace BFG.Runtime {
-public class GraphVertex : IComparable<GraphVertex>, IEquatable<GraphVertex> {
+public class GraphVertex : IEquatable<GraphVertex> {
     public List<ResourceObj> Resources;
     public Vector2Int Pos;
 
     public GraphVertex(List<ResourceObj> resources, Vector2Int pos) {
         Resources = resources;
         Pos = pos;
-    }
-
-    public int CompareTo(GraphVertex other) {
-        return Utils.StupidVector2IntComparison(Pos, other.Pos);
     }
 
     public override string ToString() {
