@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reactive.Subjects;
 using BFG.Core;
 using BFG.Graphs;
+using BFG.Runtime.Controllers.HumanTransporter;
 using BFG.Runtime.Entities;
 using BFG.Runtime.Extensions;
 using DG.Tweening;
@@ -739,14 +740,14 @@ public class MapRenderer : MonoBehaviour {
         go.transform.localPosition += Vector3.one.With(z: 0) / 2;
         if (
             human.stateMovingResource
-            == Controllers.HumanTransporter.MovingResources.State.PickingUpResource
+            == MovingResources.State.PickingUpResource
         ) {
             go.SetPickingUpResourceProgress(human.stateMovingResource_pickingUpResourceProgress);
         }
 
         if (
             human.stateMovingResource
-            == Controllers.HumanTransporter.MovingResources.State.PlacingResource
+            == MovingResources.State.PlacingResource
         ) {
             go.SetPlacingResourceProgress(human.stateMovingResource_placingResourceProgress);
         }

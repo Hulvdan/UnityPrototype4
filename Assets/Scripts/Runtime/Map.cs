@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
 using BFG.Core;
+using BFG.Runtime.Controllers.HumanTransporter;
 using BFG.Runtime.Entities;
 using BFG.Runtime.Graphs;
 using Foundation.Architecture;
@@ -306,7 +307,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         var humansMovingToCityHall = 0;
         foreach (var human in _humanTransporters) {
-            var state = Controllers.HumanTransporter.MovingInTheWorld.State.MovingToTheCityHall;
+            var state = MovingInTheWorld.State.MovingToTheCityHall;
             if (human.stateMovingInTheWorld == state) {
                 humansMovingToCityHall++;
             }
@@ -315,7 +316,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         Stack<Tuple<GraphSegment?, HumanTransporter>> humansThatNeedNewSegment =
             new(res.DeletedSegments.Count + humansMovingToCityHall);
         foreach (var human in _humanTransporters) {
-            var state = Controllers.HumanTransporter.MovingInTheWorld.State.MovingToTheCityHall;
+            var state = MovingInTheWorld.State.MovingToTheCityHall;
             if (human.stateMovingInTheWorld == state) {
                 humansThatNeedNewSegment.Push(new(null, human));
             }
@@ -773,7 +774,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         _humanTransporters.Add(human);
 
         _humanTransporterController.SetState(
-            human, Controllers.HumanTransporter.MainState.MovingInTheWorld
+            human, MainState.MovingInTheWorld
         );
 
         onHumanTransporterCreated.OnNext(new() { Human = human });
@@ -823,7 +824,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
 
             _humanTransporterController.Update(human, dt);
-            var state = Controllers.HumanTransporter.MovingInTheWorld.State.MovingToTheCityHall;
+            var state = MovingInTheWorld.State.MovingToTheCityHall;
             if (
                 human.stateMovingInTheWorld == state
                 && human.pos == cityHall.pos
@@ -844,7 +845,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     #region ItemTransportationSystem
 
     ResourceTransportationSystem _resourceTransportationSystem = null!;
-    Controllers.HumanTransporter.MainController _humanTransporterController = null!;
+    MainController _humanTransporterController = null!;
 
     #endregion
 }
