@@ -1,9 +1,10 @@
 ﻿using System;
+using BFG.Runtime.Graphs;
 using JetBrains.Annotations;
 using UnityEngine.Assertions;
 
-namespace BFG.Runtime {
-public class HumanTransporter_MovingResource_Controller {
+namespace BFG.Runtime.Controllers.HumanTransporter {
+public class MovingResources {
     public enum State {
         MovingToResource,
         PickingUpResource,
@@ -11,7 +12,7 @@ public class HumanTransporter_MovingResource_Controller {
         PlacingResource,
     }
 
-    public HumanTransporter_MovingResource_Controller(HumanTransporter_Controller controller) {
+    public MovingResources(MainController controller) {
         _controller = controller;
 
         _movingToResource = new(this);
@@ -21,7 +22,7 @@ public class HumanTransporter_MovingResource_Controller {
     }
 
     public void OnEnter(
-        HumanTransporter human,
+        Entities.HumanTransporter human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
@@ -31,7 +32,7 @@ public class HumanTransporter_MovingResource_Controller {
     }
 
     public void OnExit(
-        HumanTransporter human,
+        Entities.HumanTransporter human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
@@ -45,7 +46,10 @@ public class HumanTransporter_MovingResource_Controller {
         Assert.AreEqual(human.stateMovingResource_placingResourceProgress, 0);
     }
 
-    public void NestedState_Exit(HumanTransporter human, HumanTransporterData data) {
+    public void NestedState_Exit(
+        Entities.HumanTransporter human,
+        HumanTransporterData data
+    ) {
         using var _ = Tracing.Scope();
 
         Assert.AreNotEqual(human.stateMovingResource, null);
@@ -64,14 +68,14 @@ public class HumanTransporter_MovingResource_Controller {
                 _placingResource.OnExit(human, data);
                 break;
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new NotSupportedException();
         }
 
-        _controller.SetState(human, HumanTransporterState.MovingInTheWorld);
+        _controller.SetState(human, MainState.MovingInTheWorld);
     }
 
     public void Update(
-        HumanTransporter human,
+        Entities.HumanTransporter human,
         HumanTransporterData data,
         float dt
     ) {
@@ -89,12 +93,12 @@ public class HumanTransporter_MovingResource_Controller {
                 _placingResource.Update(human, data, dt);
                 break;
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new NotSupportedException();
         }
     }
 
     public void OnHumanCurrentSegmentChanged(
-        HumanTransporter human,
+        Entities.HumanTransporter human,
         HumanTransporterData data,
         [CanBeNull]
         GraphSegment oldSegment
@@ -117,12 +121,12 @@ public class HumanTransporter_MovingResource_Controller {
                 _placingResource.OnHumanCurrentSegmentChanged(human, data, oldSegment);
                 break;
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new NotSupportedException();
         }
     }
 
     public void OnHumanMovedToTheNextTile(
-        HumanTransporter human,
+        Entities.HumanTransporter human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
@@ -137,16 +141,20 @@ public class HumanTransporter_MovingResource_Controller {
             case State.PickingUpResource:
             case State.PlacingResource:
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new NotSupportedException();
         }
     }
 
-    public void SetState(HumanTransporter human, HumanTransporterData data, State state) {
+    public void SetState(
+        Entities.HumanTransporter human,
+        HumanTransporterData data,
+        State state
+    ) {
         using var _ = Tracing.Scope();
 
         var oldState = human.stateMovingResource;
         if (oldState != null) {
-            switch (human.stateMovingResource.Value) {
+            switch (human.stateMovingResource!.Value) {
                 case State.MovingToResource:
                     _movingToResource.OnExit(human, data);
                     break;
@@ -160,7 +168,7 @@ public class HumanTransporter_MovingResource_Controller {
                     _placingResource.OnExit(human, data);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new NotSupportedException();
             }
         }
 
@@ -178,14 +186,15 @@ public class HumanTransporter_MovingResource_Controller {
                 _placingResource.OnEnter(human, data);
                 break;
             default:
-                throw new ArgumentOutOfRangeException();
+
+                throw new NotSupportedException();
         }
     }
 
-    readonly HumanTransporter_Controller _controller;
-    readonly HT_MR_MovingToResource_Controller _movingToResource;
-    readonly HT_MR_PickingUpResource_Controller _pickingUpResource;
-    readonly HT_MR_MovingResource_Controller _movingResource;
-    readonly HT_MR_PlacingResource_Controller _placingResource;
+    readonly MainController _controller;
+    readonly MovingToResource _movingToResource;
+    readonly PickingUpResource _pickingUpResource;
+    readonly MovingResource _movingResource;
+    readonly PlacingResource _placingResource;
 }
 }

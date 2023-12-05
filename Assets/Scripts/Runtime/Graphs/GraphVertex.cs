@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using BFG.Core;
+using BFG.Runtime.Entities;
 using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Graphs {
 public class GraphVertex : IEquatable<GraphVertex> {
     public List<ResourceObj> Resources;
     public Vector2Int Pos;

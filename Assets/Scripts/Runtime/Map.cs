@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
 using BFG.Core;
+using BFG.Runtime.Entities;
+using BFG.Runtime.Graphs;
 using Foundation.Architecture;
 using Priority_Queue;
 using SimplexNoise;
@@ -304,7 +306,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         var humansMovingToCityHall = 0;
         foreach (var human in _humanTransporters) {
-            var state = HumanTransporter_MovingInTheWorld_Controller.State.MovingToTheCityHall;
+            var state = Controllers.HumanTransporter.MovingInTheWorld.State.MovingToTheCityHall;
             if (human.stateMovingInTheWorld == state) {
                 humansMovingToCityHall++;
             }
@@ -313,7 +315,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         Stack<Tuple<GraphSegment?, HumanTransporter>> humansThatNeedNewSegment =
             new(res.DeletedSegments.Count + humansMovingToCityHall);
         foreach (var human in _humanTransporters) {
-            var state = HumanTransporter_MovingInTheWorld_Controller.State.MovingToTheCityHall;
+            var state = Controllers.HumanTransporter.MovingInTheWorld.State.MovingToTheCityHall;
             if (human.stateMovingInTheWorld == state) {
                 humansThatNeedNewSegment.Push(new(null, human));
             }
@@ -770,7 +772,9 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         segment.AssignedHuman = human;
         _humanTransporters.Add(human);
 
-        _humanTransporterController.SetState(human, HumanTransporterState.MovingInTheWorld);
+        _humanTransporterController.SetState(
+            human, Controllers.HumanTransporter.MainState.MovingInTheWorld
+        );
 
         onHumanTransporterCreated.OnNext(new() { Human = human });
 
@@ -819,7 +823,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
 
             _humanTransporterController.Update(human, dt);
-            var state = HumanTransporter_MovingInTheWorld_Controller.State.MovingToTheCityHall;
+            var state = Controllers.HumanTransporter.MovingInTheWorld.State.MovingToTheCityHall;
             if (
                 human.stateMovingInTheWorld == state
                 && human.pos == cityHall.pos
@@ -840,13 +844,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     #region ItemTransportationSystem
 
     ResourceTransportationSystem _resourceTransportationSystem = null!;
-    HumanTransporter_Controller _humanTransporterController = null!;
+    Controllers.HumanTransporter.MainController _humanTransporterController = null!;
 
     #endregion
-}
-
-public class E_ItemPlaced {
-    public SelectedItemType Item;
-    public Vector2Int Pos;
 }
 }

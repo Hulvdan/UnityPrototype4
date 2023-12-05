@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reactive.Subjects;
 using BFG.Core;
 using BFG.Graphs;
+using BFG.Runtime.Entities;
 using BFG.Runtime.Extensions;
 using DG.Tweening;
 using Foundation.Architecture;
@@ -121,7 +122,8 @@ public class MapRenderer : MonoBehaviour {
 
     readonly List<IDisposable> _dependencyHooks = new();
 
-    readonly Dictionary<Guid, (HumanTransporter, HumanGO, HumanBinding)> _humanTransporters = new();
+    readonly Dictionary<Guid, (HumanTransporter, HumanGO, HumanBinding)> _humanTransporters =
+        new();
 
     readonly Dictionary<Guid, ItemGO> _storedItems = new();
 
@@ -735,13 +737,17 @@ public class MapRenderer : MonoBehaviour {
         }
 
         go.transform.localPosition += Vector3.one.With(z: 0) / 2;
-        if (human.stateMovingResource
-            == HumanTransporter_MovingResource_Controller.State.PickingUpResource) {
+        if (
+            human.stateMovingResource
+            == Controllers.HumanTransporter.MovingResources.State.PickingUpResource
+        ) {
             go.SetPickingUpResourceProgress(human.stateMovingResource_pickingUpResourceProgress);
         }
 
-        if (human.stateMovingResource
-            == HumanTransporter_MovingResource_Controller.State.PlacingResource) {
+        if (
+            human.stateMovingResource
+            == Controllers.HumanTransporter.MovingResources.State.PlacingResource
+        ) {
             go.SetPlacingResourceProgress(human.stateMovingResource_placingResourceProgress);
         }
     }

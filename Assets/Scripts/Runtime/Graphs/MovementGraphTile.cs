@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Graphs {
 public class MovementGraphTile {
     /// <summary>
     ///     Right, Up, Left, Down

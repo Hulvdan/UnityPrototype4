@@ -1,15 +1,14 @@
-﻿using UnityEngine.Assertions;
-using MRState = BFG.Runtime.HumanTransporter_MovingResource_Controller.State;
+﻿using BFG.Runtime.Graphs;
+using UnityEngine.Assertions;
+using MRState = BFG.Runtime.Controllers.HumanTransporter.MovingResources.State;
 
-namespace BFG.Runtime {
-public class HT_MR_MovingResource_Controller {
-    public HT_MR_MovingResource_Controller(
-        HumanTransporter_MovingResource_Controller controller
-    ) {
+namespace BFG.Runtime.Controllers.HumanTransporter {
+public class MovingResource {
+    public MovingResource(MovingResources controller) {
         _controller = controller;
     }
 
-    public void OnEnter(HumanTransporter human, HumanTransporterData data) {
+    public void OnEnter(Entities.HumanTransporter human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
         Assert.AreNotEqual(human.stateMovingResource, MRState.MovingResource);
@@ -20,15 +19,15 @@ public class HT_MR_MovingResource_Controller {
         human.stateMovingResource = MRState.MovingResource;
     }
 
-    public void OnExit(HumanTransporter human, HumanTransporterData data) {
+    public void OnExit(Entities.HumanTransporter human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
     }
 
-    public void Update(HumanTransporter human, HumanTransporterData data, float dt) {
+    public void Update(Entities.HumanTransporter human, HumanTransporterData data, float dt) {
     }
 
     public void OnHumanCurrentSegmentChanged(
-        HumanTransporter human,
+        Entities.HumanTransporter human,
         HumanTransporterData data,
         GraphSegment oldSegment
     ) {
@@ -36,7 +35,7 @@ public class HT_MR_MovingResource_Controller {
     }
 
     public void OnHumanMovedToTheNextTile(
-        HumanTransporter human,
+        Entities.HumanTransporter human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
@@ -46,6 +45,6 @@ public class HT_MR_MovingResource_Controller {
         }
     }
 
-    readonly HumanTransporter_MovingResource_Controller _controller;
+    readonly MovingResources _controller;
 }
 }

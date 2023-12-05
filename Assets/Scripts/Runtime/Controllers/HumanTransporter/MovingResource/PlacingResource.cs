@@ -1,15 +1,15 @@
-﻿using UnityEngine.Assertions;
-using MRState = BFG.Runtime.HumanTransporter_MovingResource_Controller.State;
+﻿using BFG.Runtime.Entities;
+using BFG.Runtime.Graphs;
+using UnityEngine.Assertions;
+using MRState = BFG.Runtime.Controllers.HumanTransporter.MovingResources.State;
 
-namespace BFG.Runtime {
-public class HT_MR_PlacingResource_Controller {
-    public HT_MR_PlacingResource_Controller(
-        HumanTransporter_MovingResource_Controller controller
-    ) {
+namespace BFG.Runtime.Controllers.HumanTransporter {
+public class PlacingResource {
+    public PlacingResource(MovingResources controller) {
         _controller = controller;
     }
 
-    public void OnEnter(HumanTransporter human, HumanTransporterData data) {
+    public void OnEnter(Entities.HumanTransporter human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
         Assert.AreNotEqual(human.stateMovingResource, MRState.PlacingResource);
@@ -21,13 +21,13 @@ public class HT_MR_PlacingResource_Controller {
 
         human.stateMovingResource = MRState.PlacingResource;
 
-        data.Map.onHumanTransporterStartedPlacingResource.OnNext(new() {
+        data.map.onHumanTransporterStartedPlacingResource.OnNext(new() {
             Human = human,
             Resource = human.stateMovingResource_targetedResource,
         });
     }
 
-    public void OnExit(HumanTransporter human, HumanTransporterData data) {
+    public void OnExit(Entities.HumanTransporter human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
         Assert.AreEqual(human.stateMovingResource_targetedResource, null);
@@ -35,7 +35,7 @@ public class HT_MR_PlacingResource_Controller {
         human.stateMovingResource_placingResourceProgress = 0;
     }
 
-    public void Update(HumanTransporter human, HumanTransporterData data, float dt) {
+    public void Update(Entities.HumanTransporter human, HumanTransporterData data, float dt) {
         human.stateMovingResource_placingResourceElapsed += dt;
         human.stateMovingResource_placingResourceProgress =
             human.stateMovingResource_placingResourceElapsed / data.PlacingResourceDuration;
@@ -60,7 +60,7 @@ public class HT_MR_PlacingResource_Controller {
         human.stateMovingResource_targetedResource = null;
 
         data.transportationSystem.OnHumanPlacedResource(human.pos, human.segment, res!);
-        data.Map.onHumanTransporterPlacedResource.OnNext(new() {
+        data.map.onHumanTransporterPlacedResource.OnNext(new() {
             Human = human,
             Resource = res!,
             Building = building,
@@ -70,13 +70,13 @@ public class HT_MR_PlacingResource_Controller {
     }
 
     public void OnHumanCurrentSegmentChanged(
-        HumanTransporter human,
+        Entities.HumanTransporter human,
         HumanTransporterData data,
         GraphSegment oldSegment
     ) {
         using var _ = Tracing.Scope();
     }
 
-    readonly HumanTransporter_MovingResource_Controller _controller;
+    readonly MovingResources _controller;
 }
 }
