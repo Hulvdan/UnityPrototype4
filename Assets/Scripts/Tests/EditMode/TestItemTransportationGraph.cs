@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using BFG.Core;
 using BFG.Graphs;
-using BFG.Runtime;
 using BFG.Runtime.Entities;
 using BFG.Runtime.Graphs;
 using NUnit.Framework;

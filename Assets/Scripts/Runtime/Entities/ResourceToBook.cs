@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using System;
-using BFG.Runtime.Entities;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {

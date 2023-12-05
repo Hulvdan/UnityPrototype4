@@ -1,4 +1,3 @@
-using BFG.Runtime;
 using BFG.Runtime.Graphs;
 using NUnit.Framework;
 
