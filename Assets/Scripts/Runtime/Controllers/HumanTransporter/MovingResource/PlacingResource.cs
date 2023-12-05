@@ -59,7 +59,7 @@ public class PlacingResource {
 
         human.stateMovingResource_targetedResource = null;
 
-        data.transportationSystem.OnHumanPlacedResource(human.pos, human.segment, res!);
+        data.transportation.OnHumanPlacedResource(human.pos, human.segment, res!);
         data.map.onHumanTransporterPlacedResource.OnNext(new() {
             Human = human,
             Resource = res!,

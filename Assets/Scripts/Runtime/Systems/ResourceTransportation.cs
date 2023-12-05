@@ -11,7 +11,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Systems {
-public class ResourceTransportationSystem {
+public class ResourceTransportation {
     // ReSharper disable once InconsistentNaming
     const int DEV_MAX_ITERATIONS = 256;
 
@@ -19,7 +19,7 @@ public class ResourceTransportationSystem {
     readonly Queue<(Direction, Vector2Int)> _queue = new();
     readonly List<(ResourceToBook, MapResource, List<Vector2Int>)> _foundPairs = new();
 
-    public ResourceTransportationSystem(IMap map, IMapSize mapSize) {
+    public ResourceTransportation(IMap map, IMapSize mapSize) {
         _map = map;
         _mapSize = mapSize;
         _visitedTiles = new byte[_mapSize.height, _mapSize.width];
