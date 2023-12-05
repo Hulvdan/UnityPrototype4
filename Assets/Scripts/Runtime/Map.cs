@@ -208,6 +208,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         using var _ = Tracing.Scope();
+        Tracing.Log($"Placing {item.Type} at {pos}");
 
         if (item.Type == SelectedItemType.Road) {
             var road = elementTiles[pos.y][pos.x];

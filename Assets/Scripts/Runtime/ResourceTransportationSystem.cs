@@ -246,6 +246,7 @@ public class ResourceTransportationSystem {
 
                 foreach (var vertex in segment.Vertices) {
                     if (vertex.Pos == b) {
+                        // TODO: Fix needed https://trello.com/c/TWrjdQYc
                         res.TransportationSegments.Add(segment);
                         res.TransportationVertices.Add(b);
                         break;
