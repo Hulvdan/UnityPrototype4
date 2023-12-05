@@ -355,7 +355,6 @@ public class ResourceTransportation {
         if (seg != null) {
             seg.LinkedResources.Remove(res);
 
-            // TODO: is this necessary?
             if (seg.ResourcesToTransport.Contains(res)) {
                 seg.ResourcesToTransport.Remove(res);
                 Assert.IsFalse(seg.ResourcesToTransport.Contains(res));
