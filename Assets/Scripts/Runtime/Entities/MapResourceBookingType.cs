@@ -1,6 +1,4 @@
-﻿using BFG.Runtime.Entities;
-
-namespace BFG.Runtime {
+﻿namespace BFG.Runtime.Entities {
 public enum MapResourceBookingType {
     Construction,
     Processing,
