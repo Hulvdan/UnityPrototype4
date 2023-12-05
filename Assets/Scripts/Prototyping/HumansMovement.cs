@@ -48,19 +48,20 @@ public class HumansMovement : MonoBehaviour {
             }
         }
 
-        var normalized = _movementElapsed / OneTileMovementDuration;
-        Assert.IsTrue(normalized <= 1);
+        var progress = _movementElapsed / OneTileMovementDuration;
+        Assert.IsTrue(progress <= 1);
         Assert.IsTrue(_movementElapsed <= OneTileMovementDuration);
 
         foreach (var binding in Bindings) {
             for (var i = 0; i < binding.Pattern.Feedbacks.Count; i++) {
-                var curve = binding.CurvePerFeedback[i];
-                var coef = curve.Evaluate(normalized);
                 var feedback = binding.Pattern.Feedbacks[i];
+                var curve = binding.CurvePerFeedback[i];
+                var t = curve.Evaluate(progress);
+
                 feedback.UpdateData(
                     Time.deltaTime,
-                    normalized,
-                    coef,
+                    progress,
+                    t,
                     binding.GetMovingFrom(),
                     binding.GetMovingTo(),
                     binding.Human

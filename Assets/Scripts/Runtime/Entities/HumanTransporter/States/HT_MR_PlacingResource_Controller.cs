@@ -17,7 +17,7 @@ public class HT_MR_PlacingResource_Controller {
         Assert.AreEqual(human.stateMovingResource_targetedResource!.TargetedHuman, human);
         Assert.AreEqual(human.stateMovingResource_targetedResource!.CarryingHuman, human);
         Assert.AreEqual(0, human.stateMovingResource_placingResourceElapsed);
-        Assert.AreEqual(0, human.stateMovingResource_placingResourceNormalized);
+        Assert.AreEqual(0, human.stateMovingResource_placingResourceProgress);
 
         human.stateMovingResource = MRState.PlacingResource;
 
@@ -32,20 +32,20 @@ public class HT_MR_PlacingResource_Controller {
 
         Assert.AreEqual(human.stateMovingResource_targetedResource, null);
         human.stateMovingResource_placingResourceElapsed = 0;
-        human.stateMovingResource_placingResourceNormalized = 0;
+        human.stateMovingResource_placingResourceProgress = 0;
     }
 
     public void Update(HumanTransporter human, HumanTransporterData data, float dt) {
         human.stateMovingResource_placingResourceElapsed += dt;
-        human.stateMovingResource_placingResourceNormalized =
+        human.stateMovingResource_placingResourceProgress =
             human.stateMovingResource_placingResourceElapsed / data.PlacingResourceDuration;
 
-        if (human.stateMovingResource_placingResourceNormalized < 1) {
+        if (human.stateMovingResource_placingResourceProgress < 1) {
             return;
         }
 
         human.stateMovingResource_placingResourceElapsed = data.PlacingResourceDuration;
-        human.stateMovingResource_placingResourceNormalized = 1;
+        human.stateMovingResource_placingResourceProgress = 1;
 
         var res = human.stateMovingResource_targetedResource;
 

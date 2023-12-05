@@ -1,29 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace BFG.Runtime {
 public abstract class MovementFeedback : MonoBehaviour {
-    static readonly AnimationCurve LinearCurve = AnimationCurve.Linear(0, 0, 1, 1);
-    public List<AnimationCurve> RandomCurves = new();
+    [FormerlySerializedAs("RandomCurves")]
+    [SerializeField]
+    List<AnimationCurve> _randomCurves = new();
 
     public AnimationCurve GetRandomCurve() {
-        if (RandomCurves.Count == 0) {
+        if (_randomCurves.Count == 0) {
             return LinearCurve;
         }
 
-        var index = Math.Min((int)(Random.value * RandomCurves.Count), RandomCurves.Count - 1);
-        return RandomCurves[index];
+        var index = Math.Min((int)(Random.value * _randomCurves.Count), _randomCurves.Count - 1);
+        return _randomCurves[index];
     }
 
     public abstract void UpdateData(
         float dt,
-        float normalized,
-        float coef,
+        float progress,
+        float t,
         Vector2 from,
         Vector2Int to,
         GameObject human
     );
+
+    static readonly AnimationCurve LinearCurve = AnimationCurve.Linear(0, 0, 1, 1);
 }
 }

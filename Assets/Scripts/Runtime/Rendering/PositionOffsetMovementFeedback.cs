@@ -10,15 +10,15 @@ public sealed class PositionOffsetMovementFeedback : MovementFeedback {
 
     public override void UpdateData(
         float dt,
-        float normalized,
-        float coef,
+        float progress,
+        float curveEvaluatedProgress,
         Vector2 from,
         Vector2Int to,
         GameObject human
     ) {
         human.transform.localPosition += new Vector3(
-            Mathf.Lerp(_amplitudeX.x, _amplitudeX.y, coef),
-            Mathf.Lerp(_amplitudeY.x, _amplitudeY.y, coef),
+            Mathf.Lerp(_amplitudeX.x, _amplitudeX.y, curveEvaluatedProgress),
+            Mathf.Lerp(_amplitudeY.x, _amplitudeY.y, curveEvaluatedProgress),
             0
         );
     }
