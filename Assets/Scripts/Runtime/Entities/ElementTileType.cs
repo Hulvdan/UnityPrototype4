@@ -1,4 +1,4 @@
-﻿namespace BFG.Runtime {
+﻿namespace BFG.Runtime.Entities {
 public enum ElementTileType {
     None = 0,
     Road = 1,
