@@ -246,7 +246,10 @@ public class ResourceTransportation {
 
                 foreach (var vertex in segment.Vertices) {
                     if (vertex.Pos == b) {
-                        // TODO: Fix needed https://trello.com/c/TWrjdQYc
+                        // Hulvdan: TransportationSegments can contain duplicates.
+                        // Consider the case:
+                        //     CrffrB
+                        //      rrrr
                         res.TransportationSegments.Add(segment);
                         res.TransportationVertices.Add(b);
                         break;
@@ -270,7 +273,9 @@ public class ResourceTransportation {
         res.TransportationSegments[0].ResourcesToTransport.Enqueue(res, res.Booking.Value.Priority);
 
         foreach (var segment in res.TransportationSegments) {
-            segment.LinkedResources.Add(res);
+            if (!segment.LinkedResources.Contains(res)) {
+                segment.LinkedResources.Add(res);
+            }
         }
 
         _resourcesToBook.Remove(resourceToBook);

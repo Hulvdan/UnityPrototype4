@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Collections.Generic;
 using BFG.Core;
 using BFG.Runtime.Graphs;
 using UnityEngine;
@@ -13,7 +14,8 @@ public class MapResource : IEquatable<MapResource> {
     public MapResourceType Type;
 
     public MapResourceBooking? Booking;
-    public readonly UniqueList<GraphSegment> TransportationSegments;
+
+    public readonly List<GraphSegment> TransportationSegments;
     public readonly UniqueList<Vector2Int> TransportationVertices;
 
     public HumanTransporter? TargetedHuman;
