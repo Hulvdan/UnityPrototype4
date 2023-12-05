@@ -47,10 +47,7 @@ public class MovingToResource {
     }
 
     public void Update(Entities.HumanTransporter human, HumanTransporterData data, float dt) {
-        // TODO: Is this block really necessary?
-        if (human.stateMovingResource_targetedResource == null) {
-            _controller.NestedState_Exit(human, data);
-        }
+        // There is no need in implementation
     }
 
     public void OnHumanCurrentSegmentChanged(
