@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace BFG.Graphs {
-public class Graph : IEquatable<Graph> {
+public sealed class Graph : IEquatable<Graph> {
     const int DEV_NUMBER_OF_BUILD_PATH_ITERATIONS = 256;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -540,11 +540,13 @@ public class Graph : IEquatable<Graph> {
                     var ik = dist[i][k];
                     var kj = dist[k][j];
 
-                    if (ik != int.MaxValue && kj != int.MaxValue) {
-                        if (ij > ik + kj) {
-                            dist[i][j] = ik + kj;
-                            prev[i][j] = prev[k][j];
-                        }
+                    if (
+                        ik != int.MaxValue
+                        && kj != int.MaxValue
+                        && ij > ik + kj
+                    ) {
+                        dist[i][j] = ik + kj;
+                        prev[i][j] = prev[k][j];
                     }
                 }
             }
