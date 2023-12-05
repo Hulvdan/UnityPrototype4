@@ -24,6 +24,7 @@ public class MovingResource {
     }
 
     public void Update(Entities.HumanTransporter human, HumanTransporterData data, float dt) {
+        // There is no need in implementation
     }
 
     public void OnHumanCurrentSegmentChanged(
