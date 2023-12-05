@@ -390,7 +390,7 @@ public static class ItemTransportationGraph {
         }
 
         if (!found) {
-            list.Add(new(new(), pos));
+            list.Add(new(pos));
         }
     }
 

@@ -37,8 +37,8 @@ public class TestItemTransportationGraph {
             new() {
                 new(
                     new() {
-                        new(new(), new(0, 0)),
-                        new(new(), new(1, 1)),
+                        new(new(0, 0)),
+                        new(new(1, 1)),
                     },
                     new() {
                         new(0, 0),

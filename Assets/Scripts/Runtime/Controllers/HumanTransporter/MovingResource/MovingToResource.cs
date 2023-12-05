@@ -47,7 +47,7 @@ public class MovingToResource {
     }
 
     public void Update(Entities.HumanTransporter human, HumanTransporterData data, float dt) {
-        // There is no need in implementation
+        // Hulvdan: Intentionally left blank
     }
 
     public void OnHumanCurrentSegmentChanged(

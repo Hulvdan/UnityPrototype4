@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Graphs {
-public class GraphSegment : IEquatable<GraphSegment> {
+public sealed class GraphSegment : IEquatable<GraphSegment> {
     public readonly Guid ID = Guid.NewGuid();
 
     public readonly List<GraphVertex> Vertices;
