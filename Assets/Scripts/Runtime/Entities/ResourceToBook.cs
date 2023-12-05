@@ -3,7 +3,7 @@ using System;
 using BFG.Runtime.Entities;
 using UnityEngine.Assertions;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Entities {
 public struct ResourceToBook : IEquatable<ResourceToBook> {
     public Guid ID;
     public ScriptableResource Scriptable;
