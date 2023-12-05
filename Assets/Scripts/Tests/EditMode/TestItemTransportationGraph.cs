@@ -26,6 +26,7 @@ public class TestItemTransportationGraph {
         expectedGraph.Mark(1, 0, Direction.Left);
         expectedGraph.Mark(1, 0, Direction.Up);
         expectedGraph.Mark(1, 1, Direction.Down);
+        expectedGraph.FinishBuilding();
 
         Test(
             ParseAsElementTiles(

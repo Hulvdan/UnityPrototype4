@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Text;
 using BFG.Core;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -17,6 +19,7 @@ public class Graph : IEquatable<Graph> {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte Node(int x, int y) {
+        Assert.IsTrue(_finishedBuilding);
         Assert.IsTrue(Contains(x, y));
         Assert.AreNotEqual(_offset, null);
 
@@ -29,6 +32,8 @@ public class Graph : IEquatable<Graph> {
     }
 
     public void Mark(int x, int y, Direction direction, bool value = true) {
+        Assert.IsFalse(_finishedBuilding);
+
         if (_offset == null) {
             _offset = new Vector2Int(x, y);
 
@@ -74,6 +79,7 @@ public class Graph : IEquatable<Graph> {
         // It allows to efficiently reconstruct a path from any two connected vertices.
         // https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
 
+        Assert.IsTrue(_finishedBuilding);
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
         Assert.IsTrue(_offset != null);
@@ -138,6 +144,7 @@ public class Graph : IEquatable<Graph> {
         // 2. HAL open science. A new algorithm for graph center computation
         // and graph partitioning according to the distance to the center
         // https://hal.science/hal-02304090/document
+        Assert.IsTrue(_finishedBuilding);
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
         Assert.AreNotEqual(_offset, null);
@@ -184,6 +191,7 @@ public class Graph : IEquatable<Graph> {
     }
 
     bool IsUndirected() {
+        Assert.IsTrue(_finishedBuilding);
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
 
@@ -222,24 +230,26 @@ public class Graph : IEquatable<Graph> {
     }
 
     public override string ToString() {
-        var res = "";
+        Assert.IsTrue(_finishedBuilding);
+        var builder = new StringBuilder();
+
         for (var y = 0; y < height; y++) {
             var row = nodes[height - y - 1];
             foreach (var node in row) {
-                res += GraphNode.ToDisplayString(node);
+                builder.Append(GraphNode.ToDisplayString(node));
             }
 
-            res += "\n";
+            if (y != height - 1) {
+                builder.Append("\n");
+            }
         }
 
-        if (height > 0) {
-            res = res.TrimEnd('\n');
-        }
-
-        return res;
+        return builder.ToString();
     }
 
     public bool Equals(Graph other) {
+        Assert.IsTrue(_finishedBuilding);
+
         if (ReferenceEquals(null, other)) {
             return false;
         }
@@ -247,6 +257,8 @@ public class Graph : IEquatable<Graph> {
         if (ReferenceEquals(this, other)) {
             return true;
         }
+
+        Assert.IsTrue(other._finishedBuilding);
 
         return _nodesCount.Equals(other._nodesCount)
                && Nullable.Equals(_offset, other._offset)
@@ -269,11 +281,17 @@ public class Graph : IEquatable<Graph> {
         return Equals((Graph)obj);
     }
 
+#pragma warning disable S2328 "GetHashCode" should not reference mutable fields
+    [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
     public override int GetHashCode() {
+#pragma warning enable S2328
+        Assert.IsTrue(_finishedBuilding);
+
         return HashCode.Combine(_offset, nodes);
     }
 
     void ResizeIfNeeded(int x, int y) {
+        Assert.IsFalse(_finishedBuilding);
         Assert.AreNotEqual(_offset, null);
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
@@ -400,6 +418,17 @@ public class Graph : IEquatable<Graph> {
     CalculatedGraphPathData _data;
 
     List<Vector2Int> _centers;
+    bool _finishedBuilding;
+
+    public void FinishBuilding() {
+        Assert.IsFalse(_finishedBuilding);
+        Assert.IsTrue(_nodesCount > 0);
+        Assert.AreNotEqual(_offset, null);
+        Assert.IsTrue(height > 0);
+        Assert.IsTrue(width > 0);
+
+        _finishedBuilding = true;
+    }
 
     public int Cost(Vector2Int origin, Vector2Int destination) {
         Assert.AreNotEqual(Node(origin), (byte)0);

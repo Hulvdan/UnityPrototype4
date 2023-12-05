@@ -117,6 +117,7 @@ public static class ItemTransportationGraph {
             }
 
             if (vertices.Count > 1) {
+                graph.FinishBuilding();
                 graphSegments.Add(new(vertices, segmentTiles, graph));
             }
         }
@@ -297,6 +298,7 @@ public static class ItemTransportationGraph {
             }
 
             if (vertices.Count > 1) {
+                graph.FinishBuilding();
                 graphSegments.Add(new(vertices, segmentTiles, graph));
             }
         }
