@@ -41,7 +41,7 @@ public class GameManager : MonoBehaviour {
 
     [SerializeField]
     [Required]
-    RaycastBridge _raycastBridge;
+    MapRendererRaycaster _raycastBridge;
 
     [SerializeField]
     float _mapMovementScale = 32f;

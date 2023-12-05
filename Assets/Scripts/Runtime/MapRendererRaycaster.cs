@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 
 namespace BFG.Runtime {
-public class RaycastBridge : EventTrigger {
+public class MapRendererRaycaster : EventTrigger {
     [SerializeField]
     [Required]
     InputActionAsset _inputs;
