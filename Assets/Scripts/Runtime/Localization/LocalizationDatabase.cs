@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reactive.Subjects;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Localization {
 public class LocalizationDatabase : SingletonMB<LocalizationDatabase> {
     Dictionary<string, LocalizationRecord> _translations = new();
     public Subject<Language> onLanguageChanged { get; } = new();

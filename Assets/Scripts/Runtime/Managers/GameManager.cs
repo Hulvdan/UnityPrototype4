@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reactive.Subjects;
+using BFG.Runtime.Localization;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;
 using UnityEditor;

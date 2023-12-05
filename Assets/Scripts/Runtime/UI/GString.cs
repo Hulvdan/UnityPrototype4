@@ -1,4 +1,5 @@
 ﻿using System;
+using BFG.Runtime.Localization;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
