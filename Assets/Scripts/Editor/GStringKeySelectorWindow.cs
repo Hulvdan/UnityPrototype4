@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BFG.Runtime;
+using BFG.Runtime.Localization;
 using UnityEditor;
 using UnityEngine;
 

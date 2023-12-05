@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
 using BFG.Core;
+using BFG.Runtime.Controllers.HumanTransporter;
+using BFG.Runtime.Entities;
+using BFG.Runtime.Graphs;
+using BFG.Runtime.Systems;
 using Foundation.Architecture;
 using Priority_Queue;
 using SimplexNoise;
@@ -21,7 +25,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     // 2 - Trees, Stone, Ore
     // 3 - Roads, Rails
     // 4 - Humans, Stations, Buildings
-    // 5 - Horses
     // 6 - To Be Implemented: Particles (smoke, footstep dust etc)
 
     [FoldoutGroup("Map", true)]
@@ -74,10 +77,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     [FoldoutGroup("Setup", true)]
     [SerializeField]
-    readonly List<Human> _humans = new();
-
-    [FoldoutGroup("Setup", true)]
-    [SerializeField]
     [Required]
     ScriptableResource _logResource = null!;
 
@@ -96,26 +95,9 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [Required]
     InitialMapProvider _initialMapProvider = null!;
 
-    [SerializeField]
-    [Required]
-    ScriptableBuilding _lumberjacksHouse = null!;
-
     [FoldoutGroup("Debug", true)]
     [SerializeField]
     bool _hideEditorLogs;
-
-    [FormerlySerializedAs("_compoundSystem")]
-    [FormerlySerializedAs("_movementSystemInterface")]
-    [FoldoutGroup("Horse Movement System", true)]
-    [SerializeField]
-    [Required]
-    HorseCompoundSystem _horseCompoundSystem = null!;
-
-    [FormerlySerializedAs("_horsesGatheringAroundStationRadius")]
-    [FoldoutGroup("Horse Movement System", true)]
-    [SerializeField]
-    [Min(1)]
-    int _horsesStationItemsGatheringRadius = 2;
 
     GameManager _gameManager = null!;
 
@@ -131,23 +113,12 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void Update() {
         var dt = _gameManager.dt;
-        _resourceTransportationSystem.PathfindItemsInQueue();
-        UpdateHumans(dt);
+        _resourceTransportation.PathfindItemsInQueue();
         UpdateHumanTransporters(dt);
         UpdateBuildings(dt);
-        // _horseCompoundSystem.UpdateDt(dt);
-    }
-
-    void OnValidate() {
-        _humanTotalHarvestingDuration = _humanHeadingDuration
-                                        + _humanHarvestingDuration
-                                        + _humanHeadingToTheStoreBuildingDuration
-                                        + _humanReturningBackDuration;
     }
 
     public List<TopBarResource> resources { get; } = new();
-
-    // List<MapResource> _mapResources = new();
 
     public Subject<Vector2Int> onElementTileChanged { get; } = new();
     public Subject<E_BuildingPlaced> onBuildingPlaced { get; } = new();
@@ -173,13 +144,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             OnTerrainTilesRegenerated.Invoke();
         }
 
-        // _horseCompoundSystem.Init(this, this);
-
-        // CreateHuman(_buildings[0]);
-        // CreateHuman(_buildings[0]);
-        // CreateHuman(_buildings[1]);
-        // CreateHuman(_buildings[1]);
-
         mapResources = new() { Capacity = height };
         for (var y = 0; y < height; y++) {
             var row = new List<List<MapResource>> { Capacity = width };
@@ -194,8 +158,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             AddMapResource(cityHall, _planksResource);
         }
 
-        _resourceTransportationSystem = new(this, this);
-        _humanTransporterController = new(this, this, cityHall, _resourceTransportationSystem);
+        _resourceTransportation = new(this, this);
+        _humanTransporterController = new(this, this, cityHall, _resourceTransportation);
 
         if (Application.isPlaying) {
             // TryBuild(new(8, 8), new() { Type = SelectedItemType.Road });
@@ -235,21 +199,21 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public void InitDependencies(GameManager gameManager) {
         _gameManager = gameManager;
-        // _horseCompoundSystem.InitDependencies(gameManager);
 
         buildings = _buildingGameObjects.Select(i => i.IntoBuilding()).ToList();
     }
 
-    public void TryBuild(Vector2Int pos, SelectedItem item) {
+    public void TryBuild(Vector2Int pos, ItemToBuild item) {
         if (!Contains(pos)) {
             return;
         }
 
         using var _ = Tracing.Scope();
+        Tracing.Log($"Placing {item.Type} at {pos}");
 
-        if (item.Type == SelectedItemType.Road) {
+        if (item.Type == ItemToBuildType.Road) {
             var road = elementTiles[pos.y][pos.x];
-            road.Type = ElementTileType.Road;
+            road.type = ElementTileType.Road;
             elementTiles[pos.y][pos.x] = road;
 
             onElementTileChanged.OnNext(pos);
@@ -263,15 +227,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             );
             UpdateSegments(res);
         }
-        else if (item.Type == SelectedItemType.Station) {
-            var tile = elementTiles[pos.y][pos.x];
-            tile.Type = ElementTileType.Station;
-            tile.Rotation = _gameManager.selectedItemRotation == 0 ? 1 : 0;
-            elementTiles[pos.y][pos.x] = tile;
-
-            onElementTileChanged.OnNext(pos);
-        }
-        else if (item.Type == SelectedItemType.Building) {
+        else if (item.Type == ItemToBuildType.Building) {
             var building = new Building(new(), item.Building, pos, 0);
             buildings.Add(building);
 
@@ -306,8 +262,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             UpdateBuilding_NotConstructed(0, building);
             UpdateSegments(res);
         }
-        else if (item.Type == SelectedItemType.Flag) {
-            if (elementTiles[pos.y][pos.x].Type != ElementTileType.Road) {
+        else if (item.Type == ItemToBuildType.Flag) {
+            if (elementTiles[pos.y][pos.x].type != ElementTileType.Road) {
                 return;
             }
 
@@ -327,18 +283,18 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         DomainEvents<E_ItemPlaced>.Publish(new() { Item = item.Type, Pos = pos });
     }
 
-    public bool CanBePlaced(Vector2Int pos, SelectedItemType itemType) {
+    public bool CanBePlaced(Vector2Int pos, ItemToBuildType itemType) {
         if (!Contains(pos.x, pos.y)) {
             Debug.LogError("WTF?");
             return false;
         }
 
         switch (itemType) {
-            case SelectedItemType.Road:
-            case SelectedItemType.Building:
+            case ItemToBuildType.Road:
+            case ItemToBuildType.Building:
                 return IsBuildable(pos);
-            case SelectedItemType.Flag:
-                return elementTiles[pos.y][pos.x].Type == ElementTileType.Road;
+            case ItemToBuildType.Flag:
+                return elementTiles[pos.y][pos.x].type == ElementTileType.Road;
             default:
                 return false;
         }
@@ -353,7 +309,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         var humansMovingToCityHall = 0;
         foreach (var human in _humanTransporters) {
-            var state = HumanTransporter_MovingInTheWorld_Controller.State.MovingToTheCityHall;
+            var state = MovingInTheWorld.State.MovingToTheCityHall;
             if (human.stateMovingInTheWorld == state) {
                 humansMovingToCityHall++;
             }
@@ -362,7 +318,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         Stack<Tuple<GraphSegment?, HumanTransporter>> humansThatNeedNewSegment =
             new(res.DeletedSegments.Count + humansMovingToCityHall);
         foreach (var human in _humanTransporters) {
-            var state = HumanTransporter_MovingInTheWorld_Controller.State.MovingToTheCityHall;
+            var state = MovingInTheWorld.State.MovingToTheCityHall;
             if (human.stateMovingInTheWorld == state) {
                 humansThatNeedNewSegment.Push(new(null, human));
             }
@@ -382,7 +338,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 linkedSegment.Unlink(segment);
             }
 
-            _resourceTransportationSystem.OnSegmentDeleted(segment);
+            _resourceTransportation.OnSegmentDeleted(segment);
 
             if (segmentsThatNeedHumans.Contains(segment)) {
                 segmentsThatNeedHumans.Remove(segment);
@@ -408,7 +364,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             segments.Add(segment);
         }
 
-        _resourceTransportationSystem.PathfindItemsInQueue();
+        _resourceTransportation.PathfindItemsInQueue();
         Tracing.Log("_itemTransportationSystem.PathfindItemsInQueue()");
 
         while (humansThatNeedNewSegment.Count > 0 && segmentsThatNeedHumans.Count > 0) {
@@ -491,7 +447,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         while (queue.Count > 0) {
             var pos = queue.Dequeue();
-            // var tile = elementTiles[pos.y][pos.x];
 
             foreach (var dir in Utils.Directions) {
                 var offset = dir.AsOffset();
@@ -579,7 +534,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             return false;
         }
 
-        if (elementTiles[y][x].Type != ElementTileType.None) {
+        if (elementTiles[y][x].type != ElementTileType.None) {
             return false;
         }
 
@@ -596,72 +551,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         return IsBuildable(pos.x, pos.y);
     }
 
-    public bool CellContainsPickupableItems(Vector2Int hoveredTile) {
-        foreach (var building in buildings) {
-            if (
-                building.scriptable.type != BuildingType.Produce
-                || building.producedResources.Count <= 0
-                || !building.Contains(hoveredTile)
-            ) {
-                continue;
-            }
-
-            var itemsPos = building.pos +
-                           building.scriptable.pickupableItemsCellOffset;
-            if (hoveredTile == itemsPos) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public void CollectItems(Vector2Int hoveredTile) {
-        foreach (var building in buildings) {
-            if (
-                building.scriptable.type != BuildingType.Produce
-                || building.producedResources.Count <= 0
-                || !building.Contains(hoveredTile)
-            ) {
-                continue;
-            }
-
-            var itemsPos = building.pos +
-                           building.scriptable.pickupableItemsCellOffset;
-            if (hoveredTile != itemsPos) {
-                continue;
-            }
-
-            var res = building.producedResources[0].script;
-            var oldAmount = resources.Find(x => x.Resource == res).Amount;
-            var newAmount = oldAmount + building.producedResources.Count;
-            resources.Find(x => x.Resource == res).Amount = newAmount;
-
-            onProducedResourcesPickedUp.OnNext(new() {
-                Resources = building.producedResources,
-                Position = itemsPos,
-            });
-            building.producedResources.Clear();
-
-            onResourceChanged.OnNext(new() {
-                Resource = res,
-                OldAmount = oldAmount,
-                NewAmount = newAmount,
-            });
-        }
-    }
-
-    public void OnCreateHorse(HorseCreateData data) {
-        SpendResources(data.RequiredResources);
-        var horse = _horseCompoundSystem.CreateTrain(0, data.Building.pos, Direction.Down);
-        horse.AddDestination(new() {
-            Type = HorseDestinationType.Default,
-            Pos = data.Building.pos,
-        });
-
-        _horseCompoundSystem.TrySetNextDestinationAndBuildPath(horse);
-    }
-
     public int height => _mapSizeY;
     public int width => _mapSizeX;
 
@@ -671,26 +560,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public bool Contains(int x, int y) {
         return x >= 0 && x < width && y >= 0 && y < height;
-    }
-
-    void SpendResources(List<Tuple<int, ScriptableResource>> resourcesToSpend) {
-        foreach (var res in resourcesToSpend) {
-            foreach (var ress in resources) {
-                if (ress.Resource != res.Item2) {
-                    continue;
-                }
-
-                var oldAmount = ress.Amount;
-                ress.Amount = Math.Max(ress.Amount - res.Item1, 0);
-
-                onResourceChanged.OnNext(new() {
-                    Resource = res.Item2,
-                    OldAmount = oldAmount,
-                    NewAmount = ress.Amount,
-                });
-                break;
-            }
-        }
     }
 
     void UpdateBuildings(float dt) {
@@ -710,7 +579,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         if (building.ResourcesToBook.Count > 0) {
-            _resourceTransportationSystem.Add_ResourcesToBook(building.ResourcesToBook);
+            _resourceTransportation.Add_ResourcesToBook(building.ResourcesToBook);
             building.ResourcesToBook.Clear();
         }
     }
@@ -770,18 +639,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         });
     }
 
-    void GiveResource(ScriptableResource resource1, int amount) {
-        var resource = resources.Find(x => x.Resource == resource1);
-        resource.Amount += amount;
-        onResourceChanged.OnNext(
-            new() {
-                NewAmount = resource.Amount,
-                OldAmount = resource.Amount - amount,
-                Resource = resource1,
-            }
-        );
-    }
-
     Building cityHall => buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall);
 
     #region HumanSystem_Attributes
@@ -789,37 +646,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [FoldoutGroup("Humans", true)]
     [ShowInInspector]
     [ReadOnly]
-    float _humanTotalHarvestingDuration;
-
-    [FoldoutGroup("Humans", true)]
-    [ShowInInspector]
-    [ReadOnly]
     [Min(0.01f)]
-    float _humanTransporterMovingOneCellDuration = 1f;
-
-    [FoldoutGroup("Humans", true)]
-    [SerializeField]
-    [Min(0)]
-    float _humanHeadingDuration;
-
-    [FoldoutGroup("Humans", true)]
-    [SerializeField]
-    [Min(0)]
-    float _humanHarvestingDuration;
-
-    [FoldoutGroup("Humans", true)]
-    [SerializeField]
-    [Min(0)]
-    float _humanHeadingToTheStoreBuildingDuration;
-
-    [FoldoutGroup("Humans", true)]
-    [SerializeField]
-    [Min(0)]
-    float _humanReturningBackDuration;
-
-    [FoldoutGroup("Humans", true)]
-    [SerializeField]
-    AnimationCurve _humanMovementCurve = AnimationCurve.Linear(0, 0, 1, 1);
+    float _humanMovingOneCellDuration = 1f;
 
     [FoldoutGroup("Humans", true)]
     [SerializeField]
@@ -832,18 +660,14 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     readonly List<HumanTransporter> _humanTransporters = new();
 
-    public float humanTransporterMovingOneCellDuration => _humanTransporterMovingOneCellDuration;
+    public float humanMovingOneCellDuration => _humanMovingOneCellDuration;
 
     #endregion
 
     #region Events
 
-    public Subject<E_HumanCreated> onHumanCreated { get; } = new();
     public Subject<E_HumanTransporterCreated> onHumanTransporterCreated { get; } = new();
     public Subject<E_CityHallCreatedHuman> onCityHallCreatedHuman { get; } = new();
-    public Subject<E_HumanStateChanged> onHumanStateChanged { get; } = new();
-    public Subject<E_HumanPickedUpResource> onHumanPickedUpResource { get; } = new();
-    public Subject<E_HumanPlacedResource> onHumanPlacedResource { get; } = new();
 
     public Subject<E_HumanReachedCityHall> onHumanReachedCityHall { get; } = new();
 
@@ -863,17 +687,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public Subject<E_HumanTransporterPlacedResource> onHumanTransporterPlacedResource { get; } =
         new();
 
-    public Subject<E_TrainCreated> onTrainCreated { get; } = new();
-    public Subject<E_TrainNodeCreated> onTrainNodeCreated { get; } = new();
-
-    public Subject<E_TrainPickedUpResource> onTrainPickedUpResource { get; } = new();
-    public Subject<E_TrainPushedResource> onTrainPushedResource { get; } = new();
-
     public Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; } = new();
     public Subject<E_BuildingProducedItem> onBuildingProducedItem { get; } = new();
-    public Subject<E_ProducedResourcesPickedUp> onProducedResourcesPickedUp { get; } = new();
-
-    public Subject<E_TopBarResourceChanged> onResourceChanged { get; } = new();
 
     #endregion
 
@@ -960,281 +775,14 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         segment.AssignedHuman = human;
         _humanTransporters.Add(human);
 
-        _humanTransporterController.SetState(human, HumanTransporterState.MovingInTheWorld);
+        _humanTransporterController.SetState(
+            human, MainState.MovingInTheWorld
+        );
 
         onHumanTransporterCreated.OnNext(new() { Human = human });
 
         onCityHallCreatedHuman.OnNext(new() { CityHall = cityHall });
         DomainEvents<E_CityHallCreatedHuman>.Publish(new() { CityHall = cityHall });
-    }
-
-    void CreateHuman(Building building) {
-        var human = new Human(Guid.NewGuid(), building, building.pos);
-        _humans.Add(human);
-        onHumanCreated.OnNext(new(human));
-    }
-
-    void UpdateHumans(float dt) {
-        foreach (var human in _humans) {
-            if (human.state != HumanState.Idle) {
-                human.harvestingElapsed += dt;
-
-                var newState = human.state;
-                if (human.harvestingElapsed >= _humanTotalHarvestingDuration) {
-                    newState = HumanState.Idle;
-                    if (human.state != newState) {
-                        HumanFinishedHeadingBackToTheHarvestBuilding(human);
-
-                        human.harvestingElapsed = 0;
-
-                        HumanStartedIdle(human);
-                    }
-                }
-                else if (
-                    human.harvestingElapsed >=
-                    _humanHeadingDuration
-                    + _humanHarvestingDuration
-                    + _humanHeadingToTheStoreBuildingDuration
-                ) {
-                    newState = HumanState.HeadingBackToTheHarvestBuilding;
-                    if (human.state != newState) {
-                        HumanFinishedHeadingToTheStoreBuilding(human);
-
-                        PlaceResource(human);
-                        human.movingFrom = human.storeBuilding!.pos;
-                        human.storeBuilding.isBooked = false;
-                        human.storeBuilding = null;
-
-                        HumanStartedHeadingBackToTheHarvestBuilding(human);
-                    }
-                }
-                else if (
-                    human.harvestingElapsed >=
-                    _humanHeadingDuration
-                    + _humanHarvestingDuration
-                ) {
-                    newState = HumanState.HeadingToTheStoreBuilding;
-                    if (human.state != newState) {
-                        HumanFinishedHarvesting(human);
-
-                        PickUpResource(human);
-                        var pos = human.harvestTilePosition!.Value;
-                        terrainTiles[pos.y][pos.x].IsBooked = false;
-
-                        HumanStartedHeadingToTheStoreBuilding(human);
-                    }
-                }
-                else if (human.harvestingElapsed >= _humanHeadingDuration) {
-                    newState = HumanState.Harvesting;
-                    if (human.state != newState) {
-                        HumanFinishedHeadingToTheHarvestTile(human);
-                        HumanStartedHarvesting(human);
-                    }
-                }
-
-                ChangeHumanState(human, newState);
-            }
-
-            switch (human.state) {
-                case HumanState.Idle:
-                    UpdateHumanIdle(human);
-                    break;
-                case HumanState.HeadingToTheHarvestTile:
-                    UpdateHumanHeadingToTheHarvestTile(human);
-                    break;
-                case HumanState.Harvesting:
-                    UpdateHumanHarvesting(human);
-                    break;
-                case HumanState.HeadingToTheStoreBuilding:
-                    UpdateHumanHeadingToTheStoreBuilding(human);
-                    break;
-                case HumanState.HeadingBackToTheHarvestBuilding:
-                    UpdateHumanHeadingBackToTheHarvestBuilding(human);
-                    break;
-            }
-        }
-    }
-
-    void HumanStartedIdle(Human human) {
-    }
-
-    void HumanFinishedIdle(Human human) {
-    }
-
-    void HumanStartedHeadingToTheHarvestTile(Human human) {
-    }
-
-    void HumanFinishedHeadingToTheHarvestTile(Human human) {
-    }
-
-    void HumanStartedHarvesting(Human human) {
-    }
-
-    void HumanFinishedHarvesting(Human human) {
-    }
-
-    void HumanStartedHeadingToTheStoreBuilding(Human human) {
-    }
-
-    void HumanFinishedHeadingToTheStoreBuilding(Human human) {
-    }
-
-    void HumanStartedHeadingBackToTheHarvestBuilding(Human human) {
-    }
-
-    void HumanFinishedHeadingBackToTheHarvestBuilding(Human human) {
-    }
-
-    void PickUpResource(Human human) {
-        var pos = human.harvestTilePosition!.Value;
-        var tile = terrainTiles[pos.y][pos.x];
-        tile.ResourceAmount -= 1;
-
-        var res = human.building!.scriptable.harvestableResource;
-        onHumanPickedUpResource.OnNext(
-            new() {
-                Human = human,
-                Resource = new(Guid.NewGuid(), res),
-                ResourceTilePosition = pos,
-                PickedUpAmount = 1,
-                RemainingAmountPercent = tile.ResourceAmount / (float)_maxForestAmount,
-            }
-        );
-
-        if (tile.ResourceAmount <= 0) {
-            tile.Resource = null;
-        }
-
-        if (tile.ResourceAmount < 0) {
-            Debug.LogError("WTF tile.ResourceAmount < 0 ?");
-        }
-    }
-
-    void PlaceResource(Human human) {
-        var scriptableResource = human.building!.scriptable.harvestableResource;
-        var resource = new ResourceObj(Guid.NewGuid(), scriptableResource);
-        human.storeBuilding!.storedResources.Add(resource);
-
-        onHumanPlacedResource.OnNext(
-            new() {
-                Amount = 1,
-                Human = human,
-                StoreBuilding = human.storeBuilding,
-                Resource = resource,
-            }
-        );
-    }
-
-    void ChangeHumanState(Human human, HumanState newState) {
-        if (newState == human.state) {
-            return;
-        }
-
-        var oldState = human.state;
-        human.state = newState;
-        onHumanStateChanged.OnNext(new(human, oldState, newState));
-    }
-
-    void UpdateHumanIdle(Human human) {
-        var r = human.building!.scriptable.tilesRadius;
-        var leftInclusive = Math.Max(0, human.building.posX - r);
-        var rightInclusive = Math.Min(width - 1, human.building.posX + r);
-        var topInclusive = Math.Min(height - 1, human.building.posY + r);
-        var bottomInclusive = Math.Max(0, human.building.posY - r);
-
-        var resource = human.building.scriptable.harvestableResource;
-        var yy = Enumerable.Range(bottomInclusive, topInclusive - bottomInclusive + 1).ToArray();
-        var xx = Enumerable.Range(leftInclusive, rightInclusive - leftInclusive + 1).ToArray();
-
-        Utils.Shuffle(yy, _random);
-        Utils.Shuffle(xx, _random);
-
-        Building? storeBuildingCandidate = null;
-        Vector2Int? tileCandidate = null;
-
-        var shouldBreak = false;
-        foreach (var y in yy) {
-            foreach (var x in xx) {
-                if (!terrainTiles[y][x].IsBooked && terrainTiles[y][x].Resource == resource) {
-                    tileCandidate = new Vector2Int(x, y);
-                    shouldBreak = true;
-                    break;
-                }
-            }
-
-            if (shouldBreak) {
-                break;
-            }
-        }
-
-        var buildingCopy = buildings.ToArray();
-        Utils.Shuffle(buildingCopy, _random);
-        foreach (var building in buildingCopy) {
-            if (building.scriptable.type != BuildingType.Store) {
-                continue;
-            }
-
-            if (building.isBooked) {
-                continue;
-            }
-
-            if (building.storedResources.Count >= building.scriptable.storeItemsAmount) {
-                continue;
-            }
-
-            var isWithinRadius = leftInclusive <= building.pos.x
-                                 && building.pos.x <= rightInclusive
-                                 && bottomInclusive <= building.pos.y
-                                 && building.pos.y <= topInclusive;
-            if (isWithinRadius) {
-                storeBuildingCandidate = building;
-                break;
-            }
-        }
-
-        if (tileCandidate != null && storeBuildingCandidate != null) {
-            var x = tileCandidate.Value.x;
-            var y = tileCandidate.Value.y;
-            human.harvestTilePosition = new Vector2Int(x, y);
-            human.storeBuilding = storeBuildingCandidate;
-
-            terrainTiles[y][x].IsBooked = true;
-            storeBuildingCandidate.isBooked = true;
-
-            HumanFinishedIdle(human);
-            ChangeHumanState(human, HumanState.HeadingToTheHarvestTile);
-            HumanStartedHeadingToTheHarvestTile(human);
-        }
-    }
-
-    void UpdateHumanHeadingToTheHarvestTile(Human human) {
-        var t = human.harvestingElapsed / _humanHeadingDuration;
-        var mt = _humanMovementCurve.Evaluate(t);
-        human.position = Vector2.Lerp(human.building!.pos, human.harvestTilePosition!.Value, mt);
-    }
-
-    void UpdateHumanHarvesting(Human human) {
-    }
-
-    void UpdateHumanHeadingToTheStoreBuilding(Human human) {
-        var stateElapsed = human.harvestingElapsed
-                           - _humanHeadingDuration
-                           - _humanHarvestingDuration;
-        var t = stateElapsed / _humanHeadingToTheStoreBuildingDuration;
-        var mt = _humanMovementCurve.Evaluate(t);
-        human.position = Vector2.Lerp(
-            human.harvestTilePosition!.Value, human.storeBuilding!.pos, mt
-        );
-    }
-
-    void UpdateHumanHeadingBackToTheHarvestBuilding(Human human) {
-        var stateElapsed = human.harvestingElapsed
-                           - _humanHeadingDuration
-                           - _humanHarvestingDuration
-                           - _humanHeadingToTheStoreBuildingDuration;
-        var t = stateElapsed / _humanReturningBackDuration;
-        var mt = _humanMovementCurve.Evaluate(t);
-        human.position = Vector2.Lerp(human.movingFrom, human.building!.pos, mt);
     }
 
     void UpdateHumanTransporters(float dt) {
@@ -1250,12 +798,12 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 while (
                     iteration++ < 10 * GUARD_MAX_ITERATIONS_COUNT
                     && human.movingTo != null
-                    && human.movingElapsed > humanTransporterMovingOneCellDuration
+                    && human.movingElapsed > humanMovingOneCellDuration
                 ) {
                     using var _ = Tracing.Scope();
                     Tracing.Log("Human reached the next tile");
 
-                    human.movingElapsed -= humanTransporterMovingOneCellDuration;
+                    human.movingElapsed -= humanMovingOneCellDuration;
 
                     human.pos = human.movingTo.Value;
                     human.movingFrom = human.pos;
@@ -1272,13 +820,13 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     Debug.LogWarning("WTF?");
                 }
 
-                human.movingNormalized = Mathf.Min(
-                    1, human.movingElapsed / _humanTransporterMovingOneCellDuration
+                human.movingProgress = Mathf.Min(
+                    1, human.movingElapsed / _humanMovingOneCellDuration
                 );
             }
 
             _humanTransporterController.Update(human, dt);
-            var state = HumanTransporter_MovingInTheWorld_Controller.State.MovingToTheCityHall;
+            var state = MovingInTheWorld.State.MovingToTheCityHall;
             if (
                 human.stateMovingInTheWorld == state
                 && human.pos == cityHall.pos
@@ -1298,279 +846,9 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     #region ItemTransportationSystem
 
-    ResourceTransportationSystem _resourceTransportationSystem = null!;
-    HumanTransporter_Controller _humanTransporterController = null!;
+    ResourceTransportation _resourceTransportation = null!;
+    MainController _humanTransporterController = null!;
 
     #endregion
-
-    #region TrainSystem_Behaviour
-
-    public bool AreThereAvailableResourcesForTheTrain(HorseTrain train) {
-        if (train.CurrentDestination.HasValue == false) {
-            Debug.LogError("WTF?");
-            return false;
-        }
-
-        var pos = train.CurrentDestination.Value.Pos;
-        var dimensions = GetStationDimensions(pos);
-        var expandedDimensions = ExpandStationDimensions(dimensions);
-
-        foreach (var building in buildings) {
-            if (building.scriptable.type != BuildingType.Store) {
-                continue;
-            }
-
-            if (!Intersect(expandedDimensions, building.rect)) {
-                continue;
-            }
-
-            if (building.storedResources.Count > 0) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    bool Intersect(RectInt rect1, RectInt rect2) {
-        return rect1.xMin < rect2.xMax
-               && rect1.xMax > rect2.xMin
-               && rect1.yMin < rect2.yMax
-               && rect1.yMax > rect2.yMin;
-    }
-
-    RectInt ExpandStationDimensions(RectInt dimensions) {
-        return new() {
-            xMin = Math.Max(0, dimensions.xMin - _horsesStationItemsGatheringRadius),
-            yMin = Math.Max(0, dimensions.yMin - _horsesStationItemsGatheringRadius),
-            xMax = Math.Min(width, dimensions.xMax + _horsesStationItemsGatheringRadius),
-            yMax = Math.Min(height, dimensions.yMax + _horsesStationItemsGatheringRadius),
-        };
-    }
-
-    RectInt GetStationDimensions(Vector2Int pos) {
-        var tile = elementTiles[pos.y][pos.x];
-        if (tile.Type != ElementTileType.Station) {
-            Debug.LogError("WTF?");
-            return new(pos.x, pos.y, 1, 1);
-        }
-
-        var w = 1;
-        var h = 1;
-        var leftX = pos.x;
-        var bottomY = pos.y;
-        if (tile.Rotation == 0) {
-            for (var x = pos.x - 1; x >= 0; x--) {
-                var newTile = elementTiles[pos.y][x];
-                if (newTile.Type != ElementTileType.Station || newTile.Rotation != 0) {
-                    break;
-                }
-
-                w += 1;
-                leftX = x;
-            }
-
-            for (var x = pos.x + 1; x < width; x++) {
-                var newTile = elementTiles[pos.y][x];
-                if (newTile.Type != ElementTileType.Station || newTile.Rotation != 0) {
-                    break;
-                }
-
-                w += 1;
-            }
-        }
-        else if (tile.Rotation == 1) {
-            for (var y = pos.y - 1; y >= 0; y--) {
-                var newTile = elementTiles[y][pos.x];
-                if (newTile.Type != ElementTileType.Station || newTile.Rotation != 1) {
-                    break;
-                }
-
-                bottomY = y;
-                h += 1;
-            }
-
-            for (var y = pos.y + 1; y < height; y++) {
-                var newTile = elementTiles[y][pos.x];
-                if (newTile.Type != ElementTileType.Station || newTile.Rotation != 1) {
-                    break;
-                }
-
-                h += 1;
-            }
-        }
-        else {
-            Debug.LogError("WTF?");
-        }
-
-        return new(leftX, bottomY, w, h);
-    }
-
-    public void PickRandomItemForTheTrain(HorseTrain horse) {
-        TrainNode? foundNode = null;
-        foreach (var node in horse.nodes) {
-            if (node.canStoreResourceCount > node.storedResources.Count) {
-                foundNode = node;
-                break;
-            }
-        }
-
-        if (foundNode == null) {
-            Debug.LogError("WTF?");
-            return;
-        }
-
-        if (horse.CurrentDestination.HasValue == false) {
-            Debug.LogError("WTF?");
-            return;
-        }
-
-        var pos = horse.CurrentDestination.Value.Pos;
-        var dimensions = GetStationDimensions(pos);
-        var expandedDimensions = ExpandStationDimensions(dimensions);
-
-        var shuffledBuildings = buildings.ToArray();
-        Utils.Shuffle(shuffledBuildings, _random);
-
-        Building? foundBuilding = null;
-        ResourceObj? foundResource = null;
-        var foundResourceIndex = -1;
-        var resourceSlotPosition = Vector2.zero;
-        foreach (var building in shuffledBuildings) {
-            if (building.scriptable.type != BuildingType.Store) {
-                continue;
-            }
-
-            if (!Intersect(expandedDimensions, building.rect)) {
-                continue;
-            }
-
-            if (building.storedResources.Count == 0) {
-                continue;
-            }
-
-            foundResourceIndex = building.storedResources.Count - 1;
-            foundBuilding = building;
-            foundResource = building.storedResources[foundResourceIndex];
-            resourceSlotPosition = building.scriptable.storedItemPositions[
-                                       foundResourceIndex % building.scriptable
-                                           .storedItemPositions.Count] +
-                                   building.pos;
-            building.storedResources.RemoveAt(foundResourceIndex);
-            break;
-        }
-
-        if (foundResource == null) {
-            Debug.LogError("WTF?");
-            return;
-        }
-
-        foundNode.storedResources.Add(foundResource);
-
-        onTrainPickedUpResource.OnNext(new() {
-            Train = horse,
-            TrainNode = foundNode,
-            PickedUpAmount = 1,
-            Building = foundBuilding,
-            Resource = foundResource,
-            ResourceSlotPosition = resourceSlotPosition,
-        });
-    }
-
-    public bool AreThereAvailableSlotsTheTrainCanPassResourcesTo(HorseTrain horse) {
-        if (horse.CurrentDestination.HasValue == false) {
-            Debug.LogError("WTF?");
-            return false;
-        }
-
-        var pos = horse.CurrentDestination.Value.Pos;
-        var dimensions = GetStationDimensions(pos);
-        var expandedDimensions = ExpandStationDimensions(dimensions);
-
-        foreach (var building in buildings) {
-            if (building.scriptable.type != BuildingType.Produce) {
-                continue;
-            }
-
-            if (!Intersect(expandedDimensions, building.rect)) {
-                continue;
-            }
-
-            if (building.CanStoreResource()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public void PickRandomSlotForTheTrainToPassItemTo(HorseTrain horse) {
-        if (horse.CurrentDestination.HasValue == false) {
-            Debug.LogError("WTF?");
-            return;
-        }
-
-        var pos = horse.CurrentDestination.Value.Pos;
-        var dimensions = GetStationDimensions(pos);
-        var expandedDimensions = ExpandStationDimensions(dimensions);
-
-        var shuffledBuildings = buildings.ToArray();
-        Utils.Shuffle(shuffledBuildings, _random);
-
-        Building? foundBuilding = null;
-        foreach (var building in buildings) {
-            if (building.scriptable.type != BuildingType.Produce) {
-                continue;
-            }
-
-            if (!Intersect(expandedDimensions, building.rect)) {
-                continue;
-            }
-
-            if (building.CanStoreResource()) {
-                foundBuilding = building;
-                break;
-            }
-        }
-
-        if (foundBuilding == null) {
-            Debug.LogError("WTF?");
-            return;
-        }
-
-        TrainNode? foundNode = null;
-        foreach (var node in horse.nodes) {
-            if (node.storedResources.Count > 0) {
-                foundNode = node;
-                break;
-            }
-        }
-
-        if (foundNode == null) {
-            Debug.LogError("WTF?");
-            return;
-        }
-
-        var foundResourceIndex = foundNode.storedResources.Count - 1;
-        var foundResource = foundNode.storedResources[foundResourceIndex];
-        var res = foundBuilding.StoreResource(foundResource);
-        foundNode.storedResources.RemoveAt(foundResourceIndex);
-
-        onTrainPushedResource.OnNext(new() {
-            Train = horse,
-            TrainNode = foundNode,
-            PickedUpAmount = 1,
-            Building = foundBuilding,
-            Resource = foundResource,
-            StoreResourceResult = res,
-        });
-    }
-
-    #endregion
-}
-
-public class E_ItemPlaced {
-    public SelectedItemType Item;
-    public Vector2Int Pos;
 }
 }

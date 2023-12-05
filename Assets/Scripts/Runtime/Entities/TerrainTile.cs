@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Entities {
 /// <summary>
 ///     Is it a grass, a cliff?
 /// </summary>

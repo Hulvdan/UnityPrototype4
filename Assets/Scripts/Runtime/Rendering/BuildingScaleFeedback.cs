@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using BFG.Runtime.Entities;
+using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Rendering {
 internal class BuildingScaleFeedback : BuildingFeedback {
     [SerializeField]
     Vector2 _scaleAmplitude = Vector2.one;
@@ -21,13 +22,13 @@ internal class BuildingScaleFeedback : BuildingFeedback {
             elapsed = building.timeSinceItemWasPlaced;
         }
 
-        var coef = 1f;
+        var progress = 1f;
         if (elapsed < _duration) {
-            coef = elapsed / _duration;
+            progress = elapsed / _duration;
         }
 
-        var evaluated = _curve.Evaluate(coef);
-        var scale = Vector2.one + Vector2.Lerp(-_scaleAmplitude, _scaleAmplitude, evaluated);
+        var t = _curve.Evaluate(progress);
+        var scale = Vector2.one + Vector2.Lerp(-_scaleAmplitude, _scaleAmplitude, t);
         data.Scale = scale;
     }
 }

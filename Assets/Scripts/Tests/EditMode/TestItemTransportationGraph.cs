@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using BFG.Core;
 using BFG.Graphs;
-using BFG.Runtime;
+using BFG.Runtime.Entities;
+using BFG.Runtime.Graphs;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -25,6 +26,7 @@ public class TestItemTransportationGraph {
         expectedGraph.Mark(1, 0, Direction.Left);
         expectedGraph.Mark(1, 0, Direction.Up);
         expectedGraph.Mark(1, 1, Direction.Down);
+        expectedGraph.FinishBuilding();
 
         Test(
             ParseAsElementTiles(
@@ -35,8 +37,8 @@ public class TestItemTransportationGraph {
             new() {
                 new(
                     new() {
-                        new(new(), new(0, 0)),
-                        new(new(), new(1, 1)),
+                        new(new(0, 0)),
+                        new(new(1, 1)),
                     },
                     new() {
                         new(0, 0),
@@ -400,7 +402,7 @@ public class TestItemTransportationGraph {
             "Cr"
         );
 
-        Assert.IsTrue(elementTiles.ElementTiles[1][0].Type == ElementTileType.None);
+        Assert.IsTrue(elementTiles.ElementTiles[1][0].type == ElementTileType.None);
         elementTiles.ElementTiles[1][0] = ElementTile.Road;
 
         var result = ItemTransportationGraph.OnTilesUpdated(
@@ -421,7 +423,7 @@ public class TestItemTransportationGraph {
             "Cr"
         );
 
-        Assert.IsTrue(elementTiles.ElementTiles[1][0].Type == ElementTileType.None);
+        Assert.IsTrue(elementTiles.ElementTiles[1][0].type == ElementTileType.None);
         elementTiles.ElementTiles[1][0] = ElementTile.Road;
 
         var result = ItemTransportationGraph.OnTilesUpdated(
@@ -442,7 +444,7 @@ public class TestItemTransportationGraph {
             "CF"
         );
 
-        Assert.IsTrue(elementTiles.ElementTiles[1][0].Type == ElementTileType.None);
+        Assert.IsTrue(elementTiles.ElementTiles[1][0].type == ElementTileType.None);
         elementTiles.ElementTiles[1][0] = ElementTile.Road;
 
         var result = ItemTransportationGraph.OnTilesUpdated(
@@ -458,27 +460,6 @@ public class TestItemTransportationGraph {
 
     [Test]
     public void Test_RoadPlaced_4() {
-        var (elementTiles, segments) = MakeTilesWithInitialCalculation(
-            ".B",
-            "CF"
-        );
-
-        Assert.IsTrue(elementTiles.ElementTiles[1][0].Type == ElementTileType.None);
-        elementTiles.ElementTiles[1][0] = ElementTile.Road;
-
-        var result = ItemTransportationGraph.OnTilesUpdated(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings,
-            new() { new(TileUpdatedType.RoadPlaced, new(0, 1)) },
-            segments
-        );
-        Assert.AreEqual(0, result.DeletedSegments.Count);
-        Assert.AreEqual(1, result.AddedSegments.Count);
-    }
-
-    [Test]
-    public void Test_RoadPlaced_5() {
         var (elementTiles, segments) = MakeTilesWithInitialCalculation(
             ".rr",
             "Crr"

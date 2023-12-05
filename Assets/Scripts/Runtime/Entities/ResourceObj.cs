@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Entities {
 public class ResourceObj : IEquatable<ResourceObj> {
     public ResourceObj(Guid id, ScriptableResource script) {
         this.id = id;

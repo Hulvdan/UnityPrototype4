@@ -1,9 +1,11 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using BFG.Runtime.Controllers.HumanTransporter;
+using BFG.Runtime.Graphs;
 using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Entities {
 public class HumanTransporter {
     public HumanTransporter(Guid id, GraphSegment segment, Vector2Int currentPos) {
         ID = id;
@@ -18,13 +20,13 @@ public class HumanTransporter {
 
     public Vector2Int pos { get; set; }
     public float movingElapsed { get; set; }
-    public float movingNormalized { get; set; }
+    public float movingProgress { get; set; }
     public Vector2 movingFrom { get; set; }
     public Vector2Int? movingTo { get; set; }
 
     public readonly List<Vector2Int> movingPath = new();
 
-    public HumanTransporterState? state { get; set; }
+    public MainState? state { get; set; }
 
     public void AddPath(List<Vector2Int> path) {
         movingPath.Clear();
@@ -62,27 +64,18 @@ public class HumanTransporter {
 
     #region HumanTransporter_MovingInTheWorld_Controller
 
-    public HumanTransporter_MovingInTheWorld_Controller.State? stateMovingInTheWorld { get; set; }
-
-    #endregion
-
-    #region HumanTransporter_MovingInsideSegment_Controller
-
-    public HumanTransporter_MovingInsideSegment_Controller.State? stateMovingInsideSegment {
-        get;
-        set;
-    }
+    public MovingInTheWorld.State? stateMovingInTheWorld { get; set; }
 
     #endregion
 
     #region HumanTransporter_MovingItem_Controller
 
-    public HumanTransporter_MovingResource_Controller.State? stateMovingResource;
+    public MovingResources.State? stateMovingResource;
 
     public float stateMovingResource_pickingUpResourceElapsed;
-    public float stateMovingResource_pickingUpResourceNormalized;
+    public float stateMovingResource_pickingUpResourceProgress;
     public float stateMovingResource_placingResourceElapsed;
-    public float stateMovingResource_placingResourceNormalized;
+    public float stateMovingResource_placingResourceProgress;
 
     public MapResource? stateMovingResource_targetedResource = null;
 

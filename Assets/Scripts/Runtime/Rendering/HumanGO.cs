@@ -1,8 +1,7 @@
-﻿using DG.Tweening;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Rendering {
 // ReSharper disable once InconsistentNaming
 public class HumanGO : MonoBehaviour {
     [SerializeField]
@@ -11,19 +10,6 @@ public class HumanGO : MonoBehaviour {
     [SerializeField]
     Vector2 _verticalOffset;
 
-    [FormerlySerializedAs("_droppingVerticalOffset")]
-    [SerializeField]
-    Vector2 _placingVerticalOffset;
-
-    [SerializeField]
-    [Min(0)]
-    float _itemPickupDuration = 1;
-
-    [FormerlySerializedAs("_itemDropDuration")]
-    [SerializeField]
-    [Min(0)]
-    float _itemPlacingDuration = 1;
-
     [SerializeField]
     AnimationCurve _itemPickupCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
@@ -31,63 +17,36 @@ public class HumanGO : MonoBehaviour {
     [SerializeField]
     AnimationCurve _itemPlacingCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
-    public void OnPickedUpResource(ScriptableResource resource, float gameSpeed) {
-        _resourceSpriteRenderer.sprite = resource.smallerSprite;
-        _resourceSpriteRenderer.transform.localPosition = _placingVerticalOffset;
-        DOTween.To(
-                () => _resourceSpriteRenderer.transform.localPosition,
-                (Vector2 value) => _resourceSpriteRenderer.transform.localPosition = value,
-                _verticalOffset,
-                _itemPickupDuration / gameSpeed
-            )
-            .SetEase(_itemPickupCurve);
-    }
-
     public void OnStartedPickingUpResource(ScriptableResource resource) {
         _resourceSpriteRenderer.sprite = resource.smallerSprite;
     }
 
-    public void SetPickingUpResourceCoef(float normalized) {
-        var coef = _itemPickupCurve.Evaluate(normalized);
-
+    public void SetPickingUpResourceProgress(float progress) {
         var a = transform.TransformPoint(Vector3.zero);
         var b = transform.TransformPoint(_verticalOffset);
+        var t = _itemPickupCurve.Evaluate(progress);
 
-        _resourceSpriteRenderer.transform.position = Vector2.Lerp(a, b, coef);
+        _resourceSpriteRenderer.transform.position = Vector2.Lerp(a, b, t);
     }
 
-    public void OnStoppedPickingUpResource(ScriptableResource resource) {
+    public void OnStoppedPickingUpResource() {
         var b = transform.TransformPoint(_verticalOffset);
         _resourceSpriteRenderer.transform.position = b;
     }
 
-    public void OnPlacedResource(float gameSpeed) {
-        _resourceSpriteRenderer.transform.localPosition = _verticalOffset;
-        DOTween.To(
-                () => _resourceSpriteRenderer.transform.localPosition,
-                (Vector2 value) => _resourceSpriteRenderer.transform.localPosition = value,
-                _placingVerticalOffset,
-                _itemPlacingDuration / gameSpeed
-            )
-            .SetEase(_itemPlacingCurve)
-            .OnComplete(
-                () => _resourceSpriteRenderer.sprite = null
-            );
-    }
-
     public void OnStartedPlacingResource(ScriptableResource resource) {
+        // Hulvdan: Intentionally left blank
     }
 
-    public void SetPlacingResourceCoef(float normalized) {
-        var coef = _itemPlacingCurve.Evaluate(normalized);
-
+    public void SetPlacingResourceProgress(float progress) {
         var a = transform.TransformPoint(_verticalOffset);
         var b = transform.TransformPoint(Vector3.zero);
+        var t = _itemPlacingCurve.Evaluate(progress);
 
-        _resourceSpriteRenderer.transform.position = Vector2.Lerp(a, b, coef);
+        _resourceSpriteRenderer.transform.position = Vector2.Lerp(a, b, t);
     }
 
-    public void OnStoppedPlacingResource(ScriptableResource resource) {
+    public void OnStoppedPlacingResource() {
         _resourceSpriteRenderer.sprite = null;
     }
 }

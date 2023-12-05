@@ -1,5 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Reactive.Subjects;
+using BFG.Runtime.Entities;
+using BFG.Runtime.Localization;
+using BFG.Runtime.Rendering;
+using BFG.Runtime.Rendering.UI;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;
 using UnityEditor;
@@ -40,7 +44,7 @@ public class GameManager : MonoBehaviour {
 
     [SerializeField]
     [Required]
-    RaycastBridge _raycastBridge;
+    MapRendererRaycaster _raycastBridge;
 
     [SerializeField]
     float _mapMovementScale = 32f;
@@ -49,7 +53,7 @@ public class GameManager : MonoBehaviour {
 
     readonly List<float> _zooms = new() { .25f, 0.5f, 1f, 2f, 4f };
 
-    public readonly Subject<SelectedItemType> OnSelectedItemChanged = new();
+    public readonly Subject<ItemToBuildType> OnSelectedItemChanged = new();
     public readonly Subject<int> OnSelectedItemRotationChanged = new();
     InputAction _actionChangeLanguage;
 
@@ -71,7 +75,7 @@ public class GameManager : MonoBehaviour {
     bool _editMode_ReinitDependencies;
 
     [CanBeNull]
-    public SelectedItem SelectedItem;
+    public ItemToBuild ItemToBuild;
 
     public float currentGameSpeed => _gameSpeeds[_currentGameSpeedIndex];
     public float currentZoom => _zooms[_currentZoomIndex];

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Entities {
 public class Building {
     public bool IsProducing;
     public float ProducingElapsed;
@@ -76,7 +76,7 @@ public class Building {
 
     public RectInt rect => new(posX, posY, scriptable.size.x, scriptable.size.y);
 
-    public readonly List<MapResource> resourcesForConstruction = new();
+    public readonly List<MapResource> ResourcesForConstruction = new();
 
     public bool Contains(Vector2Int pos) {
         return Contains(pos.x, pos.y);

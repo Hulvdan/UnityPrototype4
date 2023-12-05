@@ -1,5 +1,13 @@
 # UnityPrototype4
 
+## Coding Styleguide
+
+### Terms
+
+- `Tile` - A tile on the grid. Using the word `Cell` is **prohibited** for naming anything related to the tiles on the grid
+- `Progress` - A not curve affected coefficient. Usually represents `elapsed` / `duration`
+- `t` - Coefficients used in Lerp operations. Usually affected by curves
+
 ## Development
 
 ### Setting Up The Machine
@@ -25,6 +33,8 @@ Unity Version: `2022.3.13f1`
 
 ## External Assets
 
+### Used in the project
+
 - [Itch.io. PixelHole's Overworld Tileset](https://pixelhole.itch.io/pixelholes-overworld-tileset)
 - [whtdragon's animals and running horses- now with more dragons!](https://forums.rpgmakerweb.com/index.php?threads/whtdragons-animals-and-running-horses-now-with-more-dragons.53552/)
 - [Itch.io. caves-rails-tileset](https://heyitswidmo.itch.io/caves-rails-tileset)
@@ -33,7 +43,7 @@ Unity Version: `2022.3.13f1`
 - [Pixel Items Inventory](https://www.deviantart.com/blackkarma3840/art/Pixel-Items-Inventory-882911608)
 - [free flag with animation](https://ankousse26.itch.io/free-flag-with-animation)
 
-## More Refs
+### Considered to be used
 
 - [Itch.io. Mo's Trolley Follies Levels (C64) Commodore 64](https://modernart.itch.io/mos-trolley-follies-levels-c64)
 - [Itch.io. World Map Tiles [16x16]](https://malibudarby.itch.io/world-map-tiles)

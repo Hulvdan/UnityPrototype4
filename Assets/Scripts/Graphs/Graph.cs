@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Text;
 using BFG.Core;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace BFG.Graphs {
-public class Graph : IEquatable<Graph>, IComparable<Graph> {
+public sealed class Graph : IEquatable<Graph> {
     const int DEV_NUMBER_OF_BUILD_PATH_ITERATIONS = 256;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -17,11 +19,12 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte Node(int x, int y) {
+        Assert.IsTrue(_finishedBuilding);
         Assert.IsTrue(Contains(x, y));
         Assert.AreNotEqual(_offset, null);
 
-        var offset = _offset!.Value;
-        return nodes[y - offset.y][x - offset.x];
+        var off = _offset!.Value;
+        return nodes[y - off.y][x - off.x];
     }
 
     public void Mark(Vector2Int pos, Direction direction, bool value = true) {
@@ -29,6 +32,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
     }
 
     public void Mark(int x, int y, Direction direction, bool value = true) {
+        Assert.IsFalse(_finishedBuilding);
+
         if (_offset == null) {
             _offset = new Vector2Int(x, y);
 
@@ -74,6 +79,7 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         // It allows to efficiently reconstruct a path from any two connected vertices.
         // https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
 
+        Assert.IsTrue(_finishedBuilding);
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
         Assert.IsTrue(_offset != null);
@@ -138,9 +144,11 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         // 2. HAL open science. A new algorithm for graph center computation
         // and graph partitioning according to the distance to the center
         // https://hal.science/hal-02304090/document
+        Assert.IsTrue(_finishedBuilding);
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
         Assert.AreNotEqual(_offset, null);
+        Assert.IsTrue(IsUndirected());
 
         if (_centers != null) {
             return _centers;
@@ -182,31 +190,15 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         return centerNodePositions;
     }
 
-    public bool IsUndirected() {
+    bool IsUndirected() {
+        Assert.IsTrue(_finishedBuilding);
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
 
         for (var y = 0; y < height; y++) {
             for (var x = 0; x < width; x++) {
-                var node = nodes[y][x];
-
-                foreach (var dir in Utils.Directions) {
-                    if (!GraphNode.Has(node, dir)) {
-                        continue;
-                    }
-
-                    var offset = dir.AsOffset();
-                    var newX = x + offset.x;
-                    var newY = y + offset.y;
-                    if (newX < 0 || newY < 0 || newX >= width || newY >= height) {
-                        return false;
-                    }
-
-                    var adjacentNode = nodes[newY][newX];
-                    var opposite = GraphNode.Has(adjacentNode, dir.Opposite());
-                    if (!opposite) {
-                        return false;
-                    }
+                if (!AdjacentTilesAreConnected(x, y)) {
+                    return false;
                 }
             }
         }
@@ -214,25 +206,50 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         return true;
     }
 
+    bool AdjacentTilesAreConnected(int x, int y) {
+        var node = nodes[y][x];
+
+        foreach (var dir in Utils.Directions) {
+            if (!GraphNode.Has(node, dir)) {
+                continue;
+            }
+
+            var newPos = new Vector2Int(x, y) + dir.AsOffset();
+            if (newPos.x < 0 || newPos.y < 0 || newPos.x >= width || newPos.y >= height) {
+                return false;
+            }
+
+            var adjacentNode = nodes[newPos.y][newPos.x];
+            var opposite = GraphNode.Has(adjacentNode, dir.Opposite());
+            if (!opposite) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public override string ToString() {
-        var res = "";
+        Assert.IsTrue(_finishedBuilding);
+        var builder = new StringBuilder();
+
         for (var y = 0; y < height; y++) {
             var row = nodes[height - y - 1];
             foreach (var node in row) {
-                res += GraphNode.ToDisplayString(node);
+                builder.Append(GraphNode.ToDisplayString(node));
             }
 
-            res += "\n";
+            if (y != height - 1) {
+                builder.Append("\n");
+            }
         }
 
-        if (height > 0) {
-            res = res.TrimEnd('\n');
-        }
-
-        return res;
+        return builder.ToString();
     }
 
     public bool Equals(Graph other) {
+        Assert.IsTrue(_finishedBuilding);
+
         if (ReferenceEquals(null, other)) {
             return false;
         }
@@ -240,6 +257,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         if (ReferenceEquals(this, other)) {
             return true;
         }
+
+        Assert.IsTrue(other._finishedBuilding);
 
         return _nodesCount.Equals(other._nodesCount)
                && Nullable.Equals(_offset, other._offset)
@@ -262,72 +281,27 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         return Equals((Graph)obj);
     }
 
-    public int CompareTo(Graph other) {
-        int cmp;
-        if (_offset == null && other._offset != null) {
-            return 1;
-        }
-
-        if (_offset != null && other._offset == null) {
-            return -1;
-        }
-
-        if (_offset != null && other._offset != null) {
-            cmp = _offset.Value.x.CompareTo(other._offset.Value.x);
-            if (cmp != 0) {
-                return cmp;
-            }
-
-            cmp = _offset.Value.y.CompareTo(other._offset.Value.y);
-            if (cmp != 0) {
-                return cmp;
-            }
-        }
-
-        cmp = height.CompareTo(other.height);
-        if (cmp != 0) {
-            return cmp;
-        }
-
-        cmp = width.CompareTo(other.width);
-        if (cmp != 0) {
-            return cmp;
-        }
-
-        for (var y = 0; y < height; y++) {
-            cmp = nodes[y].Count.CompareTo(other.nodes[y].Count);
-            if (cmp != 0) {
-                return cmp;
-            }
-        }
-
-        for (var y = 0; y < height; y++) {
-            for (var x = 0; x < nodes[y].Count; x++) {
-                cmp = nodes[y][x].CompareTo(other.nodes[y][x]);
-                if (cmp != 0) {
-                    return cmp;
-                }
-            }
-        }
-
-        return 0;
-    }
-
+#pragma warning disable S2328 "GetHashCode" should not reference mutable fields
+    [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
     public override int GetHashCode() {
+#pragma warning enable S2328
+        Assert.IsTrue(_finishedBuilding);
+
         return HashCode.Combine(_offset, nodes);
     }
 
     void ResizeIfNeeded(int x, int y) {
+        Assert.IsFalse(_finishedBuilding);
         Assert.AreNotEqual(_offset, null);
         Assert.IsTrue(height > 0);
         Assert.IsTrue(width > 0);
 
-        var offset = _offset!.Value;
+        var off = _offset!.Value;
 
-        if (y < offset.y) {
+        if (y < off.y) {
             var newNodes = new List<List<byte>>();
 
-            var addedRowsCount = offset.y - y;
+            var addedRowsCount = off.y - y;
 
             for (var yy = 0; yy < addedRowsCount; yy++) {
                 var row = new List<byte> { Capacity = width };
@@ -345,8 +319,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             nodes = newNodes;
         }
 
-        if (y >= offset.y + height) {
-            var addedRowsCount = y - height - offset.y + 1;
+        if (y >= off.y + height) {
+            var addedRowsCount = y - height - off.y + 1;
             var oldWidth = width;
 
             for (var i = 0; i < addedRowsCount; i++) {
@@ -359,9 +333,9 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             }
         }
 
-        if (x < offset.x) {
+        if (x < off.x) {
             var oldWidth = width;
-            var addedColumnsCount = offset.x - x;
+            var addedColumnsCount = off.x - x;
             var newWidth = width + addedColumnsCount;
 
             for (var i = 0; i < height; i++) {
@@ -379,8 +353,8 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
             }
         }
 
-        if (x >= offset.x + width) {
-            var addedColumnsCount = x - width - offset.x + 1;
+        if (x >= off.x + width) {
+            var addedColumnsCount = x - width - off.x + 1;
 
             foreach (var row in nodes) {
                 for (var i = 0; i < addedColumnsCount; i++) {
@@ -390,19 +364,17 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         }
 
         _offset = new Vector2Int(
-            Math.Min(x, offset.x),
-            Math.Min(y, offset.y)
+            Math.Min(x, off.x),
+            Math.Min(y, off.y)
         );
     }
 
     public bool Contains(int x, int y) {
-        Assert.AreNotEqual(_offset, null);
-        var offset = _offset!.Value;
-
-        return y >= offset.y
-               && y < offset.y + height
-               && x >= offset.x
-               && x < offset.x + width;
+        var off = offset;
+        return y >= off.y
+               && y < off.y + height
+               && x >= off.x
+               && x < off.x + width;
     }
 
     public bool Contains(Vector2Int pos) {
@@ -425,6 +397,10 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
         public static List<List<byte>> GetNodes(Graph graph) {
             return graph.nodes;
         }
+
+        public static bool IsUndirected(Graph graph) {
+            return graph.IsUndirected();
+        }
     }
 
     Vector2Int? _offset;
@@ -442,6 +418,17 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
     CalculatedGraphPathData _data;
 
     List<Vector2Int> _centers;
+    bool _finishedBuilding;
+
+    public void FinishBuilding() {
+        Assert.IsFalse(_finishedBuilding);
+        Assert.IsTrue(_nodesCount > 0);
+        Assert.AreNotEqual(_offset, null);
+        Assert.IsTrue(height > 0);
+        Assert.IsTrue(width > 0);
+
+        _finishedBuilding = true;
+    }
 
     public int Cost(Vector2Int origin, Vector2Int destination) {
         Assert.AreNotEqual(Node(origin), (byte)0);
@@ -553,11 +540,13 @@ public class Graph : IEquatable<Graph>, IComparable<Graph> {
                     var ik = dist[i][k];
                     var kj = dist[k][j];
 
-                    if (ik != int.MaxValue && kj != int.MaxValue) {
-                        if (ij > ik + kj) {
-                            dist[i][j] = ik + kj;
-                            prev[i][j] = prev[k][j];
-                        }
+                    if (
+                        ik != int.MaxValue
+                        && kj != int.MaxValue
+                        && ij > ik + kj
+                    ) {
+                        dist[i][j] = ik + kj;
+                        prev[i][j] = prev[k][j];
                     }
                 }
             }
