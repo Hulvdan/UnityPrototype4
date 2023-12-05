@@ -35,7 +35,7 @@ public class HumanGO : MonoBehaviour {
     }
 
     public void OnStartedPlacingResource(ScriptableResource resource) {
-        // There is no need in any implementation
+        // Hulvdan: Intentionally left blank
     }
 
     public void SetPlacingResourceProgress(float progress) {

@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿// From YouTube by git-amend. Easy and Powerful Extension Methods | Unity C#.
+// https://youtu.be/Nk49EUf7yyU
+
+using UnityEngine;
 
 namespace BFG.Runtime.Extensions {
 public static class Vector2IntExtensions {

@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using BFG.Core;
-using BFG.Runtime.Entities;
 using UnityEngine;
 
 namespace BFG.Runtime.Graphs {
-public class GraphVertex : IEquatable<GraphVertex> {
-    public List<ResourceObj> Resources;
+public sealed class GraphVertex : IEquatable<GraphVertex> {
     public Vector2Int Pos;
 
-    public GraphVertex(List<ResourceObj> resources, Vector2Int pos) {
-        Resources = resources;
+    public GraphVertex(Vector2Int pos) {
         Pos = pos;
     }
 
@@ -55,10 +50,6 @@ public class GraphVertex : IEquatable<GraphVertex> {
             return false;
         }
 
-        if (!Utils.GoodFukenListEquals(Resources, other.Resources)) {
-            return false;
-        }
-
         return true;
     }
 
@@ -79,7 +70,7 @@ public class GraphVertex : IEquatable<GraphVertex> {
     }
 
     public override int GetHashCode() {
-        return HashCode.Combine(Resources, Pos);
+        return HashCode.Combine(Pos);
     }
 }
 }

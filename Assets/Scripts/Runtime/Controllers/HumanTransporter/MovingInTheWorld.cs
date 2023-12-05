@@ -62,7 +62,7 @@ public class MovingInTheWorld {
         Entities.HumanTransporter human,
         HumanTransporterData data
     ) {
-        // Intentionally left blank
+        // Hulvdan: Intentionally left blank
     }
 
     void UpdateStates(

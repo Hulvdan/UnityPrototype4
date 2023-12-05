@@ -59,6 +59,7 @@ public class MovingInsideSegment {
         Entities.HumanTransporter human,
         HumanTransporterData data
     ) {
+        // Hulvdan: Intentionally left blank
     }
 
     void UpdateStates(
