@@ -3,7 +3,7 @@ using BFG.Runtime.Systems;
 
 namespace BFG.Runtime.Controllers.HumanTransporter {
 public class HumanTransporterData {
-    public ResourceTransportationSystem transportationSystem { get; }
+    public ResourceTransportation transportation { get; }
     public IMap map { get; }
     public IMapSize mapSize { get; }
     public Building cityHall { get; }
@@ -15,7 +15,7 @@ public class HumanTransporterData {
         IMap map,
         IMapSize mapSize,
         Building cityHall,
-        ResourceTransportationSystem transportationSystem,
+        ResourceTransportation transportation,
         float pickingUpResourceDuration,
         float placingResourceDuration
     ) {
@@ -24,7 +24,7 @@ public class HumanTransporterData {
         this.cityHall = cityHall;
         PickingUpResourceDuration = pickingUpResourceDuration;
         PlacingResourceDuration = placingResourceDuration;
-        this.transportationSystem = transportationSystem;
+        this.transportation = transportation;
     }
 }
 }

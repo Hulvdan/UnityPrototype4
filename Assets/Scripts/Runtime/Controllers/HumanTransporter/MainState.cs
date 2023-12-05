@@ -22,13 +22,13 @@ public class MainController {
         IMap map,
         IMapSize mapSize,
         Building cityHall,
-        ResourceTransportationSystem resourceTransportationSystem
+        ResourceTransportation resourceTransportation
     ) {
         _movingInTheWorld = new(this);
         _movingInsideSegment = new(this);
         _movingResources = new(this);
 
-        _data = new(map, mapSize, cityHall, resourceTransportationSystem, 1f, 1f);
+        _data = new(map, mapSize, cityHall, resourceTransportation, 1f, 1f);
     }
 
     public void SetState(Entities.HumanTransporter human, MainState newState) {

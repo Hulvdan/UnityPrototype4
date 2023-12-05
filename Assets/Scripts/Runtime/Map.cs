@@ -113,7 +113,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void Update() {
         var dt = _gameManager.dt;
-        _resourceTransportationSystem.PathfindItemsInQueue();
+        _resourceTransportation.PathfindItemsInQueue();
         UpdateHumanTransporters(dt);
         UpdateBuildings(dt);
     }
@@ -158,8 +158,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             AddMapResource(cityHall, _planksResource);
         }
 
-        _resourceTransportationSystem = new(this, this);
-        _humanTransporterController = new(this, this, cityHall, _resourceTransportationSystem);
+        _resourceTransportation = new(this, this);
+        _humanTransporterController = new(this, this, cityHall, _resourceTransportation);
 
         if (Application.isPlaying) {
             // TryBuild(new(8, 8), new() { Type = SelectedItemType.Road });
@@ -338,7 +338,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 linkedSegment.Unlink(segment);
             }
 
-            _resourceTransportationSystem.OnSegmentDeleted(segment);
+            _resourceTransportation.OnSegmentDeleted(segment);
 
             if (segmentsThatNeedHumans.Contains(segment)) {
                 segmentsThatNeedHumans.Remove(segment);
@@ -364,7 +364,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             segments.Add(segment);
         }
 
-        _resourceTransportationSystem.PathfindItemsInQueue();
+        _resourceTransportation.PathfindItemsInQueue();
         Tracing.Log("_itemTransportationSystem.PathfindItemsInQueue()");
 
         while (humansThatNeedNewSegment.Count > 0 && segmentsThatNeedHumans.Count > 0) {
@@ -579,7 +579,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         if (building.ResourcesToBook.Count > 0) {
-            _resourceTransportationSystem.Add_ResourcesToBook(building.ResourcesToBook);
+            _resourceTransportation.Add_ResourcesToBook(building.ResourcesToBook);
             building.ResourcesToBook.Clear();
         }
     }
@@ -846,7 +846,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     #region ItemTransportationSystem
 
-    ResourceTransportationSystem _resourceTransportationSystem = null!;
+    ResourceTransportation _resourceTransportation = null!;
     MainController _humanTransporterController = null!;
 
     #endregion

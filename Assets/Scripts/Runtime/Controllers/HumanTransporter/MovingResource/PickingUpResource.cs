@@ -25,7 +25,7 @@ public class PickingUpResource {
 
         res!.CarryingHuman = human;
 
-        data.transportationSystem.OnHumanStartedPickingUpResource(res);
+        data.transportation.OnHumanStartedPickingUpResource(res);
         data.map.onHumanTransporterStartedPickingUpResource.OnNext(new() {
             Human = human,
             Resource = res,
