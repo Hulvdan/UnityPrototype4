@@ -1,9 +1,11 @@
 ﻿#nullable enable
 using System;
 using BFG.Core;
+using BFG.Runtime.Entities;
+using BFG.Runtime.Graphs;
 using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Entities {
 public class MapResource : IEquatable<MapResource> {
     public readonly Guid ID;
     public readonly ScriptableResource Scriptable;

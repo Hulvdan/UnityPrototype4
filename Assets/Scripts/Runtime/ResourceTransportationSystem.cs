@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using BFG.Core;
 using BFG.Graphs;
+using BFG.Runtime.Entities;
+using BFG.Runtime.Graphs;
 using Foundation.Architecture;
 using Priority_Queue;
 using UnityEngine;
@@ -259,15 +261,15 @@ public class ResourceTransportationSystem {
         );
 
         foreach (var seg in res.TransportationSegments) {
-            Assert.IsFalse(seg.resourcesToTransport.Contains(res));
-            Assert.IsFalse(seg.linkedResources.Contains(res));
+            Assert.IsFalse(seg.ResourcesToTransport.Contains(res));
+            Assert.IsFalse(seg.LinkedResources.Contains(res));
         }
 
         res.Booking = MapResourceBooking.FromResourceToBook(resourceToBook);
-        res.TransportationSegments[0].resourcesToTransport.Enqueue(res, res.Booking.Value.Priority);
+        res.TransportationSegments[0].ResourcesToTransport.Enqueue(res, res.Booking.Value.Priority);
 
         foreach (var segment in res.TransportationSegments) {
-            segment.linkedResources.Add(res);
+            segment.LinkedResources.Add(res);
         }
 
         _resourcesToBook.Remove(resourceToBook);
@@ -278,7 +280,7 @@ public class ResourceTransportationSystem {
     #region Events
 
     public void OnSegmentDeleted(GraphSegment segment) {
-        foreach (var res in segment.linkedResources) {
+        foreach (var res in segment.LinkedResources) {
             Assert.IsTrue(res.Booking != null, "res.Booking != null");
 
             var carrier = res.CarryingHuman;
@@ -289,11 +291,11 @@ public class ResourceTransportationSystem {
             // the human goes to after placing is this one (if it was booked)
             ClearBooking(res, rebookImmediately, segment);
 
-            if (segment.resourcesToTransport.Contains(res)) {
+            if (segment.ResourcesToTransport.Contains(res)) {
                 Assert.AreEqual(null, res.CarryingHuman);
 
-                segment.resourcesToTransport.Remove(res);
-                Assert.IsFalse(segment.resourcesToTransport.Contains(res));
+                segment.ResourcesToTransport.Remove(res);
+                Assert.IsFalse(segment.ResourcesToTransport.Contains(res));
             }
 
             if (targeter != null) {
@@ -310,7 +312,7 @@ public class ResourceTransportationSystem {
             }
         }
 
-        segment.linkedResources.Clear();
+        segment.LinkedResources.Clear();
     }
 
     public void OnHumanStartedPickingUpResource(MapResource res) {
@@ -350,12 +352,12 @@ public class ResourceTransportationSystem {
         res.Pos = pos;
 
         if (seg != null) {
-            seg.linkedResources.Remove(res);
+            seg.LinkedResources.Remove(res);
 
             // TODO: is this necessary?
-            if (seg.resourcesToTransport.Contains(res)) {
-                seg.resourcesToTransport.Remove(res);
-                Assert.IsFalse(seg.resourcesToTransport.Contains(res));
+            if (seg.ResourcesToTransport.Contains(res)) {
+                seg.ResourcesToTransport.Remove(res);
+                Assert.IsFalse(seg.ResourcesToTransport.Contains(res));
             }
         }
 
@@ -375,10 +377,10 @@ public class ResourceTransportationSystem {
             Tracing.Log("movedToTheNextSegmentInPath");
 
             Assert.AreNotEqual(null, res.Booking, "res.Booking != null");
-            Assert.IsFalse(res.TransportationSegments[0].resourcesToTransport.Contains(res));
+            Assert.IsFalse(res.TransportationSegments[0].ResourcesToTransport.Contains(res));
 
             res.TransportationSegments[0]
-                .resourcesToTransport.Enqueue(res, res.Booking!.Value.Priority);
+                .ResourcesToTransport.Enqueue(res, res.Booking!.Value.Priority);
         }
         else {
             Tracing.Log("Resource was placed on the map");
@@ -408,10 +410,10 @@ public class ResourceTransportationSystem {
 
         foreach (var segment in res.TransportationSegments) {
             if (!ReferenceEquals(segment, excludedSegment)) {
-                segment.linkedResources.Remove(res);
+                segment.LinkedResources.Remove(res);
 
-                if (segment.resourcesToTransport.Contains(res)) {
-                    segment.resourcesToTransport.Remove(res);
+                if (segment.ResourcesToTransport.Contains(res)) {
+                    segment.ResourcesToTransport.Remove(res);
                 }
             }
         }

@@ -2,7 +2,7 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Entities {
 [Serializable]
 public class BuildingGO {
     [SerializeField]

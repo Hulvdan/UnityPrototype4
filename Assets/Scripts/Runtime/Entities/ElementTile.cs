@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Entities {
 /// <summary>
 ///     Is it a road or lumberjack's hut?
 /// </summary>

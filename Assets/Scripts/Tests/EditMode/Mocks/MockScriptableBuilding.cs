@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using BFG.Runtime;
+using BFG.Runtime.Entities;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 

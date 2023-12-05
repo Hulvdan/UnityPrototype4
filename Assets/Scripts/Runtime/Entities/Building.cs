@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Entities {
 public class Building {
     public bool IsProducing;
     public float ProducingElapsed;

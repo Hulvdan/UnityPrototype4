@@ -1,15 +1,14 @@
-﻿using UnityEngine.Assertions;
-using MRState = BFG.Runtime.HumanTransporter_MovingResource_Controller.State;
+﻿using BFG.Runtime.Graphs;
+using UnityEngine.Assertions;
+using MRState = BFG.Runtime.Controllers.HumanTransporter.MovingResources.State;
 
-namespace BFG.Runtime {
-public class HT_MR_MovingToResource_Controller {
-    public HT_MR_MovingToResource_Controller(
-        HumanTransporter_MovingResource_Controller humanTransporter_MovingResource_Controller
-    ) {
-        _controller = humanTransporter_MovingResource_Controller;
+namespace BFG.Runtime.Controllers.HumanTransporter {
+public class MovingToResource {
+    public MovingToResource(MovingResources controller) {
+        _controller = controller;
     }
 
-    public void OnEnter(HumanTransporter human, HumanTransporterData data) {
+    public void OnEnter(Entities.HumanTransporter human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
         Assert.AreEqual(null, human.stateMovingResource);
@@ -17,7 +16,7 @@ public class HT_MR_MovingToResource_Controller {
         human.stateMovingResource = MRState.MovingToResource;
 
         var segment = human.segment;
-        var res = segment!.resourcesToTransport.First;
+        var res = segment!.ResourcesToTransport.First;
         Assert.AreNotEqual(null, res.Booking);
 
         human.stateMovingResource_targetedResource = res;
@@ -41,13 +40,13 @@ public class HT_MR_MovingToResource_Controller {
         }
     }
 
-    public void OnExit(HumanTransporter human, HumanTransporterData data) {
+    public void OnExit(Entities.HumanTransporter human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
         human.movingPath.Clear();
     }
 
-    public void Update(HumanTransporter human, HumanTransporterData data, float dt) {
+    public void Update(Entities.HumanTransporter human, HumanTransporterData data, float dt) {
         // TODO: Is this block really necessary?
         if (human.stateMovingResource_targetedResource == null) {
             _controller.NestedState_Exit(human, data);
@@ -55,7 +54,7 @@ public class HT_MR_MovingToResource_Controller {
     }
 
     public void OnHumanCurrentSegmentChanged(
-        HumanTransporter human,
+        Entities.HumanTransporter human,
         HumanTransporterData data,
         GraphSegment oldSegment
     ) {
@@ -65,7 +64,7 @@ public class HT_MR_MovingToResource_Controller {
     }
 
     public void OnHumanMovedToTheNextTile(
-        HumanTransporter human,
+        Entities.HumanTransporter human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
@@ -80,6 +79,6 @@ public class HT_MR_MovingToResource_Controller {
         }
     }
 
-    readonly HumanTransporter_MovingResource_Controller _controller;
+    readonly MovingResources _controller;
 }
 }

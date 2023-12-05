@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using BFG.Core;
 using BFG.Graphs;
+using BFG.Runtime.Entities;
 using Priority_Queue;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Graphs {
 public class GraphSegment : IEquatable<GraphSegment> {
     public readonly Guid ID = Guid.NewGuid();
 
@@ -14,8 +15,8 @@ public class GraphSegment : IEquatable<GraphSegment> {
     public readonly Graph Graph;
     public readonly List<Vector2Int> MovementTiles;
     public HumanTransporter AssignedHuman;
-    public readonly UniqueList<MapResource> linkedResources;
-    public readonly SimplePriorityQueue<MapResource> resourcesToTransport;
+    public readonly UniqueList<MapResource> LinkedResources;
+    public readonly SimplePriorityQueue<MapResource> ResourcesToTransport;
 
     public GraphSegment(
         List<GraphVertex> vertices,
@@ -29,8 +30,8 @@ public class GraphSegment : IEquatable<GraphSegment> {
         Vertices = vertices;
         MovementTiles = movementTiles;
         Graph = graph;
-        linkedResources = new();
-        resourcesToTransport = new();
+        LinkedResources = new();
+        ResourcesToTransport = new();
 
         // Duplication Checks
         for (var i = 0; i < vertices.Count; i++) {

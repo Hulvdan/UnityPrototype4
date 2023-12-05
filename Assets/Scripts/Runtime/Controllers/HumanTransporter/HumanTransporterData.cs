@@ -1,9 +1,11 @@
-﻿namespace BFG.Runtime {
+﻿using BFG.Runtime.Entities;
+
+namespace BFG.Runtime.Controllers.HumanTransporter {
 public class HumanTransporterData {
     public ResourceTransportationSystem transportationSystem { get; }
-    public IMap Map { get; }
-    public IMapSize MapSize { get; }
-    public Building CityHall { get; }
+    public IMap map { get; }
+    public IMapSize mapSize { get; }
+    public Building cityHall { get; }
 
     public readonly float PickingUpResourceDuration;
     public readonly float PlacingResourceDuration;
@@ -16,9 +18,9 @@ public class HumanTransporterData {
         float pickingUpResourceDuration,
         float placingResourceDuration
     ) {
-        Map = map;
-        MapSize = mapSize;
-        CityHall = cityHall;
+        this.map = map;
+        this.mapSize = mapSize;
+        this.cityHall = cityHall;
         PickingUpResourceDuration = pickingUpResourceDuration;
         PlacingResourceDuration = placingResourceDuration;
         this.transportationSystem = transportationSystem;

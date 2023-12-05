@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using BFG.Runtime.Entities;
+using UnityEngine;
 
 namespace BFG.Runtime {
 internal abstract class BuildingFeedback : MonoBehaviour {

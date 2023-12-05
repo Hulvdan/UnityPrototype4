@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using BFG.Core;
 using BFG.Graphs;
+using BFG.Runtime.Entities;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Graphs {
 public enum TileUpdatedType {
     RoadPlaced,
     FlagPlaced,
