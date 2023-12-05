@@ -6,7 +6,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Localization {
 public class LocalizationDatabaseLoader {
     public Dictionary<string, LocalizationRecord> Load() {
         var resource = Resources.Load("Localization") as TextAsset;
