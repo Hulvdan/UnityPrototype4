@@ -7,13 +7,13 @@ public sealed class RotationMovementFeedback : MovementFeedback {
 
     public override void UpdateData(
         float dt,
-        float normalized,
-        float coef,
+        float progress,
+        float curveEvaluatedProgress,
         Vector2 from,
         Vector2Int to,
         GameObject human
     ) {
-        var rot = Mathf.Lerp(_amplitudeZ.x, _amplitudeZ.y, coef);
+        var rot = Mathf.Lerp(_amplitudeZ.x, _amplitudeZ.y, curveEvaluatedProgress);
 
         var tr = human.transform;
         var trRotation = tr.localRotation;

@@ -40,9 +40,9 @@ public class HumanTransporter_MovingResource_Controller {
 
         Assert.AreEqual(human.stateMovingResource_targetedResource, null);
         Assert.AreEqual(human.stateMovingResource_pickingUpResourceElapsed, 0);
-        Assert.AreEqual(human.stateMovingResource_pickingUpResourceNormalized, 0);
+        Assert.AreEqual(human.stateMovingResource_pickingUpResourceProgress, 0);
         Assert.AreEqual(human.stateMovingResource_placingResourceElapsed, 0);
-        Assert.AreEqual(human.stateMovingResource_placingResourceNormalized, 0);
+        Assert.AreEqual(human.stateMovingResource_placingResourceProgress, 0);
     }
 
     public void NestedState_Exit(HumanTransporter human, HumanTransporterData data) {

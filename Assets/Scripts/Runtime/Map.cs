@@ -813,7 +813,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     Debug.LogWarning("WTF?");
                 }
 
-                human.movingNormalized = Mathf.Min(
+                human.movingProgress = Mathf.Min(
                     1, human.movingElapsed / _humanMovingOneCellDuration
                 );
             }

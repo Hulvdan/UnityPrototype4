@@ -214,7 +214,7 @@ public class MapRenderer : MonoBehaviour {
                         Vector2.Lerp(
                             humanMovingFrom,
                             humanMovingTo,
-                            human.movingNormalized
+                            human.movingProgress
                         )
                     ),
                     .2f
@@ -343,7 +343,7 @@ public class MapRenderer : MonoBehaviour {
 
     void OnHumanTransporterPlacedResource(E_HumanTransporterPlacedResource data) {
         var (human, go, _) = _humanTransporters[data.Human.ID];
-        go.OnStoppedPlacingResource(data.Resource.Scriptable);
+        go.OnStoppedPlacingResource();
 
         var item = Instantiate(_itemPrefab, _itemsLayer);
         item.transform.localPosition = new Vector2(human.pos.x, human.pos.y) + Vector2.one / 2;
@@ -359,7 +359,7 @@ public class MapRenderer : MonoBehaviour {
 
     void OnHumanTransporterPickedUpResource(E_HumanTransporterPickedUpResource data) {
         var (_, go, _) = _humanTransporters[data.Human.ID];
-        go.OnStoppedPickingUpResource(data.Resource.Scriptable);
+        go.OnStoppedPickingUpResource();
 
         if (_storedItems.TryGetValue(data.Resource.ID, out var itemGo)) {
             Destroy(itemGo.gameObject);
@@ -721,12 +721,12 @@ public class MapRenderer : MonoBehaviour {
             for (var i = 0; i < _movementPattern.Feedbacks.Count; i++) {
                 var feedback = _movementPattern.Feedbacks[i];
                 var curve = binding.CurvePerFeedback[i];
-                var coef = curve.Evaluate(human.movingNormalized);
+                var t = curve.Evaluate(human.movingProgress);
 
                 feedback.UpdateData(
                     Time.deltaTime,
-                    human.movingNormalized,
-                    coef,
+                    human.movingProgress,
+                    t,
                     human.movingFrom,
                     human.movingTo.Value,
                     go.gameObject
@@ -737,12 +737,12 @@ public class MapRenderer : MonoBehaviour {
         go.transform.localPosition += Vector3.one.With(z: 0) / 2;
         if (human.stateMovingResource
             == HumanTransporter_MovingResource_Controller.State.PickingUpResource) {
-            go.SetPickingUpResourceCoef(human.stateMovingResource_pickingUpResourceNormalized);
+            go.SetPickingUpResourceProgress(human.stateMovingResource_pickingUpResourceProgress);
         }
 
         if (human.stateMovingResource
             == HumanTransporter_MovingResource_Controller.State.PlacingResource) {
-            go.SetPlacingResourceCoef(human.stateMovingResource_placingResourceNormalized);
+            go.SetPlacingResourceProgress(human.stateMovingResource_placingResourceProgress);
         }
     }
 

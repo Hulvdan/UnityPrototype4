@@ -18,7 +18,7 @@ public class HumanTransporter {
 
     public Vector2Int pos { get; set; }
     public float movingElapsed { get; set; }
-    public float movingNormalized { get; set; }
+    public float movingProgress { get; set; }
     public Vector2 movingFrom { get; set; }
     public Vector2Int? movingTo { get; set; }
 
@@ -80,9 +80,9 @@ public class HumanTransporter {
     public HumanTransporter_MovingResource_Controller.State? stateMovingResource;
 
     public float stateMovingResource_pickingUpResourceElapsed;
-    public float stateMovingResource_pickingUpResourceNormalized;
+    public float stateMovingResource_pickingUpResourceProgress;
     public float stateMovingResource_placingResourceElapsed;
-    public float stateMovingResource_placingResourceNormalized;
+    public float stateMovingResource_placingResourceProgress;
 
     public MapResource? stateMovingResource_targetedResource = null;
 

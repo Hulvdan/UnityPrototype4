@@ -36,7 +36,7 @@ public class HT_MR_PickingUpResource_Controller {
         using var _ = Tracing.Scope();
 
         human.stateMovingResource_pickingUpResourceElapsed = 0;
-        human.stateMovingResource_pickingUpResourceNormalized = 0;
+        human.stateMovingResource_pickingUpResourceProgress = 0;
     }
 
     public void Update(HumanTransporter human, HumanTransporterData data, float dt) {
@@ -44,15 +44,15 @@ public class HT_MR_PickingUpResource_Controller {
         Assert.AreNotEqual(res, null, "human.targetedResource != null");
 
         human.stateMovingResource_pickingUpResourceElapsed += dt;
-        human.stateMovingResource_pickingUpResourceNormalized =
+        human.stateMovingResource_pickingUpResourceProgress =
             human.stateMovingResource_pickingUpResourceElapsed / data.PickingUpResourceDuration;
 
-        if (human.stateMovingResource_pickingUpResourceNormalized < 1) {
+        if (human.stateMovingResource_pickingUpResourceProgress < 1) {
             return;
         }
 
         human.stateMovingResource_pickingUpResourceElapsed = data.PickingUpResourceDuration;
-        human.stateMovingResource_pickingUpResourceNormalized = 1;
+        human.stateMovingResource_pickingUpResourceProgress = 1;
 
         data.Map.onHumanTransporterPickedUpResource.OnNext(new() {
             Human = human,
