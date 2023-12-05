@@ -1,7 +1,7 @@
 ﻿using BFG.Runtime.Entities;
 using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Rendering {
 internal class BuildingScaleFeedback : BuildingFeedback {
     [SerializeField]
     Vector2 _scaleAmplitude = Vector2.one;

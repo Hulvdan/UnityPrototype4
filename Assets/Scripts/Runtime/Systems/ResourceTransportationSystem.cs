@@ -10,7 +10,7 @@ using Priority_Queue;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Systems {
 public class ResourceTransportationSystem {
     // ReSharper disable once InconsistentNaming
     const int DEV_MAX_ITERATIONS = 256;

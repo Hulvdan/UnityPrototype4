@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Rendering {
 public sealed class PositionOffsetMovementFeedback : MovementFeedback {
     [SerializeField]
     Vector2 _amplitudeX = new(-.1f, .1f);

@@ -7,6 +7,7 @@ using BFG.Core;
 using BFG.Runtime.Controllers.HumanTransporter;
 using BFG.Runtime.Entities;
 using BFG.Runtime.Graphs;
+using BFG.Runtime.Systems;
 using Foundation.Architecture;
 using Priority_Queue;
 using SimplexNoise;
@@ -202,7 +203,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         buildings = _buildingGameObjects.Select(i => i.IntoBuilding()).ToList();
     }
 
-    public void TryBuild(Vector2Int pos, SelectedItem item) {
+    public void TryBuild(Vector2Int pos, ItemToBuild item) {
         if (!Contains(pos)) {
             return;
         }
@@ -210,7 +211,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         using var _ = Tracing.Scope();
         Tracing.Log($"Placing {item.Type} at {pos}");
 
-        if (item.Type == SelectedItemType.Road) {
+        if (item.Type == ItemToBuildType.Road) {
             var road = elementTiles[pos.y][pos.x];
             road.type = ElementTileType.Road;
             elementTiles[pos.y][pos.x] = road;
@@ -226,7 +227,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             );
             UpdateSegments(res);
         }
-        else if (item.Type == SelectedItemType.Building) {
+        else if (item.Type == ItemToBuildType.Building) {
             var building = new Building(new(), item.Building, pos, 0);
             buildings.Add(building);
 
@@ -261,7 +262,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             UpdateBuilding_NotConstructed(0, building);
             UpdateSegments(res);
         }
-        else if (item.Type == SelectedItemType.Flag) {
+        else if (item.Type == ItemToBuildType.Flag) {
             if (elementTiles[pos.y][pos.x].type != ElementTileType.Road) {
                 return;
             }
@@ -282,17 +283,17 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         DomainEvents<E_ItemPlaced>.Publish(new() { Item = item.Type, Pos = pos });
     }
 
-    public bool CanBePlaced(Vector2Int pos, SelectedItemType itemType) {
+    public bool CanBePlaced(Vector2Int pos, ItemToBuildType itemType) {
         if (!Contains(pos.x, pos.y)) {
             Debug.LogError("WTF?");
             return false;
         }
 
         switch (itemType) {
-            case SelectedItemType.Road:
-            case SelectedItemType.Building:
+            case ItemToBuildType.Road:
+            case ItemToBuildType.Building:
                 return IsBuildable(pos);
-            case SelectedItemType.Flag:
+            case ItemToBuildType.Flag:
                 return elementTiles[pos.y][pos.x].type == ElementTileType.Road;
             default:
                 return false;

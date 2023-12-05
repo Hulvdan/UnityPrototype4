@@ -1,4 +1,4 @@
-﻿using BFG.Runtime;
+﻿using BFG.Runtime.Localization;
 using UnityEditor;
 using UnityEngine;
 

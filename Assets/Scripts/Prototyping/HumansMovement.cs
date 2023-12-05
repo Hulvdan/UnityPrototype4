@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BFG.Runtime;
+using BFG.Runtime.Rendering;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;

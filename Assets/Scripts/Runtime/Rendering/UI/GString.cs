@@ -4,17 +4,7 @@ using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 
-namespace BFG.Runtime {
-public enum Language {
-    EN = 0,
-    RU = 1,
-}
-
-[Serializable]
-public class GStringKey {
-    public string Key;
-}
-
+namespace BFG.Runtime.Rendering.UI {
 [RequireComponent(typeof(TMP_Text))]
 public class GString : MonoBehaviour {
     [SerializeField]

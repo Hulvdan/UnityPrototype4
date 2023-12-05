@@ -1,8 +1,8 @@
 ﻿using JetBrains.Annotations;
 
-namespace BFG.Runtime {
-public class SelectedItem {
-    public SelectedItemType Type;
+namespace BFG.Runtime.Entities {
+public class ItemToBuild {
+    public ItemToBuildType Type;
 
     [CanBeNull]
     public ScriptableBuilding Building;

@@ -14,7 +14,7 @@ using UnityEngine.Assertions;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Rendering {
 public enum PickupableItemHoveringState {
     StartedHovering,
     FinishedHovering,
@@ -154,10 +154,10 @@ public class MapRenderer : MonoBehaviour {
         // TODO: Move inputs to GameManager
         if (hoveredTile != null && mouseBuildActionWasPressed) {
             if (
-                _gameManager.SelectedItem != null
-                && _map.CanBePlaced(hoveredTile.Value, _gameManager.SelectedItem.Type)
+                _gameManager.ItemToBuild != null
+                && _map.CanBePlaced(hoveredTile.Value, _gameManager.ItemToBuild.Type)
             ) {
-                _map.TryBuild(hoveredTile.Value, _gameManager.SelectedItem);
+                _map.TryBuild(hoveredTile.Value, _gameManager.ItemToBuild);
             }
         }
     }
@@ -641,19 +641,19 @@ public class MapRenderer : MonoBehaviour {
         }
 
         TileBase tilemapTile;
-        var item = _gameManager.SelectedItem;
+        var item = _gameManager.ItemToBuild;
         if (item == null) {
             return;
         }
 
         switch (item.Type) {
-            case SelectedItemType.Road:
+            case ItemToBuildType.Road:
                 tilemapTile = _tileRoad;
                 break;
-            case SelectedItemType.Flag:
+            case ItemToBuildType.Flag:
                 tilemapTile = _tileFlag;
                 break;
-            case SelectedItemType.Building:
+            case ItemToBuildType.Building:
                 Assert.AreNotEqual(item.Building, null);
                 Assert.AreNotEqual(item.Building!.tile, null);
                 tilemapTile = item.Building.tile;
@@ -668,7 +668,7 @@ public class MapRenderer : MonoBehaviour {
         }
 
         var matrix = Matrix4x4.identity;
-        if (item.Type == SelectedItemType.Building) {
+        if (item.Type == ItemToBuildType.Building) {
             matrix = Matrix4x4.TRS(new(0, -0.5f, 0), Quaternion.identity, Vector3.one);
         }
 

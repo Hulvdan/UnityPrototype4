@@ -38,8 +38,8 @@ public interface IMap {
     Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; }
     Subject<E_BuildingProducedItem> onBuildingProducedItem { get; }
 
-    void TryBuild(Vector2Int pos, SelectedItem item);
-    bool CanBePlaced(Vector2Int pos, SelectedItemType itemType);
+    void TryBuild(Vector2Int pos, ItemToBuild item);
+    bool CanBePlaced(Vector2Int pos, ItemToBuildType itemType);
     bool IsBuildable(int x, int y);
     bool IsBuildable(Vector2Int pos);
 
