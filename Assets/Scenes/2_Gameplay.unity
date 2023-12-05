@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fcaa5af5c0543d8903d25f6627290a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomCurves:
+  _randomCurves:
   - serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -343,7 +343,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41f49d243ff44941bde35be2f011bdb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomCurves:
+  _randomCurves:
   - serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -452,7 +452,7 @@ GameObject:
   - component: {fileID: 208495646}
   - component: {fileID: 208495645}
   m_Layer: 5
-  m_Name: MouseRaycaster
+  m_Name: MapRendererRaycaster
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -470,12 +470,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1281138310}
+  m_Father: {fileID: 1797611347}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1122.2, y: 722}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &208495644
 MonoBehaviour:
@@ -892,17 +892,6 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!114 &337626713 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3723681422103644480, guid: 0625fcb877acb3441853eddfdf7d3148, type: 3}
-  m_PrefabInstance: {fileID: 926034100766632848}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &391172544
 GameObject:
   m_ObjectHideFlags: 0
@@ -1453,7 +1442,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a67b616dd6409a9292d0654e281c9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomCurves:
+  _randomCurves:
   - serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -3044,7 +3033,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 6.421875
+  orthographic size: 4.28125
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -3774,8 +3763,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _movementSystemTilemap: {fileID: 278003677}
   _roadTile: {fileID: 11400000, guid: 13663f7538694004680aea6c0c3053da, type: 2}
-  _stationHorizontalTile: {fileID: 11400000, guid: 43b5609540341be46a5301c769024c5f, type: 2}
-  _stationVerticalTile: {fileID: 11400000, guid: cab357ae5a134df4e83dedfbcbf177d2, type: 2}
 --- !u!1 &828968647
 GameObject:
   m_ObjectHideFlags: 0
@@ -5532,42 +5519,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PrintTrace: 0
---- !u!1 &1281138309
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1281138310}
-  m_Layer: 5
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1281138310
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1281138309}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 208495642}
-  m_Father: {fileID: 1797611347}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1291946405
 GameObject:
   m_ObjectHideFlags: 0
@@ -5612,7 +5563,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a67b616dd6409a9292d0654e281c9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomCurves:
+  _randomCurves:
   - serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -7314,24 +7265,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9676e93c1f044e8a490ed494df6f818, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _debugMode: 1
-  _debugTilemap: {fileID: 446218257}
-  _arrow0: {fileID: 11400000, guid: c324f74d79f7bee47865b72555ad9530, type: 2}
-  _arrow1: {fileID: 11400000, guid: 7925f0cd6b7f2f74c915b934fc4ce807, type: 2}
-  _arrow21: {fileID: 11400000, guid: c9b4e0abf2d0e9742a3f567564586a82, type: 2}
-  _arrow22: {fileID: 11400000, guid: 082e45f37531b3948aea88a95c26da5c, type: 2}
-  _arrow3: {fileID: 11400000, guid: fe1204f22a8fd7743a534641ac4a23df, type: 2}
-  _arrow4: {fileID: 11400000, guid: 8f33588a2d846b44f9d8b9b5e5515726, type: 2}
-  _destinations:
-  - Position: {x: 13, y: 3}
-    Type: 2
-  - Position: {x: 5, y: 6}
-    Type: 1
-  - Position: {x: 10, y: 4}
-    Type: 1
-  _trainItemLoadingDuration: 0.3
-  _trainItemUnloadingDuration: 0.3
-  _horseSpeed: 3
 --- !u!1 &1797611346
 GameObject:
   m_ObjectHideFlags: 0
@@ -7344,7 +7277,7 @@ GameObject:
   - component: {fileID: 1797611349}
   - component: {fileID: 1797611348}
   m_Layer: 5
-  m_Name: MouseRaycasterCanvas
+  m_Name: MapRendererRaycasterCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7362,7 +7295,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1281138310}
+  - {fileID: 208495642}
   m_Father: {fileID: 1879392619}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -9855,47 +9788,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 45af1427840af3a4a98b31727bdd67b4, type: 2}
   - {fileID: 11400000, guid: ae832cc99114055458e3b3270e527dd6, type: 2}
   _initialMapProvider: {fileID: 795772558}
-  _lumberjacksHouse: {fileID: 11400000, guid: 59b7b8a76de0c50428e3ddae6cbf039b, type: 2}
   _hideEditorLogs: 0
-  _horseCompoundSystem: {fileID: 1706615548}
-  _horsesStationItemsGatheringRadius: 2
-  _humanHeadingDuration: 1
-  _humanHarvestingDuration: 1
-  _humanHeadingToTheStoreBuildingDuration: 1
-  _humanReturningBackDuration: 1
-  _humanMovementCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.50089204
-      value: 0.50133806
-      inSlope: 3.0012846
-      outSlope: 3.0012846
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.11508791
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
   _humanSpawningDelay: 0.6
 --- !u!114 &1879392621
 MonoBehaviour:
@@ -9911,14 +9804,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _movementSystemTilemap: {fileID: 278003677}
   _flagsTilemap: {fileID: 1168861589}
-  _wagonSprite_Right: {fileID: 21300000, guid: 0e83a9b261d526e449fe74f637ae7a4f, type: 3}
-  _wagonSprite_Up: {fileID: 21300000, guid: 1d9fee1bcbd38f94da21b2088e3deea6, type: 3}
   _previewTilemap: {fileID: 828968650}
   _grid: {fileID: 539681139}
   _tileGrass: {fileID: 11400000, guid: 53d50839a5ac409478f0636c58cf9418, type: 2}
   _tileRoad: {fileID: 11400000, guid: 13663f7538694004680aea6c0c3053da, type: 2}
-  _tileStationHorizontal: {fileID: 11400000, guid: 43b5609540341be46a5301c769024c5f, type: 2}
-  _tileStationVertical: {fileID: 11400000, guid: cab357ae5a134df4e83dedfbcbf177d2, type: 2}
   _tileForest: {fileID: 11400000, guid: eedf2f35d2863c847b3e482af4541ea7, type: 2}
   _tileForestTop: {fileID: 11400000, guid: e39481a7068315745bb97871069b3b17, type: 2}
   _tileUnfinishedBuilding: {fileID: 11400000, guid: ab68e249e651a9743954499abf5c24b1, type: 2}
@@ -9927,39 +9816,9 @@ MonoBehaviour:
   _tilemapBuildingsPrefab: {fileID: 6846368563622007670, guid: f68912ad1580d1d4c8a829f829763b4e, type: 3}
   _humanPrefab: {fileID: 3002592055168235560, guid: a0701c25212629e43b39f51cf8637b3b, type: 3}
   _logResource: {fileID: 11400000, guid: 361152873045e084892d56e677d6d740, type: 2}
-  _planksResource: {fileID: 11400000, guid: 10745982271be284fb0df31da327cdba, type: 2}
   _itemsLayer: {fileID: 2040351865}
   _itemPrefab: {fileID: 8175125910645311947, guid: bcf84f38c6b6e414db8990ba390ed555, type: 3}
-  _locomotivePrefab: {fileID: 389402034253815562, guid: 2006355f835e5694d996ac703fecf2ae, type: 3}
-  _wagonPrefab: {fileID: 6852838267408035928, guid: b5a0972a69dd4354ca33953e2f1d2041, type: 3}
-  _buildingModalsContainer: {fileID: 1560861965}
-  _stablesModalPrefab: {fileID: 4084700819911152684, guid: 8d066a76bfeaf324991a429cd2e28689, type: 3}
-  _itemPlacingDuration: 0.3
   _scaleFeedback: {fileID: 1031849578}
-  _itemPlacingCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
   _buildingMovingItemToTheWarehouseDuration: 0.3
   _buildingMovingItemToTheWarehouseDurationCurve:
     serializedVersion: 2
@@ -9986,7 +9845,6 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   _sinCosScale: 8
-  _unbuildableTileColor: {r: 1, g: 0, b: 0, a: 1}
   _movementPattern:
     Feedbacks:
     - {fileID: 18081502}
@@ -10161,17 +10019,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2924838414703995107, guid: 0625fcb877acb3441853eddfdf7d3148, type: 3}
   m_PrefabInstance: {fileID: 1925955422}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1925955424 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3723681422103644480, guid: 0625fcb877acb3441853eddfdf7d3148, type: 3}
-  m_PrefabInstance: {fileID: 1925955422}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1930460249
 GameObject:
   m_ObjectHideFlags: 0
@@ -10540,76 +10387,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8cd88ebd35a7af429a7ec60c1a75cf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _resourceTextsMapping:
-  - Resource: {fileID: 11400000, guid: 10745982271be284fb0df31da327cdba, type: 2}
-    Text: {fileID: 337626713}
-  - Resource: {fileID: 11400000, guid: 45af1427840af3a4a98b31727bdd67b4, type: 2}
-    Text: {fileID: 1925955424}
-  - Resource: {fileID: 11400000, guid: ae832cc99114055458e3b3270e527dd6, type: 2}
-    Text: {fileID: 2064452401}
-  _mapGrid: {fileID: 539681139}
-  _itemPickupFeedbacks: {fileID: 459262580}
-  _itemPickupFeedbackPrefab: {fileID: 734847210889320874, guid: 876ac488d5f5eae44bb56694a48ed67e, type: 3}
-  _feedbackVerticalOffset: 80
-  _feedbackDuration: 0.5
-  _feedbackCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _feedbackOpacityCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.8
-      value: 0
-      inSlope: -0
-      outSlope: 5.0000005
-      tangentMode: 69
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 5.0000005
-      outSlope: 5.0000005
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _testResource: {fileID: 11400000, guid: 10745982271be284fb0df31da327cdba, type: 2}
 --- !u!1 &2040351864
 GameObject:
   m_ObjectHideFlags: 0
@@ -10848,17 +10625,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2924838414703995107, guid: 0625fcb877acb3441853eddfdf7d3148, type: 3}
   m_PrefabInstance: {fileID: 2064452399}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2064452401 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3723681422103644480, guid: 0625fcb877acb3441853eddfdf7d3148, type: 3}
-  m_PrefabInstance: {fileID: 2064452399}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2080007874
 GameObject:
   m_ObjectHideFlags: 0
