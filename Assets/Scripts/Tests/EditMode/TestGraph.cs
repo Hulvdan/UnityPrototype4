@@ -176,6 +176,7 @@ public class TestGraph {
             }
         }
 
+        graph.FinishBuilding();
         return graph;
     }
 
@@ -194,10 +195,9 @@ public class TestGraph {
     }
 
     [Test]
-    public void Test_GetCenters_Empty2() {
-        var graph = FromStrings(".");
-
-        Assert.Throws<AssertionException>(() => graph.GetCenters());
+    public void Test_FinishBuildingThrowsWhenEmpty() {
+        var graph = new Graph();
+        Assert.Throws<AssertionException>(() => graph.FinishBuilding());
     }
 
     [Test]
@@ -285,6 +285,7 @@ public class TestGraph {
         graph.Mark(11, 10, Direction.Right);
         graph.Mark(11, 10, Direction.Left);
         graph.Mark(12, 10, Direction.Left);
+        graph.FinishBuilding();
 
         var centers = graph.GetCenters();
         var expected = new List<Vector2Int> { new(11, 10) };
@@ -293,23 +294,11 @@ public class TestGraph {
     }
 
     [Test]
-    public void Test_IsUndirected_Empty_1() {
-        var graph = FromStrings();
-        Assert.Throws<AssertionException>(() => Graph.Tests.IsUndirected(graph));
-    }
-
-    [Test]
-    public void Test_IsUndirected_Empty_2() {
-        var graph = FromStrings("");
-        Assert.Throws<AssertionException>(() => Graph.Tests.IsUndirected(graph));
-    }
-
-    [Test]
     public void Test_IsUndirected_1() {
         var graph = new Graph();
         graph.Mark(0, 0, Direction.Right, false);
 
-        Assert.IsTrue(Graph.Tests.IsUndirected(graph));
+        Assert.Throws<AssertionException>(() => graph.FinishBuilding());
     }
 
     [Test]
@@ -404,6 +393,7 @@ public class TestGraph {
         graph.Mark(11, 10, Direction.Right);
         graph.Mark(11, 10, Direction.Left);
         graph.Mark(12, 10, Direction.Left);
+        graph.FinishBuilding();
 
         var actual = graph.GetShortestPath(new(10, 10), new(12, 10));
         var expected = new List<Vector2Int> {
@@ -425,6 +415,7 @@ public class TestGraph {
         graph.Mark(10, 6, Direction.Right);
         graph.Mark(11, 6, Direction.Left);
         graph.Mark(13, 13, Direction.Right, false);
+        graph.FinishBuilding();
 
         var actual = graph.GetShortestPath(new(8, 7), new(11, 6));
         var expected = new List<Vector2Int> {
@@ -445,6 +436,7 @@ public class TestGraph {
         graph.Mark(10, 6, Direction.Left);
         graph.Mark(10, 6, Direction.Right);
         graph.Mark(11, 6, Direction.Left);
+        graph.FinishBuilding();
 
         var actual = graph.GetShortestPath(new(8, 7), new(11, 6));
         var expected = new List<Vector2Int> {
