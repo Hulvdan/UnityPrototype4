@@ -5,7 +5,7 @@
 ### Terms
 
 - `Tile` - A tile on the grid. Using the word `Cell` is **prohibited** for naming anything related to the tiles on the grid
-- `Progress` - A not curve affected coefficient. Usually represents `elapsed` / `duration`
+- `Progress` - A not curve affected coefficient. Usually represents `elapsed / duration`
 - `t` - Coefficients used in Lerp operations. Usually affected by curves
 
 ## Development
