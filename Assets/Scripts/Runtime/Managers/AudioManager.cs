@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BFG.Runtime.Entities;
 using FMOD.Studio;
 using FMODUnity;
 using Foundation.Architecture;
@@ -50,13 +51,13 @@ public class AudioManager : MonoBehaviour {
         DomainEvents<E_ButtonDeselected>.Subscribe(_ => PlaySound(Sound.UI_ButtonDeselected));
         DomainEvents<E_ItemPlaced>.Subscribe(data => {
             switch (data.Item) {
-                case SelectedItemType.Road:
+                case ItemToBuildType.Road:
                     PlaySound(Sound.GP_RoadPlaced);
                     break;
-                case SelectedItemType.Building:
+                case ItemToBuildType.Building:
                     PlaySound(Sound.GP_BuildingPlaced);
                     break;
-                case SelectedItemType.Flag:
+                case ItemToBuildType.Flag:
                     PlaySound(Sound.GP_FlagPlaced);
                     break;
             }

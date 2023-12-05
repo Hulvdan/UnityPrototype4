@@ -2,7 +2,7 @@
 using Foundation.Architecture;
 using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Rendering.UI {
 public class BuildablesPanel : MonoBehaviour {
     [SerializeField]
     List<BuildableButton> _buttons;
@@ -28,7 +28,7 @@ public class BuildablesPanel : MonoBehaviour {
         _ignoreButtonStateChanges = true;
         foreach (var button in _buttons) {
             if (button.GetInstanceID() == selectedButtonInstanceID) {
-                _gameManager.SelectedItem = button.selectedItem;
+                _gameManager.ItemToBuild = button.itemToBuild;
                 continue;
             }
 
@@ -38,7 +38,7 @@ public class BuildablesPanel : MonoBehaviour {
         _ignoreButtonStateChanges = false;
 
         if (selectedButtonInstanceID == null) {
-            _gameManager.SelectedItem = null;
+            _gameManager.ItemToBuild = null;
             DomainEvents<E_ButtonDeselected>.Publish(new());
         }
         else {

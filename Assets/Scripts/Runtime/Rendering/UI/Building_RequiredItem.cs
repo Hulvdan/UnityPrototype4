@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Rendering.UI {
 public class Building_RequiredItem : MonoBehaviour {
     [SerializeField]
     [Required]

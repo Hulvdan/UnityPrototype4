@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Rendering {
 public sealed class RotationMovementFeedback : MovementFeedback {
     [SerializeField]
     Vector2 _amplitudeZ = new Vector2(-1, 1) * 20;

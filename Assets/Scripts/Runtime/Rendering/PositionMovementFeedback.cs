@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Rendering {
 public sealed class PositionMovementFeedback : MovementFeedback {
     public override void UpdateData(
         float dt,

@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Rendering {
 public class MapRendererRaycaster : EventTrigger {
     [SerializeField]
     [Required]

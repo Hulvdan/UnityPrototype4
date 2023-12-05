@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using BFG.Runtime.Entities;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -7,7 +8,7 @@ using UnityEngine.Assertions;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Rendering.UI {
 [Serializable]
 public struct ColorBlock {
     [SerializeField]
@@ -55,10 +56,10 @@ public class BuildableButton : MonoBehaviour {
     [FormerlySerializedAs("_item")]
     [SerializeField]
     [Required]
-    SelectedItemType _itemType;
+    ItemToBuildType _itemType;
 
     [SerializeField]
-    [ShowIf("ItemType", SelectedItemType.Building)]
+    [ShowIf("ItemType", ItemToBuildType.Building)]
     [Required]
     [CanBeNull]
     ScriptableBuilding _building;
@@ -88,11 +89,11 @@ public class BuildableButton : MonoBehaviour {
 
     Color _targetColor;
 
-    public SelectedItem selectedItem {
+    public ItemToBuild itemToBuild {
         get {
-            var item = new SelectedItem { Type = _itemType };
+            var item = new ItemToBuild { Type = _itemType };
 
-            if (_itemType == SelectedItemType.Building) {
+            if (_itemType == ItemToBuildType.Building) {
                 Assert.IsNotNull(_building);
                 item.Building = _building;
             }

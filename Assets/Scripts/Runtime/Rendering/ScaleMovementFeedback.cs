@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Rendering {
 public sealed class ScaleMovementFeedback : MovementFeedback {
     [SerializeField]
     Vector2 _amplitudeX = new(0.9f, 1.1f);

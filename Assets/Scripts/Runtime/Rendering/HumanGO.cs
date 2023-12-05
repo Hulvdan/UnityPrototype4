@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace BFG.Runtime {
+namespace BFG.Runtime.Rendering {
 // ReSharper disable once InconsistentNaming
 public class HumanGO : MonoBehaviour {
     [SerializeField]
