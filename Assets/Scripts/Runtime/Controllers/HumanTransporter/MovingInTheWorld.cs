@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using UnityEngine.Assertions;
 
-namespace BFG.Runtime.Controllers.HumanTransporter {
+namespace BFG.Runtime.Controllers.Human {
 public class MovingInTheWorld {
     public enum State {
         MovingToTheCityHall,
@@ -15,7 +15,7 @@ public class MovingInTheWorld {
 
     public void OnEnter(
         Entities.Human human,
-        HumanTransporterData data
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
 
@@ -30,7 +30,7 @@ public class MovingInTheWorld {
 
     public void OnExit(
         Entities.Human human,
-        HumanTransporterData data
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
 
@@ -41,7 +41,7 @@ public class MovingInTheWorld {
 
     public void Update(
         Entities.Human human,
-        HumanTransporterData data,
+        HumanData data,
         float dt
     ) {
         UpdateStates(human, data, human.segment);
@@ -49,7 +49,7 @@ public class MovingInTheWorld {
 
     public void OnHumanCurrentSegmentChanged(
         Entities.Human human,
-        HumanTransporterData data,
+        HumanData data,
         [CanBeNull]
         GraphSegment oldSegment
     ) {
@@ -61,14 +61,14 @@ public class MovingInTheWorld {
 
     public void OnHumanMovedToTheNextTile(
         Entities.Human human,
-        HumanTransporterData data
+        HumanData data
     ) {
         // Hulvdan: Intentionally left blank
     }
 
     void UpdateStates(
         Entities.Human human,
-        HumanTransporterData data,
+        HumanData data,
         [CanBeNull]
         GraphSegment oldSegment
     ) {
@@ -90,7 +90,7 @@ public class MovingInTheWorld {
                 && human.segment.Graph.Node(human.moving.pos) != 0
             ) {
                 Tracing.Log(
-                    "_controller.SetState(human, HumanTransporterState.MovingInsideSegment)");
+                    "_controller.SetState(human, HumanState.MovingInsideSegment)");
                 _controller.SetState(human, MainState.MovingInsideSegment);
                 return;
             }

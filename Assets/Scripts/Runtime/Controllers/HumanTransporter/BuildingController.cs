@@ -1,6 +1,6 @@
 ﻿using UnityEngine.Assertions;
 
-namespace BFG.Runtime.Controllers.HumanTransporter {
+namespace BFG.Runtime.Controllers.Human {
 public class BuildingController {
     public BuildingController(MainController controller) {
         _controller = controller;
@@ -8,7 +8,7 @@ public class BuildingController {
 
     public void OnEnter(
         Entities.Human human,
-        HumanTransporterData data
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
 
@@ -22,14 +22,14 @@ public class BuildingController {
 
     public void OnExit(
         Entities.Human human,
-        HumanTransporterData data
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
     }
 
     public void Update(
         Entities.Human human,
-        HumanTransporterData data,
+        HumanData data,
         float dt
     ) {
         human.building_elapsed += dt;

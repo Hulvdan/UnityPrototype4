@@ -1,15 +1,15 @@
 ﻿using BFG.Runtime.Graphs;
 using JetBrains.Annotations;
 using UnityEngine.Assertions;
-using MRState = BFG.Runtime.Controllers.HumanTransporter.MovingResources.State;
+using MRState = BFG.Runtime.Controllers.Human.MovingResources.State;
 
-namespace BFG.Runtime.Controllers.HumanTransporter {
+namespace BFG.Runtime.Controllers.Human {
 public class PickingUpResource {
     public PickingUpResource(MovingResources controller) {
         _controller = controller;
     }
 
-    public void OnEnter(Entities.Human human, HumanTransporterData data) {
+    public void OnEnter(Entities.Human human, HumanData data) {
         using var _ = Tracing.Scope();
 
         Assert.AreNotEqual(human.movingResources, MRState.PickingUpResource);
@@ -26,20 +26,20 @@ public class PickingUpResource {
         res!.CarryingHuman = human;
 
         data.transportation.OnHumanStartedPickingUpResource(res);
-        data.map.onHumanTransporterStartedPickingUpResource.OnNext(new() {
+        data.map.onHumanStartedPickingUpResource.OnNext(new() {
             Human = human,
             Resource = res,
         });
     }
 
-    public void OnExit(Entities.Human human, HumanTransporterData data) {
+    public void OnExit(Entities.Human human, HumanData data) {
         using var _ = Tracing.Scope();
 
         human.movingResources_pickingUpResourceElapsed = 0;
         human.movingResources_pickingUpResourceProgress = 0;
     }
 
-    public void Update(Entities.Human human, HumanTransporterData data, float dt) {
+    public void Update(Entities.Human human, HumanData data, float dt) {
         var res = human.movingResources_targetedResource;
         Assert.AreNotEqual(res, null, "human.targetedResource != null");
 
@@ -54,7 +54,7 @@ public class PickingUpResource {
         human.movingResources_pickingUpResourceElapsed = data.PickingUpResourceDuration;
         human.movingResources_pickingUpResourceProgress = 1;
 
-        data.map.onHumanTransporterPickedUpResource.OnNext(new() {
+        data.map.onHumanPickedUpResource.OnNext(new() {
             Human = human,
             Resource = res,
         });
@@ -73,7 +73,7 @@ public class PickingUpResource {
 
     public void OnHumanCurrentSegmentChanged(
         Entities.Human human,
-        HumanTransporterData data,
+        HumanData data,
         [CanBeNull]
         GraphSegment oldSegment
     ) {
