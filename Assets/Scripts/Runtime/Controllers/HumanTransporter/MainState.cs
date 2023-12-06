@@ -7,15 +7,22 @@ using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Controllers.HumanTransporter {
 public enum MainState {
+    // Common
     MovingInTheWorld,
+
+    // Transporter
     MovingInsideSegment,
     MovingResource,
+
+    // Builder
+    Building,
 }
 
 public class MainController {
     readonly MovingInTheWorld _movingInTheWorld;
     readonly MovingInsideSegment _movingInsideSegment;
     readonly MovingResources _movingResources;
+    readonly BuildingController _buildingController;
     readonly HumanTransporterData _data;
 
     public MainController(
@@ -27,6 +34,7 @@ public class MainController {
         _movingInTheWorld = new(this);
         _movingInsideSegment = new(this);
         _movingResources = new(this);
+        _buildingController = new(this);
 
         _data = new(map, mapSize, cityHall, resourceTransportation, 1f, 1f);
     }
@@ -49,6 +57,9 @@ public class MainController {
                 case MainState.MovingResource:
                     _movingResources.OnExit(human, _data);
                     break;
+                case MainState.Building:
+                    _buildingController.OnExit(human, _data);
+                    break;
                 default:
                     throw new NotSupportedException();
             }
@@ -63,6 +74,9 @@ public class MainController {
                 break;
             case MainState.MovingResource:
                 _movingResources.OnEnter(human, _data);
+                break;
+            case MainState.Building:
+                _buildingController.OnEnter(human, _data);
                 break;
             default:
                 throw new NotSupportedException();
@@ -79,6 +93,9 @@ public class MainController {
                 break;
             case MainState.MovingResource:
                 _movingResources.Update(human, _data, dt);
+                break;
+            case MainState.Building:
+                _buildingController.Update(human, _data, dt);
                 break;
             default:
                 throw new NotSupportedException();
@@ -105,6 +122,8 @@ public class MainController {
             case MainState.MovingResource:
                 _movingResources.OnHumanCurrentSegmentChanged(human, _data, oldSegment);
                 break;
+            case MainState.Building:
+                throw new NotSupportedException();
             default:
                 throw new NotSupportedException();
         }
@@ -123,6 +142,8 @@ public class MainController {
             case MainState.MovingResource:
                 _movingResources.OnHumanMovedToTheNextTile(human, _data);
                 break;
+            case MainState.Building:
+                throw new NotSupportedException();
             default:
                 throw new NotSupportedException();
         }
