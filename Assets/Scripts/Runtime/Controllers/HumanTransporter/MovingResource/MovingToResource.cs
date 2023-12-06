@@ -27,7 +27,7 @@ public class MovingToResource {
         }
 
         Assert.AreEqual(null, human.moving.to, "human.movingTo == null");
-        Assert.AreEqual(0, human.moving.path.Count, "human.movingPath.Count == 0");
+        Assert.AreEqual(0, human.moving.Path.Count, "human.movingPath.Count == 0");
 
         var graphContains = segment.Graph.Contains(human.moving.pos);
         var nodeIsWalkable = segment.Graph.Node(human.moving.pos) != 0;
@@ -43,7 +43,7 @@ public class MovingToResource {
     public void OnExit(Entities.Human human, HumanData data) {
         using var _ = Tracing.Scope();
 
-        human.moving.path.Clear();
+        human.moving.Path.Clear();
     }
 
     public void Update(Entities.Human human, HumanData data, float dt) {

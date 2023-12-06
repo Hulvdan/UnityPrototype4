@@ -10,7 +10,7 @@ public class HumanMovingComponent {
     public Vector2 from { get; set; }
     public Vector2Int? to { get; set; }
 
-    public readonly List<Vector2Int> path = new();
+    public readonly List<Vector2Int> Path = new();
 
     public HumanMovingComponent(Vector2Int initialPosition) {
         pos = initialPosition;
@@ -18,7 +18,7 @@ public class HumanMovingComponent {
     }
 
     public void AddPath(List<Vector2Int> path) {
-        this.path.Clear();
+        Path.Clear();
 
         var isFirst = true;
         foreach (var tile in path) {
@@ -26,13 +26,13 @@ public class HumanMovingComponent {
                 isFirst = false;
 
                 if (tile != (to ?? pos)) {
-                    this.path.Add(tile);
+                    Path.Add(tile);
                 }
 
                 continue;
             }
 
-            this.path.Add(tile);
+            Path.Add(tile);
         }
 
         if (to == null) {
@@ -41,13 +41,13 @@ public class HumanMovingComponent {
     }
 
     public void PopMovingTo() {
-        if (path.Count == 0) {
+        if (Path.Count == 0) {
             elapsed = 0;
             to = null;
         }
         else {
-            to = path[0];
-            path.RemoveAt(0);
+            to = Path[0];
+            Path.RemoveAt(0);
         }
     }
 }
