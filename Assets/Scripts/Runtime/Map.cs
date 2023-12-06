@@ -228,7 +228,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             UpdateSegments(res);
         }
         else if (item.Type == ItemToBuildType.Building) {
-            var building = new Building(new(), item.Building, pos, 0);
+            var building = new Building(Guid.NewGuid(), item.Building, pos, 0);
             buildings.Add(building);
 
             for (var dy = 0; dy < building.scriptable.size.y; dy++) {
@@ -786,51 +786,18 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void UpdateHumanTransporters(float dt) {
-        // ReSharper disable once InconsistentNaming
-        const int GUARD_MAX_ITERATIONS_COUNT = 256;
-
         var humansToRemove = new List<HumanTransporter>();
         foreach (var human in _humanTransporters) {
-            if (human.movingTo != null) {
-                human.movingElapsed += dt;
-
-                var iteration = 0;
-                while (
-                    iteration++ < 10 * GUARD_MAX_ITERATIONS_COUNT
-                    && human.movingTo != null
-                    && human.movingElapsed > humanMovingOneCellDuration
-                ) {
-                    using var _ = Tracing.Scope();
-                    Tracing.Log("Human reached the next tile");
-
-                    human.movingElapsed -= humanMovingOneCellDuration;
-
-                    human.pos = human.movingTo.Value;
-                    human.movingFrom = human.pos;
-                    human.PopMovingTo();
-
-                    _humanTransporterController.OnHumanMovedToTheNextTile(human);
-                    onHumanTransporterMovedToTheNextTile.OnNext(new() {
-                        Human = human,
-                    });
-                }
-
-                Assert.IsTrue(iteration < 10 * GUARD_MAX_ITERATIONS_COUNT);
-                if (iteration >= GUARD_MAX_ITERATIONS_COUNT) {
-                    Debug.LogWarning("WTF?");
-                }
-
-                human.movingProgress = Mathf.Min(
-                    1, human.movingElapsed / _humanMovingOneCellDuration
-                );
+            if (human.moving.to != null) {
+                UpdateHumanMovingComponent(dt, human);
             }
 
             _humanTransporterController.Update(human, dt);
             var state = MovingInTheWorld.State.MovingToTheCityHall;
             if (
                 human.stateMovingInTheWorld == state
-                && human.pos == cityHall.pos
-                && human.movingTo == null
+                && human.moving.pos == cityHall.pos
+                && human.moving.to == null
             ) {
                 humansToRemove.Add(human);
             }
@@ -840,6 +807,46 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             onHumanReachedCityHall.OnNext(new() { Human = human });
             _humanTransporters.RemoveAt(_humanTransporters.FindIndex(i => i == human));
         }
+    }
+
+    void UpdateHumanMovingComponent(float dt, HumanTransporter human) {
+        // ReSharper disable once InconsistentNaming
+        const int GUARD_MAX_ITERATIONS_COUNT = 16;
+
+        var moving = human.moving;
+        moving.elapsed += dt;
+
+        var iteration = 0;
+        while (
+            iteration < 10 * GUARD_MAX_ITERATIONS_COUNT
+            && moving.to != null
+            && moving.elapsed > humanMovingOneCellDuration
+        ) {
+            iteration++;
+
+            using var _ = Tracing.Scope();
+            Tracing.Log("Human reached the next tile");
+
+            moving.elapsed -= humanMovingOneCellDuration;
+
+            moving.pos = moving.to.Value;
+            moving.from = moving.pos;
+            moving.PopMovingTo();
+
+            _humanTransporterController.OnHumanMovedToTheNextTile(human);
+            onHumanTransporterMovedToTheNextTile.OnNext(new() {
+                Human = human,
+            });
+        }
+
+        Assert.IsTrue(iteration < 10 * GUARD_MAX_ITERATIONS_COUNT);
+        if (iteration >= GUARD_MAX_ITERATIONS_COUNT) {
+            Debug.LogWarning("WTF?");
+        }
+
+        moving.progress = Mathf.Min(
+            1, moving.elapsed / _humanMovingOneCellDuration
+        );
     }
 
     #endregion

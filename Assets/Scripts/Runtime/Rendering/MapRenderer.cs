@@ -202,12 +202,12 @@ public class MapRenderer : MonoBehaviour {
         foreach (var (human, _, _) in _humanTransporters.Values) {
             Gizmos.color = Color.cyan;
             var offset = Vector2.one / 2;
-            Gizmos.DrawSphere(_grid.transform.TransformPoint(human.pos + offset), .2f);
+            Gizmos.DrawSphere(_grid.transform.TransformPoint(human.moving.pos + offset), .2f);
 
-            if (human.movingTo != null) {
+            if (human.moving.to != null) {
                 Gizmos.color = Color.red;
-                var humanMovingFrom = human.movingFrom + offset;
-                var humanMovingTo = human.movingTo.Value + offset;
+                var humanMovingFrom = human.moving.from + offset;
+                var humanMovingTo = human.moving.to.Value + offset;
                 Gizmos.DrawLine(
                     _grid.transform.TransformPoint(humanMovingFrom),
                     _grid.transform.TransformPoint(humanMovingTo)
@@ -217,7 +217,7 @@ public class MapRenderer : MonoBehaviour {
                         Vector2.Lerp(
                             humanMovingFrom,
                             humanMovingTo,
-                            human.movingProgress
+                            human.moving.progress
                         )
                     ),
                     .2f
@@ -334,7 +334,9 @@ public class MapRenderer : MonoBehaviour {
 
     void OnHumanTransporterMovedToTheNextTile(E_HumanTransporterMovedToTheNextTile data) {
         var (human, go, binding) = _humanTransporters[data.Human.ID];
-        go.transform.localPosition = new Vector2(human.pos.x, human.pos.y) + Vector2.one / 2;
+
+        var pos = new Vector2(human.moving.pos.x, human.moving.pos.y);
+        go.transform.localPosition = pos + Vector2.one / 2;
 
         binding.CurvePerFeedback.Clear();
         foreach (var feedback in _movementPattern.Feedbacks) {
@@ -349,7 +351,10 @@ public class MapRenderer : MonoBehaviour {
         go.OnStoppedPlacingResource();
 
         var item = Instantiate(_itemPrefab, _itemsLayer);
-        item.transform.localPosition = new Vector2(human.pos.x, human.pos.y) + Vector2.one / 2;
+
+        var pos = new Vector2(human.moving.pos.x, human.moving.pos.y);
+        item.transform.localPosition = pos + Vector2.one / 2;
+
         var itemGo = item.GetComponent<ItemGO>();
         itemGo.SetAs(data.Resource.Scriptable);
 
@@ -717,21 +722,21 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void UpdateHumanTransporter(HumanTransporter human, HumanGO go, HumanBinding binding) {
-        if (human.movingTo == null) {
-            go.transform.localPosition = human.movingFrom;
+        if (human.moving.to == null) {
+            go.transform.localPosition = human.moving.from;
         }
         else {
             for (var i = 0; i < _movementPattern.Feedbacks.Count; i++) {
                 var feedback = _movementPattern.Feedbacks[i];
                 var curve = binding.CurvePerFeedback[i];
-                var t = curve.Evaluate(human.movingProgress);
+                var t = curve.Evaluate(human.moving.progress);
 
                 feedback.UpdateData(
                     Time.deltaTime,
-                    human.movingProgress,
+                    human.moving.progress,
                     t,
-                    human.movingFrom,
-                    human.movingTo.Value,
+                    human.moving.from,
+                    human.moving.to.Value,
                     go.gameObject
                 );
             }

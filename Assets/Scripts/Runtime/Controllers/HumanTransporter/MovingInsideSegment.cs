@@ -15,14 +15,16 @@ public class MovingInsideSegment {
         using var _ = Tracing.Scope();
 
         Assert.AreNotEqual(human.segment, null, "human.segment != null");
-        Assert.AreEqual(human.movingTo, null, "human.movingTo == null");
-        Assert.AreEqual(human.movingPath.Count, 0, "human.movingPath.Count == 0");
+        Assert.AreEqual(human.moving.to, null, "human.movingTo == null");
+        Assert.AreEqual(human.moving.path.Count, 0, "human.movingPath.Count == 0");
 
         if (human.segment!.ResourcesToTransport.Count == 0) {
             Tracing.Log("Setting path to center");
             var center = human.segment.Graph.GetCenters()[0];
-            var path = human.segment.Graph.GetShortestPath(human.movingTo ?? human.pos, center);
-            human.AddPath(path);
+            var path =
+                human.segment.Graph.GetShortestPath(human.moving.to ?? human.moving.pos,
+                    center);
+            human.moving.AddPath(path);
         }
     }
 
@@ -32,7 +34,7 @@ public class MovingInsideSegment {
     ) {
         using var _ = Tracing.Scope();
 
-        human.movingPath.Clear();
+        human.moving.path.Clear();
     }
 
     public void Update(
@@ -68,19 +70,19 @@ public class MovingInsideSegment {
     ) {
         using var _ = Tracing.Scope();
         if (human.segment == null) {
-            human.movingPath.Clear();
+            human.moving.path.Clear();
             _controller.SetState(human, MainState.MovingInTheWorld);
             return;
         }
 
         if (human.segment.ResourcesToTransport.Count > 0) {
-            if (human.movingTo == null) {
+            if (human.moving.to == null) {
                 Tracing.Log("_controller.SetState(human, HumanTransporterState.MovingItem)");
                 _controller.SetState(human, MainState.MovingResource);
                 return;
             }
 
-            human.movingPath.Clear();
+            human.moving.path.Clear();
         }
     }
 

@@ -41,7 +41,7 @@ public class MovingResource {
     ) {
         using var _ = Tracing.Scope();
 
-        if (human.movingTo == null) {
+        if (human.moving.to == null) {
             _controller.SetState(human, data, MRState.PlacingResource);
         }
     }

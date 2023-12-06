@@ -21,19 +21,19 @@ public class MovingToResource {
 
         human.stateMovingResource_targetedResource = res;
         res.TargetedHuman = human;
-        if (res.Pos == human.pos && human.movingTo == null) {
+        if (res.Pos == human.moving.pos && human.moving.to == null) {
             _controller.SetState(human, data, MRState.PickingUpResource);
             return;
         }
 
-        Assert.AreEqual(null, human.movingTo, "human.movingTo == null");
-        Assert.AreEqual(0, human.movingPath.Count, "human.movingPath.Count == 0");
+        Assert.AreEqual(null, human.moving.to, "human.movingTo == null");
+        Assert.AreEqual(0, human.moving.path.Count, "human.movingPath.Count == 0");
 
-        var graphContains = segment.Graph.Contains(human.pos);
-        var nodeIsWalkable = segment.Graph.Node(human.pos) != 0;
+        var graphContains = segment.Graph.Contains(human.moving.pos);
+        var nodeIsWalkable = segment.Graph.Node(human.moving.pos) != 0;
 
-        if (res.Pos != human.pos && graphContains && nodeIsWalkable) {
-            human.AddPath(segment.Graph.GetShortestPath(human.pos, res.Pos));
+        if (res.Pos != human.moving.pos && graphContains && nodeIsWalkable) {
+            human.moving.AddPath(segment.Graph.GetShortestPath(human.moving.pos, res.Pos));
         }
         else if (!graphContains || !nodeIsWalkable) {
             _controller.NestedState_Exit(human, data);
@@ -43,7 +43,7 @@ public class MovingToResource {
     public void OnExit(Entities.HumanTransporter human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
-        human.movingPath.Clear();
+        human.moving.path.Clear();
     }
 
     public void Update(Entities.HumanTransporter human, HumanTransporterData data, float dt) {
@@ -71,7 +71,7 @@ public class MovingToResource {
             return;
         }
 
-        if (human.pos == human.stateMovingResource_targetedResource.Pos) {
+        if (human.moving.pos == human.stateMovingResource_targetedResource.Pos) {
             _controller.SetState(human, data, MRState.PickingUpResource);
         }
     }
