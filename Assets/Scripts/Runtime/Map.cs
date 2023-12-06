@@ -23,8 +23,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     // Layers:
     // 1 - Terrain (depends on height)
     // 2 - Trees, Stone, Ore
-    // 3 - Roads, Rails
-    // 4 - Humans, Stations, Buildings
+    // 3 - Roads
+    // 4 - Humans, Buildings
     // 6 - To Be Implemented: Particles (smoke, footstep dust etc)
 
     [FoldoutGroup("Map", true)]
@@ -564,7 +564,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void UpdateBuildings(float dt) {
         foreach (var building in buildings) {
-            if (building.BuildingProgress < 1) {
+            if (building.buildingProgress < 1) {
                 UpdateBuilding_NotConstructed(dt, building);
             }
             else {
@@ -686,6 +686,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public Subject<E_HumanPlacedResource> onHumanPlacedResource { get; } =
         new();
+
+    public Subject<E_HumanBuiltBuilding> OnHumanBuiltBuilding { get; } = new();
 
     public Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; } = new();
     public Subject<E_BuildingProducedItem> onBuildingProducedItem { get; } = new();

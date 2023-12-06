@@ -7,8 +7,9 @@ public class Building {
     public bool IsProducing;
     public float ProducingElapsed;
 
-    public bool isBuilt => BuildingProgress >= 1;
-    public float BuildingProgress;
+    public bool isBuilt => buildingElapsed >= scriptable.BuildingDuration;
+    public float buildingProgress => buildingElapsed / scriptable.BuildingDuration;
+    public float buildingElapsed { get; set; } = 0f;
 
     public IScriptableBuilding scriptable { get; }
 
@@ -29,14 +30,14 @@ public class Building {
         Guid id,
         IScriptableBuilding scriptable,
         Vector2Int pos,
-        float buildingProgress
+        float buildingElapsed
     ) {
         _id = id;
         this.scriptable = scriptable;
         posX = pos.x;
         posY = pos.y;
 
-        BuildingProgress = buildingProgress;
+        this.buildingElapsed = buildingElapsed;
     }
 
     public Guid id {

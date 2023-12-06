@@ -138,12 +138,5 @@ public class Human {
     public MapResource? movingResources_targetedResource = null;
 
     #endregion
-
-    #region Building
-
-    public float building_elapsed;
-    public float building_progress;
-
-    #endregion
 }
 }

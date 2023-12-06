@@ -33,6 +33,7 @@ public interface IMap {
 
     Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; }
     Subject<E_BuildingProducedItem> onBuildingProducedItem { get; }
+    Subject<E_HumanBuiltBuilding> OnHumanBuiltBuilding { get; }
 
     void TryBuild(Vector2Int pos, ItemToBuild item);
     bool CanBePlaced(Vector2Int pos, ItemToBuildType itemType);

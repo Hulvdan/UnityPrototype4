@@ -12,12 +12,16 @@ public class BuildingController {
     ) {
         using var _ = Tracing.Scope();
 
+        Assert.AreEqual(human.type, Entities.Human.Type.Builder);
+
+        Assert.AreNotEqual(human.building, null, "human.building != null");
         Assert.AreEqual(human.segment, null, "human.segment == null");
+
         Assert.AreEqual(human.moving.to, null, "human.movingTo == null");
         Assert.AreEqual(human.moving.path.Count, 0, "human.movingPath.Count == 0");
+        Assert.AreEqual(human.building.pos, human.moving.pos);
 
-        Assert.AreEqual(human.building_elapsed, 0);
-        Assert.AreEqual(human.building_progress, 0);
+        Assert.IsFalse(human.building.isBuilt);
     }
 
     public void OnExit(
@@ -25,6 +29,8 @@ public class BuildingController {
         HumanData data
     ) {
         using var _ = Tracing.Scope();
+
+        Assert.AreEqual(human.building, null);
     }
 
     public void Update(
@@ -32,9 +38,24 @@ public class BuildingController {
         HumanData data,
         float dt
     ) {
-        human.building_elapsed += dt;
-        // TODO!
-        // human.stateBuilding_progress = human.
+        var building = human.building;
+        Assert.AreNotEqual(building, null);
+
+        building!.buildingElapsed += dt;
+        if (building.buildingElapsed > building.scriptable.BuildingDuration) {
+            building.buildingElapsed = building.scriptable.BuildingDuration;
+        }
+
+        if (building.buildingProgress >= 1) {
+            human.building = null;
+
+            data.map.OnHumanBuiltBuilding.OnNext(new() {
+                Building = building,
+                Human = human,
+            });
+
+            _controller.SetState(human, MainState.MovingInTheWorld);
+        }
     }
 
     readonly MainController _controller;

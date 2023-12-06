@@ -1,4 +1,5 @@
-﻿using BFG.Runtime.Graphs;
+﻿using BFG.Runtime.Entities;
+using BFG.Runtime.Graphs;
 using JetBrains.Annotations;
 using UnityEngine.Assertions;
 
@@ -6,7 +7,7 @@ namespace BFG.Runtime.Controllers.Human {
 public class MovingInTheWorld {
     public enum State {
         MovingToTheCityHall,
-        MovingToSegment,
+        MovingToDestination,
     }
 
     public MovingInTheWorld(MainController controller) {
@@ -25,7 +26,7 @@ public class MovingInTheWorld {
         }
 
         human.moving.path.Clear();
-        UpdateStates(human, data, null);
+        UpdateStates(human, data, null, null);
     }
 
     public void OnExit(
@@ -44,7 +45,7 @@ public class MovingInTheWorld {
         HumanData data,
         float dt
     ) {
-        UpdateStates(human, data, human.segment);
+        UpdateStates(human, data, human.segment, human.building);
     }
 
     public void OnHumanCurrentSegmentChanged(
@@ -55,8 +56,9 @@ public class MovingInTheWorld {
     ) {
         using var _ = Tracing.Scope();
 
-        Tracing.Log("OnSegmentChanged");
-        UpdateStates(human, data, oldSegment);
+        Assert.AreEqual(human.type, Entities.Human.Type.Transporter);
+
+        UpdateStates(human, data, oldSegment, null);
     }
 
     public void OnHumanMovedToTheNextTile(
@@ -70,11 +72,15 @@ public class MovingInTheWorld {
         Entities.Human human,
         HumanData data,
         [CanBeNull]
-        GraphSegment oldSegment
+        GraphSegment oldSegment,
+        [CanBeNull]
+        Building oldBuilding
     ) {
         using var _ = Tracing.Scope();
 
         if (human.segment != null) {
+            Assert.AreEqual(human.type, Entities.Human.Type.Transporter);
+
             if (
                 human.moving.to != null
                 && human.segment.Graph.Contains(human.moving.to.Value)
@@ -89,24 +95,38 @@ public class MovingInTheWorld {
                 && human.segment.Graph.Contains(human.moving.pos)
                 && human.segment.Graph.Node(human.moving.pos) != 0
             ) {
-                Tracing.Log(
-                    "_controller.SetState(human, HumanState.MovingInsideSegment)");
+                Tracing.Log("_controller.SetState(human, HumanState.MovingInsideSegment)");
                 _controller.SetState(human, MainState.MovingInsideSegment);
                 return;
             }
 
             if (
                 !ReferenceEquals(oldSegment, human.segment)
-                || human.stateMovingInTheWorld != State.MovingToSegment
+                || human.stateMovingInTheWorld != State.MovingToDestination
             ) {
                 Tracing.Log("Setting human.stateMovingInTheWorld = State.MovingToSegment");
-                human.stateMovingInTheWorld = State.MovingToSegment;
+                human.stateMovingInTheWorld = State.MovingToDestination;
 
                 var center = human.segment.Graph.GetCenters()[0];
-                var path = data.map
-                    .FindPath(human.moving.to ?? human.moving.pos, center, true)
-                    .Path;
-                human.moving.AddPath(path);
+                var path = data.map.FindPath(human.moving.to ?? human.moving.pos, center, true);
+
+                Assert.IsTrue(path.Success);
+                human.moving.AddPath(path.Path);
+            }
+        }
+        else if (human.building != null) {
+            Assert.AreEqual(human.type, Entities.Human.Type.Builder);
+            Assert.IsFalse(human.building.isBuilt);
+
+            if (!ReferenceEquals(oldBuilding, human.building)) {
+                human.moving.path.Clear();
+
+                var path = data.map.FindPath(
+                    human.moving.to ?? human.moving.pos, human.building.pos, true
+                );
+
+                Assert.IsTrue(path.Success);
+                human.moving.AddPath(path.Path);
             }
         }
         else if (human.stateMovingInTheWorld != State.MovingToTheCityHall) {
@@ -116,6 +136,7 @@ public class MovingInTheWorld {
             var path = data.map.FindPath(
                 human.moving.to ?? human.moving.pos, data.cityHall.pos, true
             );
+
             Assert.IsTrue(path.Success);
             human.moving.AddPath(path.Path);
         }
