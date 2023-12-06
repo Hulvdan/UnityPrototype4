@@ -583,7 +583,7 @@ public class MapRenderer : MonoBehaviour {
         var heightOffset = (building.scriptable.size.y - 1) / 2f;
 
         var tile = building.scriptable.tile;
-        if (building.BuildingProgress < 1) {
+        if (building.buildingProgress < 1) {
             tile = _tileUnfinishedBuilding;
         }
 
