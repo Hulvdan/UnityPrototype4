@@ -13,6 +13,7 @@ public class Building {
     public float constructionElapsed { get; set; } = 0f;
 
     public Human? constructor { get; set; }
+    public Human? employee { get; set; }
 
     public IScriptableBuilding scriptable { get; }
 

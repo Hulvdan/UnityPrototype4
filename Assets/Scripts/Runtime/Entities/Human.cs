@@ -38,6 +38,7 @@ public class Human {
                 Assert.AreEqual(building, null);
                 break;
             case Type.Constructor:
+            case Type.Employee:
                 Assert.AreNotEqual(building, null);
                 Assert.AreEqual(segment, null);
                 break;

@@ -515,6 +515,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             Building = building,
             Human = constructor,
         });
+
+        if (building.scriptable.type == BuildingType.Harvest) {
+            CreateHuman_Employee(cityHall, building);
+        }
     }
 
     // ReSharper disable once InconsistentNaming
@@ -815,6 +819,20 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     void CreateHuman_Constructor(Building cityHall, Building building) {
         var human = Human.Constructor(Guid.NewGuid(), cityHall.pos, building);
         building.constructor = human;
+        _humansToAdd.Add(human);
+
+        _humanController.SetState(human, MainState.MovingInTheWorld);
+
+        onHumanCreated.OnNext(new() { Human = human });
+        onCityHallCreatedHuman.OnNext(new() { CityHall = cityHall });
+        DomainEvents<E_CityHallCreatedHuman>.Publish(new() { CityHall = cityHall });
+    }
+
+    void CreateHuman_Employee(Building cityHall, Building building) {
+        Assert.AreEqual(building.scriptable.type, BuildingType.Harvest);
+
+        var human = Human.Employee(Guid.NewGuid(), cityHall.pos, building);
+        building.employee = human;
         _humansToAdd.Add(human);
 
         _humanController.SetState(human, MainState.MovingInTheWorld);

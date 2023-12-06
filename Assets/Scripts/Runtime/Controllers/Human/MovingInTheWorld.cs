@@ -87,6 +87,8 @@ public class MovingInTheWorld {
         if (human.segment != null) {
             Assert.AreEqual(human.type, Entities.Human.Type.Transporter);
 
+            // Hulvdan: Human stepped on a tile of the segment.
+            // We don't need to keep the path anymore
             if (
                 human.moving.to != null
                 && human.segment.Graph.Contains(human.moving.to.Value)
@@ -96,6 +98,8 @@ public class MovingInTheWorld {
                 return;
             }
 
+            // Hulvdan: Human stepped on a tile of the segment and finished moving.
+            // Starting MovingInsideSegment
             if (
                 human.moving.to == null
                 && human.segment.Graph.Contains(human.moving.pos)
@@ -121,8 +125,17 @@ public class MovingInTheWorld {
             }
         }
         else if (human.building != null) {
-            Assert.AreEqual(human.type, Entities.Human.Type.Constructor);
-            Assert.IsFalse(human.building.isConstructed);
+            Assert.IsTrue(human.type
+                is Entities.Human.Type.Constructor
+                or Entities.Human.Type.Employee
+            );
+
+            if (human.type == Entities.Human.Type.Constructor) {
+                Assert.IsFalse(human.building.isConstructed);
+            }
+            else if (human.type == Entities.Human.Type.Employee) {
+                Assert.IsTrue(human.building.isConstructed);
+            }
 
             if (!ReferenceEquals(oldBuilding, human.building)) {
                 human.moving.Path.Clear();
