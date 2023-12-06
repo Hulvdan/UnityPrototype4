@@ -9,45 +9,45 @@ public class PlacingResource {
         _controller = controller;
     }
 
-    public void OnEnter(Entities.Human human, HumanTransporterData data) {
+    public void OnEnter(Human human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
-        Assert.AreNotEqual(human.stateMovingResource, MRState.PlacingResource);
-        Assert.AreNotEqual(human.stateMovingResource_targetedResource, null);
-        Assert.AreEqual(human.stateMovingResource_targetedResource!.TargetedHuman, human);
-        Assert.AreEqual(human.stateMovingResource_targetedResource!.CarryingHuman, human);
-        Assert.AreEqual(0, human.stateMovingResource_placingResourceElapsed);
-        Assert.AreEqual(0, human.stateMovingResource_placingResourceProgress);
+        Assert.AreNotEqual(human.movingResources, MRState.PlacingResource);
+        Assert.AreNotEqual(human.movingResources_targetedResource, null);
+        Assert.AreEqual(human.movingResources_targetedResource!.TargetedHuman, human);
+        Assert.AreEqual(human.movingResources_targetedResource!.CarryingHuman, human);
+        Assert.AreEqual(0, human.movingResources_placingResourceElapsed);
+        Assert.AreEqual(0, human.movingResources_placingResourceProgress);
 
-        human.stateMovingResource = MRState.PlacingResource;
+        human.movingResources = MRState.PlacingResource;
 
         data.map.onHumanTransporterStartedPlacingResource.OnNext(new() {
             Human = human,
-            Resource = human.stateMovingResource_targetedResource,
+            Resource = human.movingResources_targetedResource,
         });
     }
 
-    public void OnExit(Entities.Human human, HumanTransporterData data) {
+    public void OnExit(Human human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
-        Assert.AreEqual(human.stateMovingResource_targetedResource, null);
-        human.stateMovingResource_placingResourceElapsed = 0;
-        human.stateMovingResource_placingResourceProgress = 0;
+        Assert.AreEqual(human.movingResources_targetedResource, null);
+        human.movingResources_placingResourceElapsed = 0;
+        human.movingResources_placingResourceProgress = 0;
     }
 
-    public void Update(Entities.Human human, HumanTransporterData data, float dt) {
-        human.stateMovingResource_placingResourceElapsed += dt;
-        human.stateMovingResource_placingResourceProgress =
-            human.stateMovingResource_placingResourceElapsed / data.PlacingResourceDuration;
+    public void Update(Human human, HumanTransporterData data, float dt) {
+        human.movingResources_placingResourceElapsed += dt;
+        human.movingResources_placingResourceProgress =
+            human.movingResources_placingResourceElapsed / data.PlacingResourceDuration;
 
-        if (human.stateMovingResource_placingResourceProgress < 1) {
+        if (human.movingResources_placingResourceProgress < 1) {
             return;
         }
 
-        human.stateMovingResource_placingResourceElapsed = data.PlacingResourceDuration;
-        human.stateMovingResource_placingResourceProgress = 1;
+        human.movingResources_placingResourceElapsed = data.PlacingResourceDuration;
+        human.movingResources_placingResourceProgress = 1;
 
-        var res = human.stateMovingResource_targetedResource;
+        var res = human.movingResources_targetedResource;
 
         Building building = null;
         if (res!.Booking != null) {
@@ -57,7 +57,7 @@ public class PlacingResource {
             }
         }
 
-        human.stateMovingResource_targetedResource = null;
+        human.movingResources_targetedResource = null;
 
         data.transportation.OnHumanPlacedResource(human.moving.pos, human.segment, res!);
         data.map.onHumanTransporterPlacedResource.OnNext(new() {
@@ -70,7 +70,7 @@ public class PlacingResource {
     }
 
     public void OnHumanCurrentSegmentChanged(
-        Entities.Human human,
+        Human human,
         HumanTransporterData data,
         GraphSegment oldSegment
     ) {

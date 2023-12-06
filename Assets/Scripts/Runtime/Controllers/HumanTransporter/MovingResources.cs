@@ -27,7 +27,7 @@ public class MovingResources {
     ) {
         using var _ = Tracing.Scope();
 
-        Assert.AreEqual(human.stateMovingResource, null);
+        Assert.AreEqual(human.movingResources, null);
         SetState(human, data, State.MovingToResource);
     }
 
@@ -36,14 +36,14 @@ public class MovingResources {
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
-        Assert.AreNotEqual(human.stateMovingResource, null);
-        human.stateMovingResource = null;
+        Assert.AreNotEqual(human.movingResources, null);
+        human.movingResources = null;
 
-        Assert.AreEqual(human.stateMovingResource_targetedResource, null);
-        Assert.AreEqual(human.stateMovingResource_pickingUpResourceElapsed, 0);
-        Assert.AreEqual(human.stateMovingResource_pickingUpResourceProgress, 0);
-        Assert.AreEqual(human.stateMovingResource_placingResourceElapsed, 0);
-        Assert.AreEqual(human.stateMovingResource_placingResourceProgress, 0);
+        Assert.AreEqual(human.movingResources_targetedResource, null);
+        Assert.AreEqual(human.movingResources_pickingUpResourceElapsed, 0);
+        Assert.AreEqual(human.movingResources_pickingUpResourceProgress, 0);
+        Assert.AreEqual(human.movingResources_placingResourceElapsed, 0);
+        Assert.AreEqual(human.movingResources_placingResourceProgress, 0);
     }
 
     public void NestedState_Exit(
@@ -52,9 +52,9 @@ public class MovingResources {
     ) {
         using var _ = Tracing.Scope();
 
-        Assert.AreNotEqual(human.stateMovingResource, null);
+        Assert.AreNotEqual(human.movingResources, null);
 
-        switch (human.stateMovingResource!.Value) {
+        switch (human.movingResources!.Value) {
             case State.MovingToResource:
                 _movingToResource.OnExit(human, data);
                 break;
@@ -79,7 +79,7 @@ public class MovingResources {
         HumanTransporterData data,
         float dt
     ) {
-        switch (human.stateMovingResource!.Value) {
+        switch (human.movingResources!.Value) {
             case State.MovingToResource:
                 _movingToResource.Update(human, data, dt);
                 break;
@@ -105,9 +105,9 @@ public class MovingResources {
     ) {
         using var _ = Tracing.Scope();
 
-        Assert.AreNotEqual(human.stateMovingResource, null);
+        Assert.AreNotEqual(human.movingResources, null);
 
-        switch (human.stateMovingResource!.Value) {
+        switch (human.movingResources!.Value) {
             case State.MovingToResource:
                 _movingToResource.OnHumanCurrentSegmentChanged(human, data, oldSegment);
                 break;
@@ -131,7 +131,7 @@ public class MovingResources {
     ) {
         using var _ = Tracing.Scope();
 
-        switch (human.stateMovingResource!.Value) {
+        switch (human.movingResources!.Value) {
             case State.MovingToResource:
                 _movingToResource.OnHumanMovedToTheNextTile(human, data);
                 break;
@@ -152,9 +152,9 @@ public class MovingResources {
     ) {
         using var _ = Tracing.Scope();
 
-        var oldState = human.stateMovingResource;
+        var oldState = human.movingResources;
         if (oldState != null) {
-            switch (human.stateMovingResource!.Value) {
+            switch (human.movingResources!.Value) {
                 case State.MovingToResource:
                     _movingToResource.OnExit(human, data);
                     break;

@@ -72,11 +72,45 @@ public class HumanMovingComponent {
 }
 
 public class Human {
-    public Human(Guid id, GraphSegment segment, Vector2Int currentPos) {
+    public enum HumanType {
+        Transporter = 0,
+        Builder = 1,
+    }
+
+    public static Human Transporter(Guid id, Vector2Int currentPos, GraphSegment segment) {
         Assert.AreNotEqual(segment, null);
+
+        return new(id, HumanType.Transporter, currentPos, segment, null);
+    }
+
+    public static Human Builder(Guid id, Vector2Int currentPos, Building building) {
+        return new(id, HumanType.Builder, currentPos, null, building);
+    }
+
+    Human(
+        Guid id,
+        HumanType type,
+        Vector2Int currentPos,
+        GraphSegment? segment,
+        Building? building
+    ) {
+        switch (type) {
+            case HumanType.Transporter:
+                Assert.AreNotEqual(segment, null);
+                Assert.AreEqual(building, null);
+                break;
+            case HumanType.Builder:
+                Assert.AreNotEqual(building, null);
+                Assert.AreEqual(segment, null);
+                break;
+            default:
+                throw new NotSupportedException();
+        }
 
         ID = id;
         this.segment = segment;
+        this.building = building;
+        this.type = type;
         moving = new(currentPos);
     }
 
@@ -84,31 +118,33 @@ public class Human {
     public HumanMovingComponent moving { get; }
 
     public GraphSegment? segment { get; set; }
+    public HumanType type { get; }
+    public Building? building { get; set; }
     public MainState? state { get; set; }
 
-    #region HumanTransporter_MovingInTheWorld_Controller
+    #region MovingInTheWorld
 
     public MovingInTheWorld.State? stateMovingInTheWorld { get; set; }
 
     #endregion
 
-    #region HumanTransporter_MovingItem_Controller
+    #region MovingResources
 
-    public MovingResources.State? stateMovingResource;
+    public MovingResources.State? movingResources;
 
-    public float stateMovingResource_pickingUpResourceElapsed;
-    public float stateMovingResource_pickingUpResourceProgress;
-    public float stateMovingResource_placingResourceElapsed;
-    public float stateMovingResource_placingResourceProgress;
+    public float movingResources_pickingUpResourceElapsed;
+    public float movingResources_pickingUpResourceProgress;
+    public float movingResources_placingResourceElapsed;
+    public float movingResources_placingResourceProgress;
 
-    public MapResource? stateMovingResource_targetedResource = null;
+    public MapResource? movingResources_targetedResource = null;
 
     #endregion
 
-    #region MyRegion
+    #region Building
 
-    public float stateBuilding_elapsed;
-    public float stateBuilding_progress;
+    public float building_elapsed;
+    public float building_progress;
 
     #endregion
 }

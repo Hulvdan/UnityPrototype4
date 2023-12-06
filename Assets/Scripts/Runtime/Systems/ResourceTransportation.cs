@@ -305,7 +305,7 @@ public class ResourceTransportation {
             }
 
             if (targeter != null) {
-                Assert.IsTrue(ReferenceEquals(res, targeter.stateMovingResource_targetedResource));
+                Assert.IsTrue(ReferenceEquals(res, targeter.movingResources_targetedResource));
             }
 
             if (carrier != null) {
@@ -314,7 +314,7 @@ public class ResourceTransportation {
             }
             else if (targeter != null) {
                 res.TargetedHuman = null;
-                targeter.stateMovingResource_targetedResource = null;
+                targeter.movingResources_targetedResource = null;
             }
         }
 

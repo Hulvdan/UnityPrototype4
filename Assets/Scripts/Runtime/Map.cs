@@ -771,7 +771,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     #region HumanSystem_Behaviour
 
     void CreateHuman_Transporter(Building building, GraphSegment segment) {
-        var human = new Human(Guid.NewGuid(), segment, building.pos);
+        var human = Human.Transporter(Guid.NewGuid(), building.pos, segment);
         segment.AssignedHuman = human;
         _humanTransporters.Add(human);
 
