@@ -2,85 +2,87 @@
 using JetBrains.Annotations;
 using UnityEngine.Assertions;
 
-namespace BFG.Runtime.Controllers.HumanTransporter {
+namespace BFG.Runtime.Controllers.Human {
 public class MovingInsideSegment {
     public MovingInsideSegment(MainController controller) {
         _controller = controller;
     }
 
     public void OnEnter(
-        Entities.HumanTransporter human,
-        HumanTransporterData data
+        Entities.Human human,
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
 
         Assert.AreNotEqual(human.segment, null, "human.segment != null");
-        Assert.AreEqual(human.movingTo, null, "human.movingTo == null");
-        Assert.AreEqual(human.movingPath.Count, 0, "human.movingPath.Count == 0");
+        Assert.AreEqual(human.moving.to, null, "human.movingTo == null");
+        Assert.AreEqual(human.moving.path.Count, 0, "human.movingPath.Count == 0");
 
         if (human.segment!.ResourcesToTransport.Count == 0) {
             Tracing.Log("Setting path to center");
             var center = human.segment.Graph.GetCenters()[0];
-            var path = human.segment.Graph.GetShortestPath(human.movingTo ?? human.pos, center);
-            human.AddPath(path);
+            var path =
+                human.segment.Graph.GetShortestPath(human.moving.to ?? human.moving.pos,
+                    center);
+            human.moving.AddPath(path);
         }
     }
 
     public void OnExit(
-        Entities.HumanTransporter human,
-        HumanTransporterData data
+        Entities.Human human,
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
 
-        human.movingPath.Clear();
+        human.moving.path.Clear();
     }
 
     public void Update(
-        Entities.HumanTransporter human,
-        HumanTransporterData data,
+        Entities.Human human,
+        HumanData data,
         float dt
     ) {
         UpdateStates(human, data);
     }
 
     public void OnHumanCurrentSegmentChanged(
-        Entities.HumanTransporter human,
-        HumanTransporterData data,
+        Entities.Human human,
+        HumanData data,
         [CanBeNull]
         GraphSegment oldSegment
     ) {
         using var _ = Tracing.Scope();
 
-        Tracing.Log("_controller.SetState(human, HumanTransporterState.MovingInTheWorld)");
+        Tracing.Log("_controller.SetState(human, HumanState.MovingInTheWorld)");
         _controller.SetState(human, MainState.MovingInTheWorld);
     }
 
     public void OnHumanMovedToTheNextTile(
-        Entities.HumanTransporter human,
-        HumanTransporterData data
+        Entities.Human human,
+        HumanData data
     ) {
         // Hulvdan: Intentionally left blank
     }
 
     void UpdateStates(
-        Entities.HumanTransporter human,
-        HumanTransporterData data
+        Entities.Human human,
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
         if (human.segment == null) {
-            human.movingPath.Clear();
+            human.moving.path.Clear();
             _controller.SetState(human, MainState.MovingInTheWorld);
             return;
         }
 
         if (human.segment.ResourcesToTransport.Count > 0) {
-            if (human.movingTo == null) {
-                Tracing.Log("_controller.SetState(human, HumanTransporterState.MovingItem)");
+            if (human.moving.to == null) {
+                Tracing.Log("_controller.SetState(human, HumanState.MovingItem)");
                 _controller.SetState(human, MainState.MovingResource);
                 return;
             }
 
-            human.movingPath.Clear();
+            human.moving.path.Clear();
         }
     }
 

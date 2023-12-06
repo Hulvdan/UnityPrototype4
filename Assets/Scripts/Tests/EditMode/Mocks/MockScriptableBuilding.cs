@@ -25,5 +25,6 @@ internal class MockScriptableBuilding : IScriptableBuilding {
     public Vector2Int pickupableItemsCellOffset { get; }
     public string name { get; }
     public List<RequiredResourceToBuild> requiredResourcesToBuild { get; } = new();
+    public float BuildingDuration { get; }
 }
 }

@@ -5,18 +5,25 @@ using BFG.Runtime.Systems;
 using JetBrains.Annotations;
 using UnityEngine.Assertions;
 
-namespace BFG.Runtime.Controllers.HumanTransporter {
+namespace BFG.Runtime.Controllers.Human {
 public enum MainState {
+    // Common
     MovingInTheWorld,
+
+    // Transporter
     MovingInsideSegment,
     MovingResource,
+
+    // Builder
+    Building,
 }
 
 public class MainController {
     readonly MovingInTheWorld _movingInTheWorld;
     readonly MovingInsideSegment _movingInsideSegment;
     readonly MovingResources _movingResources;
-    readonly HumanTransporterData _data;
+    readonly BuildingController _buildingController;
+    readonly HumanData _data;
 
     public MainController(
         IMap map,
@@ -27,11 +34,12 @@ public class MainController {
         _movingInTheWorld = new(this);
         _movingInsideSegment = new(this);
         _movingResources = new(this);
+        _buildingController = new(this);
 
         _data = new(map, mapSize, cityHall, resourceTransportation, 1f, 1f);
     }
 
-    public void SetState(Entities.HumanTransporter human, MainState newState) {
+    public void SetState(Entities.Human human, MainState newState) {
         using var _ = Tracing.Scope();
         Tracing.Log($"SetState '{human.state}' -> '{newState}'");
 
@@ -49,6 +57,9 @@ public class MainController {
                 case MainState.MovingResource:
                     _movingResources.OnExit(human, _data);
                     break;
+                case MainState.Building:
+                    _buildingController.OnExit(human, _data);
+                    break;
                 default:
                     throw new NotSupportedException();
             }
@@ -64,12 +75,15 @@ public class MainController {
             case MainState.MovingResource:
                 _movingResources.OnEnter(human, _data);
                 break;
+            case MainState.Building:
+                _buildingController.OnEnter(human, _data);
+                break;
             default:
                 throw new NotSupportedException();
         }
     }
 
-    public void Update(Entities.HumanTransporter human, float dt) {
+    public void Update(Entities.Human human, float dt) {
         switch (human.state) {
             case MainState.MovingInTheWorld:
                 _movingInTheWorld.Update(human, _data, dt);
@@ -80,13 +94,16 @@ public class MainController {
             case MainState.MovingResource:
                 _movingResources.Update(human, _data, dt);
                 break;
+            case MainState.Building:
+                _buildingController.Update(human, _data, dt);
+                break;
             default:
                 throw new NotSupportedException();
         }
     }
 
     public void OnHumanCurrentSegmentChanged(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         [CanBeNull]
         GraphSegment oldSegment
     ) {
@@ -105,12 +122,14 @@ public class MainController {
             case MainState.MovingResource:
                 _movingResources.OnHumanCurrentSegmentChanged(human, _data, oldSegment);
                 break;
+            case MainState.Building:
+                throw new NotSupportedException();
             default:
                 throw new NotSupportedException();
         }
     }
 
-    public void OnHumanMovedToTheNextTile(Entities.HumanTransporter human) {
+    public void OnHumanMovedToTheNextTile(Entities.Human human) {
         using var _ = Tracing.Scope();
 
         switch (human.state) {
@@ -123,6 +142,8 @@ public class MainController {
             case MainState.MovingResource:
                 _movingResources.OnHumanMovedToTheNextTile(human, _data);
                 break;
+            case MainState.Building:
+                throw new NotSupportedException();
             default:
                 throw new NotSupportedException();
         }

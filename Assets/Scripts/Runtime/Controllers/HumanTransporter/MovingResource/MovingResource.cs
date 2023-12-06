@@ -1,47 +1,47 @@
 ﻿using BFG.Runtime.Graphs;
 using UnityEngine.Assertions;
-using MRState = BFG.Runtime.Controllers.HumanTransporter.MovingResources.State;
+using MRState = BFG.Runtime.Controllers.Human.MovingResources.State;
 
-namespace BFG.Runtime.Controllers.HumanTransporter {
+namespace BFG.Runtime.Controllers.Human {
 public class MovingResource {
     public MovingResource(MovingResources controller) {
         _controller = controller;
     }
 
-    public void OnEnter(Entities.HumanTransporter human, HumanTransporterData data) {
+    public void OnEnter(Entities.Human human, HumanData data) {
         using var _ = Tracing.Scope();
 
-        Assert.AreNotEqual(human.stateMovingResource, MRState.MovingResource);
-        Assert.AreNotEqual(human.stateMovingResource_targetedResource, null);
-        Assert.AreEqual(human.stateMovingResource_targetedResource!.TargetedHuman, human);
-        Assert.AreEqual(human.stateMovingResource_targetedResource!.CarryingHuman, human);
+        Assert.AreNotEqual(human.movingResources, MRState.MovingResource);
+        Assert.AreNotEqual(human.movingResources_targetedResource, null);
+        Assert.AreEqual(human.movingResources_targetedResource!.TargetedHuman, human);
+        Assert.AreEqual(human.movingResources_targetedResource!.CarryingHuman, human);
 
-        human.stateMovingResource = MRState.MovingResource;
+        human.movingResources = MRState.MovingResource;
     }
 
-    public void OnExit(Entities.HumanTransporter human, HumanTransporterData data) {
+    public void OnExit(Entities.Human human, HumanData data) {
         using var _ = Tracing.Scope();
     }
 
-    public void Update(Entities.HumanTransporter human, HumanTransporterData data, float dt) {
+    public void Update(Entities.Human human, HumanData data, float dt) {
         // Hulvdan: Intentionally left blank
     }
 
     public void OnHumanCurrentSegmentChanged(
-        Entities.HumanTransporter human,
-        HumanTransporterData data,
+        Entities.Human human,
+        HumanData data,
         GraphSegment oldSegment
     ) {
         using var _ = Tracing.Scope();
     }
 
     public void OnHumanMovedToTheNextTile(
-        Entities.HumanTransporter human,
-        HumanTransporterData data
+        Entities.Human human,
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
 
-        if (human.movingTo == null) {
+        if (human.moving.to == null) {
             _controller.SetState(human, data, MRState.PlacingResource);
         }
     }

@@ -1,66 +1,66 @@
 ﻿using BFG.Runtime.Entities;
 using BFG.Runtime.Graphs;
 using UnityEngine.Assertions;
-using MRState = BFG.Runtime.Controllers.HumanTransporter.MovingResources.State;
+using MRState = BFG.Runtime.Controllers.Human.MovingResources.State;
 
-namespace BFG.Runtime.Controllers.HumanTransporter {
+namespace BFG.Runtime.Controllers.Human {
 public class PlacingResource {
     public PlacingResource(MovingResources controller) {
         _controller = controller;
     }
 
-    public void OnEnter(Entities.HumanTransporter human, HumanTransporterData data) {
+    public void OnEnter(Entities.Human human, HumanData data) {
         using var _ = Tracing.Scope();
 
-        Assert.AreNotEqual(human.stateMovingResource, MRState.PlacingResource);
-        Assert.AreNotEqual(human.stateMovingResource_targetedResource, null);
-        Assert.AreEqual(human.stateMovingResource_targetedResource!.TargetedHuman, human);
-        Assert.AreEqual(human.stateMovingResource_targetedResource!.CarryingHuman, human);
-        Assert.AreEqual(0, human.stateMovingResource_placingResourceElapsed);
-        Assert.AreEqual(0, human.stateMovingResource_placingResourceProgress);
+        Assert.AreNotEqual(human.movingResources, MRState.PlacingResource);
+        Assert.AreNotEqual(human.movingResources_targetedResource, null);
+        Assert.AreEqual(human.movingResources_targetedResource!.TargetedHuman, human);
+        Assert.AreEqual(human.movingResources_targetedResource!.CarryingHuman, human);
+        Assert.AreEqual(0, human.movingResources_placingResourceElapsed);
+        Assert.AreEqual(0, human.movingResources_placingResourceProgress);
 
-        human.stateMovingResource = MRState.PlacingResource;
+        human.movingResources = MRState.PlacingResource;
 
-        data.map.onHumanTransporterStartedPlacingResource.OnNext(new() {
+        data.map.onHumanStartedPlacingResource.OnNext(new() {
             Human = human,
-            Resource = human.stateMovingResource_targetedResource,
+            Resource = human.movingResources_targetedResource,
         });
     }
 
-    public void OnExit(Entities.HumanTransporter human, HumanTransporterData data) {
+    public void OnExit(Entities.Human human, HumanData data) {
         using var _ = Tracing.Scope();
 
-        Assert.AreEqual(human.stateMovingResource_targetedResource, null);
-        human.stateMovingResource_placingResourceElapsed = 0;
-        human.stateMovingResource_placingResourceProgress = 0;
+        Assert.AreEqual(human.movingResources_targetedResource, null);
+        human.movingResources_placingResourceElapsed = 0;
+        human.movingResources_placingResourceProgress = 0;
     }
 
-    public void Update(Entities.HumanTransporter human, HumanTransporterData data, float dt) {
-        human.stateMovingResource_placingResourceElapsed += dt;
-        human.stateMovingResource_placingResourceProgress =
-            human.stateMovingResource_placingResourceElapsed / data.PlacingResourceDuration;
+    public void Update(Entities.Human human, HumanData data, float dt) {
+        human.movingResources_placingResourceElapsed += dt;
+        human.movingResources_placingResourceProgress =
+            human.movingResources_placingResourceElapsed / data.PlacingResourceDuration;
 
-        if (human.stateMovingResource_placingResourceProgress < 1) {
+        if (human.movingResources_placingResourceProgress < 1) {
             return;
         }
 
-        human.stateMovingResource_placingResourceElapsed = data.PlacingResourceDuration;
-        human.stateMovingResource_placingResourceProgress = 1;
+        human.movingResources_placingResourceElapsed = data.PlacingResourceDuration;
+        human.movingResources_placingResourceProgress = 1;
 
-        var res = human.stateMovingResource_targetedResource;
+        var res = human.movingResources_targetedResource;
 
         Building building = null;
         if (res!.Booking != null) {
             var b = res!.Booking.Value.Building;
-            if (b.pos == human.pos) {
+            if (b.pos == human.moving.pos) {
                 building = b;
             }
         }
 
-        human.stateMovingResource_targetedResource = null;
+        human.movingResources_targetedResource = null;
 
-        data.transportation.OnHumanPlacedResource(human.pos, human.segment, res!);
-        data.map.onHumanTransporterPlacedResource.OnNext(new() {
+        data.transportation.OnHumanPlacedResource(human.moving.pos, human.segment, res!);
+        data.map.onHumanPlacedResource.OnNext(new() {
             Human = human,
             Resource = res!,
             Building = building,
@@ -70,8 +70,8 @@ public class PlacingResource {
     }
 
     public void OnHumanCurrentSegmentChanged(
-        Entities.HumanTransporter human,
-        HumanTransporterData data,
+        Entities.Human human,
+        HumanData data,
         GraphSegment oldSegment
     ) {
         using var _ = Tracing.Scope();

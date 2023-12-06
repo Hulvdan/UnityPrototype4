@@ -1,58 +1,58 @@
 ﻿using BFG.Runtime.Graphs;
 using UnityEngine.Assertions;
-using MRState = BFG.Runtime.Controllers.HumanTransporter.MovingResources.State;
+using MRState = BFG.Runtime.Controllers.Human.MovingResources.State;
 
-namespace BFG.Runtime.Controllers.HumanTransporter {
+namespace BFG.Runtime.Controllers.Human {
 public class MovingToResource {
     public MovingToResource(MovingResources controller) {
         _controller = controller;
     }
 
-    public void OnEnter(Entities.HumanTransporter human, HumanTransporterData data) {
+    public void OnEnter(Entities.Human human, HumanData data) {
         using var _ = Tracing.Scope();
 
-        Assert.AreEqual(null, human.stateMovingResource);
+        Assert.AreEqual(null, human.movingResources);
         Assert.AreNotEqual(null, human.segment);
-        human.stateMovingResource = MRState.MovingToResource;
+        human.movingResources = MRState.MovingToResource;
 
         var segment = human.segment;
         var res = segment!.ResourcesToTransport.First;
         Assert.AreNotEqual(null, res.Booking);
 
-        human.stateMovingResource_targetedResource = res;
+        human.movingResources_targetedResource = res;
         res.TargetedHuman = human;
-        if (res.Pos == human.pos && human.movingTo == null) {
+        if (res.Pos == human.moving.pos && human.moving.to == null) {
             _controller.SetState(human, data, MRState.PickingUpResource);
             return;
         }
 
-        Assert.AreEqual(null, human.movingTo, "human.movingTo == null");
-        Assert.AreEqual(0, human.movingPath.Count, "human.movingPath.Count == 0");
+        Assert.AreEqual(null, human.moving.to, "human.movingTo == null");
+        Assert.AreEqual(0, human.moving.path.Count, "human.movingPath.Count == 0");
 
-        var graphContains = segment.Graph.Contains(human.pos);
-        var nodeIsWalkable = segment.Graph.Node(human.pos) != 0;
+        var graphContains = segment.Graph.Contains(human.moving.pos);
+        var nodeIsWalkable = segment.Graph.Node(human.moving.pos) != 0;
 
-        if (res.Pos != human.pos && graphContains && nodeIsWalkable) {
-            human.AddPath(segment.Graph.GetShortestPath(human.pos, res.Pos));
+        if (res.Pos != human.moving.pos && graphContains && nodeIsWalkable) {
+            human.moving.AddPath(segment.Graph.GetShortestPath(human.moving.pos, res.Pos));
         }
         else if (!graphContains || !nodeIsWalkable) {
             _controller.NestedState_Exit(human, data);
         }
     }
 
-    public void OnExit(Entities.HumanTransporter human, HumanTransporterData data) {
+    public void OnExit(Entities.Human human, HumanData data) {
         using var _ = Tracing.Scope();
 
-        human.movingPath.Clear();
+        human.moving.path.Clear();
     }
 
-    public void Update(Entities.HumanTransporter human, HumanTransporterData data, float dt) {
+    public void Update(Entities.Human human, HumanData data, float dt) {
         // Hulvdan: Intentionally left blank
     }
 
     public void OnHumanCurrentSegmentChanged(
-        Entities.HumanTransporter human,
-        HumanTransporterData data,
+        Entities.Human human,
+        HumanData data,
         GraphSegment oldSegment
     ) {
         using var _ = Tracing.Scope();
@@ -61,17 +61,17 @@ public class MovingToResource {
     }
 
     public void OnHumanMovedToTheNextTile(
-        Entities.HumanTransporter human,
-        HumanTransporterData data
+        Entities.Human human,
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
 
-        if (human.stateMovingResource_targetedResource == null) {
+        if (human.movingResources_targetedResource == null) {
             _controller.NestedState_Exit(human, data);
             return;
         }
 
-        if (human.pos == human.stateMovingResource_targetedResource.Pos) {
+        if (human.moving.pos == human.movingResources_targetedResource.Pos) {
             _controller.SetState(human, data, MRState.PickingUpResource);
         }
     }
