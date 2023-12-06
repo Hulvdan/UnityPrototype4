@@ -119,7 +119,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         _initialMapProvider.Init(this, this);
 
         foreach (var building in buildings) {
-            building.buildingElapsed = building.scriptable.BuildingDuration;
+            building.constructionElapsed = building.scriptable.ConstructionDuration;
         }
 
         if (Application.isPlaying) {
@@ -487,7 +487,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             Human? human = null;
             foreach (var h in _humans) {
                 if (
-                    h.type != Human.Type.Builder
+                    h.type != Human.Type.Constructor
                     || h.state != MainState.MovingInTheWorld
                     || h.stateMovingInTheWorld != MovingInTheWorld.State.MovingToTheCityHall
                 ) {
@@ -499,15 +499,22 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
 
             if (human == null) {
-                CreateHuman_Builder(cityHall, building);
+                CreateHuman_Constructor(cityHall, building);
             }
             else {
                 human.building = building;
-                building.builder = human;
+                building.constructor = human;
             }
         }
 
         DomainEvents<E_ResourcePlacedInsideBuilding>.Publish(new());
+    }
+
+    public void OnBuildingConstructed(Building building, Human constructor) {
+        OnHumanConstructedBuilding.OnNext(new() {
+            Building = building,
+            Human = constructor,
+        });
     }
 
     // ReSharper disable once InconsistentNaming
@@ -581,7 +588,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void UpdateBuildings(float dt) {
         foreach (var building in buildings) {
-            if (building.buildingProgress < 1) {
+            if (building.constructionProgress < 1) {
                 UpdateBuilding_NotConstructed(dt, building);
             }
             else {
@@ -591,7 +598,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void UpdateBuilding_NotConstructed(float dt, Building building) {
-        if (!building.isBuilt) {
+        if (!building.isConstructed) {
             building.timeSinceItemWasPlaced += dt;
         }
 
@@ -705,8 +712,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public Subject<E_HumanPlacedResource> onHumanPlacedResource { get; } =
         new();
 
-    public Subject<E_HumanStartedBuilding> OnHumanStartedBuilding { get; } = new();
-    public Subject<E_HumanBuiltBuilding> OnHumanBuiltBuilding { get; } = new();
+    public Subject<E_HumanStartedConstructingBuilding> OnHumanStartedConstructingBuilding { get; } =
+        new();
+
+    public Subject<E_HumanConstructedBuilding> OnHumanConstructedBuilding { get; } = new();
 
     public Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; } = new();
     public Subject<E_BuildingProducedItem> onBuildingProducedItem { get; } = new();
@@ -803,9 +812,9 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         DomainEvents<E_CityHallCreatedHuman>.Publish(new() { CityHall = cityHall });
     }
 
-    void CreateHuman_Builder(Building cityHall, Building building) {
-        var human = Human.Builder(Guid.NewGuid(), cityHall.pos, building);
-        building.builder = human;
+    void CreateHuman_Constructor(Building cityHall, Building building) {
+        var human = Human.Constructor(Guid.NewGuid(), cityHall.pos, building);
+        building.constructor = human;
         _humansToAdd.Add(human);
 
         _humanController.SetState(human, MainState.MovingInTheWorld);

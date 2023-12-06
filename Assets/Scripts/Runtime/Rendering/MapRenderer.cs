@@ -331,10 +331,10 @@ public class MapRenderer : MonoBehaviour {
         hooks.Add(_map.onBuildingProducedItem.Subscribe(
             OnBuildingProducedItem));
 
-        hooks.Add(_map.OnHumanStartedBuilding.Subscribe(
-            OnHumanStartedBuilding));
-        hooks.Add(_map.OnHumanBuiltBuilding.Subscribe(
-            OnHumanBuiltBuilding));
+        hooks.Add(_map.OnHumanStartedConstructingBuilding.Subscribe(
+            OnHumanStartedConstructingBuilding));
+        hooks.Add(_map.OnHumanConstructedBuilding.Subscribe(
+            OnHumanConstructedBuilding));
     }
 
     void OnHumanMovedToTheNextTile(E_HumanMovedToTheNextTile data) {
@@ -399,11 +399,11 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    void OnHumanStartedBuilding(E_HumanStartedBuilding data) {
-        // TODO
+    void OnHumanStartedConstructingBuilding(E_HumanStartedConstructingBuilding data) {
+        // Hulvdan: Intentionally left blank
     }
 
-    void OnHumanBuiltBuilding(E_HumanBuiltBuilding data) {
+    void OnHumanConstructedBuilding(E_HumanConstructedBuilding data) {
         var building = data.Building;
         SetBuilding(building, 1, 1, Color.white);
     }
@@ -597,7 +597,7 @@ public class MapRenderer : MonoBehaviour {
         var heightOffset = (building.scriptable.size.y - 1) / 2f;
 
         var tile = building.scriptable.tile;
-        if (!building.isBuilt) {
+        if (!building.isConstructed) {
             tile = _tileUnfinishedBuilding;
         }
 

@@ -20,6 +20,6 @@ public interface IScriptableBuilding {
     Vector2Int pickupableItemsCellOffset { get; }
     string name { get; }
     List<RequiredResourceToBuild> requiredResourcesToBuild { get; }
-    float BuildingDuration { get; }
+    float ConstructionDuration { get; }
 }
 }

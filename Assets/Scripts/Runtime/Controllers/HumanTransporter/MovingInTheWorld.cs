@@ -66,7 +66,7 @@ public class MovingInTheWorld {
         HumanData data
     ) {
         if (
-            human.type == Entities.Human.Type.Builder
+            human.type == Entities.Human.Type.Constructor
             && human.building != null
             && human.moving.pos == human.building.pos
         ) {
@@ -121,8 +121,8 @@ public class MovingInTheWorld {
             }
         }
         else if (human.building != null) {
-            Assert.AreEqual(human.type, Entities.Human.Type.Builder);
-            Assert.IsFalse(human.building.isBuilt);
+            Assert.AreEqual(human.type, Entities.Human.Type.Constructor);
+            Assert.IsFalse(human.building.isConstructed);
 
             if (!ReferenceEquals(oldBuilding, human.building)) {
                 human.moving.path.Clear();
