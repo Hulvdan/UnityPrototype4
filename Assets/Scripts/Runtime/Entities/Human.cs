@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
-using BFG.Runtime.Controllers.HumanTransporter;
+using BFG.Runtime.Controllers.Human;
 using BFG.Runtime.Graphs;
 using UnityEngine;
 using UnityEngine.Assertions;

@@ -5,7 +5,7 @@ using BFG.Runtime.Systems;
 using JetBrains.Annotations;
 using UnityEngine.Assertions;
 
-namespace BFG.Runtime.Controllers.HumanTransporter {
+namespace BFG.Runtime.Controllers.Human {
 public enum MainState {
     // Common
     MovingInTheWorld,
@@ -23,7 +23,7 @@ public class MainController {
     readonly MovingInsideSegment _movingInsideSegment;
     readonly MovingResources _movingResources;
     readonly BuildingController _buildingController;
-    readonly HumanTransporterData _data;
+    readonly HumanData _data;
 
     public MainController(
         IMap map,

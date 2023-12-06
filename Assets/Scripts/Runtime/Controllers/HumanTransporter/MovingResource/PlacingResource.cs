@@ -1,15 +1,15 @@
 ﻿using BFG.Runtime.Entities;
 using BFG.Runtime.Graphs;
 using UnityEngine.Assertions;
-using MRState = BFG.Runtime.Controllers.HumanTransporter.MovingResources.State;
+using MRState = BFG.Runtime.Controllers.Human.MovingResources.State;
 
-namespace BFG.Runtime.Controllers.HumanTransporter {
+namespace BFG.Runtime.Controllers.Human {
 public class PlacingResource {
     public PlacingResource(MovingResources controller) {
         _controller = controller;
     }
 
-    public void OnEnter(Human human, HumanTransporterData data) {
+    public void OnEnter(Entities.Human human, HumanData data) {
         using var _ = Tracing.Scope();
 
         Assert.AreNotEqual(human.movingResources, MRState.PlacingResource);
@@ -21,13 +21,13 @@ public class PlacingResource {
 
         human.movingResources = MRState.PlacingResource;
 
-        data.map.onHumanTransporterStartedPlacingResource.OnNext(new() {
+        data.map.onHumanStartedPlacingResource.OnNext(new() {
             Human = human,
             Resource = human.movingResources_targetedResource,
         });
     }
 
-    public void OnExit(Human human, HumanTransporterData data) {
+    public void OnExit(Entities.Human human, HumanData data) {
         using var _ = Tracing.Scope();
 
         Assert.AreEqual(human.movingResources_targetedResource, null);
@@ -35,7 +35,7 @@ public class PlacingResource {
         human.movingResources_placingResourceProgress = 0;
     }
 
-    public void Update(Human human, HumanTransporterData data, float dt) {
+    public void Update(Entities.Human human, HumanData data, float dt) {
         human.movingResources_placingResourceElapsed += dt;
         human.movingResources_placingResourceProgress =
             human.movingResources_placingResourceElapsed / data.PlacingResourceDuration;
@@ -60,7 +60,7 @@ public class PlacingResource {
         human.movingResources_targetedResource = null;
 
         data.transportation.OnHumanPlacedResource(human.moving.pos, human.segment, res!);
-        data.map.onHumanTransporterPlacedResource.OnNext(new() {
+        data.map.onHumanPlacedResource.OnNext(new() {
             Human = human,
             Resource = res!,
             Building = building,
@@ -70,8 +70,8 @@ public class PlacingResource {
     }
 
     public void OnHumanCurrentSegmentChanged(
-        Human human,
-        HumanTransporterData data,
+        Entities.Human human,
+        HumanData data,
         GraphSegment oldSegment
     ) {
         using var _ = Tracing.Scope();

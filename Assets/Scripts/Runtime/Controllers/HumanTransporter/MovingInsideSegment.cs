@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using UnityEngine.Assertions;
 
-namespace BFG.Runtime.Controllers.HumanTransporter {
+namespace BFG.Runtime.Controllers.Human {
 public class MovingInsideSegment {
     public MovingInsideSegment(MainController controller) {
         _controller = controller;
@@ -10,7 +10,7 @@ public class MovingInsideSegment {
 
     public void OnEnter(
         Entities.Human human,
-        HumanTransporterData data
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
 
@@ -30,7 +30,7 @@ public class MovingInsideSegment {
 
     public void OnExit(
         Entities.Human human,
-        HumanTransporterData data
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
 
@@ -39,7 +39,7 @@ public class MovingInsideSegment {
 
     public void Update(
         Entities.Human human,
-        HumanTransporterData data,
+        HumanData data,
         float dt
     ) {
         UpdateStates(human, data);
@@ -47,26 +47,26 @@ public class MovingInsideSegment {
 
     public void OnHumanCurrentSegmentChanged(
         Entities.Human human,
-        HumanTransporterData data,
+        HumanData data,
         [CanBeNull]
         GraphSegment oldSegment
     ) {
         using var _ = Tracing.Scope();
 
-        Tracing.Log("_controller.SetState(human, HumanTransporterState.MovingInTheWorld)");
+        Tracing.Log("_controller.SetState(human, HumanState.MovingInTheWorld)");
         _controller.SetState(human, MainState.MovingInTheWorld);
     }
 
     public void OnHumanMovedToTheNextTile(
         Entities.Human human,
-        HumanTransporterData data
+        HumanData data
     ) {
         // Hulvdan: Intentionally left blank
     }
 
     void UpdateStates(
         Entities.Human human,
-        HumanTransporterData data
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
         if (human.segment == null) {
@@ -77,7 +77,7 @@ public class MovingInsideSegment {
 
         if (human.segment.ResourcesToTransport.Count > 0) {
             if (human.moving.to == null) {
-                Tracing.Log("_controller.SetState(human, HumanTransporterState.MovingItem)");
+                Tracing.Log("_controller.SetState(human, HumanState.MovingItem)");
                 _controller.SetState(human, MainState.MovingResource);
                 return;
             }

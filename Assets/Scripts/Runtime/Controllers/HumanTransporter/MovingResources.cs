@@ -3,7 +3,7 @@ using BFG.Runtime.Graphs;
 using JetBrains.Annotations;
 using UnityEngine.Assertions;
 
-namespace BFG.Runtime.Controllers.HumanTransporter {
+namespace BFG.Runtime.Controllers.Human {
 public class MovingResources {
     public enum State {
         MovingToResource,
@@ -23,7 +23,7 @@ public class MovingResources {
 
     public void OnEnter(
         Entities.Human human,
-        HumanTransporterData data
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
 
@@ -33,7 +33,7 @@ public class MovingResources {
 
     public void OnExit(
         Entities.Human human,
-        HumanTransporterData data
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
         Assert.AreNotEqual(human.movingResources, null);
@@ -48,7 +48,7 @@ public class MovingResources {
 
     public void NestedState_Exit(
         Entities.Human human,
-        HumanTransporterData data
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
 
@@ -76,7 +76,7 @@ public class MovingResources {
 
     public void Update(
         Entities.Human human,
-        HumanTransporterData data,
+        HumanData data,
         float dt
     ) {
         switch (human.movingResources!.Value) {
@@ -99,7 +99,7 @@ public class MovingResources {
 
     public void OnHumanCurrentSegmentChanged(
         Entities.Human human,
-        HumanTransporterData data,
+        HumanData data,
         [CanBeNull]
         GraphSegment oldSegment
     ) {
@@ -127,7 +127,7 @@ public class MovingResources {
 
     public void OnHumanMovedToTheNextTile(
         Entities.Human human,
-        HumanTransporterData data
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
 
@@ -147,7 +147,7 @@ public class MovingResources {
 
     public void SetState(
         Entities.Human human,
-        HumanTransporterData data,
+        HumanData data,
         State state
     ) {
         using var _ = Tracing.Scope();

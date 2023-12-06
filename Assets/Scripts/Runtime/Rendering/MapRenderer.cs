@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reactive.Subjects;
 using BFG.Core;
 using BFG.Graphs;
-using BFG.Runtime.Controllers.HumanTransporter;
+using BFG.Runtime.Controllers.Human;
 using BFG.Runtime.Entities;
 using BFG.Runtime.Extensions;
 using DG.Tweening;
@@ -123,7 +123,7 @@ public class MapRenderer : MonoBehaviour {
 
     readonly List<IDisposable> _dependencyHooks = new();
 
-    readonly Dictionary<Guid, (Human, HumanGO, HumanBinding)> _humanTransporters =
+    readonly Dictionary<Guid, (Human, HumanGO, HumanBinding)> _humans =
         new();
 
     readonly Dictionary<Guid, ItemGO> _storedItems = new();
@@ -199,7 +199,7 @@ public class MapRenderer : MonoBehaviour {
             Gizmos.DrawLineList(points);
         }
 
-        foreach (var (human, _, _) in _humanTransporters.Values) {
+        foreach (var (human, _, _) in _humans.Values) {
             Gizmos.color = Color.cyan;
             var offset = Vector2.one / 2;
             Gizmos.DrawSphere(_grid.transform.TransformPoint(human.moving.pos + offset), .2f);
@@ -305,23 +305,23 @@ public class MapRenderer : MonoBehaviour {
         hooks.Add(_map.onElementTileChanged.Subscribe(
             OnElementTileChanged));
 
-        hooks.Add(_map.onHumanTransporterCreated.Subscribe(
-            OnHumanTransporterCreated));
+        hooks.Add(_map.onHumanCreated.Subscribe(
+            OnHumanCreated));
         hooks.Add(_map.onCityHallCreatedHuman.Subscribe(
             OnCityHallCreatedHuman));
         hooks.Add(_map.onHumanReachedCityHall.Subscribe(
             OnHumanReachedCityHall));
 
-        hooks.Add(_map.onHumanTransporterMovedToTheNextTile.Subscribe(
-            OnHumanTransporterMovedToTheNextTile));
-        hooks.Add(_map.onHumanTransporterStartedPickingUpResource.Subscribe(
-            OnHumanTransporterStartedPickingUpResource));
-        hooks.Add(_map.onHumanTransporterPickedUpResource.Subscribe(
-            OnHumanTransporterPickedUpResource));
-        hooks.Add(_map.onHumanTransporterStartedPlacingResource.Subscribe(
-            OnHumanTransporterStartedPlacingResource));
-        hooks.Add(_map.onHumanTransporterPlacedResource.Subscribe(
-            OnHumanTransporterPlacedResource));
+        hooks.Add(_map.onHumanMovedToTheNextTile.Subscribe(
+            OnHumanMovedToTheNextTile));
+        hooks.Add(_map.onHumanStartedPickingUpResource.Subscribe(
+            OnHumanStartedPickingUpResource));
+        hooks.Add(_map.onHumanPickedUpResource.Subscribe(
+            OnHumanPickedUpResource));
+        hooks.Add(_map.onHumanStartedPlacingResource.Subscribe(
+            OnHumanStartedPlacingResource));
+        hooks.Add(_map.onHumanPlacedResource.Subscribe(
+            OnHumanPlacedResource));
 
         hooks.Add(_map.onBuildingPlaced.Subscribe(
             OnBuildingPlaced));
@@ -332,8 +332,8 @@ public class MapRenderer : MonoBehaviour {
             OnBuildingProducedItem));
     }
 
-    void OnHumanTransporterMovedToTheNextTile(E_HumanTransporterMovedToTheNextTile data) {
-        var (human, go, binding) = _humanTransporters[data.Human.ID];
+    void OnHumanMovedToTheNextTile(E_HumanMovedToTheNextTile data) {
+        var (human, go, binding) = _humans[data.Human.ID];
 
         var pos = new Vector2(human.moving.pos.x, human.moving.pos.y);
         go.transform.localPosition = pos + Vector2.one / 2;
@@ -346,8 +346,8 @@ public class MapRenderer : MonoBehaviour {
         DomainEvents<E_HumanFootstep>.Publish(new() { Human = data.Human });
     }
 
-    void OnHumanTransporterPlacedResource(E_HumanTransporterPlacedResource data) {
-        var (human, go, _) = _humanTransporters[data.Human.ID];
+    void OnHumanPlacedResource(E_HumanPlacedResource data) {
+        var (human, go, _) = _humans[data.Human.ID];
         go.OnStoppedPlacingResource();
 
         var item = Instantiate(_itemPrefab, _itemsLayer);
@@ -365,8 +365,8 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    void OnHumanTransporterPickedUpResource(E_HumanTransporterPickedUpResource data) {
-        var (_, go, _) = _humanTransporters[data.Human.ID];
+    void OnHumanPickedUpResource(E_HumanPickedUpResource data) {
+        var (_, go, _) = _humans[data.Human.ID];
         go.OnStoppedPickingUpResource();
 
         if (_storedItems.TryGetValue(data.Resource.ID, out var itemGo)) {
@@ -375,17 +375,17 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    void OnHumanTransporterStartedPlacingResource(
-        E_HumanTransporterStartedPlacingResource data
+    void OnHumanStartedPlacingResource(
+        E_HumanStartedPlacingResource data
     ) {
-        var (_, go, _) = _humanTransporters[data.Human.ID];
+        var (_, go, _) = _humans[data.Human.ID];
         go.OnStartedPlacingResource(data.Resource.Scriptable);
     }
 
-    void OnHumanTransporterStartedPickingUpResource(
-        E_HumanTransportedStartedPickingUpResource data
+    void OnHumanStartedPickingUpResource(
+        E_HumanStartedPickingUpResource data
     ) {
-        var (_, go, _) = _humanTransporters[data.Human.ID];
+        var (_, go, _) = _humans[data.Human.ID];
         go.OnStartedPickingUpResource(data.Resource.Scriptable);
 
         if (_storedItems.TryGetValue(data.Resource.ID, out var res)) {
@@ -690,7 +690,7 @@ public class MapRenderer : MonoBehaviour {
 
     #region HumanSystem
 
-    void OnHumanTransporterCreated(E_HumanTransporterCreated data) {
+    void OnHumanCreated(E_HumanCreated data) {
         var go = Instantiate(_humanPrefab, _grid.transform);
         var humanGo = go.GetComponent<HumanGO>();
 
@@ -701,8 +701,8 @@ public class MapRenderer : MonoBehaviour {
             movementBinding.CurvePerFeedback.Add(feedback.GetRandomCurve());
         }
 
-        _humanTransporters.Add(data.Human.ID, new(data.Human, humanGo, movementBinding));
-        UpdateHumanTransporter(data.Human, humanGo, movementBinding);
+        _humans.Add(data.Human.ID, new(data.Human, humanGo, movementBinding));
+        UpdateHuman(data.Human, humanGo, movementBinding);
     }
 
     void OnCityHallCreatedHuman(E_CityHallCreatedHuman data) {
@@ -710,18 +710,18 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void OnHumanReachedCityHall(E_HumanReachedCityHall data) {
-        var human = _humanTransporters[data.Human.ID];
+        var human = _humans[data.Human.ID];
         Destroy(human.Item2.gameObject);
-        _humanTransporters.Remove(data.Human.ID);
+        _humans.Remove(data.Human.ID);
     }
 
     void UpdateHumans() {
-        foreach (var (human, go, binding) in _humanTransporters.Values) {
-            UpdateHumanTransporter(human, go, binding);
+        foreach (var (human, go, binding) in _humans.Values) {
+            UpdateHuman(human, go, binding);
         }
     }
 
-    void UpdateHumanTransporter(Human human, HumanGO go, HumanBinding binding) {
+    void UpdateHuman(Human human, HumanGO go, HumanBinding binding) {
         if (human.moving.to == null) {
             go.transform.localPosition = human.moving.from;
         }

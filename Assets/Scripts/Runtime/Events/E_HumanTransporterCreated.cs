@@ -1,7 +1,7 @@
 ﻿using BFG.Runtime.Entities;
 
 namespace BFG.Runtime {
-public class E_HumanTransporterCreated {
+public class E_HumanCreated {
     public Human Human;
 }
 }

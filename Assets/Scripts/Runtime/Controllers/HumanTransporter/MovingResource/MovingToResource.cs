@@ -1,14 +1,14 @@
 ﻿using BFG.Runtime.Graphs;
 using UnityEngine.Assertions;
-using MRState = BFG.Runtime.Controllers.HumanTransporter.MovingResources.State;
+using MRState = BFG.Runtime.Controllers.Human.MovingResources.State;
 
-namespace BFG.Runtime.Controllers.HumanTransporter {
+namespace BFG.Runtime.Controllers.Human {
 public class MovingToResource {
     public MovingToResource(MovingResources controller) {
         _controller = controller;
     }
 
-    public void OnEnter(Entities.Human human, HumanTransporterData data) {
+    public void OnEnter(Entities.Human human, HumanData data) {
         using var _ = Tracing.Scope();
 
         Assert.AreEqual(null, human.movingResources);
@@ -40,19 +40,19 @@ public class MovingToResource {
         }
     }
 
-    public void OnExit(Entities.Human human, HumanTransporterData data) {
+    public void OnExit(Entities.Human human, HumanData data) {
         using var _ = Tracing.Scope();
 
         human.moving.path.Clear();
     }
 
-    public void Update(Entities.Human human, HumanTransporterData data, float dt) {
+    public void Update(Entities.Human human, HumanData data, float dt) {
         // Hulvdan: Intentionally left blank
     }
 
     public void OnHumanCurrentSegmentChanged(
         Entities.Human human,
-        HumanTransporterData data,
+        HumanData data,
         GraphSegment oldSegment
     ) {
         using var _ = Tracing.Scope();
@@ -62,7 +62,7 @@ public class MovingToResource {
 
     public void OnHumanMovedToTheNextTile(
         Entities.Human human,
-        HumanTransporterData data
+        HumanData data
     ) {
         using var _ = Tracing.Scope();
 
