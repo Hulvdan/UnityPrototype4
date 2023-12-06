@@ -9,7 +9,7 @@ public class MovingInsideSegment {
     }
 
     public void OnEnter(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
@@ -29,7 +29,7 @@ public class MovingInsideSegment {
     }
 
     public void OnExit(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
@@ -38,7 +38,7 @@ public class MovingInsideSegment {
     }
 
     public void Update(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data,
         float dt
     ) {
@@ -46,7 +46,7 @@ public class MovingInsideSegment {
     }
 
     public void OnHumanCurrentSegmentChanged(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data,
         [CanBeNull]
         GraphSegment oldSegment
@@ -58,14 +58,14 @@ public class MovingInsideSegment {
     }
 
     public void OnHumanMovedToTheNextTile(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data
     ) {
         // Hulvdan: Intentionally left blank
     }
 
     void UpdateStates(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();

@@ -14,7 +14,7 @@ public sealed class GraphSegment : IEquatable<GraphSegment> {
     public readonly List<GraphVertex> Vertices;
     public readonly Graph Graph;
     public readonly List<Vector2Int> MovementTiles;
-    public HumanTransporter AssignedHuman;
+    public Human AssignedHuman;
     public readonly UniqueList<MapResource> LinkedResources;
     public readonly SimplePriorityQueue<MapResource> ResourcesToTransport;
 

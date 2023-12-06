@@ -8,7 +8,7 @@ public class MovingResource {
         _controller = controller;
     }
 
-    public void OnEnter(Entities.HumanTransporter human, HumanTransporterData data) {
+    public void OnEnter(Entities.Human human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
         Assert.AreNotEqual(human.stateMovingResource, MRState.MovingResource);
@@ -19,16 +19,16 @@ public class MovingResource {
         human.stateMovingResource = MRState.MovingResource;
     }
 
-    public void OnExit(Entities.HumanTransporter human, HumanTransporterData data) {
+    public void OnExit(Entities.Human human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
     }
 
-    public void Update(Entities.HumanTransporter human, HumanTransporterData data, float dt) {
+    public void Update(Entities.Human human, HumanTransporterData data, float dt) {
         // Hulvdan: Intentionally left blank
     }
 
     public void OnHumanCurrentSegmentChanged(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data,
         GraphSegment oldSegment
     ) {
@@ -36,7 +36,7 @@ public class MovingResource {
     }
 
     public void OnHumanMovedToTheNextTile(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();

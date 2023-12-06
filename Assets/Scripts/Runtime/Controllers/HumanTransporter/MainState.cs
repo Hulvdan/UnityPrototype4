@@ -39,7 +39,7 @@ public class MainController {
         _data = new(map, mapSize, cityHall, resourceTransportation, 1f, 1f);
     }
 
-    public void SetState(Entities.HumanTransporter human, MainState newState) {
+    public void SetState(Entities.Human human, MainState newState) {
         using var _ = Tracing.Scope();
         Tracing.Log($"SetState '{human.state}' -> '{newState}'");
 
@@ -83,7 +83,7 @@ public class MainController {
         }
     }
 
-    public void Update(Entities.HumanTransporter human, float dt) {
+    public void Update(Entities.Human human, float dt) {
         switch (human.state) {
             case MainState.MovingInTheWorld:
                 _movingInTheWorld.Update(human, _data, dt);
@@ -103,7 +103,7 @@ public class MainController {
     }
 
     public void OnHumanCurrentSegmentChanged(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         [CanBeNull]
         GraphSegment oldSegment
     ) {
@@ -129,7 +129,7 @@ public class MainController {
         }
     }
 
-    public void OnHumanMovedToTheNextTile(Entities.HumanTransporter human) {
+    public void OnHumanMovedToTheNextTile(Entities.Human human) {
         using var _ = Tracing.Scope();
 
         switch (human.state) {

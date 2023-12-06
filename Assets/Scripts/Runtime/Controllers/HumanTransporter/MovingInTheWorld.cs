@@ -14,7 +14,7 @@ public class MovingInTheWorld {
     }
 
     public void OnEnter(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
@@ -29,7 +29,7 @@ public class MovingInTheWorld {
     }
 
     public void OnExit(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
@@ -40,7 +40,7 @@ public class MovingInTheWorld {
     }
 
     public void Update(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data,
         float dt
     ) {
@@ -48,7 +48,7 @@ public class MovingInTheWorld {
     }
 
     public void OnHumanCurrentSegmentChanged(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data,
         [CanBeNull]
         GraphSegment oldSegment
@@ -60,14 +60,14 @@ public class MovingInTheWorld {
     }
 
     public void OnHumanMovedToTheNextTile(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data
     ) {
         // Hulvdan: Intentionally left blank
     }
 
     void UpdateStates(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data,
         [CanBeNull]
         GraphSegment oldSegment

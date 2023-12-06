@@ -18,8 +18,8 @@ public class MapResource : IEquatable<MapResource> {
     public readonly List<GraphSegment> TransportationSegments;
     public readonly UniqueList<Vector2Int> TransportationVertices;
 
-    public HumanTransporter? TargetedHuman;
-    public HumanTransporter? CarryingHuman;
+    public Human? TargetedHuman;
+    public Human? CarryingHuman;
 
     public MapResource(
         Vector2Int pos,

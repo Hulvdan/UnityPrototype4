@@ -315,7 +315,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
         }
 
-        Stack<Tuple<GraphSegment?, HumanTransporter>> humansThatNeedNewSegment =
+        Stack<Tuple<GraphSegment?, Human>> humansThatNeedNewSegment =
             new(res.DeletedSegments.Count + humansMovingToCityHall);
         foreach (var human in _humanTransporters) {
             var state = MovingInTheWorld.State.MovingToTheCityHall;
@@ -658,7 +658,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     #region HumanSystem_Properties
 
-    readonly List<HumanTransporter> _humanTransporters = new();
+    readonly List<Human> _humanTransporters = new();
 
     public float humanMovingOneCellDuration => _humanMovingOneCellDuration;
 
@@ -771,7 +771,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     #region HumanSystem_Behaviour
 
     void CreateHuman_Transporter(Building building, GraphSegment segment) {
-        var human = new HumanTransporter(Guid.NewGuid(), segment, building.pos);
+        var human = new Human(Guid.NewGuid(), segment, building.pos);
         segment.AssignedHuman = human;
         _humanTransporters.Add(human);
 
@@ -786,7 +786,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void UpdateHumanTransporters(float dt) {
-        var humansToRemove = new List<HumanTransporter>();
+        var humansToRemove = new List<Human>();
         foreach (var human in _humanTransporters) {
             if (human.moving.to != null) {
                 UpdateHumanMovingComponent(dt, human);
@@ -809,7 +809,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
     }
 
-    void UpdateHumanMovingComponent(float dt, HumanTransporter human) {
+    void UpdateHumanMovingComponent(float dt, Human human) {
         // ReSharper disable once InconsistentNaming
         const int GUARD_MAX_ITERATIONS_COUNT = 16;
 
