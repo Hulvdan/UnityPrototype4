@@ -11,12 +11,12 @@ public class MovingResource {
     public void OnEnter(Entities.Human human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
-        Assert.AreNotEqual(human.stateMovingResource, MRState.MovingResource);
-        Assert.AreNotEqual(human.stateMovingResource_targetedResource, null);
-        Assert.AreEqual(human.stateMovingResource_targetedResource!.TargetedHuman, human);
-        Assert.AreEqual(human.stateMovingResource_targetedResource!.CarryingHuman, human);
+        Assert.AreNotEqual(human.movingResources, MRState.MovingResource);
+        Assert.AreNotEqual(human.movingResources_targetedResource, null);
+        Assert.AreEqual(human.movingResources_targetedResource!.TargetedHuman, human);
+        Assert.AreEqual(human.movingResources_targetedResource!.CarryingHuman, human);
 
-        human.stateMovingResource = MRState.MovingResource;
+        human.movingResources = MRState.MovingResource;
     }
 
     public void OnExit(Entities.Human human, HumanTransporterData data) {

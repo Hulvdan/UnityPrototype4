@@ -11,15 +11,15 @@ public class MovingToResource {
     public void OnEnter(Entities.Human human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
-        Assert.AreEqual(null, human.stateMovingResource);
+        Assert.AreEqual(null, human.movingResources);
         Assert.AreNotEqual(null, human.segment);
-        human.stateMovingResource = MRState.MovingToResource;
+        human.movingResources = MRState.MovingToResource;
 
         var segment = human.segment;
         var res = segment!.ResourcesToTransport.First;
         Assert.AreNotEqual(null, res.Booking);
 
-        human.stateMovingResource_targetedResource = res;
+        human.movingResources_targetedResource = res;
         res.TargetedHuman = human;
         if (res.Pos == human.moving.pos && human.moving.to == null) {
             _controller.SetState(human, data, MRState.PickingUpResource);
@@ -66,12 +66,12 @@ public class MovingToResource {
     ) {
         using var _ = Tracing.Scope();
 
-        if (human.stateMovingResource_targetedResource == null) {
+        if (human.movingResources_targetedResource == null) {
             _controller.NestedState_Exit(human, data);
             return;
         }
 
-        if (human.moving.pos == human.stateMovingResource_targetedResource.Pos) {
+        if (human.moving.pos == human.movingResources_targetedResource.Pos) {
             _controller.SetState(human, data, MRState.PickingUpResource);
         }
     }

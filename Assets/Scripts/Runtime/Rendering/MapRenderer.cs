@@ -744,17 +744,17 @@ public class MapRenderer : MonoBehaviour {
 
         go.transform.localPosition += Vector3.one.With(z: 0) / 2;
         if (
-            human.stateMovingResource
+            human.movingResources
             == MovingResources.State.PickingUpResource
         ) {
-            go.SetPickingUpResourceProgress(human.stateMovingResource_pickingUpResourceProgress);
+            go.SetPickingUpResourceProgress(human.movingResources_pickingUpResourceProgress);
         }
 
         if (
-            human.stateMovingResource
+            human.movingResources
             == MovingResources.State.PlacingResource
         ) {
-            go.SetPlacingResourceProgress(human.stateMovingResource_placingResourceProgress);
+            go.SetPlacingResourceProgress(human.movingResources_placingResourceProgress);
         }
     }
 

@@ -12,16 +12,16 @@ public class PickingUpResource {
     public void OnEnter(Entities.Human human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
-        Assert.AreNotEqual(human.stateMovingResource, MRState.PickingUpResource);
-        human.stateMovingResource = MRState.PickingUpResource;
+        Assert.AreNotEqual(human.movingResources, MRState.PickingUpResource);
+        human.movingResources = MRState.PickingUpResource;
 
-        Assert.AreNotEqual(human.stateMovingResource_targetedResource, null);
+        Assert.AreNotEqual(human.movingResources_targetedResource, null);
 
         var res = human.segment!.ResourcesToTransport.Dequeue();
         Assert.AreNotEqual(res.Booking, null);
-        Assert.AreEqual(res, human.stateMovingResource_targetedResource);
-        Assert.AreEqual(human.stateMovingResource_targetedResource!.CarryingHuman, null);
-        Assert.AreEqual(human.stateMovingResource_targetedResource!.TargetedHuman, human);
+        Assert.AreEqual(res, human.movingResources_targetedResource);
+        Assert.AreEqual(human.movingResources_targetedResource!.CarryingHuman, null);
+        Assert.AreEqual(human.movingResources_targetedResource!.TargetedHuman, human);
 
         res!.CarryingHuman = human;
 
@@ -35,24 +35,24 @@ public class PickingUpResource {
     public void OnExit(Entities.Human human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
-        human.stateMovingResource_pickingUpResourceElapsed = 0;
-        human.stateMovingResource_pickingUpResourceProgress = 0;
+        human.movingResources_pickingUpResourceElapsed = 0;
+        human.movingResources_pickingUpResourceProgress = 0;
     }
 
     public void Update(Entities.Human human, HumanTransporterData data, float dt) {
-        var res = human.stateMovingResource_targetedResource;
+        var res = human.movingResources_targetedResource;
         Assert.AreNotEqual(res, null, "human.targetedResource != null");
 
-        human.stateMovingResource_pickingUpResourceElapsed += dt;
-        human.stateMovingResource_pickingUpResourceProgress =
-            human.stateMovingResource_pickingUpResourceElapsed / data.PickingUpResourceDuration;
+        human.movingResources_pickingUpResourceElapsed += dt;
+        human.movingResources_pickingUpResourceProgress =
+            human.movingResources_pickingUpResourceElapsed / data.PickingUpResourceDuration;
 
-        if (human.stateMovingResource_pickingUpResourceProgress < 1) {
+        if (human.movingResources_pickingUpResourceProgress < 1) {
             return;
         }
 
-        human.stateMovingResource_pickingUpResourceElapsed = data.PickingUpResourceDuration;
-        human.stateMovingResource_pickingUpResourceProgress = 1;
+        human.movingResources_pickingUpResourceElapsed = data.PickingUpResourceDuration;
+        human.movingResources_pickingUpResourceProgress = 1;
 
         data.map.onHumanTransporterPickedUpResource.OnNext(new() {
             Human = human,

@@ -16,8 +16,8 @@ public class BuildingController {
         Assert.AreEqual(human.moving.to, null, "human.movingTo == null");
         Assert.AreEqual(human.moving.path.Count, 0, "human.movingPath.Count == 0");
 
-        Assert.AreEqual(human.stateBuilding_elapsed, 0);
-        Assert.AreEqual(human.stateBuilding_progress, 0);
+        Assert.AreEqual(human.building_elapsed, 0);
+        Assert.AreEqual(human.building_progress, 0);
     }
 
     public void OnExit(
@@ -32,7 +32,7 @@ public class BuildingController {
         HumanTransporterData data,
         float dt
     ) {
-        human.stateBuilding_elapsed += dt;
+        human.building_elapsed += dt;
         // TODO!
         // human.stateBuilding_progress = human.
     }
