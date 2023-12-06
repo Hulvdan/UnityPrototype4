@@ -16,7 +16,7 @@ public class MovingInsideSegment {
 
         Assert.AreNotEqual(human.segment, null, "human.segment != null");
         Assert.AreEqual(human.moving.to, null, "human.movingTo == null");
-        Assert.AreEqual(human.moving.path.Count, 0, "human.movingPath.Count == 0");
+        Assert.AreEqual(human.moving.Path.Count, 0, "human.movingPath.Count == 0");
 
         if (human.segment!.ResourcesToTransport.Count == 0) {
             Tracing.Log("Setting path to center");
@@ -34,7 +34,7 @@ public class MovingInsideSegment {
     ) {
         using var _ = Tracing.Scope();
 
-        human.moving.path.Clear();
+        human.moving.Path.Clear();
     }
 
     public void Update(
@@ -70,7 +70,7 @@ public class MovingInsideSegment {
     ) {
         using var _ = Tracing.Scope();
         if (human.segment == null) {
-            human.moving.path.Clear();
+            human.moving.Path.Clear();
             _controller.SetState(human, MainState.MovingInTheWorld);
             return;
         }
@@ -82,7 +82,7 @@ public class MovingInsideSegment {
                 return;
             }
 
-            human.moving.path.Clear();
+            human.moving.Path.Clear();
         }
     }
 

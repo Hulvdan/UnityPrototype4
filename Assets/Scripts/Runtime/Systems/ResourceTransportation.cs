@@ -310,7 +310,7 @@ public class ResourceTransportation {
 
             if (carrier != null) {
                 Assert.IsTrue(ReferenceEquals(carrier, targeter));
-                carrier.moving.path.Clear();
+                carrier.moving.Path.Clear();
             }
             else if (targeter != null) {
                 res.TargetedHuman = null;

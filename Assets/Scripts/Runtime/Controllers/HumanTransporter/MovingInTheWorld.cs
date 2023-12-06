@@ -25,7 +25,7 @@ public class MovingInTheWorld {
                 $"human.segment.resourcesToTransport.Count = {human.segment.ResourcesToTransport.Count}");
         }
 
-        human.moving.path.Clear();
+        human.moving.Path.Clear();
         UpdateStates(human, data, null, null);
     }
 
@@ -37,7 +37,7 @@ public class MovingInTheWorld {
 
         human.stateMovingInTheWorld = null;
         human.moving.to = null;
-        human.moving.path.Clear();
+        human.moving.Path.Clear();
     }
 
     public void Update(
@@ -92,7 +92,7 @@ public class MovingInTheWorld {
                 && human.segment.Graph.Contains(human.moving.to.Value)
                 && human.segment.Graph.Node(human.moving.to.Value) != 0
             ) {
-                human.moving.path.Clear();
+                human.moving.Path.Clear();
                 return;
             }
 
@@ -125,7 +125,7 @@ public class MovingInTheWorld {
             Assert.IsFalse(human.building.isConstructed);
 
             if (!ReferenceEquals(oldBuilding, human.building)) {
-                human.moving.path.Clear();
+                human.moving.Path.Clear();
 
                 var path = data.map.FindPath(
                     human.moving.to ?? human.moving.pos, human.building.pos, true
