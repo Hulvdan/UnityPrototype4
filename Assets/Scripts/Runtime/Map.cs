@@ -139,6 +139,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             resources.Add(new() { Amount = 0, Resource = res });
         }
 
+        foreach (var building in buildings) {
+            building.buildingElapsed = building.scriptable.BuildingDuration;
+        }
+
         if (Application.isPlaying) {
             RegenerateTilemap();
             OnTerrainTilesRegenerated.Invoke();
@@ -493,6 +497,39 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         return new(false, null);
     }
 
+    public void OnResourcePlacedInsideBuilding(MapResource res, Building building) {
+        var totalCount = 0;
+        foreach (var requiredResource in building.scriptable.requiredResourcesToBuild) {
+            totalCount += requiredResource.Number;
+        }
+
+        if (building.PlacedResourcesForConstruction.Count == totalCount) {
+            Human? human = null;
+            foreach (var h in _humans) {
+                if (
+                    h.type != Human.Type.Builder
+                    || h.state != MainState.MovingInTheWorld
+                    || h.stateMovingInTheWorld != MovingInTheWorld.State.MovingToTheCityHall
+                ) {
+                    continue;
+                }
+
+                human = h;
+                break;
+            }
+
+            if (human == null) {
+                CreateHuman_Builder(cityHall, building);
+            }
+            else {
+                human.building = building;
+                building.builder = human;
+            }
+        }
+
+        DomainEvents<E_ResourcePlacedInsideBuilding>.Publish(new());
+    }
+
     // ReSharper disable once InconsistentNaming
     void ClearBFSCache(int minY, int maxY, int minX, int maxX) {
         for (var y = minY; y <= maxY; y++) {
@@ -659,6 +696,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     #region HumanSystem_Properties
 
     readonly List<Human> _humans = new();
+    readonly List<Human> _humansToAdd = new();
 
     public float humanMovingOneCellDuration => _humanMovingOneCellDuration;
 
@@ -687,6 +725,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public Subject<E_HumanPlacedResource> onHumanPlacedResource { get; } =
         new();
 
+    public Subject<E_HumanStartedBuilding> OnHumanStartedBuilding { get; } = new();
     public Subject<E_HumanBuiltBuilding> OnHumanBuiltBuilding { get; } = new();
 
     public Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; } = new();
@@ -777,12 +816,21 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         segment.AssignedHuman = human;
         _humans.Add(human);
 
-        _humanController.SetState(
-            human, MainState.MovingInTheWorld
-        );
+        _humanController.SetState(human, MainState.MovingInTheWorld);
 
         onHumanCreated.OnNext(new() { Human = human });
+        onCityHallCreatedHuman.OnNext(new() { CityHall = cityHall });
+        DomainEvents<E_CityHallCreatedHuman>.Publish(new() { CityHall = cityHall });
+    }
 
+    void CreateHuman_Builder(Building cityHall, Building building) {
+        var human = Human.Builder(Guid.NewGuid(), cityHall.pos, building);
+        building.builder = human;
+        _humansToAdd.Add(human);
+
+        _humanController.SetState(human, MainState.MovingInTheWorld);
+
+        onHumanCreated.OnNext(new() { Human = human });
         onCityHallCreatedHuman.OnNext(new() { CityHall = cityHall });
         DomainEvents<E_CityHallCreatedHuman>.Publish(new() { CityHall = cityHall });
     }
@@ -790,24 +838,35 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     void UpdateHumans(float dt) {
         var humansToRemove = new List<Human>();
         foreach (var human in _humans) {
-            if (human.moving.to != null) {
-                UpdateHumanMovingComponent(dt, human);
-            }
-
-            _humanController.Update(human, dt);
-            var state = MovingInTheWorld.State.MovingToTheCityHall;
-            if (
-                human.stateMovingInTheWorld == state
-                && human.moving.pos == cityHall.pos
-                && human.moving.to == null
-            ) {
-                humansToRemove.Add(human);
-            }
+            UpdateHuman(dt, human, humansToRemove);
         }
+
+        foreach (var human in _humansToAdd) {
+            _humans.Add(human);
+            UpdateHuman(dt, human, humansToRemove);
+        }
+
+        _humansToAdd.Clear();
 
         foreach (var human in humansToRemove) {
             onHumanReachedCityHall.OnNext(new() { Human = human });
             _humans.RemoveAt(_humans.FindIndex(i => i == human));
+        }
+    }
+
+    void UpdateHuman(float dt, Human human, List<Human> humansToRemove) {
+        if (human.moving.to != null) {
+            UpdateHumanMovingComponent(dt, human);
+        }
+
+        _humanController.Update(human, dt);
+        var state = MovingInTheWorld.State.MovingToTheCityHall;
+        if (
+            human.stateMovingInTheWorld == state
+            && human.moving.pos == cityHall.pos
+            && human.moving.to == null
+        ) {
+            humansToRemove.Add(human);
         }
     }
 

@@ -33,6 +33,7 @@ public interface IMap {
 
     Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; }
     Subject<E_BuildingProducedItem> onBuildingProducedItem { get; }
+    Subject<E_HumanStartedBuilding> OnHumanStartedBuilding { get; }
     Subject<E_HumanBuiltBuilding> OnHumanBuiltBuilding { get; }
 
     void TryBuild(Vector2Int pos, ItemToBuild item);
@@ -45,5 +46,7 @@ public interface IMap {
         Vector2Int destination,
         bool avoidHarvestableResources
     );
+
+    void OnResourcePlacedInsideBuilding(MapResource res, Building building);
 }
 }
