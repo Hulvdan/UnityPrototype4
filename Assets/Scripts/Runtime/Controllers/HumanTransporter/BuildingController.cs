@@ -7,7 +7,7 @@ public class BuildingController {
     }
 
     public void OnEnter(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
@@ -21,14 +21,14 @@ public class BuildingController {
     }
 
     public void OnExit(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
     }
 
     public void Update(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data,
         float dt
     ) {

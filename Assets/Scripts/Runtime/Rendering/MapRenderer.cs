@@ -123,7 +123,7 @@ public class MapRenderer : MonoBehaviour {
 
     readonly List<IDisposable> _dependencyHooks = new();
 
-    readonly Dictionary<Guid, (HumanTransporter, HumanGO, HumanBinding)> _humanTransporters =
+    readonly Dictionary<Guid, (Human, HumanGO, HumanBinding)> _humanTransporters =
         new();
 
     readonly Dictionary<Guid, ItemGO> _storedItems = new();
@@ -721,7 +721,7 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    void UpdateHumanTransporter(HumanTransporter human, HumanGO go, HumanBinding binding) {
+    void UpdateHumanTransporter(Human human, HumanGO go, HumanBinding binding) {
         if (human.moving.to == null) {
             go.transform.localPosition = human.moving.from;
         }

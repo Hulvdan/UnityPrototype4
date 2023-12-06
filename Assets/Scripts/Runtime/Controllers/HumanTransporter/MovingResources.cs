@@ -22,7 +22,7 @@ public class MovingResources {
     }
 
     public void OnEnter(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
@@ -32,7 +32,7 @@ public class MovingResources {
     }
 
     public void OnExit(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
@@ -47,7 +47,7 @@ public class MovingResources {
     }
 
     public void NestedState_Exit(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
@@ -75,7 +75,7 @@ public class MovingResources {
     }
 
     public void Update(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data,
         float dt
     ) {
@@ -98,7 +98,7 @@ public class MovingResources {
     }
 
     public void OnHumanCurrentSegmentChanged(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data,
         [CanBeNull]
         GraphSegment oldSegment
@@ -126,7 +126,7 @@ public class MovingResources {
     }
 
     public void OnHumanMovedToTheNextTile(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data
     ) {
         using var _ = Tracing.Scope();
@@ -146,7 +146,7 @@ public class MovingResources {
     }
 
     public void SetState(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data,
         State state
     ) {

@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace BFG.Runtime {
 public class E_HumanTransporterPlacedResource {
-    public HumanTransporter Human;
+    public Human Human;
     public MapResource Resource;
 
     [CanBeNull]

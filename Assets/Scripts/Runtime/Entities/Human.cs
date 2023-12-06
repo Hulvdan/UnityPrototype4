@@ -71,8 +71,8 @@ public class HumanMovingComponent {
     }
 }
 
-public class HumanTransporter {
-    public HumanTransporter(Guid id, GraphSegment segment, Vector2Int currentPos) {
+public class Human {
+    public Human(Guid id, GraphSegment segment, Vector2Int currentPos) {
         Assert.AreNotEqual(segment, null);
 
         ID = id;

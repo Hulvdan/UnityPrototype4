@@ -9,7 +9,7 @@ public class PlacingResource {
         _controller = controller;
     }
 
-    public void OnEnter(Entities.HumanTransporter human, HumanTransporterData data) {
+    public void OnEnter(Entities.Human human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
         Assert.AreNotEqual(human.stateMovingResource, MRState.PlacingResource);
@@ -27,7 +27,7 @@ public class PlacingResource {
         });
     }
 
-    public void OnExit(Entities.HumanTransporter human, HumanTransporterData data) {
+    public void OnExit(Entities.Human human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
         Assert.AreEqual(human.stateMovingResource_targetedResource, null);
@@ -35,7 +35,7 @@ public class PlacingResource {
         human.stateMovingResource_placingResourceProgress = 0;
     }
 
-    public void Update(Entities.HumanTransporter human, HumanTransporterData data, float dt) {
+    public void Update(Entities.Human human, HumanTransporterData data, float dt) {
         human.stateMovingResource_placingResourceElapsed += dt;
         human.stateMovingResource_placingResourceProgress =
             human.stateMovingResource_placingResourceElapsed / data.PlacingResourceDuration;
@@ -70,7 +70,7 @@ public class PlacingResource {
     }
 
     public void OnHumanCurrentSegmentChanged(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data,
         GraphSegment oldSegment
     ) {

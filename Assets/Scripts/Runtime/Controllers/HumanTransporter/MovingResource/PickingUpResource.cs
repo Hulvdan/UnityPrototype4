@@ -9,7 +9,7 @@ public class PickingUpResource {
         _controller = controller;
     }
 
-    public void OnEnter(Entities.HumanTransporter human, HumanTransporterData data) {
+    public void OnEnter(Entities.Human human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
         Assert.AreNotEqual(human.stateMovingResource, MRState.PickingUpResource);
@@ -32,14 +32,14 @@ public class PickingUpResource {
         });
     }
 
-    public void OnExit(Entities.HumanTransporter human, HumanTransporterData data) {
+    public void OnExit(Entities.Human human, HumanTransporterData data) {
         using var _ = Tracing.Scope();
 
         human.stateMovingResource_pickingUpResourceElapsed = 0;
         human.stateMovingResource_pickingUpResourceProgress = 0;
     }
 
-    public void Update(Entities.HumanTransporter human, HumanTransporterData data, float dt) {
+    public void Update(Entities.Human human, HumanTransporterData data, float dt) {
         var res = human.stateMovingResource_targetedResource;
         Assert.AreNotEqual(res, null, "human.targetedResource != null");
 
@@ -72,7 +72,7 @@ public class PickingUpResource {
     }
 
     public void OnHumanCurrentSegmentChanged(
-        Entities.HumanTransporter human,
+        Entities.Human human,
         HumanTransporterData data,
         [CanBeNull]
         GraphSegment oldSegment
