@@ -1,5 +1,7 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BFG.Runtime.Entities {
@@ -10,6 +12,8 @@ public class Building {
     public bool isBuilt => buildingElapsed >= scriptable.BuildingDuration;
     public float buildingProgress => buildingElapsed / scriptable.BuildingDuration;
     public float buildingElapsed { get; set; } = 0f;
+
+    public Human? builder { get; set; }
 
     public IScriptableBuilding scriptable { get; }
 
@@ -77,7 +81,7 @@ public class Building {
 
     public RectInt rect => new(posX, posY, scriptable.size.x, scriptable.size.y);
 
-    public readonly List<MapResource> ResourcesForConstruction = new();
+    public readonly List<MapResource> PlacedResourcesForConstruction = new();
 
     public bool Contains(Vector2Int pos) {
         return Contains(pos.x, pos.y);

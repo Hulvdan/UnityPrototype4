@@ -330,6 +330,11 @@ public class MapRenderer : MonoBehaviour {
             OnBuildingStartedProcessing));
         hooks.Add(_map.onBuildingProducedItem.Subscribe(
             OnBuildingProducedItem));
+
+        hooks.Add(_map.OnHumanStartedBuilding.Subscribe(
+            OnHumanStartedBuilding));
+        hooks.Add(_map.OnHumanBuiltBuilding.Subscribe(
+            OnHumanBuiltBuilding));
     }
 
     void OnHumanMovedToTheNextTile(E_HumanMovedToTheNextTile data) {
@@ -392,6 +397,14 @@ public class MapRenderer : MonoBehaviour {
             Destroy(res.gameObject);
             _storedItems.Remove(data.Resource.ID);
         }
+    }
+
+    void OnHumanStartedBuilding(E_HumanStartedBuilding data) {
+        // TODO
+    }
+
+    void OnHumanBuiltBuilding(E_HumanBuiltBuilding data) {
+        // TODO
     }
 
     void OnBuildingPlaced(E_BuildingPlaced data) {

@@ -373,10 +373,8 @@ public class ResourceTransportation {
             Assert.IsTrue(res.Booking != null, "res.Booking != null");
 
             ClearBooking(res, false);
-
-            building.ResourcesForConstruction.Add(res);
-
-            DomainEvents<E_ResourcePlacedInsideBuilding>.Publish(new());
+            building.PlacedResourcesForConstruction.Add(res);
+            _map.OnResourcePlacedInsideBuilding(res, building);
         }
         else if (movedToTheNextSegmentInPath) {
             Tracing.Log("movedToTheNextSegmentInPath");
