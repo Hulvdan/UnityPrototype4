@@ -1,8 +1,8 @@
 ﻿using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Controllers.Human {
-public class BuildingController {
-    public BuildingController(MainController controller) {
+public class ConstructionController {
+    public ConstructionController(MainController controller) {
         _controller = controller;
     }
 
@@ -12,7 +12,7 @@ public class BuildingController {
     ) {
         using var _ = Tracing.Scope();
 
-        Assert.AreEqual(human.type, Entities.Human.Type.Builder);
+        Assert.AreEqual(human.type, Entities.Human.Type.Constructor);
 
         Assert.AreNotEqual(human.building, null, "human.building != null");
         Assert.AreEqual(human.segment, null, "human.segment == null");
@@ -21,7 +21,7 @@ public class BuildingController {
         Assert.AreEqual(human.moving.path.Count, 0, "human.movingPath.Count == 0");
         Assert.AreEqual(human.building.pos, human.moving.pos);
 
-        Assert.IsFalse(human.building.isBuilt);
+        Assert.IsFalse(human.building.isConstructed);
     }
 
     public void OnExit(
@@ -41,18 +41,15 @@ public class BuildingController {
         var building = human.building;
         Assert.AreNotEqual(building, null);
 
-        building!.buildingElapsed += dt;
-        if (building.buildingElapsed > building.scriptable.BuildingDuration) {
-            building.buildingElapsed = building.scriptable.BuildingDuration;
+        building!.constructionElapsed += dt;
+        if (building.constructionElapsed > building.scriptable.ConstructionDuration) {
+            building.constructionElapsed = building.scriptable.ConstructionDuration;
         }
 
-        if (building.buildingProgress >= 1) {
+        if (building.constructionProgress >= 1) {
             human.building = null;
 
-            data.map.OnHumanBuiltBuilding.OnNext(new() {
-                Building = building,
-                Human = human,
-            });
+            data.map.OnBuildingConstructed(building, human);
 
             _controller.SetState(human, MainState.MovingInTheWorld);
         }

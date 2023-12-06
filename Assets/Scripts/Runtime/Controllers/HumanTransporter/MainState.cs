@@ -22,7 +22,7 @@ public class MainController {
     readonly MovingInTheWorld _movingInTheWorld;
     readonly MovingInsideSegment _movingInsideSegment;
     readonly MovingResources _movingResources;
-    readonly BuildingController _buildingController;
+    readonly ConstructionController _constructionController;
     readonly HumanData _data;
 
     public MainController(
@@ -34,7 +34,7 @@ public class MainController {
         _movingInTheWorld = new(this);
         _movingInsideSegment = new(this);
         _movingResources = new(this);
-        _buildingController = new(this);
+        _constructionController = new(this);
 
         _data = new(map, mapSize, cityHall, resourceTransportation, 1f, 1f);
     }
@@ -58,7 +58,7 @@ public class MainController {
                     _movingResources.OnExit(human, _data);
                     break;
                 case MainState.Building:
-                    _buildingController.OnExit(human, _data);
+                    _constructionController.OnExit(human, _data);
                     break;
                 default:
                     throw new NotSupportedException();
@@ -76,7 +76,7 @@ public class MainController {
                 _movingResources.OnEnter(human, _data);
                 break;
             case MainState.Building:
-                _buildingController.OnEnter(human, _data);
+                _constructionController.OnEnter(human, _data);
                 break;
             default:
                 throw new NotSupportedException();
@@ -95,7 +95,7 @@ public class MainController {
                 _movingResources.Update(human, _data, dt);
                 break;
             case MainState.Building:
-                _buildingController.Update(human, _data, dt);
+                _constructionController.Update(human, _data, dt);
                 break;
             default:
                 throw new NotSupportedException();

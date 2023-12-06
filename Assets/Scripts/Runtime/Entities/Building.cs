@@ -1,7 +1,6 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BFG.Runtime.Entities {
@@ -9,11 +8,11 @@ public class Building {
     public bool IsProducing;
     public float ProducingElapsed;
 
-    public bool isBuilt => buildingElapsed >= scriptable.BuildingDuration;
-    public float buildingProgress => buildingElapsed / scriptable.BuildingDuration;
-    public float buildingElapsed { get; set; } = 0f;
+    public bool isConstructed => constructionElapsed >= scriptable.ConstructionDuration;
+    public float constructionProgress => constructionElapsed / scriptable.ConstructionDuration;
+    public float constructionElapsed { get; set; } = 0f;
 
-    public Human? builder { get; set; }
+    public Human? constructor { get; set; }
 
     public IScriptableBuilding scriptable { get; }
 
@@ -34,14 +33,14 @@ public class Building {
         Guid id,
         IScriptableBuilding scriptable,
         Vector2Int pos,
-        float buildingElapsed
+        float constructionElapsed
     ) {
         _id = id;
         this.scriptable = scriptable;
         posX = pos.x;
         posY = pos.y;
 
-        this.buildingElapsed = buildingElapsed;
+        this.constructionElapsed = constructionElapsed;
     }
 
     public Guid id {

@@ -75,7 +75,7 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
 
     public BuildingType type => _type;
 
-    public float BuildingDuration => _buildingDuration;
+    public float ConstructionDuration => _buildingDuration;
 
     public ScriptableResource harvestableResource {
         get {
