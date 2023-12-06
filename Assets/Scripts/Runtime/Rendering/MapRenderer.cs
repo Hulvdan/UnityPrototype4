@@ -404,7 +404,8 @@ public class MapRenderer : MonoBehaviour {
     }
 
     void OnHumanBuiltBuilding(E_HumanBuiltBuilding data) {
-        // TODO
+        var building = data.Building;
+        SetBuilding(building, 1, 1, Color.white);
     }
 
     void OnBuildingPlaced(E_BuildingPlaced data) {
@@ -596,7 +597,7 @@ public class MapRenderer : MonoBehaviour {
         var heightOffset = (building.scriptable.size.y - 1) / 2f;
 
         var tile = building.scriptable.tile;
-        if (building.buildingProgress < 1) {
+        if (!building.isBuilt) {
             tile = _tileUnfinishedBuilding;
         }
 

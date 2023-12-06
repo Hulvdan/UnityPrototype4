@@ -65,7 +65,13 @@ public class MovingInTheWorld {
         Entities.Human human,
         HumanData data
     ) {
-        // Hulvdan: Intentionally left blank
+        if (
+            human.type == Entities.Human.Type.Builder
+            && human.building != null
+            && human.moving.pos == human.building.pos
+        ) {
+            _controller.SetState(human, MainState.Building);
+        }
     }
 
     void UpdateStates(
