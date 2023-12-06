@@ -16,7 +16,6 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
-using Random = System.Random;
 
 namespace BFG.Runtime {
 public class Map : MonoBehaviour, IMap, IMapSize {
@@ -88,11 +87,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [FoldoutGroup("Setup", true)]
     [SerializeField]
     [Required]
-    List<ScriptableResource> _topBarResources = null!;
-
-    [FoldoutGroup("Setup", true)]
-    [SerializeField]
-    [Required]
     InitialMapProvider _initialMapProvider = null!;
 
     [FoldoutGroup("Debug", true)]
@@ -101,15 +95,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     GameManager _gameManager = null!;
 
-    Random _random = null!;
-
     public List<GraphSegment> segments { get; } = new();
-
-    readonly Dictionary<Guid, List<GraphSegment>> _segmentLinks = new();
-
-    void Awake() {
-        _random = new((int)Time.time);
-    }
 
     void Update() {
         var dt = _gameManager.dt;
@@ -117,8 +103,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         UpdateHumans(dt);
         UpdateBuildings(dt);
     }
-
-    public List<TopBarResource> resources { get; } = new();
 
     public Subject<Vector2Int> onElementTileChanged { get; } = new();
     public Subject<E_BuildingPlaced> onBuildingPlaced { get; } = new();
@@ -133,11 +117,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public void Init() {
         _initialMapProvider.Init(this, this);
-
-        resources.Clear();
-        foreach (var res in _topBarResources) {
-            resources.Add(new() { Amount = 0, Resource = res });
-        }
 
         foreach (var building in buildings) {
             building.buildingElapsed = building.scriptable.BuildingDuration;
@@ -232,7 +211,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             UpdateSegments(res);
         }
         else if (item.Type == ItemToBuildType.Building) {
-            var building = new Building(Guid.NewGuid(), item.Building, pos, 0);
+            Assert.AreNotEqual(item.Building, null);
+            var building = new Building(Guid.NewGuid(), item.Building!, pos, 0);
             buildings.Add(building);
 
             for (var dy = 0; dy < building.scriptable.size.y; dy++) {
