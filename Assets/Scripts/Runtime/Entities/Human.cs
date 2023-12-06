@@ -72,34 +72,32 @@ public class HumanMovingComponent {
 }
 
 public class Human {
-    public enum HumanType {
+    public enum Type {
         Transporter = 0,
         Builder = 1,
     }
 
     public static Human Transporter(Guid id, Vector2Int currentPos, GraphSegment segment) {
-        Assert.AreNotEqual(segment, null);
-
-        return new(id, HumanType.Transporter, currentPos, segment, null);
+        return new(id, Type.Transporter, currentPos, segment, null);
     }
 
     public static Human Builder(Guid id, Vector2Int currentPos, Building building) {
-        return new(id, HumanType.Builder, currentPos, null, building);
+        return new(id, Type.Builder, currentPos, null, building);
     }
 
     Human(
         Guid id,
-        HumanType type,
+        Type type,
         Vector2Int currentPos,
         GraphSegment? segment,
         Building? building
     ) {
         switch (type) {
-            case HumanType.Transporter:
+            case Type.Transporter:
                 Assert.AreNotEqual(segment, null);
                 Assert.AreEqual(building, null);
                 break;
-            case HumanType.Builder:
+            case Type.Builder:
                 Assert.AreNotEqual(building, null);
                 Assert.AreEqual(segment, null);
                 break;
@@ -118,7 +116,7 @@ public class Human {
     public HumanMovingComponent moving { get; }
 
     public GraphSegment? segment { get; set; }
-    public HumanType type { get; }
+    public Type type { get; }
     public Building? building { get; set; }
     public MainState? state { get; set; }
 
