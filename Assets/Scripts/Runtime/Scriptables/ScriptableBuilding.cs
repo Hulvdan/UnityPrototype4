@@ -69,7 +69,13 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     [SerializeField]
     List<RequiredResourceToBuild> _requiredResourcesToBuild;
 
+    [SerializeField]
+    [Min(0.01f)]
+    float _buildingDuration = 4f;
+
     public BuildingType type => _type;
+
+    public float BuildingDuration => _buildingDuration;
 
     public ScriptableResource harvestableResource {
         get {

@@ -4,15 +4,23 @@ using System.Collections.Generic;
 using BFG.Runtime.Controllers.HumanTransporter;
 using BFG.Runtime.Graphs;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
-public class HumanBuilder {
-    readonly Guid ID;
-
-    public HumanBuilder(Guid id, Building building, Vector2Int currentPos) {
-        ID = id;
-    }
-}
+// public class HumanBuilder {
+//     public HumanBuilder(Guid id, Building building, Vector2Int currentPos) {
+//         Assert.IsFalse(building.isBuilt);
+//
+//         ID = id;
+//         this.building = building;
+//         moving = new(currentPos);
+//     }
+//
+//     public Guid ID { get; }
+//     public HumanMovingComponent moving { get; }
+//
+//     public Building building { get; }
+// }
 
 public class HumanMovingComponent {
     public Vector2Int pos { get; set; }
@@ -65,18 +73,17 @@ public class HumanMovingComponent {
 
 public class HumanTransporter {
     public HumanTransporter(Guid id, GraphSegment segment, Vector2Int currentPos) {
+        Assert.AreNotEqual(segment, null);
+
         ID = id;
         this.segment = segment;
-
         moving = new(currentPos);
     }
 
-    public readonly Guid ID;
-
-    public GraphSegment? segment { get; set; }
-
+    public Guid ID { get; }
     public HumanMovingComponent moving { get; }
 
+    public GraphSegment? segment { get; set; }
     public MainState? state { get; set; }
 
     #region HumanTransporter_MovingInTheWorld_Controller
@@ -95,6 +102,13 @@ public class HumanTransporter {
     public float stateMovingResource_placingResourceProgress;
 
     public MapResource? stateMovingResource_targetedResource = null;
+
+    #endregion
+
+    #region MyRegion
+
+    public float stateBuilding_elapsed;
+    public float stateBuilding_progress;
 
     #endregion
 }
