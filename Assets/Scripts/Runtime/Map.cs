@@ -809,11 +809,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         segment.AssignedHuman = human;
         _humans.Add(human);
 
-        _humanController.SetState(human, MainState.MovingInTheWorld);
-
-        onHumanCreated.OnNext(new() { Human = human });
-        onCityHallCreatedHuman.OnNext(new() { CityHall = cityHall });
-        DomainEvents<E_CityHallCreatedHuman>.Publish(new() { CityHall = cityHall });
+        FinalizeNewHuman(cityHall, human);
     }
 
     void CreateHuman_Constructor(Building cityHall, Building building) {
@@ -821,11 +817,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         building.constructor = human;
         _humansToAdd.Add(human);
 
-        _humanController.SetState(human, MainState.MovingInTheWorld);
-
-        onHumanCreated.OnNext(new() { Human = human });
-        onCityHallCreatedHuman.OnNext(new() { CityHall = cityHall });
-        DomainEvents<E_CityHallCreatedHuman>.Publish(new() { CityHall = cityHall });
+        FinalizeNewHuman(cityHall, human);
     }
 
     void CreateHuman_Employee(Building cityHall, Building building) {
@@ -835,6 +827,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         building.employee = human;
         _humansToAdd.Add(human);
 
+        FinalizeNewHuman(cityHall, human);
+    }
+
+    void FinalizeNewHuman(Building cityHall, Human human) {
         _humanController.SetState(human, MainState.MovingInTheWorld);
 
         onHumanCreated.OnNext(new() { Human = human });
