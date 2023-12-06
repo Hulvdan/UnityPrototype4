@@ -6,61 +6,78 @@ using BFG.Runtime.Graphs;
 using UnityEngine;
 
 namespace BFG.Runtime.Entities {
-public class HumanTransporter {
-    public HumanTransporter(Guid id, GraphSegment segment, Vector2Int currentPos) {
+public class HumanBuilder {
+    readonly Guid ID;
+
+    public HumanBuilder(Guid id, Building building, Vector2Int currentPos) {
         ID = id;
-        this.segment = segment;
-        pos = currentPos;
-        movingFrom = currentPos;
+    }
+}
+
+public class HumanMovingComponent {
+    public Vector2Int pos { get; set; }
+    public float elapsed { get; set; }
+    public float progress { get; set; }
+    public Vector2 from { get; set; }
+    public Vector2Int? to { get; set; }
+
+    public readonly List<Vector2Int> path = new();
+
+    public HumanMovingComponent(Vector2Int initialPosition) {
+        pos = initialPosition;
+        from = initialPosition;
     }
 
-    public readonly Guid ID;
-
-    public GraphSegment? segment { get; set; }
-
-    public Vector2Int pos { get; set; }
-    public float movingElapsed { get; set; }
-    public float movingProgress { get; set; }
-    public Vector2 movingFrom { get; set; }
-    public Vector2Int? movingTo { get; set; }
-
-    public readonly List<Vector2Int> movingPath = new();
-
-    public MainState? state { get; set; }
-
     public void AddPath(List<Vector2Int> path) {
-        movingPath.Clear();
+        this.path.Clear();
 
         var isFirst = true;
         foreach (var tile in path) {
             if (isFirst) {
                 isFirst = false;
 
-                if (tile != (movingTo ?? pos)) {
-                    movingPath.Add(tile);
+                if (tile != (to ?? pos)) {
+                    this.path.Add(tile);
                 }
 
                 continue;
             }
 
-            movingPath.Add(tile);
+            this.path.Add(tile);
         }
 
-        if (movingTo == null) {
+        if (to == null) {
             PopMovingTo();
         }
     }
 
     public void PopMovingTo() {
-        if (movingPath.Count == 0) {
-            movingElapsed = 0;
-            movingTo = null;
+        if (path.Count == 0) {
+            elapsed = 0;
+            to = null;
         }
         else {
-            movingTo = movingPath[0];
-            movingPath.RemoveAt(0);
+            to = path[0];
+            path.RemoveAt(0);
         }
     }
+}
+
+public class HumanTransporter {
+    public HumanTransporter(Guid id, GraphSegment segment, Vector2Int currentPos) {
+        ID = id;
+        this.segment = segment;
+
+        moving = new(currentPos);
+    }
+
+    public readonly Guid ID;
+
+    public GraphSegment? segment { get; set; }
+
+    public HumanMovingComponent moving { get; }
+
+    public MainState? state { get; set; }
 
     #region HumanTransporter_MovingInTheWorld_Controller
 

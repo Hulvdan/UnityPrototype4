@@ -52,14 +52,14 @@ public class PlacingResource {
         Building building = null;
         if (res!.Booking != null) {
             var b = res!.Booking.Value.Building;
-            if (b.pos == human.pos) {
+            if (b.pos == human.moving.pos) {
                 building = b;
             }
         }
 
         human.stateMovingResource_targetedResource = null;
 
-        data.transportation.OnHumanPlacedResource(human.pos, human.segment, res!);
+        data.transportation.OnHumanPlacedResource(human.moving.pos, human.segment, res!);
         data.map.onHumanTransporterPlacedResource.OnNext(new() {
             Human = human,
             Resource = res!,

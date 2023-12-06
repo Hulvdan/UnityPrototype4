@@ -61,9 +61,9 @@ public class PickingUpResource {
 
         if (res!.TransportationVertices.Count > 0) {
             var path = human.segment!.Graph.GetShortestPath(
-                human.pos, res!.TransportationVertices[0]
+                human.moving.pos, res!.TransportationVertices[0]
             );
-            human.AddPath(path);
+            human.moving.AddPath(path);
             _controller.SetState(human, data, MRState.MovingResource);
         }
         else {
