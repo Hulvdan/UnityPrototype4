@@ -84,6 +84,7 @@ public class Human {
 
     public float Employee_TimeSinceLastWork;
     public float harvestingElapsed;
+    public HumanDestination? destination { get; set; }
 
     #endregion
 }
