@@ -21,5 +21,6 @@ public interface IScriptableBuilding {
     string name { get; }
     List<RequiredResourceToBuild> requiredResourcesToBuild { get; }
     float ConstructionDuration { get; }
+    Vector2Int WorkingAreaSize { get; }
 }
 }
