@@ -2,8 +2,31 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
+public class BuildingController {
+    public void Init(BuildingDatabase db) {
+        _db = db;
+    }
+
+    public void SwitchToTheNextBehaviour(Building building) {
+        if (building.currentBehaviourIndex >= 0) {
+            var oldBeh = building.Behaviours[building.currentBehaviourIndex];
+            oldBeh.OnExit(building, _db);
+        }
+
+        building.currentBehaviourIndex++;
+        if (building.currentBehaviourIndex >= building.Behaviours.Count) {
+            building.currentBehaviourIndex = 0;
+        }
+
+        if (building.)
+    }
+
+    BuildingDatabase _db;
+}
+
 public class Building {
     public bool isConstructed => constructionElapsed >= scriptable.ConstructionDuration;
     public float constructionProgress => constructionElapsed / scriptable.ConstructionDuration;
@@ -65,7 +88,11 @@ public class Building {
     }
 
     public void Update(BuildingDatabase db, float dt) {
-        if ()
+        if (scriptable.type is BuildingType.Harvest or BuildingType.Produce) {
+            Assert.IsTrue(currentBehaviourIndex >= 0);
+            var beh = Behaviours[currentBehaviourIndex];
+            beh.Update(this, db, dt);
+        }
     }
 
     #region BuildingData
@@ -76,8 +103,8 @@ public class Building {
     public float placingResourceElapsed;
     public Human? createdHuman;
 
-    int _currentBehaviourIndex = -1;
-    List<BuildingBehaviour> _behaviours = new();
+    public int currentBehaviourIndex = -1;
+    public List<BuildingBehaviour> Behaviours = new();
 
     #endregion
 }
