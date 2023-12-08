@@ -44,5 +44,7 @@ public interface IMap {
 
     void OnResourcePlacedInsideBuilding(MapResource res, Building building);
     void OnBuildingConstructed(Building building, Human constructor);
+
+    IBookedTiles bookedTiles { get; }
 }
 }

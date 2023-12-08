@@ -65,13 +65,32 @@ public abstract class EmployeeBehaviour : MonoBehaviour {
         return true;
     }
 
-    public virtual void OnEnter(Human human, HumanDatabase db) {
+    public virtual void BookRequiredTiles(Building building, BuildingDatabase bdb) {
     }
 
-    public virtual void OnExit(Human human, HumanDatabase db) {
+    public virtual void OnEnter(
+        Building building,
+        BuildingDatabase bdb,
+        Human human,
+        HumanDatabase db
+    ) {
     }
 
-    public virtual void Update(Human human, HumanDatabase db, float dt) {
+    public virtual void OnExit(
+        Building building,
+        BuildingDatabase bdb,
+        Human human,
+        HumanDatabase db
+    ) {
+    }
+
+    public virtual void Update(
+        Building building,
+        BuildingDatabase bdb,
+        Human human,
+        HumanDatabase db,
+        float dt
+    ) {
     }
 }
 
@@ -80,49 +99,146 @@ public sealed class ChooseDestinationEmployeeBehaviour : EmployeeBehaviour {
     HumanDestinationType _type;
 
     public override bool CanBeRun(Building building, BuildingDatabase bdb) {
-        switch (_type) {
-            case HumanDestinationType.HarvestingTile:
-                return CanHarvestTile(building, bdb);
-            case HumanDestinationType.PlantingTree:
-                return CanPlantTree(building, bdb);
-            case HumanDestinationType.FishingCoast:
-                return CanFishCoast(building, bdb);
-            case HumanDestinationType.Building:
+        return _type switch {
+            HumanDestinationType.HarvestingTile => HarvestableTileExists(building, bdb),
+            HumanDestinationType.PlantingTree => CanPlantTree(building, bdb),
+            HumanDestinationType.FishingCoast => CanFishCoast(building, bdb),
+            HumanDestinationType.Building => true,
+            _ => throw new NotSupportedException(),
+        };
+    }
+
+    // Must be called upon building starting its behaviour
+    public void BookRequiredTiles(Building building, BuildingDatabase bdb) {
+        switch (building.scriptable.type) {
+            case BuildingType.Harvest:
                 break;
+            case BuildingType.Plant:
+                break;
+            case BuildingType.Fish:
+                break;
+            case BuildingType.Produce:
+            case BuildingType.SpecialCityHall:
             default:
                 throw new NotSupportedException();
         }
+
+        if (building.scriptable.type == BuildingType.Plant) {
+            var bottomLeft = building.workingAreaBottomLeftPos;
+            var size = building.scriptable.WorkingAreaSize;
+
+            BookPlantTile(building, bdb, bottomLeft, size);
+        }
     }
 
-    bool CanHarvestTile(Building building, BuildingDatabase bdb) {
-        var bottomLeft = building.workingAreaBottomLeftPos;
-        var size = building.scriptable.WorkingAreaSize;
-
-        for (var y = 0; y < size.y; y++) {
-            for (var x = 0; x < size.x; x++) {
+    static void BookPlantTile(
+        Building building,
+        BuildingDatabase bdb,
+        Vector2Int bottomLeft,
+        Vector2Int size
+    ) {
+        for (var y = bottomLeft.y; y < size.y; y++) {
+            for (var x = bottomLeft.x; x < size.x; x++) {
                 if (!bdb.MapSize.Contains(x, y)) {
                     continue;
                 }
+
+                var tile = bdb.Map.terrainTiles[y][x];
+                var tilePos = new Vector2Int(x, y);
+                if (
+                    tile.Resource != building.scriptable.harvestableResource
+                    || bdb.Map.bookedTiles.Contains(tilePos)
+                ) {
+                    continue;
+                }
+
+                building.BookedTiles.Add(tilePos);
+                bdb.Map.bookedTiles.Add(tilePos);
+                return;
+            }
+        }
+    }
+
+    public override void OnEnter(
+        Building building,
+        BuildingDatabase bdb,
+        Human human,
+        HumanDatabase db
+    ) {
+        Assert.IsTrue(CanBeRun(building, bdb));
+    }
+
+    bool HarvestableTileExists(Building building, BuildingDatabase bdb) {
+        var bottomLeft = building.workingAreaBottomLeftPos;
+        var size = building.scriptable.WorkingAreaSize;
+
+        for (var y = bottomLeft.y; y < size.y; y++) {
+            for (var x = bottomLeft.x; x < size.x; x++) {
+                if (!bdb.MapSize.Contains(x, y)) {
+                    continue;
+                }
+
+                var tile = bdb.Map.terrainTiles[y][x];
+                if (tile.Resource == building.scriptable.harvestableResource) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    bool CanPlantTree(Building building, BuildingDatabase bdb) {
+        var bottomLeft = building.workingAreaBottomLeftPos;
+        var size = building.scriptable.WorkingAreaSize;
+
+        for (var y = bottomLeft.y; y < size.y; y++) {
+            // It's always a cliff
+            if (y == 0) {
+                continue;
+            }
+
+            for (var x = bottomLeft.x; x < size.x; x++) {
+                if (!bdb.MapSize.Contains(x, y)) {
+                    continue;
+                }
+
+                if (!CanPlant(bdb, y, x)) {
+                    continue;
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static bool CanPlant(BuildingDatabase bdb, int y, int x) {
+        var tile = bdb.Map.terrainTiles[y][x];
+        var tileBelow = bdb.Map.terrainTiles[y - 1][x];
+
+        // `tile` is a cliff
+        if (tileBelow.Height < tile.Height) {
+            return false;
+        }
+
+        if (tile.Resource != null) {
+            return false;
+        }
+
+        foreach (var building in bdb.Map.buildings) {
+            if (building.Contains(x, y)) {
+                return false;
             }
         }
 
         return true;
     }
 
-    bool CanPlantTree(Building building, BuildingDatabase bdb) {
-    }
-
     bool CanFishCoast(Building building, BuildingDatabase bdb) {
-    }
-
-    public override void OnEnter(Human human, HumanDatabase db) {
-    }
-}
-
-public sealed class MoveToTheDestinationEmployeeBehaviour : EmployeeBehaviour {
-    public override void OnExit(Human human, HumanDatabase db) {
-        Assert.AreEqual(human.destination, null);
-        base.OnExit(human, db);
+        // TODO(Hulvdan): Implement fishing
+        throw new NotImplementedException();
     }
 }
 

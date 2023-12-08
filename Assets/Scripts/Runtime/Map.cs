@@ -653,6 +653,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public float humanMovingOneCellDuration => _humanMovingOneCellDuration;
 
+    public IBookedTiles bookedTiles { get; } = new BookedTilesSet();
+
     #endregion
 
     #region Events
