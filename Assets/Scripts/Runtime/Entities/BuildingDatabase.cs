@@ -1,11 +1,15 @@
 ﻿#nullable enable
+
 namespace BFG.Runtime.Entities {
 public class BuildingDatabase {
-    public IMap Map;
-    public float CoalMiningDuration = 2f;
-
-    public BuildingDatabase(IMap map) {
+    public BuildingDatabase(IMap map, IMapSize mapSize) {
         Map = map;
+        MapSize = mapSize;
     }
+
+    public IMap Map;
+    public IMapSize MapSize;
+
+    public int MaxHarvestableBuildingSameResourcesOnTheTile = 8;
 }
 }

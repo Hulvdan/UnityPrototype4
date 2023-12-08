@@ -20,8 +20,6 @@ public class BuildingController {
         if (building.currentBehaviourIndex >= building.Behaviours.Count) {
             building.currentBehaviourIndex = 0;
         }
-
-        if (building.)
     }
 
     BuildingDatabase _db;
@@ -96,6 +94,8 @@ public class Building {
     }
 
     #region BuildingData
+
+    public Vector2Int workingAreaBottomLeftPos;
 
     public float idleElapsed;
     public float takingResourceElapsed;

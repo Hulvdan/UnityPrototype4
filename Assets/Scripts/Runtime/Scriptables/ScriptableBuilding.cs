@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BFG.Runtime.Entities;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
@@ -73,6 +75,9 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     [Min(0.01f)]
     float _buildingDuration = 4f;
 
+    [SerializeField]
+    Vector2Int? _workingAreaSize;
+
     public BuildingType type => _type;
 
     public float ConstructionDuration => _buildingDuration;
@@ -113,5 +118,21 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     public Vector2Int pickupableItemsCellOffset => _pickupableItemsCellOffset;
 
     public List<RequiredResourceToBuild> requiredResourcesToBuild => _requiredResourcesToBuild;
+
+    public Vector2Int WorkingAreaSize {
+        get {
+            switch (type) {
+                case BuildingType.Harvest:
+                case BuildingType.Plant:
+                case BuildingType.Fish:
+                    Assert.AreNotEqual(_workingAreaSize, null);
+                    return _workingAreaSize!.Value;
+                case BuildingType.Produce:
+                case BuildingType.SpecialCityHall:
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+    }
 }
 }

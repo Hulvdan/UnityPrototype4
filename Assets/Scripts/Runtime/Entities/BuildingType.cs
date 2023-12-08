@@ -2,6 +2,8 @@
 public enum BuildingType {
     SpecialCityHall,
     Harvest,
+    Plant,
+    Fish,
     Produce,
 }
 }
