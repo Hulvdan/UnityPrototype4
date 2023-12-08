@@ -326,11 +326,6 @@ public class MapRenderer : MonoBehaviour {
         hooks.Add(_map.onBuildingPlaced.Subscribe(
             OnBuildingPlaced));
 
-        hooks.Add(_map.onBuildingStartedProcessing.Subscribe(
-            OnBuildingStartedProcessing));
-        hooks.Add(_map.onBuildingProducedItem.Subscribe(
-            OnBuildingProducedItem));
-
         hooks.Add(_map.OnHumanStartedConstructingBuilding.Subscribe(
             OnHumanStartedConstructingBuilding));
         hooks.Add(_map.OnHumanConstructedBuilding.Subscribe(
@@ -440,36 +435,6 @@ public class MapRenderer : MonoBehaviour {
             _buildingFeedbacks[building.id] = new(buildingData, feedbacks);
             SetBuilding(building, buildingData.Scale.x, buildingData.Scale.y, color);
         }
-    }
-
-    void OnBuildingStartedProcessing(E_BuildingStartedProcessing data) {
-        Destroy(_storedItems[data.Resource.id].gameObject);
-        _storedItems.Remove(data.Resource.id);
-    }
-
-    void OnBuildingProducedItem(E_BuildingProducedItem data) {
-        var item = Instantiate(_itemPrefab, _itemsLayer);
-
-        var building = data.Building;
-        var scriptable = building.scriptable;
-
-        var i = (building.producedResources.Count - 1) % scriptable.producedItemsPositions.Count;
-        var itemOffset = scriptable.producedItemsPositions[i];
-        item.transform.localPosition = (Vector2)building.pos;
-        var itemGo = item.GetComponent<ItemGO>();
-        itemGo.SetAs(data.Resource.script);
-
-        DOTween
-            .To(
-                () => item.transform.localPosition,
-                val => item.transform.localPosition = val,
-                (Vector3)(building.pos + itemOffset + Vector2.right / 2),
-                _buildingMovingItemToTheWarehouseDuration / _gameManager.currentGameSpeed
-            )
-            .SetLink(item)
-            .SetEase(_buildingMovingItemToTheWarehouseDurationCurve);
-
-        _storedItems.Add(data.Resource.id, itemGo);
     }
 
     void OnElementTileChanged(Vector2Int pos) {

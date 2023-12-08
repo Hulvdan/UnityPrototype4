@@ -28,8 +28,6 @@ public interface IMap {
 
     Subject<E_BuildingPlaced> onBuildingPlaced { get; }
 
-    Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; }
-    Subject<E_BuildingProducedItem> onBuildingProducedItem { get; }
     Subject<E_HumanStartedConstructingBuilding> OnHumanStartedConstructingBuilding { get; }
     Subject<E_HumanConstructedBuilding> OnHumanConstructedBuilding { get; }
 

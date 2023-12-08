@@ -614,32 +614,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void UpdateBuilding_Constructed(float dt, Building building) {
         var scriptableBuilding = building.scriptable;
-        if (scriptableBuilding.type == BuildingType.Produce) {
-            if (!building.IsProducing) {
-                if (building.storedResources.Count > 0 && building.CanStartProcessing()) {
-                    building.IsProducing = true;
-                    building.ProducingElapsed = 0;
-
-                    var res = building.storedResources[0];
-                    building.storedResources.RemoveAt(0);
-
-                    onBuildingStartedProcessing.OnNext(new() {
-                        Resource = res,
-                        Building = building,
-                    });
-                }
-            }
-
-            if (building.IsProducing) {
-                building.ProducingElapsed += dt;
-
-                if (building.ProducingElapsed >= scriptableBuilding.ItemProcessingDuration) {
-                    building.IsProducing = false;
-                    Produce(building);
-                }
-            }
-        }
-        else if (scriptableBuilding.type == BuildingType.SpecialCityHall) {
+        if (scriptableBuilding.type == BuildingType.SpecialCityHall) {
             building.timeSinceHumanWasCreated += dt;
             if (building.timeSinceHumanWasCreated > _humanSpawningDelay) {
                 building.timeSinceHumanWasCreated = _humanSpawningDelay;
@@ -652,19 +627,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 }
             }
         }
-    }
-
-    void Produce(Building building) {
-        Debug.Log("Produced!");
-        var res = building.scriptable.produces;
-        var resourceObj = new ResourceObj(Guid.NewGuid(), res);
-        building.producedResources.Add(resourceObj);
-
-        onBuildingProducedItem.OnNext(new() {
-            Resource = resourceObj,
-            ProducedAmount = 1,
-            Building = building,
-        });
     }
 
     Building cityHall => buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall);
@@ -721,9 +683,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public Subject<E_HumanConstructedBuilding> OnHumanConstructedBuilding { get; } = new();
 
-    public Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; } = new();
-    public Subject<E_BuildingProducedItem> onBuildingProducedItem { get; } = new();
-
     #endregion
 
     #region MapGeneration
@@ -748,7 +707,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
             for (var x = 0; x < _mapSizeX; x++) {
                 var forestK = MakeSomeNoise2D(_randomSeed, x, y, _forestNoiseScale);
-                // var hasForest = false;
                 var hasForest = forestK > _forestThreshold;
                 var tile = new TerrainTile {
                     Name = "grass",
@@ -756,7 +714,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     ResourceAmount = hasForest ? _maxForestAmount : 0,
                 };
 
-                // var randomH = Random.Range(0, _maxHeight + 1);
                 var heightK = MakeSomeNoise2D(_randomSeed, x, y, _terrainHeightNoiseScale);
                 var randomH = heightK * (_maxHeight + 1);
                 tile.Height = Mathf.Min(_maxHeight, (int)randomH);

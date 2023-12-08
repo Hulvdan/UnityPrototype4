@@ -89,15 +89,7 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
 
     public int tilesRadius => _tilesRadius;
 
-    public int storeItemsAmount {
-        get {
-            if (_type != BuildingType.Produce && _type != BuildingType.Store) {
-                Debug.LogError("WTF?");
-            }
-
-            return _storeItemsAmount;
-        }
-    }
+    public int storeItemsAmount => _storeItemsAmount;
 
     public int produceItemsAmount {
         get {

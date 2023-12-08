@@ -5,9 +5,6 @@ using UnityEngine;
 
 namespace BFG.Runtime.Entities {
 public class Building {
-    public bool IsProducing;
-    public float ProducingElapsed;
-
     public bool isConstructed => constructionElapsed >= scriptable.ConstructionDuration;
     public float constructionProgress => constructionElapsed / scriptable.ConstructionDuration;
     public float constructionElapsed { get; set; } = 0f;
@@ -25,8 +22,6 @@ public class Building {
     public float timeSinceItemWasPlaced { get; set; } = float.PositiveInfinity;
 
     Guid _id;
-    readonly List<ResourceObj> _producedResources = new();
-    readonly List<ResourceObj> _storedResources = new();
 
     public readonly List<ResourceToBook> ResourcesToBook = new();
 
@@ -54,31 +49,6 @@ public class Building {
         }
     }
 
-    public bool isBooked { get; set; }
-
-    public List<ResourceObj> storedResources {
-        get {
-            if (
-                scriptable.type != BuildingType.Store
-                && scriptable.type != BuildingType.Produce
-            ) {
-                Debug.LogError("WTF");
-            }
-
-            return _storedResources;
-        }
-    }
-
-    public List<ResourceObj> producedResources {
-        get {
-            if (scriptable.type != BuildingType.Produce) {
-                Debug.LogError("WTF?");
-            }
-
-            return _producedResources;
-        }
-    }
-
     public RectInt rect => new(posX, posY, scriptable.size.x, scriptable.size.y);
 
     public readonly List<MapResource> PlacedResourcesForConstruction = new();
@@ -94,41 +64,21 @@ public class Building {
                && y < pos.y + scriptable.size.y;
     }
 
-    public bool CanStoreResource() {
-        return storedResources.Count < scriptable.storeItemsAmount;
+    public void Update(BuildingDatabase db, float dt) {
+        if ()
     }
 
-    public StoreResourceResult StoreResource(ResourceObj resource) {
-        if (
-            scriptable.type != BuildingType.Produce
-            && scriptable.type != BuildingType.Store
-        ) {
-            Debug.LogError("WTF?");
-        }
+    #region BuildingData
 
-        storedResources.Add(resource);
+    public float idleElapsed;
+    public float takingResourceElapsed;
+    public float processingElapsed;
+    public float placingResourceElapsed;
+    public Human? createdHuman;
 
-        if (CanStartProcessing()) {
-            IsProducing = true;
-            ProducingElapsed = 0;
-            storedResources.RemoveAt(0);
-            return StoreResourceResult.AddedToProcessingImmediately;
-        }
+    int _currentBehaviourIndex = -1;
+    List<BuildingBehaviour> _behaviours = new();
 
-        return StoreResourceResult.AddedToTheStore;
-    }
-
-    public bool CanStartProcessing() {
-        if (producedResources.Count >= scriptable.produceItemsAmount) {
-            return false;
-        }
-
-        return !IsProducing;
-    }
-}
-
-public enum StoreResourceResult {
-    AddedToTheStore,
-    AddedToProcessingImmediately,
+    #endregion
 }
 }
