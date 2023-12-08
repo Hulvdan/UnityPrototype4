@@ -743,7 +743,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     void RegenerateTilemap() {
         terrainTiles = new();
 
-        // NOTE(Hulvdan): Generating tiles
         for (var y = 0; y < _mapSizeY; y++) {
             var row = new List<TerrainTile>();
 
