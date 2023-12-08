@@ -106,6 +106,8 @@ public class Building {
     public int currentBehaviourIndex = -1;
     public List<BuildingBehaviour> Behaviours = new();
 
+    public List<Vector2Int> BookedTiles = new();
+
     #endregion
 }
 }
