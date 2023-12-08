@@ -11,19 +11,26 @@ public class HumanData {
     public readonly float PickingUpResourceDuration;
     public readonly float PlacingResourceDuration;
 
+    public readonly float HarvestingDelay;
+    public readonly float ForestHarvestingDuration;
+
     public HumanData(
         IMap map,
         IMapSize mapSize,
         Building cityHall,
         ResourceTransportation transportation,
         float pickingUpResourceDuration,
-        float placingResourceDuration
+        float placingResourceDuration,
+        float harvestingDelay,
+        float forestHarvestingDuration
     ) {
         this.map = map;
         this.mapSize = mapSize;
         this.cityHall = cityHall;
         PickingUpResourceDuration = pickingUpResourceDuration;
         PlacingResourceDuration = placingResourceDuration;
+        HarvestingDelay = harvestingDelay;
+        ForestHarvestingDuration = forestHarvestingDuration;
         this.transportation = transportation;
     }
 }

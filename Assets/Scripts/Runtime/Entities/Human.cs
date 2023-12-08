@@ -79,5 +79,12 @@ public class Human {
     public MapResource? movingResources_targetedResource = null;
 
     #endregion
+
+    #region Employee
+
+    public float Employee_TimeSinceLastWork;
+    public float harvestingElapsed;
+
+    #endregion
 }
 }
