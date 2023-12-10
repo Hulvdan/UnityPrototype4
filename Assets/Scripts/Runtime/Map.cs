@@ -72,7 +72,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [FormerlySerializedAs("_buildings")]
     [FoldoutGroup("Setup", true)]
     [SerializeField]
-    List<BuildingGO> _buildingGameObjects = null!;
+    List<BuildingGo> _buildingGameObjects = null!;
 
     [FoldoutGroup("Setup", true)]
     [SerializeField]
