@@ -1,4 +1,4 @@
-﻿# Resource Production
+# Resource Production
 
 ## The problem or a point of improvement
 

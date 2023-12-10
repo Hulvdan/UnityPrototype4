@@ -26,5 +26,6 @@ internal class MockScriptableBuilding : IScriptableBuilding {
     public List<RequiredResourceToBuild> requiredResourcesToBuild { get; } = new();
     public float ConstructionDuration { get; }
     public Vector2Int WorkingAreaSize { get; }
+    public List<BuildingBehaviour> buildingBehaviours { get; }
 }
 }

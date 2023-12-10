@@ -7,8 +7,9 @@ public class BuildingDatabase {
         MapSize = mapSize;
     }
 
-    public IMap Map;
-    public IMapSize MapSize;
+    public readonly IMap Map;
+    public readonly IMapSize MapSize;
+    public BuildingController Controller;
 
     public int MaxHarvestableBuildingSameResourcesOnTheTile = 8;
 }

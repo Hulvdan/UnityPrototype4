@@ -46,5 +46,6 @@ public interface IMap {
     void OnBuildingConstructed(Building building, Human constructor);
 
     IBookedTiles bookedTiles { get; }
+    Human CreateEmployee(EmployeeBehaviourSet behaviourSet, Vector2Int pos);
 }
 }

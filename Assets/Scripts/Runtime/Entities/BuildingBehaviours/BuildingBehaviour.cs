@@ -6,13 +6,16 @@ public abstract class BuildingBehaviour {
         return true;
     }
 
-    public virtual void OnEnter(Building building, BuildingDatabase db) {
+    public virtual void BookRequiredTiles(Building building, BuildingDatabase bdb) {
     }
 
-    public virtual void OnExit(Building building, BuildingDatabase db) {
+    public virtual void OnEnter(Building building, BuildingDatabase bdb) {
     }
 
-    public virtual void UpdateDt(Building building, BuildingDatabase db, float dt) {
+    public virtual void OnExit(Building building, BuildingDatabase bdb) {
+    }
+
+    public virtual void UpdateDt(Building building, BuildingDatabase bdb, float dt) {
     }
 }
 }

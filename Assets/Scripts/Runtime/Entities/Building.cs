@@ -5,30 +5,10 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
-public class BuildingController {
-    public void Init(BuildingDatabase db) {
-        _db = db;
-    }
-
-    public void SwitchToTheNextBehaviour(Building building) {
-        if (building.CurrentBehaviourIndex >= 0) {
-            var oldBeh = building.Behaviours[building.CurrentBehaviourIndex];
-            oldBeh.OnExit(building, _db);
-        }
-
-        building.CurrentBehaviourIndex++;
-        if (building.CurrentBehaviourIndex >= building.Behaviours.Count) {
-            building.CurrentBehaviourIndex = 0;
-        }
-    }
-
-    BuildingDatabase _db;
-}
-
 public class Building {
     public bool isConstructed => constructionElapsed >= scriptable.ConstructionDuration;
     public float constructionProgress => constructionElapsed / scriptable.ConstructionDuration;
-    public float constructionElapsed { get; set; } = 0f;
+    public float constructionElapsed { get; set; }
 
     public Human? constructor { get; set; }
     public Human? employee { get; set; }
@@ -71,6 +51,7 @@ public class Building {
     }
 
     public RectInt rect => new(posX, posY, scriptable.size.x, scriptable.size.y);
+    public Human? SpawnedHuman;
 
     public readonly List<MapResource> PlacedResourcesForConstruction = new();
 
@@ -94,6 +75,30 @@ public class Building {
     }
 
     #region BuildingData
+
+    public bool CanStartProcessingCycle(BuildingDatabase bdb) {
+        if (CurrentBehaviourIndex == -1) {
+            return false;
+        }
+
+        foreach (var beh in Behaviours) {
+            if (!beh.CanBeRun(this, bdb)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public void StartProcessingCycle(BuildingDatabase bdb) {
+        Assert.AreEqual(CurrentBehaviourIndex, -1);
+
+        foreach (var beh in Behaviours) {
+            beh.BookRequiredTiles(this, bdb);
+        }
+
+        CurrentBehaviourIndex = 0;
+    }
 
     public Vector2Int workingAreaBottomLeftPos;
 

@@ -6,7 +6,8 @@ public class HumanDatabase {
         Map = map;
     }
 
-    public IMap Map;
-    public IMapSize MapSize;
+    public readonly IMap Map;
+    public readonly IMapSize MapSize;
+    public EmployeeController Controller;
 }
 }
