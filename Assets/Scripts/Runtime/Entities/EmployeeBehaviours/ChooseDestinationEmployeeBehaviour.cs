@@ -41,11 +41,12 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
                 break;
             case BuildingType.Fish:
                 // TODO(Hulvdan): Implement fishing
-                throw new NotSupportedException();
+                throw new NotImplementedException();
             case BuildingType.Produce:
             case BuildingType.SpecialCityHall:
-            default:
                 throw new NotSupportedException();
+            default:
+                throw new NotImplementedException();
         }
     }
 

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
+using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Serialization;
 
 namespace BFG.Runtime.Entities {
 public enum BuildingBehaviourGoType {
@@ -13,16 +15,26 @@ public enum BuildingBehaviourGoType {
 
 [Serializable]
 public class BuildingBehaviourGo {
-    public BuildingBehaviourGoType Type;
+    [FormerlySerializedAs("Type")]
+    [SerializeField]
+    BuildingBehaviourGoType _type;
 
+    [FormerlySerializedAs("EmployeeBehaviours")]
+    [SerializeField]
     [ShowIf("Type", BuildingBehaviourGoType.OutsourceHuman)]
-    public List<EmployeeBehaviourGo> EmployeeBehaviours;
+    List<EmployeeBehaviourGo> _employeeBehaviours;
 
     public BuildingBehaviour ToBuildingBehaviour() {
-        switch (Type) {
+        switch (_type) {
             case BuildingBehaviourGoType.OutsourceHuman:
-                Assert.AreNotEqual(EmployeeBehaviours.Count, 0);
-                var behaviours = EmployeeBehaviours.Select(i => i.ToEmployeeBehaviour()).ToList();
+                Assert.AreNotEqual(_employeeBehaviours.Count, 0);
+                var behaviours = new List<EmployeeBehaviour> {
+                    Capacity = _employeeBehaviours.Count,
+                };
+                foreach (var beh in _employeeBehaviours) {
+                    behaviours.Add(beh.ToEmployeeBehaviour());
+                }
+
                 return new OutsourceHumanBuildingBehaviour(new(behaviours));
 
             case BuildingBehaviourGoType.TakingResource:
@@ -32,7 +44,7 @@ public class BuildingBehaviourGo {
                 throw new NotImplementedException();
 
             default:
-                throw new NotSupportedException();
+                throw new NotImplementedException();
         }
     }
 }
