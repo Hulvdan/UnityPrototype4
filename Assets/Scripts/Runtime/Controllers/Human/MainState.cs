@@ -16,6 +16,9 @@ public enum MainState {
 
     // Builder
     Building,
+
+    // Employee
+    Employee,
 }
 
 public class MainController {

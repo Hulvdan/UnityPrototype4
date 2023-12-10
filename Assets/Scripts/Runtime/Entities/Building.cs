@@ -52,6 +52,7 @@ public class Building {
 
     public RectInt rect => new(posX, posY, scriptable.size.x, scriptable.size.y);
     public Human? SpawnedHuman;
+    public bool employeeIsInside;
 
     public readonly List<MapResource> PlacedResourcesForConstruction = new();
 
