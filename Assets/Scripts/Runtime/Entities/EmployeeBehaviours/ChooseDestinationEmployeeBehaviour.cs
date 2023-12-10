@@ -31,7 +31,7 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
     }
 
     // Must be called upon building starting its processing cycle
-    public void BookRequiredTiles(Building building, BuildingDatabase bdb) {
+    public override void BookRequiredTiles(Building building, BuildingDatabase bdb) {
         switch (building.scriptable.type) {
             case BuildingType.Harvest:
                 BookHarvestTile(building, bdb);
@@ -60,15 +60,13 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
                     continue;
                 }
 
-                var tile = bdb.Map.terrainTiles[y][x];
-                var tilePos = new Vector2Int(x, y);
-
-                if (!CanHarvestAt(building, bdb, new(x, y))) {
+                var pos = new Vector2Int(x, y);
+                if (!CanHarvestAt(building, bdb, pos)) {
                     continue;
                 }
 
-                building.BookedTiles.Add(tilePos);
-                bdb.Map.bookedTiles.Add(tilePos);
+                building.BookedTiles.Add(pos);
+                bdb.Map.bookedTiles.Add(pos);
                 return;
             }
         }
@@ -131,55 +129,6 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
         return true;
     }
 
-    static bool HarvestableTileExists(
-        Building building,
-        BuildingDatabase bdb,
-        ScriptableResource res
-    ) {
-        var bottomLeft = building.workingAreaBottomLeftPos;
-        var size = building.scriptable.WorkingAreaSize;
-
-        for (var y = bottomLeft.y; y < size.y; y++) {
-            for (var x = bottomLeft.x; x < size.x; x++) {
-                if (!bdb.MapSize.Contains(x, y)) {
-                    continue;
-                }
-
-                if (CanHarvestAt(building, bdb, new(x, y))) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    static bool CanPlant(Building building, BuildingDatabase bdb) {
-        var bottomLeft = building.workingAreaBottomLeftPos;
-        var size = building.scriptable.WorkingAreaSize;
-
-        for (var y = bottomLeft.y; y < size.y; y++) {
-            // It's always a cliff
-            if (y == 0) {
-                continue;
-            }
-
-            for (var x = bottomLeft.x; x < size.x; x++) {
-                if (!bdb.MapSize.Contains(x, y)) {
-                    continue;
-                }
-
-                if (!CanPlantAt(building, bdb, new(x, y))) {
-                    continue;
-                }
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     static bool CanPlantAt(Building _, BuildingDatabase bdb, Vector2Int pos) {
         if (pos.y == 0) {
             return false;
@@ -216,6 +165,6 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
         throw new NotImplementedException();
     }
 
-    HumanDestinationType _type;
+    readonly HumanDestinationType _type;
 }
 }
