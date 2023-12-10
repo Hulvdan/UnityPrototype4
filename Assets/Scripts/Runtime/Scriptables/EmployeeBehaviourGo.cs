@@ -29,7 +29,7 @@ public sealed class EmployeeBehaviourGo {
             case EmployeeBehaviourGoType.PlacingHarvestedResource:
                 throw new NotImplementedException();
             default:
-                throw new NotSupportedException();
+                throw new NotImplementedException();
         }
     }
 }
