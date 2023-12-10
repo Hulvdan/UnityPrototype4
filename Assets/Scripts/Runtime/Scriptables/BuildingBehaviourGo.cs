@@ -1,5 +1,7 @@
 ﻿using System;
-using JetBrains.Annotations;
+using System.Collections.Generic;
+using System.Linq;
+using Sirenix.OdinInspector;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
@@ -13,16 +15,15 @@ public enum BuildingBehaviourGoType {
 public class BuildingBehaviourGo {
     public BuildingBehaviourGoType Type;
 
-    [CanBeNull]
-    public EmployeeBehaviourSetGo EmployeeBehaviourSet;
+    [ShowIf("Type", BuildingBehaviourGoType.OutsourceHuman)]
+    public List<EmployeeBehaviourGo> EmployeeBehaviours;
 
     public BuildingBehaviour ToBuildingBehaviour() {
         switch (Type) {
             case BuildingBehaviourGoType.OutsourceHuman:
-                Assert.AreNotEqual(EmployeeBehaviourSet, null);
-                return new OutsourceHumanBuildingBehaviour(
-                    EmployeeBehaviourSet.ToEmployeeBehaviourSet()
-                );
+                Assert.AreNotEqual(EmployeeBehaviours.Count, 0);
+                var behaviours = EmployeeBehaviours.Select(i => i.ToEmployeeBehaviour()).ToList();
+                return new OutsourceHumanBuildingBehaviour(new(behaviours));
 
             case BuildingBehaviourGoType.TakingResource:
                 throw new NotImplementedException();

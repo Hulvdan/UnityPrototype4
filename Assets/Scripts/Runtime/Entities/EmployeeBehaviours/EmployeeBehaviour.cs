@@ -1,8 +1,7 @@
 ﻿#nullable enable
-using UnityEngine;
 
 namespace BFG.Runtime.Entities {
-public abstract class EmployeeBehaviour : MonoBehaviour {
+public abstract class EmployeeBehaviour {
     public virtual bool CanBeRun(Building building, BuildingDatabase bdb) {
         return true;
     }

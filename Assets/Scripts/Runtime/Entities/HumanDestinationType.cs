@@ -1,8 +1,8 @@
 ﻿namespace BFG.Runtime.Entities {
 public enum HumanDestinationType {
-    HarvestingTile = 0,
-    PlantingTree = 1,
-    FishingCoast = 2,
+    Harvesting = 0,
+    Planting = 1,
+    Fishing = 2,
     Building = 3,
 }
 }

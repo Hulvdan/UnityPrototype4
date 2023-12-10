@@ -21,7 +21,7 @@ public class HumanDestination {
 
     public Vector2Int fishingTile {
         get {
-            Assert.AreEqual(type, HumanDestinationType.FishingCoast);
+            Assert.AreEqual(type, HumanDestinationType.Fishing);
             Assert.AreNotEqual(_fishingTile, null);
             return _fishingTile!.Value;
         }
@@ -29,7 +29,7 @@ public class HumanDestination {
 
     public Vector2Int buildingTile {
         get {
-            Assert.AreEqual(type, HumanDestinationType.FishingCoast);
+            Assert.AreEqual(type, HumanDestinationType.Fishing);
             Assert.AreNotEqual(_buildingTile, null);
             return _buildingTile!.Value;
         }
