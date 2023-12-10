@@ -4,24 +4,28 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
-public sealed class ChooseDestinationEmployeeBehaviour : EmployeeBehaviour {
-    [SerializeField]
-    HumanDestinationType _type;
-
-    public override bool CanBeRun(Building building, BuildingDatabase bdb) {
-        return _type switch {
-            HumanDestinationType.HarvestingTile
-                => VisitTilesAroundWorkingArea(building, bdb, CanHarvestAt),
-            HumanDestinationType.PlantingTree
-                => VisitTilesAroundWorkingArea(building, bdb, CanPlantAt),
-            HumanDestinationType.FishingCoast
-                => VisitTilesAroundWorkingArea(building, bdb, CanFishCoastAt),
-            HumanDestinationType.Building => true,
-            _ => throw new NotSupportedException(),
-        };
+public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
+    public GoToDestinationEmployeeBehaviour(HumanDestinationType type) {
+        _type = type;
     }
 
-    // Must be called upon building starting its behaviour
+    public override bool CanBeRun(Building building, BuildingDatabase bdb) {
+        if (_type == HumanDestinationType.Building) {
+            return true;
+        }
+
+        Func<Building, BuildingDatabase, Vector2Int, bool> alg = _type switch {
+            HumanDestinationType.Harvesting => CanHarvestAt,
+            HumanDestinationType.Planting => CanPlantAt,
+            HumanDestinationType.Fishing => CanFishAt,
+            HumanDestinationType.Building => throw new NotSupportedException(),
+            _ => throw new NotImplementedException(),
+        };
+
+        return VisitTilesAroundWorkingArea(building, bdb, alg);
+    }
+
+    // Must be called upon building starting its processing cycle
     public void BookRequiredTiles(Building building, BuildingDatabase bdb) {
         switch (building.scriptable.type) {
             case BuildingType.Harvest:
@@ -122,7 +126,11 @@ public sealed class ChooseDestinationEmployeeBehaviour : EmployeeBehaviour {
         return true;
     }
 
-    static bool HarvestableTileExists(Building building, BuildingDatabase bdb) {
+    static bool HarvestableTileExists(
+        Building building,
+        BuildingDatabase bdb,
+        ScriptableResource res
+    ) {
         var bottomLeft = building.workingAreaBottomLeftPos;
         var size = building.scriptable.WorkingAreaSize;
 
@@ -141,7 +149,7 @@ public sealed class ChooseDestinationEmployeeBehaviour : EmployeeBehaviour {
         return false;
     }
 
-    static bool CanPlantTree(Building building, BuildingDatabase bdb) {
+    static bool CanPlant(Building building, BuildingDatabase bdb) {
         var bottomLeft = building.workingAreaBottomLeftPos;
         var size = building.scriptable.WorkingAreaSize;
 
@@ -198,9 +206,11 @@ public sealed class ChooseDestinationEmployeeBehaviour : EmployeeBehaviour {
         return tile.Resource == building.scriptable.harvestableResource;
     }
 
-    static bool CanFishCoastAt(Building building, BuildingDatabase bdb, Vector2Int pos) {
+    static bool CanFishAt(Building building, BuildingDatabase bdb, Vector2Int pos) {
         // TODO(Hulvdan): Implement fishing
         throw new NotImplementedException();
     }
+
+    HumanDestinationType _type;
 }
 }

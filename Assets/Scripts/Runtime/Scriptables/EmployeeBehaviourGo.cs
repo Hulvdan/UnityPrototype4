@@ -1,13 +1,10 @@
 ﻿#nullable enable
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace BFG.Runtime.Entities {
 public enum EmployeeBehaviourGoType {
-    ChooseDestination = 0,
     GoToDestination = 1,
     Processing = 2,
     PickingUpHarvestedResource = 3,
@@ -16,12 +13,17 @@ public enum EmployeeBehaviourGoType {
 
 [Serializable]
 public sealed class EmployeeBehaviourGo {
-    public EmployeeBehaviourGoType Type;
+    [SerializeField]
+    EmployeeBehaviourGoType _type;
+
+    [SerializeField]
+    [ShowIf("_type", EmployeeBehaviourGoType.GoToDestination)]
+    HumanDestinationType _destinationType;
 
     public EmployeeBehaviour ToEmployeeBehaviour() {
-        switch (Type) {
-            case EmployeeBehaviourGoType.ChooseDestination:
+        switch (_type) {
             case EmployeeBehaviourGoType.GoToDestination:
+                return new GoToDestinationEmployeeBehaviour(_destinationType);
             case EmployeeBehaviourGoType.Processing:
             case EmployeeBehaviourGoType.PickingUpHarvestedResource:
             case EmployeeBehaviourGoType.PlacingHarvestedResource:
@@ -29,16 +31,6 @@ public sealed class EmployeeBehaviourGo {
             default:
                 throw new NotSupportedException();
         }
-    }
-}
-
-[Serializable]
-public sealed class EmployeeBehaviourSetGo {
-    public List<EmployeeBehaviourGo> Behaviours = new();
-
-    public EmployeeBehaviourSet ToEmployeeBehaviourSet() {
-        var list = Behaviours.Select(i => i.ToEmployeeBehaviour()).ToList();
-        return new(list);
     }
 }
 }
