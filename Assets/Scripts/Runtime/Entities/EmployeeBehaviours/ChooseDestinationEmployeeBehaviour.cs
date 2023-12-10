@@ -1,99 +1,9 @@
 ﻿#nullable enable
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
-public abstract class BuildingBehaviour : MonoBehaviour {
-    public virtual bool CanBeRun(Building building, BuildingDatabase bdb) {
-        return true;
-    }
-
-    public virtual void OnEnter(Building building, BuildingDatabase db) {
-    }
-
-    public virtual void OnExit(Building building, BuildingDatabase db) {
-    }
-
-    public virtual void Update(Building building, BuildingDatabase db, float dt) {
-    }
-}
-
-public class IdleBuildingBehaviour : BuildingBehaviour {
-    public override bool CanBeRun(Building building, BuildingDatabase bdb) {
-        return true;
-    }
-
-    public override void OnEnter(Building building, BuildingDatabase db) {
-        Assert.AreEqual(building.idleElapsed, 0);
-    }
-
-    public override void OnExit(Building building, BuildingDatabase db) {
-        building.idleElapsed = 0;
-    }
-}
-
-public sealed class TakeResourceBuildingBehaviour : BuildingBehaviour {
-}
-
-public sealed class ProcessingBuildingBehaviour : BuildingBehaviour {
-}
-
-public sealed class PlaceResourceBuildingBehaviour : BuildingBehaviour {
-}
-
-public sealed class OutsourceHumanBuildingBehaviour : BuildingBehaviour {
-    public override bool CanBeRun(Building building, BuildingDatabase bdb) {
-        Assert.IsTrue(_behaviours.Count > 0);
-
-        foreach (var behaviour in _behaviours) {
-            if (!behaviour.CanBeRun(building, bdb)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    [SerializeField]
-    List<EmployeeBehaviour> _behaviours = new();
-}
-
-public abstract class EmployeeBehaviour : MonoBehaviour {
-    public virtual bool CanBeRun(Building building, BuildingDatabase bdb) {
-        return true;
-    }
-
-    public virtual void BookRequiredTiles(Building building, BuildingDatabase bdb) {
-    }
-
-    public virtual void OnEnter(
-        Building building,
-        BuildingDatabase bdb,
-        Human human,
-        HumanDatabase db
-    ) {
-    }
-
-    public virtual void OnExit(
-        Building building,
-        BuildingDatabase bdb,
-        Human human,
-        HumanDatabase db
-    ) {
-    }
-
-    public virtual void Update(
-        Building building,
-        BuildingDatabase bdb,
-        Human human,
-        HumanDatabase db,
-        float dt
-    ) {
-    }
-}
-
 public sealed class ChooseDestinationEmployeeBehaviour : EmployeeBehaviour {
     [SerializeField]
     HumanDestinationType _type;
@@ -292,35 +202,5 @@ public sealed class ChooseDestinationEmployeeBehaviour : EmployeeBehaviour {
         // TODO(Hulvdan): Implement fishing
         throw new NotImplementedException();
     }
-}
-
-public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
-}
-
-public sealed class PlacingHarvestedResourceEmployeeBehaviour : EmployeeBehaviour {
-    public override bool CanBeRun(Building building, BuildingDatabase bdb) {
-        var res = building.scriptable.harvestableResource;
-        Assert.AreNotEqual(res, null);
-        var resources = bdb.Map.mapResources[building.posY][building.posX];
-
-        var count = 0;
-        foreach (var resource in resources) {
-            if (resource.Scriptable == res) {
-                count++;
-            }
-        }
-
-        return count < bdb.MaxHarvestableBuildingSameResourcesOnTheTile;
-    }
-}
-
-public class HumanDatabase {
-    public HumanDatabase(IMapSize mapSize, IMap map) {
-        MapSize = mapSize;
-        Map = map;
-    }
-
-    public IMap Map;
-    public IMapSize MapSize;
 }
 }

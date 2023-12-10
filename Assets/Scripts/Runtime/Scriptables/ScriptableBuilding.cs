@@ -25,12 +25,7 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     int _tilesRadius;
 
     [SerializeField]
-    [ShowIf("@_type == BuildingType.Store || _type == BuildingType.Produce")]
-    [Min(1)]
-    int _storeItemsAmount = 1;
-
-    [SerializeField]
-    [ShowIf("@_type == BuildingType.Store || _type == BuildingType.Produce")]
+    [ShowIf("@_type == BuildingType.Produce")]
     List<Vector2> _storedItemPositions = new();
 
     [SerializeField]
@@ -78,6 +73,10 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     [SerializeField]
     Vector2Int? _workingAreaSize;
 
+    [Header("Behaviour")]
+    [SerializeField]
+    List<BuildingBehaviourGo> _buildingBehaviourGos = new();
+
     public BuildingType type => _type;
 
     public float ConstructionDuration => _buildingDuration;
@@ -93,8 +92,6 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     }
 
     public int tilesRadius => _tilesRadius;
-
-    public int storeItemsAmount => _storeItemsAmount;
 
     public int produceItemsAmount {
         get {
@@ -132,6 +129,21 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
                 default:
                     throw new NotSupportedException();
             }
+        }
+    }
+
+    List<BuildingBehaviour> _buildingBehaviours;
+
+    public List<BuildingBehaviour> buildingBehaviours {
+        get {
+            if (_buildingBehaviours == null) {
+                _buildingBehaviours = new();
+                foreach (var beh in _buildingBehaviourGos) {
+                    _buildingBehaviours.Add(beh.ToBuildingBehaviour());
+                }
+            }
+
+            return _buildingBehaviours;
         }
     }
 }

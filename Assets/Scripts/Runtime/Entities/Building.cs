@@ -11,14 +11,14 @@ public class BuildingController {
     }
 
     public void SwitchToTheNextBehaviour(Building building) {
-        if (building.currentBehaviourIndex >= 0) {
-            var oldBeh = building.Behaviours[building.currentBehaviourIndex];
+        if (building.CurrentBehaviourIndex >= 0) {
+            var oldBeh = building.Behaviours[building.CurrentBehaviourIndex];
             oldBeh.OnExit(building, _db);
         }
 
-        building.currentBehaviourIndex++;
-        if (building.currentBehaviourIndex >= building.Behaviours.Count) {
-            building.currentBehaviourIndex = 0;
+        building.CurrentBehaviourIndex++;
+        if (building.CurrentBehaviourIndex >= building.Behaviours.Count) {
+            building.CurrentBehaviourIndex = 0;
         }
     }
 
@@ -87,9 +87,9 @@ public class Building {
 
     public void Update(BuildingDatabase db, float dt) {
         if (scriptable.type is BuildingType.Harvest or BuildingType.Produce) {
-            Assert.IsTrue(currentBehaviourIndex >= 0);
-            var beh = Behaviours[currentBehaviourIndex];
-            beh.Update(this, db, dt);
+            if (CurrentBehaviourIndex >= 0) {
+                Behaviours[CurrentBehaviourIndex].UpdateDt(this, db, dt);
+            }
         }
     }
 
@@ -97,15 +97,14 @@ public class Building {
 
     public Vector2Int workingAreaBottomLeftPos;
 
-    public float idleElapsed;
     public float takingResourceElapsed;
     public float processingElapsed;
     public float placingResourceElapsed;
     public Human? createdHuman;
 
-    public int currentBehaviourIndex = -1;
+    // CurrentBehaviourIndex = -1 = building is idle right now
+    public int CurrentBehaviourIndex = -1;
     public List<BuildingBehaviour> Behaviours = new();
-
     public List<Vector2Int> BookedTiles = new();
 
     #endregion

@@ -8,7 +8,6 @@ public interface IScriptableBuilding {
     BuildingType type { get; }
     ScriptableResource harvestableResource { get; }
     int tilesRadius { get; }
-    int storeItemsAmount { get; }
     int produceItemsAmount { get; }
     List<Vector2> storedItemPositions { get; }
     List<Vector2> producedItemsPositions { get; }
