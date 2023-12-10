@@ -10,17 +10,22 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
     }
 
     public override bool CanBeRun(Building building, BuildingDatabase bdb) {
-        if (_type == HumanDestinationType.Building) {
-            return true;
+        Func<Building, BuildingDatabase, Vector2Int, bool> alg;
+        switch (_type) {
+            case HumanDestinationType.Harvesting:
+                alg = CanHarvestAt;
+                break;
+            case HumanDestinationType.Planting:
+                alg = CanPlantAt;
+                break;
+            case HumanDestinationType.Fishing:
+                alg = CanFishAt;
+                break;
+            case HumanDestinationType.Building:
+                return true;
+            default:
+                throw new NotImplementedException();
         }
-
-        Func<Building, BuildingDatabase, Vector2Int, bool> alg = _type switch {
-            HumanDestinationType.Harvesting => CanHarvestAt,
-            HumanDestinationType.Planting => CanPlantAt,
-            HumanDestinationType.Fishing => CanFishAt,
-            HumanDestinationType.Building => throw new NotSupportedException(),
-            _ => throw new NotImplementedException(),
-        };
 
         return VisitTilesAroundWorkingArea(building, bdb, alg);
     }
