@@ -10,24 +10,12 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
     }
 
     public override bool CanBeRun(int behaviourId, Building building, BuildingDatabase bdb) {
-        Func<Building, BuildingDatabase, Vector2Int, bool> alg;
-        switch (_type) {
-            case HumanDestinationType.Harvesting:
-                alg = CanHarvestAt;
-                break;
-            case HumanDestinationType.Planting:
-                alg = CanPlantAt;
-                break;
-            case HumanDestinationType.Fishing:
-                alg = CanFishAt;
-                break;
-            case HumanDestinationType.Building:
-                return true;
-            default:
-                throw new NotImplementedException();
+        if (_type == HumanDestinationType.Building) {
+            return true;
         }
 
-        return VisitTilesAroundWorkingArea(building, bdb, alg);
+        var function = GetVisitFunction();
+        return VisitTilesAroundWorkingArea(building, bdb, function) != null;
     }
 
     // Must be called upon building starting its processing cycle
@@ -110,9 +98,22 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
         HumanDatabase db
     ) {
         Assert.IsTrue(CanBeRun(behaviourId, building, bdb));
+
+        if (_type == HumanDestinationType.Building) {
+            return;
+        }
+
+        var tilePos = VisitTilesAroundWorkingArea(building, bdb, GetVisitFunction());
+        Assert.AreNotEqual(tilePos, null);
+
+        var path = bdb.Map.FindPath(human.moving.pos, tilePos!.Value, false);
+        Assert.IsTrue(path.Success);
+
+        Assert.AreEqual(human.moving.Path.Count, 0);
+        human.moving.AddPath(path.Value);
     }
 
-    static bool VisitTilesAroundWorkingArea(
+    static Vector2Int? VisitTilesAroundWorkingArea(
         Building building,
         BuildingDatabase bdb,
         Func<Building, BuildingDatabase, Vector2Int, bool> function
@@ -122,17 +123,30 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
 
         for (var y = bottomLeft.y; y < size.y; y++) {
             for (var x = bottomLeft.x; x < size.x; x++) {
-                if (!bdb.MapSize.Contains(x, y)) {
+                var pos = new Vector2Int(x, y);
+                if (!bdb.MapSize.Contains(pos)) {
                     continue;
                 }
 
-                if (function(building, bdb, new(x, y))) {
-                    return true;
+                if (function(building, bdb, pos)) {
+                    return pos;
                 }
             }
         }
 
-        return true;
+        return null;
+    }
+
+    Func<Building, BuildingDatabase, Vector2Int, bool> GetVisitFunction() {
+        Assert.AreNotEqual(_type, HumanDestinationType.Building);
+
+        return _type switch {
+            HumanDestinationType.Harvesting => CanHarvestAt,
+            HumanDestinationType.Planting => CanPlantAt,
+            HumanDestinationType.Fishing => CanFishAt,
+            HumanDestinationType.Building => throw new NotSupportedException(),
+            _ => throw new NotImplementedException(),
+        };
     }
 
     static bool CanPlantAt(Building _, BuildingDatabase bdb, Vector2Int pos) {

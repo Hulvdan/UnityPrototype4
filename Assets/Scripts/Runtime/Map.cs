@@ -413,7 +413,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     ) {
         if (source == destination) {
             return new() {
-                Path = new() { Capacity = 0 },
+                Value = new() { Capacity = 0 },
                 Success = true,
             };
         }

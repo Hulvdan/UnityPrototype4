@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace BFG.Runtime {
 public struct PathFindResult {
     public bool Success;
-    public List<Vector2Int> Path;
 
-    public PathFindResult(bool success, List<Vector2Int> path) {
+    [FormerlySerializedAs("Path")]
+    public List<Vector2Int> Value;
+
+    public PathFindResult(bool success, List<Vector2Int> value) {
         Success = success;
-        Path = path;
+        Value = value;
     }
 }
 }

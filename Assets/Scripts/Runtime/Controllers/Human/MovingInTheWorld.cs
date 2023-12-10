@@ -121,7 +121,7 @@ public class MovingInTheWorld {
                 var path = data.map.FindPath(human.moving.to ?? human.moving.pos, center, true);
 
                 Assert.IsTrue(path.Success);
-                human.moving.AddPath(path.Path);
+                human.moving.AddPath(path.Value);
             }
         }
         else if (human.building != null) {
@@ -145,7 +145,7 @@ public class MovingInTheWorld {
                 );
 
                 Assert.IsTrue(path.Success);
-                human.moving.AddPath(path.Path);
+                human.moving.AddPath(path.Value);
             }
         }
         else if (human.stateMovingInTheWorld != State.MovingToTheCityHall) {
@@ -157,7 +157,7 @@ public class MovingInTheWorld {
             );
 
             Assert.IsTrue(path.Success);
-            human.moving.AddPath(path.Path);
+            human.moving.AddPath(path.Value);
         }
     }
 
