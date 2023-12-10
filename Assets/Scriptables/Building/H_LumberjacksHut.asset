@@ -15,7 +15,6 @@ MonoBehaviour:
   _type: 1
   _harvestableResource: {fileID: 11400000, guid: 361152873045e084892d56e677d6d740, type: 2}
   _tilesRadius: 2
-  _storeItemsAmount: 1
   _storedItemPositions: []
   _takes: []
   _produces: {fileID: 0}
@@ -28,3 +27,15 @@ MonoBehaviour:
   _requiredResourcesToBuild:
   - Number: 2
     Scriptable: {fileID: 11400000, guid: 10745982271be284fb0df31da327cdba, type: 2}
+  _buildingDuration: 4
+  _buildingBehaviourGos:
+  - Type: 0
+    EmployeeBehaviourSet:
+      Behaviours:
+      - Type: 0
+      - Type: 1
+      - Type: 2
+      - Type: 3
+      - Type: 0
+      - Type: 1
+      - Type: 4

@@ -36,7 +36,7 @@ public class MainController {
         _movingResources = new(this);
         _constructionController = new(this);
 
-        _data = new(map, mapSize, cityHall, resourceTransportation, 1f, 1f);
+        _data = new(map, mapSize, cityHall, resourceTransportation, 1f, 1f, 2f, 1f);
     }
 
     public void SetState(Entities.Human human, MainState newState) {

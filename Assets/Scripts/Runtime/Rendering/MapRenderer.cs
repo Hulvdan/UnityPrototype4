@@ -6,7 +6,6 @@ using BFG.Graphs;
 using BFG.Runtime.Controllers.Human;
 using BFG.Runtime.Entities;
 using BFG.Runtime.Extensions;
-using DG.Tweening;
 using Foundation.Architecture;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -95,15 +94,6 @@ public class MapRenderer : MonoBehaviour {
     BuildingFeedback _scaleFeedback;
 
     [SerializeField]
-    [Min(0.1f)]
-    float _buildingMovingItemToTheWarehouseDuration = 1f;
-
-    [SerializeField]
-    [Min(0.1f)]
-    AnimationCurve _buildingMovingItemToTheWarehouseDurationCurve =
-        AnimationCurve.Linear(0, 0, 1, 1);
-
-    [SerializeField]
     [Min(.1f)]
     float _sinCosScale;
 
@@ -123,8 +113,7 @@ public class MapRenderer : MonoBehaviour {
 
     readonly List<IDisposable> _dependencyHooks = new();
 
-    readonly Dictionary<Guid, (Human, HumanGO, HumanBinding)> _humans =
-        new();
+    readonly Dictionary<Guid, (Human, HumanGO, HumanBinding)> _humans = new();
 
     readonly Dictionary<Guid, ItemGO> _storedItems = new();
 
