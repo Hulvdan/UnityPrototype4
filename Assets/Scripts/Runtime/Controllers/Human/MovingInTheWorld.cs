@@ -38,6 +38,12 @@ public class MovingInTheWorld {
         human.stateMovingInTheWorld = null;
         human.moving.to = null;
         human.moving.Path.Clear();
+
+        if (human.type == Entities.Human.Type.Employee) {
+            Assert.AreNotEqual(human.building, null);
+            human.building!.employeeIsInside = true;
+            // TODO: Somehow remove this human
+        }
     }
 
     public void Update(

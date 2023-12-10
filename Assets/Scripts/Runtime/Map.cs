@@ -334,9 +334,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         if (!_hideEditorLogs) {
-            Debug.Log(
-                $"{humansThatNeedNewSegment.Count} Humans need to find new segments"
-            );
+            Debug.Log($"{humansThatNeedNewSegment.Count} Humans need to find new segments");
         }
 
         foreach (var segment in res.AddedSegments) {
@@ -660,6 +658,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public IBookedTiles bookedTiles { get; } = new BookedTilesSet();
 
+    public Human CreateEmployee(EmployeeBehaviourSet behaviourSet, Vector2Int pos) {
+        CreateHuman_Employee2();
+    }
+
     #endregion
 
     #region Events
@@ -787,18 +789,37 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         Assert.AreEqual(building.scriptable.type, BuildingType.Harvest);
 
         var human = Human.Employee(Guid.NewGuid(), cityHall.pos, building);
+
+        Assert.AreEqual(building.employee, null);
         building.employee = human;
+
         _humansToAdd.Add(human);
 
         FinalizeNewHuman(cityHall, human);
     }
 
-    void FinalizeNewHuman(Building cityHall, Human human) {
-        _humanController.SetState(human, MainState.MovingInTheWorld);
+    void CreateHuman_Employee2(Building building) {
+        Assert.AreEqual(building.scriptable.type, BuildingType.Harvest);
+
+        var human = Human.Employee(Guid.NewGuid(), building.pos, building);
+
+        Assert.AreEqual(building.employee, null);
+        building.employee = human;
+
+        _humansToAdd.Add(human);
+
+        FinalizeNewHuman(building, human);
+    }
+
+    void FinalizeNewHuman(Building building, Human human) {
+        _humanController.SetState(human, MainState.Employee);
 
         onHumanCreated.OnNext(new() { Human = human });
-        onCityHallCreatedHuman.OnNext(new() { CityHall = cityHall });
-        DomainEvents<E_CityHallCreatedHuman>.Publish(new() { CityHall = cityHall });
+
+        if (building.scriptable.type == BuildingType.SpecialCityHall) {
+            onCityHallCreatedHuman.OnNext(new() { CityHall = building });
+            DomainEvents<E_CityHallCreatedHuman>.Publish(new() { CityHall = building });
+        }
     }
 
     void UpdateHumans(float dt) {
