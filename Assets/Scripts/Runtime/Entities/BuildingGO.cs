@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace BFG.Runtime.Entities {
 [Serializable]
-public class BuildingGO {
+public class BuildingGo {
     [SerializeField]
     [Required]
     ScriptableBuilding _scriptableBuilding;
@@ -24,7 +24,12 @@ public class BuildingGO {
             _buildingProgress = 1;
         }
 
-        return new(Guid.NewGuid(), _scriptableBuilding, new(_posX, _posY), _buildingProgress);
+        return new(
+            Guid.NewGuid(),
+            _scriptableBuilding,
+            new(_posX, _posY),
+            _buildingProgress
+        );
     }
 }
 }
