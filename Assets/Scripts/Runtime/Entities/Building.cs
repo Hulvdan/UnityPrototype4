@@ -105,7 +105,7 @@ public class Building {
     // CurrentBehaviourIndex = -1 = building is idle right now
     public int CurrentBehaviourIndex = -1;
     public List<BuildingBehaviour> Behaviours = new();
-    public List<Vector2Int> BookedTiles = new();
+    public List<(int, Vector2Int)> BookedTiles = new();
 
     #endregion
 }

@@ -1,8 +1,8 @@
 ﻿#nullable enable
 
 namespace BFG.Runtime.Entities {
-public sealed class OutsourceHumanBuildingBehaviour : BuildingBehaviour {
-    public OutsourceHumanBuildingBehaviour(EmployeeBehaviourSet employeeBehaviourSet) {
+public sealed class OutsourceEmployeeBuildingBehaviour : BuildingBehaviour {
+    public OutsourceEmployeeBuildingBehaviour(EmployeeBehaviourSet employeeBehaviourSet) {
         _employeeBehaviourSet = employeeBehaviourSet;
     }
 

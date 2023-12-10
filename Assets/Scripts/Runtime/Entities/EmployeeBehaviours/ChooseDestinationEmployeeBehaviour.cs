@@ -9,7 +9,7 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
         _type = type;
     }
 
-    public override bool CanBeRun(Building building, BuildingDatabase bdb) {
+    public override bool CanBeRun(int behaviourId, Building building, BuildingDatabase bdb) {
         Func<Building, BuildingDatabase, Vector2Int, bool> alg;
         switch (_type) {
             case HumanDestinationType.Harvesting:
@@ -31,13 +31,17 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
     }
 
     // Must be called upon building starting its processing cycle
-    public override void BookRequiredTiles(Building building, BuildingDatabase bdb) {
+    public override void BookRequiredTiles(
+        int behaviourId,
+        Building building,
+        BuildingDatabase bdb
+    ) {
         switch (building.scriptable.type) {
             case BuildingType.Harvest:
-                BookHarvestTile(building, bdb);
+                BookHarvestTile(behaviourId, building, bdb);
                 break;
             case BuildingType.Plant:
-                BookPlantTile(building, bdb);
+                BookPlantTile(behaviourId, building, bdb);
                 break;
             case BuildingType.Fish:
                 // TODO(Hulvdan): Implement fishing
@@ -50,7 +54,7 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
         }
     }
 
-    void BookHarvestTile(Building building, BuildingDatabase bdb) {
+    void BookHarvestTile(int behaviourIndex, Building building, BuildingDatabase bdb) {
         var bottomLeft = building.workingAreaBottomLeftPos;
         var size = building.scriptable.WorkingAreaSize;
 
@@ -66,7 +70,7 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
                     continue;
                 }
 
-                building.BookedTiles.Add(pos);
+                building.BookedTiles.Add(new(behaviourIndex, pos));
                 bdb.Map.bookedTiles.Add(pos);
                 return;
             }
@@ -75,7 +79,7 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
         Assert.IsTrue(false);
     }
 
-    static void BookPlantTile(Building building, BuildingDatabase bdb) {
+    static void BookPlantTile(int behaviourIndex, Building building, BuildingDatabase bdb) {
         var bottomLeft = building.workingAreaBottomLeftPos;
         var size = building.scriptable.WorkingAreaSize;
 
@@ -91,7 +95,7 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
                 }
 
                 var tilePos = new Vector2Int(x, y);
-                building.BookedTiles.Add(tilePos);
+                building.BookedTiles.Add(new(behaviourIndex, tilePos));
                 bdb.Map.bookedTiles.Add(tilePos);
                 return;
             }
@@ -99,12 +103,13 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
     }
 
     public override void OnEnter(
+        int behaviourId,
         Building building,
         BuildingDatabase bdb,
         Human human,
         HumanDatabase db
     ) {
-        Assert.IsTrue(CanBeRun(building, bdb));
+        Assert.IsTrue(CanBeRun(behaviourId, building, bdb));
     }
 
     static bool VisitTilesAroundWorkingArea(

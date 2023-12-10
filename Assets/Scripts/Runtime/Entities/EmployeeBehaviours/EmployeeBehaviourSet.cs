@@ -9,8 +9,8 @@ public sealed class EmployeeBehaviourSet {
     }
 
     public bool CanBeRun(Building building, BuildingDatabase bdb) {
-        foreach (var beh in Behaviours) {
-            if (!beh.CanBeRun(building, bdb)) {
+        for (var i = 0; i < Behaviours.Count; i++) {
+            if (!Behaviours[i].CanBeRun(i, building, bdb)) {
                 return false;
             }
         }

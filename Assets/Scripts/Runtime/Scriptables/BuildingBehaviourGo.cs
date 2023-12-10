@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -8,7 +7,7 @@ using UnityEngine.Serialization;
 
 namespace BFG.Runtime.Entities {
 public enum BuildingBehaviourGoType {
-    OutsourceHuman = 0,
+    OutsourceEmployee = 0,
     TakingResource = 1,
     ProcessingResource = 2,
 }
@@ -21,21 +20,22 @@ public class BuildingBehaviourGo {
 
     [FormerlySerializedAs("EmployeeBehaviours")]
     [SerializeField]
-    [ShowIf("Type", BuildingBehaviourGoType.OutsourceHuman)]
+    [ShowIf("_type", BuildingBehaviourGoType.OutsourceEmployee)]
     List<EmployeeBehaviourGo> _employeeBehaviours;
 
     public BuildingBehaviour ToBuildingBehaviour() {
         switch (_type) {
-            case BuildingBehaviourGoType.OutsourceHuman:
+            case BuildingBehaviourGoType.OutsourceEmployee:
                 Assert.AreNotEqual(_employeeBehaviours.Count, 0);
                 var behaviours = new List<EmployeeBehaviour> {
                     Capacity = _employeeBehaviours.Count,
                 };
+
                 foreach (var beh in _employeeBehaviours) {
                     behaviours.Add(beh.ToEmployeeBehaviour());
                 }
 
-                return new OutsourceHumanBuildingBehaviour(new(behaviours));
+                return new OutsourceEmployeeBuildingBehaviour(new(behaviours));
 
             case BuildingBehaviourGoType.TakingResource:
                 throw new NotImplementedException();
