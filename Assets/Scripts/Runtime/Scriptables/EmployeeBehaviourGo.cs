@@ -25,9 +25,11 @@ public sealed class EmployeeBehaviourGo {
             case EmployeeBehaviourGoType.GoToDestination:
                 return new GoToDestinationEmployeeBehaviour(_destinationType);
             case EmployeeBehaviourGoType.Processing:
+                return new ProcessingEmployeeBehaviour();
             case EmployeeBehaviourGoType.PickingUpHarvestedResource:
+                return new PickingUpHarvestedResourceEmployeeBehaviour();
             case EmployeeBehaviourGoType.PlacingHarvestedResource:
-                throw new NotImplementedException();
+                return new PlacingHarvestedResourceEmployeeBehaviour();
             default:
                 throw new NotImplementedException();
         }
