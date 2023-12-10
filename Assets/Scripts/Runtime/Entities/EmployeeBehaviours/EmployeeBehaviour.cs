@@ -39,6 +39,9 @@ public abstract class EmployeeBehaviour {
         HumanDatabase db,
         float dt
     ) {
+        if (human.moving.to == null) {
+            db.Controller.SwitchToTheNextBehaviour(behaviourId, building, human);
+        }
     }
 }
 }

@@ -115,8 +115,11 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public List<List<List<MapResource>>> mapResources { get; private set; } = null!;
 
+    BuildingController _buildingController = null!;
+
     public void Init() {
         _initialMapProvider.Init(this, this);
+        _buildingController = new(new(this, this));
 
         foreach (var building in buildings) {
             building.constructionElapsed = building.scriptable.ConstructionDuration;
@@ -243,7 +246,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 segments
             );
 
-            UpdateBuilding_NotConstructed(0, building);
+            UpdateBuilding_NotConstructed(building, 0);
             UpdateSegments(res);
         }
         else if (item.Type == ItemToBuildType.Flag) {
@@ -593,15 +596,15 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     void UpdateBuildings(float dt) {
         foreach (var building in buildings) {
             if (building.constructionProgress < 1) {
-                UpdateBuilding_NotConstructed(dt, building);
+                UpdateBuilding_NotConstructed(building, dt);
             }
             else {
-                UpdateBuilding_Constructed(dt, building);
+                UpdateBuilding_Constructed(building, dt);
             }
         }
     }
 
-    void UpdateBuilding_NotConstructed(float dt, Building building) {
+    void UpdateBuilding_NotConstructed(Building building, float dt) {
         if (!building.isConstructed) {
             building.timeSinceItemWasPlaced += dt;
         }
@@ -612,7 +615,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
     }
 
-    void UpdateBuilding_Constructed(float dt, Building building) {
+    void UpdateBuilding_Constructed(Building building, float dt) {
         var scriptableBuilding = building.scriptable;
         if (scriptableBuilding.type == BuildingType.SpecialCityHall) {
             building.timeSinceHumanWasCreated += dt;
@@ -627,6 +630,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 }
             }
         }
+
+        _buildingController.Update(building, dt);
     }
 
     Building cityHall => buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall);
