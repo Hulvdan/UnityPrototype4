@@ -1,9 +1,16 @@
 ﻿#nullable enable
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
 public sealed class PlacingHarvestedResourceEmployeeBehaviour : EmployeeBehaviour {
-    public override bool CanBeRun(int behaviourId, Building building, BuildingDatabase bdb) {
+    public override bool CanBeRun(
+        int behaviourId,
+        Building building,
+        BuildingDatabase bdb,
+        List<Vector2Int> tempBookedTiles
+    ) {
         var res = building.scriptable.harvestableResource;
         Assert.AreNotEqual(res, null);
         var resources = bdb.Map.mapResources[building.posY][building.posX];

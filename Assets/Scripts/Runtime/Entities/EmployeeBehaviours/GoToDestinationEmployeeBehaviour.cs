@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Collections.Generic;
 using BFG.Runtime.Controllers.Human;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -10,13 +11,18 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
         _type = type;
     }
 
-    public override bool CanBeRun(int behaviourId, Building building, BuildingDatabase bdb) {
+    public override bool CanBeRun(
+        int behaviourId,
+        Building building,
+        BuildingDatabase bdb,
+        List<Vector2Int> tempBookedTiles
+    ) {
         if (_type == HumanDestinationType.Building) {
             return true;
         }
 
         var function = GetVisitFunction();
-        return VisitTilesAroundWorkingArea(building, bdb, function) != null;
+        return VisitTilesAroundWorkingArea(building, bdb, function, tempBookedTiles) != null;
     }
 
     public override void BookRequiredTiles(
@@ -34,7 +40,7 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
             return;
         }
 
-        var pos = VisitTilesAroundWorkingArea(building, bdb, GetVisitFunction());
+        var pos = VisitTilesAroundWorkingArea(building, bdb, GetVisitFunction(), null);
         Assert.AreNotEqual(pos, null);
 
         building.BookedTiles.Add(new(behaviourId, pos!.Value));
@@ -50,13 +56,11 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
         Assert.IsTrue(human.currentBehaviourId >= 0);
         var building = human.building!;
 
-        Assert.IsTrue(CanBeRun(human.currentBehaviourId, building, bdb));
-
         if (_type == HumanDestinationType.Building) {
             return;
         }
 
-        var tilePos = VisitTilesAroundWorkingArea(building, bdb, GetVisitFunction());
+        var tilePos = VisitTilesAroundWorkingArea(building, bdb, GetVisitFunction(), null);
         Assert.AreNotEqual(tilePos, null);
 
         var path = bdb.Map.FindPath(human.moving.pos, tilePos!.Value, false);
@@ -75,7 +79,8 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
     static Vector2Int? VisitTilesAroundWorkingArea(
         Building building,
         BuildingDatabase bdb,
-        Func<Building, BuildingDatabase, Vector2Int, bool> function
+        Func<Building, BuildingDatabase, Vector2Int, bool> function,
+        List<Vector2Int>? tempBookedTiles
     ) {
         var bottomLeft = building.WorkingAreaBottomLeftPos;
         var size = building.scriptable.WorkingAreaSize;
@@ -87,7 +92,12 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
                     continue;
                 }
 
+                if (tempBookedTiles != null && tempBookedTiles.Contains(pos)) {
+                    continue;
+                }
+
                 if (function(building, bdb, pos)) {
+                    tempBookedTiles?.Add(pos);
                     return pos;
                 }
             }

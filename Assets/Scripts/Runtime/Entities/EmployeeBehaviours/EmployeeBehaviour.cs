@@ -1,11 +1,17 @@
 ﻿#nullable enable
 
-using System;
+using System.Collections.Generic;
 using BFG.Runtime.Controllers.Human;
+using UnityEngine;
 
 namespace BFG.Runtime.Entities {
 public abstract class EmployeeBehaviour {
-    public virtual bool CanBeRun(int behaviourId, Building building, BuildingDatabase bdb) {
+    public virtual bool CanBeRun(
+        int behaviourId,
+        Building building,
+        BuildingDatabase bdb,
+        List<Vector2Int> tempBookedTiles
+    ) {
         return true;
     }
 
