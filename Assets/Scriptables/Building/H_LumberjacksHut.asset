@@ -34,11 +34,21 @@ MonoBehaviour:
     _employeeBehaviours:
     - _type: 1
       _destinationType: 0
+      _bookingTileBehaviourId: 0
+      _unbookingTileBehaviourId: -1
     - _type: 2
       _destinationType: 0
+      _bookingTileBehaviourId: -1
+      _unbookingTileBehaviourId: 0
     - _type: 3
       _destinationType: 0
+      _bookingTileBehaviourId: -1
+      _unbookingTileBehaviourId: -1
     - _type: 1
       _destinationType: 3
+      _bookingTileBehaviourId: -1
+      _unbookingTileBehaviourId: -1
     - _type: 4
       _destinationType: 0
+      _bookingTileBehaviourId: -1
+      _unbookingTileBehaviourId: -1

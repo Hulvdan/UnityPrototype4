@@ -2,6 +2,11 @@
 
 namespace BFG.Runtime.Entities {
 public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
+    public ProcessingEmployeeBehaviour(int unbooks) {
+        Assert.IsTrue(unbooks >= 0);
+        _unbooks = unbooks;
+    }
+
     public override void OnEnter(Human human, BuildingDatabase bdb, HumanDatabase db) {
         Assert.AreEqual(human.harvestingElapsed, 0);
         Assert.AreNotEqual(human.building, null);
@@ -13,13 +18,12 @@ public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
         HumanDatabase db
     ) {
         Assert.AreNotEqual(human.building, null);
-        Assert.IsTrue(human.currentBehaviourId >= 0);
         var building = human.building!;
 
         var foundIndex = -1;
         for (var i = 0; i < building.BookedTiles.Count; i++) {
             var (tileBehaviourId, _) = building.BookedTiles[i];
-            if (tileBehaviourId == human.currentBehaviourId) {
+            if (tileBehaviourId == _unbooks) {
                 foundIndex = i;
                 break;
             }
@@ -43,5 +47,7 @@ public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
             db.Controller.SwitchToTheNextBehaviour(human);
         }
     }
+
+    readonly int _unbooks;
 }
 }

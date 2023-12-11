@@ -7,8 +7,9 @@ using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
 public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
-    public GoToDestinationEmployeeBehaviour(HumanDestinationType type) {
+    public GoToDestinationEmployeeBehaviour(HumanDestinationType type, int? books) {
         _type = type;
+        _books = books;
     }
 
     public override bool CanBeRun(
@@ -37,13 +38,16 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
             or HumanDestinationType.Planting
             )
         ) {
+            Assert.AreEqual(_books, null);
             return;
         }
+
+        Assert.AreNotEqual(_books, null);
 
         var pos = VisitTilesAroundWorkingArea(building, bdb, GetVisitFunction(), null);
         Assert.AreNotEqual(pos, null);
 
-        building.BookedTiles.Add(new(behaviourId, pos!.Value));
+        building.BookedTiles.Add(new(_books!.Value, pos!.Value));
         bdb.Map.bookedTiles.Add(pos.Value);
     }
 
@@ -155,5 +159,6 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
     }
 
     readonly HumanDestinationType _type;
+    readonly int? _books;
 }
 }
