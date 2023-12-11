@@ -60,12 +60,12 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
         Assert.IsTrue(human.currentBehaviourId >= 0);
         var building = human.building!;
 
-        if (_type == HumanDestinationType.Building) {
-            return;
-        }
+        Vector2Int? tilePos = building.pos;
 
-        var tilePos = VisitTilesAroundWorkingArea(building, bdb, GetVisitFunction(), null);
-        Assert.AreNotEqual(tilePos, null);
+        if (_type != HumanDestinationType.Building) {
+            tilePos = VisitTilesAroundWorkingArea(building, bdb, GetVisitFunction(), null);
+            Assert.AreNotEqual(tilePos, null);
+        }
 
         var path = bdb.Map.FindPath(human.moving.pos, tilePos!.Value, false);
         Assert.IsTrue(path.Success);
