@@ -54,7 +54,7 @@ public class PickingUpResource {
         human.movingResources_pickingUpResourceElapsed = data.PickingUpResourceDuration;
         human.movingResources_pickingUpResourceProgress = 1;
 
-        data.map.onHumanPickedUpResource.OnNext(new() {
+        data.map.onHumanFinishedPickingUpResource.OnNext(new() {
             Human = human,
             Resource = res,
         });

@@ -40,6 +40,7 @@ public abstract class EmployeeBehaviour {
         Human human,
         BuildingDatabase bdb,
         HumanDatabase db,
+        HumanData data,
         float dt
     ) {
     }

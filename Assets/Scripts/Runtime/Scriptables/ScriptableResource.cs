@@ -16,10 +16,6 @@ public class ScriptableResource : ScriptableObject {
     [Min(0)]
     float _harvestingDuration;
 
-    [SerializeField]
-    bool _displayInTheRopBar;
-
-    public bool displayInTheRopBar => _displayInTheRopBar;
     public Sprite sprite => _sprite;
     public Sprite smallerSprite => _smallerSprite;
     public float harvestingDuration => _harvestingDuration;

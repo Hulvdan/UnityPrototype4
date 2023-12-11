@@ -1,4 +1,5 @@
-﻿using UnityEngine.Assertions;
+﻿using BFG.Runtime.Controllers.Human;
+using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
 public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
@@ -36,7 +37,13 @@ public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
         human.harvestingElapsed = 0;
     }
 
-    public override void UpdateDt(Human human, BuildingDatabase bdb, HumanDatabase db, float dt) {
+    public override void UpdateDt(
+        Human human,
+        BuildingDatabase bdb,
+        HumanDatabase db,
+        HumanData data,
+        float dt
+    ) {
         Assert.AreNotEqual(human.building, null);
         human.harvestingElapsed += dt;
 
