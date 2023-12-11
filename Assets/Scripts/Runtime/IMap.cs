@@ -25,7 +25,7 @@ public interface IMap {
     Subject<E_HumanStartedPickingUpResource> onHumanStartedPickingUpResource { get; }
     Subject<E_HumanPickedUpResource> onHumanFinishedPickingUpResource { get; }
     Subject<E_HumanStartedPlacingResource> onHumanStartedPlacingResource { get; }
-    Subject<E_HumanPlacedResource> onHumanPlacedResource { get; }
+    Subject<E_HumanPlacedResource> onHumanFinishedPlacingResource { get; }
 
     Subject<E_BuildingPlaced> onBuildingPlaced { get; }
 

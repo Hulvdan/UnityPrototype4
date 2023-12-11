@@ -311,7 +311,7 @@ public class MapRenderer : MonoBehaviour {
             OnHumanPickedUpResource));
         hooks.Add(_map.onHumanStartedPlacingResource.Subscribe(
             OnHumanStartedPlacingResource));
-        hooks.Add(_map.onHumanPlacedResource.Subscribe(
+        hooks.Add(_map.onHumanFinishedPlacingResource.Subscribe(
             OnHumanPlacedResource));
 
         hooks.Add(_map.onBuildingPlaced.Subscribe(

@@ -25,8 +25,11 @@ public class EmployeeController {
         if (human.currentBehaviourId >= human.BehaviourSet.behaviours.Count) {
             human.currentBehaviourId = -1;
 
-            // TODO: Event human finished processing cycle
+            _db.Map.EmployeeReachedBuildingCallback(human);
+            building.EmployeeIsInside = true;
+
             _bdb.Controller.SwitchToTheNextBehaviour(building);
+
             return;
         }
 

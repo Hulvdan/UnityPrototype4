@@ -60,7 +60,7 @@ public class PlacingResource {
         human.movingResources_targetedResource = null;
 
         data.transportation.OnHumanPlacedResource(human.moving.pos, human.segment, res!);
-        data.map.onHumanPlacedResource.OnNext(new() {
+        data.map.onHumanFinishedPlacingResource.OnNext(new() {
             Human = human,
             Resource = res!,
             Building = building,
