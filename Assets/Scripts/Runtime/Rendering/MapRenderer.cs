@@ -299,7 +299,9 @@ public class MapRenderer : MonoBehaviour {
         hooks.Add(_map.onCityHallCreatedHuman.Subscribe(
             OnCityHallCreatedHuman));
         hooks.Add(_map.onHumanReachedCityHall.Subscribe(
-            OnHumanReachedCityHall));
+            data => RemoveHuman(data.Human)));
+        hooks.Add(_map.onEmployeeReachedBuilding.Subscribe(
+            data => RemoveHuman(data.Human)));
 
         hooks.Add(_map.onHumanMovedToTheNextTile.Subscribe(
             OnHumanMovedToTheNextTile));
@@ -677,10 +679,10 @@ public class MapRenderer : MonoBehaviour {
         data.CityHall.timeSinceHumanWasCreated = 0;
     }
 
-    void OnHumanReachedCityHall(E_HumanReachedCityHall data) {
-        var human = _humans[data.Human.ID];
-        Destroy(human.Item2.gameObject);
-        _humans.Remove(data.Human.ID);
+    void RemoveHuman(Human human) {
+        var (_, humanGo, _) = _humans[human.ID];
+        Destroy(humanGo.gameObject);
+        _humans.Remove(human.ID);
     }
 
     void UpdateHumans() {

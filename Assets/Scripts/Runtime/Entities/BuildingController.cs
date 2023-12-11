@@ -8,7 +8,7 @@ public class BuildingController {
     }
 
     public void OutsourceEmployee(Building building, EmployeeBehaviourSet behaviourSet) {
-        _bdb.Map.CreateEmployee(building, behaviourSet);
+        _bdb.Map.CreateHuman_Employee_ForTheNextProcessingCycle(building, behaviourSet);
     }
 
     public void SwitchToTheNextBehaviour(Building building) {
