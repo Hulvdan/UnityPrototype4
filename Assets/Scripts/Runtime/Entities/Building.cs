@@ -1,19 +1,17 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
 public class Building {
-    public bool IsProducing;
-    public float ProducingElapsed;
+    public bool isConstructed => constructionElapsed >= scriptable.ConstructionDuration;
+    public float constructionProgress => constructionElapsed / scriptable.ConstructionDuration;
+    public float constructionElapsed { get; set; }
 
-    public bool isBuilt => buildingElapsed >= scriptable.BuildingDuration;
-    public float buildingProgress => buildingElapsed / scriptable.BuildingDuration;
-    public float buildingElapsed { get; set; } = 0f;
-
-    public Human? builder { get; set; }
+    public Human? constructor { get; set; }
+    public Human? employee { get; set; }
 
     public IScriptableBuilding scriptable { get; }
 
@@ -25,8 +23,6 @@ public class Building {
     public float timeSinceItemWasPlaced { get; set; } = float.PositiveInfinity;
 
     Guid _id;
-    readonly List<ResourceObj> _producedResources = new();
-    readonly List<ResourceObj> _storedResources = new();
 
     public readonly List<ResourceToBook> ResourcesToBook = new();
 
@@ -34,14 +30,19 @@ public class Building {
         Guid id,
         IScriptableBuilding scriptable,
         Vector2Int pos,
-        float buildingElapsed
+        float constructionElapsed
     ) {
         _id = id;
         this.scriptable = scriptable;
         posX = pos.x;
         posY = pos.y;
 
-        this.buildingElapsed = buildingElapsed;
+        this.constructionElapsed = constructionElapsed;
+        WorkingAreaBottomLeftPos = -Vector2Int.one;
+
+        if (scriptable.type is BuildingType.Fish or BuildingType.Harvest or BuildingType.Plant) {
+            WorkingAreaBottomLeftPos = pos - scriptable.WorkingAreaSize / 2;
+        }
     }
 
     public Guid id {
@@ -54,32 +55,9 @@ public class Building {
         }
     }
 
-    public bool isBooked { get; set; }
-
-    public List<ResourceObj> storedResources {
-        get {
-            if (
-                scriptable.type != BuildingType.Store
-                && scriptable.type != BuildingType.Produce
-            ) {
-                Debug.LogError("WTF");
-            }
-
-            return _storedResources;
-        }
-    }
-
-    public List<ResourceObj> producedResources {
-        get {
-            if (scriptable.type != BuildingType.Produce) {
-                Debug.LogError("WTF?");
-            }
-
-            return _producedResources;
-        }
-    }
-
     public RectInt rect => new(posX, posY, scriptable.size.x, scriptable.size.y);
+    public Human? SpawnedHuman;
+    public bool EmployeeIsInside;
 
     public readonly List<MapResource> PlacedResourcesForConstruction = new();
 
@@ -94,41 +72,37 @@ public class Building {
                && y < pos.y + scriptable.size.y;
     }
 
-    public bool CanStoreResource() {
-        return storedResources.Count < scriptable.storeItemsAmount;
-    }
+    #region BuildingData
 
-    public StoreResourceResult StoreResource(ResourceObj resource) {
-        if (
-            scriptable.type != BuildingType.Produce
-            && scriptable.type != BuildingType.Store
-        ) {
-            Debug.LogError("WTF?");
-        }
-
-        storedResources.Add(resource);
-
-        if (CanStartProcessing()) {
-            IsProducing = true;
-            ProducingElapsed = 0;
-            storedResources.RemoveAt(0);
-            return StoreResourceResult.AddedToProcessingImmediately;
-        }
-
-        return StoreResourceResult.AddedToTheStore;
-    }
-
-    public bool CanStartProcessing() {
-        if (producedResources.Count >= scriptable.produceItemsAmount) {
+    public bool CanStartProcessingCycle(BuildingDatabase bdb) {
+        if (CurrentBehaviourIndex != -1) {
             return false;
         }
 
-        return !IsProducing;
-    }
-}
+        if (!EmployeeIsInside) {
+            return false;
+        }
 
-public enum StoreResourceResult {
-    AddedToTheStore,
-    AddedToProcessingImmediately,
+        foreach (var beh in scriptable.behaviours) {
+            if (!beh.CanBeRun(this, bdb)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public Vector2Int WorkingAreaBottomLeftPos;
+
+    public float takingResourceElapsed;
+    public float processingElapsed;
+    public float placingResourceElapsed;
+    public Human? createdHuman;
+
+    // CurrentBehaviourIndex = -1 = building is idle right now
+    public int CurrentBehaviourIndex = -1;
+    public List<(int, Vector2Int)> BookedTiles = new();
+
+    #endregion
 }
 }

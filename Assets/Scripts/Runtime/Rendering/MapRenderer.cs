@@ -6,7 +6,6 @@ using BFG.Graphs;
 using BFG.Runtime.Controllers.Human;
 using BFG.Runtime.Entities;
 using BFG.Runtime.Extensions;
-using DG.Tweening;
 using Foundation.Architecture;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -95,15 +94,6 @@ public class MapRenderer : MonoBehaviour {
     BuildingFeedback _scaleFeedback;
 
     [SerializeField]
-    [Min(0.1f)]
-    float _buildingMovingItemToTheWarehouseDuration = 1f;
-
-    [SerializeField]
-    [Min(0.1f)]
-    AnimationCurve _buildingMovingItemToTheWarehouseDurationCurve =
-        AnimationCurve.Linear(0, 0, 1, 1);
-
-    [SerializeField]
     [Min(.1f)]
     float _sinCosScale;
 
@@ -123,8 +113,7 @@ public class MapRenderer : MonoBehaviour {
 
     readonly List<IDisposable> _dependencyHooks = new();
 
-    readonly Dictionary<Guid, (Human, HumanGO, HumanBinding)> _humans =
-        new();
+    readonly Dictionary<Guid, (Human, HumanGO, HumanBinding)> _humans = new();
 
     readonly Dictionary<Guid, ItemGO> _storedItems = new();
 
@@ -310,31 +299,28 @@ public class MapRenderer : MonoBehaviour {
         hooks.Add(_map.onCityHallCreatedHuman.Subscribe(
             OnCityHallCreatedHuman));
         hooks.Add(_map.onHumanReachedCityHall.Subscribe(
-            OnHumanReachedCityHall));
+            data => RemoveHuman(data.Human)));
+        hooks.Add(_map.onEmployeeReachedBuilding.Subscribe(
+            data => RemoveHuman(data.Human)));
 
         hooks.Add(_map.onHumanMovedToTheNextTile.Subscribe(
             OnHumanMovedToTheNextTile));
         hooks.Add(_map.onHumanStartedPickingUpResource.Subscribe(
             OnHumanStartedPickingUpResource));
-        hooks.Add(_map.onHumanPickedUpResource.Subscribe(
+        hooks.Add(_map.onHumanFinishedPickingUpResource.Subscribe(
             OnHumanPickedUpResource));
         hooks.Add(_map.onHumanStartedPlacingResource.Subscribe(
             OnHumanStartedPlacingResource));
-        hooks.Add(_map.onHumanPlacedResource.Subscribe(
+        hooks.Add(_map.onHumanFinishedPlacingResource.Subscribe(
             OnHumanPlacedResource));
 
         hooks.Add(_map.onBuildingPlaced.Subscribe(
             OnBuildingPlaced));
 
-        hooks.Add(_map.onBuildingStartedProcessing.Subscribe(
-            OnBuildingStartedProcessing));
-        hooks.Add(_map.onBuildingProducedItem.Subscribe(
-            OnBuildingProducedItem));
-
-        hooks.Add(_map.OnHumanStartedBuilding.Subscribe(
-            OnHumanStartedBuilding));
-        hooks.Add(_map.OnHumanBuiltBuilding.Subscribe(
-            OnHumanBuiltBuilding));
+        hooks.Add(_map.OnHumanStartedConstructingBuilding.Subscribe(
+            OnHumanStartedConstructingBuilding));
+        hooks.Add(_map.OnHumanConstructedBuilding.Subscribe(
+            OnHumanConstructedBuilding));
     }
 
     void OnHumanMovedToTheNextTile(E_HumanMovedToTheNextTile data) {
@@ -380,16 +366,12 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    void OnHumanStartedPlacingResource(
-        E_HumanStartedPlacingResource data
-    ) {
+    void OnHumanStartedPlacingResource(E_HumanStartedPlacingResource data) {
         var (_, go, _) = _humans[data.Human.ID];
         go.OnStartedPlacingResource(data.Resource.Scriptable);
     }
 
-    void OnHumanStartedPickingUpResource(
-        E_HumanStartedPickingUpResource data
-    ) {
+    void OnHumanStartedPickingUpResource(E_HumanStartedPickingUpResource data) {
         var (_, go, _) = _humans[data.Human.ID];
         go.OnStartedPickingUpResource(data.Resource.Scriptable);
 
@@ -399,11 +381,11 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    void OnHumanStartedBuilding(E_HumanStartedBuilding data) {
-        // TODO
+    void OnHumanStartedConstructingBuilding(E_HumanStartedConstructingBuilding data) {
+        // Hulvdan: Intentionally left blank
     }
 
-    void OnHumanBuiltBuilding(E_HumanBuiltBuilding data) {
+    void OnHumanConstructedBuilding(E_HumanConstructedBuilding data) {
         var building = data.Building;
         SetBuilding(building, 1, 1, Color.white);
     }
@@ -440,36 +422,6 @@ public class MapRenderer : MonoBehaviour {
             _buildingFeedbacks[building.id] = new(buildingData, feedbacks);
             SetBuilding(building, buildingData.Scale.x, buildingData.Scale.y, color);
         }
-    }
-
-    void OnBuildingStartedProcessing(E_BuildingStartedProcessing data) {
-        Destroy(_storedItems[data.Resource.id].gameObject);
-        _storedItems.Remove(data.Resource.id);
-    }
-
-    void OnBuildingProducedItem(E_BuildingProducedItem data) {
-        var item = Instantiate(_itemPrefab, _itemsLayer);
-
-        var building = data.Building;
-        var scriptable = building.scriptable;
-
-        var i = (building.producedResources.Count - 1) % scriptable.producedItemsPositions.Count;
-        var itemOffset = scriptable.producedItemsPositions[i];
-        item.transform.localPosition = (Vector2)building.pos;
-        var itemGo = item.GetComponent<ItemGO>();
-        itemGo.SetAs(data.Resource.script);
-
-        DOTween
-            .To(
-                () => item.transform.localPosition,
-                val => item.transform.localPosition = val,
-                (Vector3)(building.pos + itemOffset + Vector2.right / 2),
-                _buildingMovingItemToTheWarehouseDuration / _gameManager.currentGameSpeed
-            )
-            .SetLink(item)
-            .SetEase(_buildingMovingItemToTheWarehouseDurationCurve);
-
-        _storedItems.Add(data.Resource.id, itemGo);
     }
 
     void OnElementTileChanged(Vector2Int pos) {
@@ -597,7 +549,7 @@ public class MapRenderer : MonoBehaviour {
         var heightOffset = (building.scriptable.size.y - 1) / 2f;
 
         var tile = building.scriptable.tile;
-        if (!building.isBuilt) {
+        if (!building.isConstructed) {
             tile = _tileUnfinishedBuilding;
         }
 
@@ -723,10 +675,10 @@ public class MapRenderer : MonoBehaviour {
         data.CityHall.timeSinceHumanWasCreated = 0;
     }
 
-    void OnHumanReachedCityHall(E_HumanReachedCityHall data) {
-        var human = _humans[data.Human.ID];
-        Destroy(human.Item2.gameObject);
-        _humans.Remove(data.Human.ID);
+    void RemoveHuman(Human human) {
+        var (_, humanGo, _) = _humans[human.ID];
+        Destroy(humanGo.gameObject);
+        _humans.Remove(human.ID);
     }
 
     void UpdateHumans() {

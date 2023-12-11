@@ -8,7 +8,6 @@ public interface IScriptableBuilding {
     BuildingType type { get; }
     ScriptableResource harvestableResource { get; }
     int tilesRadius { get; }
-    int storeItemsAmount { get; }
     int produceItemsAmount { get; }
     List<Vector2> storedItemPositions { get; }
     List<Vector2> producedItemsPositions { get; }
@@ -20,6 +19,8 @@ public interface IScriptableBuilding {
     Vector2Int pickupableItemsCellOffset { get; }
     string name { get; }
     List<RequiredResourceToBuild> requiredResourcesToBuild { get; }
-    float BuildingDuration { get; }
+    float ConstructionDuration { get; }
+    Vector2Int WorkingAreaSize { get; }
+    List<BuildingBehaviour> behaviours { get; }
 }
 }

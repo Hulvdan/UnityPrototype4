@@ -31,16 +31,13 @@ public class InitialMapProvider : MonoBehaviour {
             var row = new List<ElementTile>(_mapSize.width);
 
             for (var x = 0; x < _mapSize.width; x++) {
-                var tilemapTile = _movementSystemTilemap.GetTile(new(x, y));
+                var pos = new Vector2Int(x, y);
+                var tilemapTile = _movementSystemTilemap.GetTile((Vector3Int)pos);
 
                 var isCityHall = false;
                 Building foundBuilding = null;
                 foreach (var building in _map.buildings) {
-                    if (building.scriptable.type != BuildingType.SpecialStable) {
-                        continue;
-                    }
-
-                    if (building.posX == x && building.posY == y) {
+                    if (building.pos == pos) {
                         if (building.scriptable.type == BuildingType.SpecialCityHall) {
                             isCityHall = true;
                             foundBuilding = building;

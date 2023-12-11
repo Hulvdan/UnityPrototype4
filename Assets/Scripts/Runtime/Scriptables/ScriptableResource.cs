@@ -13,10 +13,11 @@ public class ScriptableResource : ScriptableObject {
     Sprite _smallerSprite;
 
     [SerializeField]
-    bool _displayInTheRopBar;
+    [Min(0)]
+    float _harvestingDuration;
 
-    public bool displayInTheRopBar => _displayInTheRopBar;
     public Sprite sprite => _sprite;
     public Sprite smallerSprite => _smallerSprite;
+    public float harvestingDuration => _harvestingDuration;
 }
 }

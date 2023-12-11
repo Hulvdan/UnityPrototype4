@@ -13,7 +13,6 @@ internal class MockScriptableBuilding : IScriptableBuilding {
     public BuildingType type { get; }
     public ScriptableResource harvestableResource { get; }
     public int tilesRadius { get; }
-    public int storeItemsAmount { get; }
     public int produceItemsAmount { get; }
     public List<Vector2> storedItemPositions { get; }
     public List<Vector2> producedItemsPositions { get; }
@@ -25,6 +24,9 @@ internal class MockScriptableBuilding : IScriptableBuilding {
     public Vector2Int pickupableItemsCellOffset { get; }
     public string name { get; }
     public List<RequiredResourceToBuild> requiredResourcesToBuild { get; } = new();
-    public float BuildingDuration { get; }
+    public float ConstructionDuration { get; }
+    public Vector2Int WorkingAreaSize { get; }
+    public List<BuildingBehaviour> behaviours { get; }
+    public List<BuildingBehaviour> buildingBehaviours { get; }
 }
 }

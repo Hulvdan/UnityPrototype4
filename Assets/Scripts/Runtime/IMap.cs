@@ -18,28 +18,26 @@ public interface IMap {
     Subject<E_HumanCreated> onHumanCreated { get; }
     Subject<E_CityHallCreatedHuman> onCityHallCreatedHuman { get; }
     Subject<E_HumanReachedCityHall> onHumanReachedCityHall { get; }
+    Subject<E_EmployeeReachedBuilding> onEmployeeReachedBuilding { get; }
 
     Subject<E_HumanMovedToTheNextTile> onHumanMovedToTheNextTile { get; }
 
     Subject<E_HumanStartedPickingUpResource> onHumanStartedPickingUpResource { get; }
-
-    Subject<E_HumanPickedUpResource> onHumanPickedUpResource { get; }
-
+    Subject<E_HumanPickedUpResource> onHumanFinishedPickingUpResource { get; }
     Subject<E_HumanStartedPlacingResource> onHumanStartedPlacingResource { get; }
-
-    Subject<E_HumanPlacedResource> onHumanPlacedResource { get; }
+    Subject<E_HumanPlacedResource> onHumanFinishedPlacingResource { get; }
 
     Subject<E_BuildingPlaced> onBuildingPlaced { get; }
 
-    Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; }
-    Subject<E_BuildingProducedItem> onBuildingProducedItem { get; }
-    Subject<E_HumanStartedBuilding> OnHumanStartedBuilding { get; }
-    Subject<E_HumanBuiltBuilding> OnHumanBuiltBuilding { get; }
+    Subject<E_HumanStartedConstructingBuilding> OnHumanStartedConstructingBuilding { get; }
+    Subject<E_HumanConstructedBuilding> OnHumanConstructedBuilding { get; }
 
     void TryBuild(Vector2Int pos, ItemToBuild item);
     bool CanBePlaced(Vector2Int pos, ItemToBuildType itemType);
     bool IsBuildable(int x, int y);
     bool IsBuildable(Vector2Int pos);
+
+    MapResource CreateMapResource(Vector2Int pos, ScriptableResource scriptable);
 
     PathFindResult FindPath(
         Vector2Int source,
@@ -48,5 +46,15 @@ public interface IMap {
     );
 
     void OnResourcePlacedInsideBuilding(MapResource res, Building building);
+    void OnBuildingConstructed(Building building, Human constructor);
+
+    IBookedTiles bookedTiles { get; }
+
+    void CreateHuman_Employee_ForTheNextProcessingCycle(
+        Building building,
+        EmployeeBehaviourSet behaviourSet
+    );
+
+    void EmployeeReachedBuildingCallback(Human human);
 }
 }

@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BFG.Runtime.Entities;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
@@ -23,12 +25,7 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     int _tilesRadius;
 
     [SerializeField]
-    [ShowIf("@_type == BuildingType.Store || _type == BuildingType.Produce")]
-    [Min(1)]
-    int _storeItemsAmount = 1;
-
-    [SerializeField]
-    [ShowIf("@_type == BuildingType.Store || _type == BuildingType.Produce")]
+    [ShowIf("@_type == BuildingType.Produce")]
     List<Vector2> _storedItemPositions = new();
 
     [SerializeField]
@@ -73,9 +70,16 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     [Min(0.01f)]
     float _buildingDuration = 4f;
 
+    [SerializeField]
+    Vector2Int _workingAreaSize = -Vector2Int.one;
+
+    [Header("Behaviour")]
+    [SerializeField]
+    List<BuildingBehaviourGo> _buildingBehaviourGos = new();
+
     public BuildingType type => _type;
 
-    public float BuildingDuration => _buildingDuration;
+    public float ConstructionDuration => _buildingDuration;
 
     public ScriptableResource harvestableResource {
         get {
@@ -88,16 +92,6 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     }
 
     public int tilesRadius => _tilesRadius;
-
-    public int storeItemsAmount {
-        get {
-            if (_type != BuildingType.Produce && _type != BuildingType.Store) {
-                Debug.LogError("WTF?");
-            }
-
-            return _storeItemsAmount;
-        }
-    }
 
     public int produceItemsAmount {
         get {
@@ -121,5 +115,37 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     public Vector2Int pickupableItemsCellOffset => _pickupableItemsCellOffset;
 
     public List<RequiredResourceToBuild> requiredResourcesToBuild => _requiredResourcesToBuild;
+
+    public Vector2Int WorkingAreaSize {
+        get {
+            switch (type) {
+                case BuildingType.Harvest:
+                case BuildingType.Plant:
+                case BuildingType.Fish:
+                    Assert.IsTrue(_workingAreaSize.x > 0);
+                    Assert.IsTrue(_workingAreaSize.y > 0);
+                    return _workingAreaSize;
+                case BuildingType.Produce:
+                case BuildingType.SpecialCityHall:
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+    }
+
+    List<BuildingBehaviour> _buildingBehaviours;
+
+    public List<BuildingBehaviour> behaviours {
+        get {
+            if (_buildingBehaviours == null) {
+                _buildingBehaviours = new();
+                foreach (var beh in _buildingBehaviourGos) {
+                    _buildingBehaviours.Add(beh.ToBuildingBehaviour());
+                }
+            }
+
+            return _buildingBehaviours;
+        }
+    }
 }
 }

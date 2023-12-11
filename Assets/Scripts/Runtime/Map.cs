@@ -72,7 +72,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [FormerlySerializedAs("_buildings")]
     [FoldoutGroup("Setup", true)]
     [SerializeField]
-    List<BuildingGO> _buildingGameObjects = null!;
+    List<BuildingGo> _buildingGameObjects = null!;
 
     [FoldoutGroup("Setup", true)]
     [SerializeField]
@@ -115,11 +115,13 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public List<List<List<MapResource>>> mapResources { get; private set; } = null!;
 
+    BuildingController _buildingController = null!;
+
     public void Init() {
         _initialMapProvider.Init(this, this);
 
         foreach (var building in buildings) {
-            building.buildingElapsed = building.scriptable.BuildingDuration;
+            building.constructionElapsed = building.scriptable.ConstructionDuration;
         }
 
         if (Application.isPlaying) {
@@ -138,11 +140,17 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         for (var i = 0; i < 15; i++) {
-            AddMapResource(cityHall, _planksResource);
+            var res = CreateMapResource(cityHall.pos, _planksResource);
+            EnplaceMapResource(res);
         }
 
         _resourceTransportation = new(this, this);
-        _humanController = new(this, this, cityHall, _resourceTransportation);
+        var buildingDatabase = new BuildingDatabase(this, this);
+        var humanDatabase = new HumanDatabase(this, this);
+        _buildingController = new(buildingDatabase);
+        _humanController = new(
+            this, this, cityHall, _resourceTransportation, buildingDatabase, humanDatabase
+        );
 
         if (Application.isPlaying) {
             // TryBuild(new(8, 8), new() { Type = SelectedItemType.Road });
@@ -176,8 +184,13 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
     }
 
-    void AddMapResource(Building building, ScriptableResource scriptable) {
-        mapResources[building.posY][building.posX].Add(new(cityHall.pos, scriptable));
+    public MapResource CreateMapResource(Vector2Int pos, ScriptableResource scriptable) {
+        return new(pos, scriptable);
+    }
+
+    void EnplaceMapResource(MapResource res) {
+        var pos = res.Pos;
+        mapResources[pos.y][pos.x].Add(res);
     }
 
     public void InitDependencies(GameManager gameManager) {
@@ -243,7 +256,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 segments
             );
 
-            UpdateBuilding_NotConstructed(0, building);
+            UpdateBuilding_NotConstructed(building, 0);
             UpdateSegments(res);
         }
         else if (item.Type == ItemToBuildType.Flag) {
@@ -331,9 +344,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         if (!_hideEditorLogs) {
-            Debug.Log(
-                $"{humansThatNeedNewSegment.Count} Humans need to find new segments"
-            );
+            Debug.Log($"{humansThatNeedNewSegment.Count} Humans need to find new segments");
         }
 
         foreach (var segment in res.AddedSegments) {
@@ -413,7 +424,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     ) {
         if (source == destination) {
             return new() {
-                Path = new() { Capacity = 0 },
+                Value = new() { Capacity = 0 },
                 Success = true,
             };
         }
@@ -487,7 +498,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             Human? human = null;
             foreach (var h in _humans) {
                 if (
-                    h.type != Human.Type.Builder
+                    h.type != Human.Type.Constructor
                     || h.state != MainState.MovingInTheWorld
                     || h.stateMovingInTheWorld != MovingInTheWorld.State.MovingToTheCityHall
                 ) {
@@ -499,15 +510,26 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
 
             if (human == null) {
-                CreateHuman_Builder(cityHall, building);
+                CreateHuman_Constructor(cityHall, building);
             }
             else {
                 human.building = building;
-                building.builder = human;
+                building.constructor = human;
             }
         }
 
         DomainEvents<E_ResourcePlacedInsideBuilding>.Publish(new());
+    }
+
+    public void OnBuildingConstructed(Building building, Human constructor) {
+        OnHumanConstructedBuilding.OnNext(new() {
+            Building = building,
+            Human = constructor,
+        });
+
+        if (building.scriptable.type == BuildingType.Harvest) {
+            CreateHuman_Employee(cityHall, building);
+        }
     }
 
     // ReSharper disable once InconsistentNaming
@@ -581,17 +603,17 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     void UpdateBuildings(float dt) {
         foreach (var building in buildings) {
-            if (building.buildingProgress < 1) {
-                UpdateBuilding_NotConstructed(dt, building);
+            if (building.constructionProgress < 1) {
+                UpdateBuilding_NotConstructed(building, dt);
             }
             else {
-                UpdateBuilding_Constructed(dt, building);
+                UpdateBuilding_Constructed(building, dt);
             }
         }
     }
 
-    void UpdateBuilding_NotConstructed(float dt, Building building) {
-        if (!building.isBuilt) {
+    void UpdateBuilding_NotConstructed(Building building, float dt) {
+        if (!building.isConstructed) {
             building.timeSinceItemWasPlaced += dt;
         }
 
@@ -601,34 +623,9 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
     }
 
-    void UpdateBuilding_Constructed(float dt, Building building) {
+    void UpdateBuilding_Constructed(Building building, float dt) {
         var scriptableBuilding = building.scriptable;
-        if (scriptableBuilding.type == BuildingType.Produce) {
-            if (!building.IsProducing) {
-                if (building.storedResources.Count > 0 && building.CanStartProcessing()) {
-                    building.IsProducing = true;
-                    building.ProducingElapsed = 0;
-
-                    var res = building.storedResources[0];
-                    building.storedResources.RemoveAt(0);
-
-                    onBuildingStartedProcessing.OnNext(new() {
-                        Resource = res,
-                        Building = building,
-                    });
-                }
-            }
-
-            if (building.IsProducing) {
-                building.ProducingElapsed += dt;
-
-                if (building.ProducingElapsed >= scriptableBuilding.ItemProcessingDuration) {
-                    building.IsProducing = false;
-                    Produce(building);
-                }
-            }
-        }
-        else if (scriptableBuilding.type == BuildingType.SpecialCityHall) {
+        if (scriptableBuilding.type == BuildingType.SpecialCityHall) {
             building.timeSinceHumanWasCreated += dt;
             if (building.timeSinceHumanWasCreated > _humanSpawningDelay) {
                 building.timeSinceHumanWasCreated = _humanSpawningDelay;
@@ -641,44 +638,195 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 }
             }
         }
-    }
 
-    void Produce(Building building) {
-        Debug.Log("Produced!");
-        var res = building.scriptable.produces;
-        var resourceObj = new ResourceObj(Guid.NewGuid(), res);
-        building.producedResources.Add(resourceObj);
-
-        onBuildingProducedItem.OnNext(new() {
-            Resource = resourceObj,
-            ProducedAmount = 1,
-            Building = building,
-        });
+        _buildingController.Update(building, dt);
     }
 
     Building cityHall => buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall);
 
-    #region HumanSystem_Attributes
+    #region HumanSystem
+
+    float humanMovingOneTileDuration => _humanMovingOneTileDuration;
+    public IBookedTiles bookedTiles { get; } = new BookedTilesSet();
+
+    public void CreateHuman_Employee_ForTheNextProcessingCycle(
+        Building building,
+        EmployeeBehaviourSet behaviourSet
+    ) {
+        Assert.AreEqual(building.scriptable.type, BuildingType.Harvest);
+
+        var human = Human.Employee(Guid.NewGuid(), building.pos, building);
+        human.BehaviourSet = behaviourSet;
+
+        Assert.AreEqual(building.employee, null);
+        building.employee = human;
+
+        _humansToAdd.Add(human);
+
+        FinalizeNewHuman(building, human, MainState.Employee);
+    }
+
+    public void EmployeeReachedBuildingCallback(Human human) {
+        _humansToRemove.Add(new(HumanRemovalReason.EmployeeReachedBuilding, human));
+    }
 
     [FoldoutGroup("Humans", true)]
     [ShowInInspector]
     [ReadOnly]
     [Min(0.01f)]
-    float _humanMovingOneCellDuration = 1f;
+    float _humanMovingOneTileDuration = 1f;
 
     [FoldoutGroup("Humans", true)]
     [SerializeField]
     [Min(0)]
     float _humanSpawningDelay = 1f;
 
-    #endregion
-
-    #region HumanSystem_Properties
-
     readonly List<Human> _humans = new();
     readonly List<Human> _humansToAdd = new();
+    readonly List<(HumanRemovalReason, Human)> _humansToRemove = new();
 
-    public float humanMovingOneCellDuration => _humanMovingOneCellDuration;
+    ResourceTransportation _resourceTransportation = null!;
+    MainController _humanController = null!;
+
+    enum HumanRemovalReason {
+        TransporterReturnedCityHall,
+        EmployeeReachedBuilding,
+    }
+
+    void CreateHuman_Transporter(Building building, GraphSegment segment) {
+        var human = Human.Transporter(Guid.NewGuid(), building.pos, segment);
+        segment.AssignedHuman = human;
+        _humans.Add(human);
+
+        FinalizeNewHuman(cityHall, human, MainState.MovingInTheWorld);
+    }
+
+    void CreateHuman_Constructor(Building cityHall, Building building) {
+        var human = Human.Constructor(Guid.NewGuid(), cityHall.pos, building);
+        building.constructor = human;
+        _humansToAdd.Add(human);
+
+        FinalizeNewHuman(cityHall, human, MainState.MovingInTheWorld);
+    }
+
+    void CreateHuman_Employee(Building cityHall, Building building) {
+        Assert.AreEqual(building.scriptable.type, BuildingType.Harvest);
+
+        var human = Human.Employee(Guid.NewGuid(), cityHall.pos, building);
+
+        Assert.AreEqual(building.employee, null);
+        building.employee = human;
+
+        _humansToAdd.Add(human);
+
+        FinalizeNewHuman(cityHall, human, MainState.MovingInTheWorld);
+    }
+
+    void FinalizeNewHuman(Building building, Human human, MainState state) {
+        _humanController.SetState(human, state);
+
+        onHumanCreated.OnNext(new() { Human = human });
+
+        if (building.scriptable.type == BuildingType.SpecialCityHall) {
+            onCityHallCreatedHuman.OnNext(new() { CityHall = building });
+            DomainEvents<E_CityHallCreatedHuman>.Publish(new() { CityHall = building });
+        }
+    }
+
+    void UpdateHumans(float dt) {
+        foreach (var (reason, _) in _humansToRemove) {
+            Assert.AreNotEqual(reason, HumanRemovalReason.TransporterReturnedCityHall);
+        }
+
+        RemoveHumans();
+
+        foreach (var human in _humans) {
+            UpdateHuman(dt, human, _humansToRemove);
+        }
+
+        foreach (var human in _humansToAdd) {
+            _humans.Add(human);
+            UpdateHuman(dt, human, _humansToRemove);
+        }
+
+        _humansToAdd.Clear();
+
+        RemoveHumans();
+    }
+
+    void RemoveHumans() {
+        foreach (var (reason, human) in _humansToRemove) {
+            if (reason == HumanRemovalReason.TransporterReturnedCityHall) {
+                onHumanReachedCityHall.OnNext(new() { Human = human });
+            }
+            else if (reason == HumanRemovalReason.EmployeeReachedBuilding) {
+                onEmployeeReachedBuilding.OnNext(new() { Human = human });
+                Assert.AreNotEqual(human.building, null);
+                human.building!.employee = null;
+            }
+
+            _humans.RemoveAt(_humans.IndexOf(human));
+        }
+
+        _humansToRemove.Clear();
+    }
+
+    void UpdateHuman(float dt, Human human, List<(HumanRemovalReason, Human)> humansToRemove) {
+        if (human.moving.to != null) {
+            UpdateHumanMovingComponent(dt, human);
+        }
+
+        _humanController.Update(human, dt);
+        var state = MovingInTheWorld.State.MovingToTheCityHall;
+        if (
+            human.stateMovingInTheWorld == state
+            && human.moving.pos == cityHall.pos
+            && human.moving.to == null
+        ) {
+            humansToRemove.Add((
+                HumanRemovalReason.TransporterReturnedCityHall,
+                human
+            ));
+        }
+    }
+
+    void UpdateHumanMovingComponent(float dt, Human human) {
+        // ReSharper disable once InconsistentNaming
+        const int GUARD_MAX_MOVING_TILES_PER_FRAME = 4;
+
+        var moving = human.moving;
+        moving.elapsed += dt;
+
+        var iteration = 0;
+        while (
+            iteration < 10 * GUARD_MAX_MOVING_TILES_PER_FRAME
+            && moving.to != null
+            && moving.elapsed > humanMovingOneTileDuration
+        ) {
+            iteration++;
+
+            using var _ = Tracing.Scope();
+            Tracing.Log("Human reached the next tile");
+
+            moving.elapsed -= humanMovingOneTileDuration;
+
+            moving.pos = moving.to.Value;
+            moving.from = moving.pos;
+            moving.PopMovingTo();
+
+            _humanController.OnHumanMovedToTheNextTile(human);
+            onHumanMovedToTheNextTile.OnNext(new() {
+                Human = human,
+            });
+        }
+
+        Assert.IsTrue(iteration < 10 * GUARD_MAX_MOVING_TILES_PER_FRAME);
+        if (iteration >= GUARD_MAX_MOVING_TILES_PER_FRAME) {
+            Debug.LogWarning("WTF?");
+        }
+
+        moving.progress = Mathf.Min(1, moving.elapsed / _humanMovingOneTileDuration);
+    }
 
     #endregion
 
@@ -688,6 +836,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public Subject<E_CityHallCreatedHuman> onCityHallCreatedHuman { get; } = new();
 
     public Subject<E_HumanReachedCityHall> onHumanReachedCityHall { get; } = new();
+    public Subject<E_EmployeeReachedBuilding> onEmployeeReachedBuilding { get; } = new();
 
     public Subject<E_HumanMovedToTheNextTile>
         onHumanMovedToTheNextTile { get; } = new();
@@ -695,21 +844,20 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public Subject<E_HumanStartedPickingUpResource>
         onHumanStartedPickingUpResource { get; } = new();
 
-    public Subject<E_HumanPickedUpResource> onHumanPickedUpResource { get; } =
+    public Subject<E_HumanPickedUpResource> onHumanFinishedPickingUpResource { get; } =
         new();
 
     public Subject<E_HumanStartedPlacingResource>
         onHumanStartedPlacingResource { get; } =
         new();
 
-    public Subject<E_HumanPlacedResource> onHumanPlacedResource { get; } =
+    public Subject<E_HumanPlacedResource> onHumanFinishedPlacingResource { get; } =
         new();
 
-    public Subject<E_HumanStartedBuilding> OnHumanStartedBuilding { get; } = new();
-    public Subject<E_HumanBuiltBuilding> OnHumanBuiltBuilding { get; } = new();
+    public Subject<E_HumanStartedConstructingBuilding> OnHumanStartedConstructingBuilding { get; } =
+        new();
 
-    public Subject<E_BuildingStartedProcessing> onBuildingStartedProcessing { get; } = new();
-    public Subject<E_BuildingProducedItem> onBuildingProducedItem { get; } = new();
+    public Subject<E_HumanConstructedBuilding> OnHumanConstructedBuilding { get; } = new();
 
     #endregion
 
@@ -730,13 +878,11 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     void RegenerateTilemap() {
         terrainTiles = new();
 
-        // NOTE(Hulvdan): Generating tiles
         for (var y = 0; y < _mapSizeY; y++) {
             var row = new List<TerrainTile>();
 
             for (var x = 0; x < _mapSizeX; x++) {
                 var forestK = MakeSomeNoise2D(_randomSeed, x, y, _forestNoiseScale);
-                // var hasForest = false;
                 var hasForest = forestK > _forestThreshold;
                 var tile = new TerrainTile {
                     Name = "grass",
@@ -744,7 +890,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                     ResourceAmount = hasForest ? _maxForestAmount : 0,
                 };
 
-                // var randomH = Random.Range(0, _maxHeight + 1);
                 var heightK = MakeSomeNoise2D(_randomSeed, x, y, _terrainHeightNoiseScale);
                 var randomH = heightK * (_maxHeight + 1);
                 tile.Height = Mathf.Min(_maxHeight, (int)randomH);
@@ -786,116 +931,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         Noise.Seed = seed;
         return Noise.CalcPixel2D(x, y, scale) / 255f;
     }
-
-    #endregion
-
-    #region HumanSystem_Behaviour
-
-    void CreateHuman_Transporter(Building building, GraphSegment segment) {
-        var human = Human.Transporter(Guid.NewGuid(), building.pos, segment);
-        segment.AssignedHuman = human;
-        _humans.Add(human);
-
-        _humanController.SetState(human, MainState.MovingInTheWorld);
-
-        onHumanCreated.OnNext(new() { Human = human });
-        onCityHallCreatedHuman.OnNext(new() { CityHall = cityHall });
-        DomainEvents<E_CityHallCreatedHuman>.Publish(new() { CityHall = cityHall });
-    }
-
-    void CreateHuman_Builder(Building cityHall, Building building) {
-        var human = Human.Builder(Guid.NewGuid(), cityHall.pos, building);
-        building.builder = human;
-        _humansToAdd.Add(human);
-
-        _humanController.SetState(human, MainState.MovingInTheWorld);
-
-        onHumanCreated.OnNext(new() { Human = human });
-        onCityHallCreatedHuman.OnNext(new() { CityHall = cityHall });
-        DomainEvents<E_CityHallCreatedHuman>.Publish(new() { CityHall = cityHall });
-    }
-
-    void UpdateHumans(float dt) {
-        var humansToRemove = new List<Human>();
-        foreach (var human in _humans) {
-            UpdateHuman(dt, human, humansToRemove);
-        }
-
-        foreach (var human in _humansToAdd) {
-            _humans.Add(human);
-            UpdateHuman(dt, human, humansToRemove);
-        }
-
-        _humansToAdd.Clear();
-
-        foreach (var human in humansToRemove) {
-            onHumanReachedCityHall.OnNext(new() { Human = human });
-            _humans.RemoveAt(_humans.FindIndex(i => i == human));
-        }
-    }
-
-    void UpdateHuman(float dt, Human human, List<Human> humansToRemove) {
-        if (human.moving.to != null) {
-            UpdateHumanMovingComponent(dt, human);
-        }
-
-        _humanController.Update(human, dt);
-        var state = MovingInTheWorld.State.MovingToTheCityHall;
-        if (
-            human.stateMovingInTheWorld == state
-            && human.moving.pos == cityHall.pos
-            && human.moving.to == null
-        ) {
-            humansToRemove.Add(human);
-        }
-    }
-
-    void UpdateHumanMovingComponent(float dt, Human human) {
-        // ReSharper disable once InconsistentNaming
-        const int GUARD_MAX_ITERATIONS_COUNT = 16;
-
-        var moving = human.moving;
-        moving.elapsed += dt;
-
-        var iteration = 0;
-        while (
-            iteration < 10 * GUARD_MAX_ITERATIONS_COUNT
-            && moving.to != null
-            && moving.elapsed > humanMovingOneCellDuration
-        ) {
-            iteration++;
-
-            using var _ = Tracing.Scope();
-            Tracing.Log("Human reached the next tile");
-
-            moving.elapsed -= humanMovingOneCellDuration;
-
-            moving.pos = moving.to.Value;
-            moving.from = moving.pos;
-            moving.PopMovingTo();
-
-            _humanController.OnHumanMovedToTheNextTile(human);
-            onHumanMovedToTheNextTile.OnNext(new() {
-                Human = human,
-            });
-        }
-
-        Assert.IsTrue(iteration < 10 * GUARD_MAX_ITERATIONS_COUNT);
-        if (iteration >= GUARD_MAX_ITERATIONS_COUNT) {
-            Debug.LogWarning("WTF?");
-        }
-
-        moving.progress = Mathf.Min(
-            1, moving.elapsed / _humanMovingOneCellDuration
-        );
-    }
-
-    #endregion
-
-    #region ItemTransportationSystem
-
-    ResourceTransportation _resourceTransportation = null!;
-    MainController _humanController = null!;
 
     #endregion
 }
