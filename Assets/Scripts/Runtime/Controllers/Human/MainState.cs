@@ -74,7 +74,7 @@ public class MainController {
                 case MainState.Employee:
                     break;
                 default:
-                    throw new NotSupportedException();
+                    throw new NotImplementedException();
             }
         }
 
@@ -95,7 +95,7 @@ public class MainController {
                 _employeeController.SwitchToTheNextBehaviour(human);
                 break;
             default:
-                throw new NotSupportedException();
+                throw new NotImplementedException();
         }
     }
 
@@ -117,7 +117,7 @@ public class MainController {
                 _employeeController.Update(human, _data, dt);
                 break;
             default:
-                throw new NotSupportedException();
+                throw new NotImplementedException();
         }
     }
 
@@ -144,7 +144,7 @@ public class MainController {
             case MainState.Building:
                 throw new NotSupportedException();
             default:
-                throw new NotSupportedException();
+                throw new NotImplementedException();
         }
     }
 
@@ -167,7 +167,7 @@ public class MainController {
             case MainState.Building:
                 throw new NotSupportedException();
             default:
-                throw new NotSupportedException();
+                throw new NotImplementedException();
         }
     }
 }

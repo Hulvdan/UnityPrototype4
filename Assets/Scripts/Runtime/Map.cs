@@ -851,7 +851,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         onHumanStartedPlacingResource { get; } =
         new();
 
-    public Subject<E_HumanPlacedResource> onHumanPlacedResource { get; } =
+    public Subject<E_HumanPlacedResource> onHumanFinishedPlacingResource { get; } =
         new();
 
     public Subject<E_HumanStartedConstructingBuilding> OnHumanStartedConstructingBuilding { get; } =
