@@ -307,7 +307,7 @@ public class MapRenderer : MonoBehaviour {
             OnHumanMovedToTheNextTile));
         hooks.Add(_map.onHumanStartedPickingUpResource.Subscribe(
             OnHumanStartedPickingUpResource));
-        hooks.Add(_map.onHumanPickedUpResource.Subscribe(
+        hooks.Add(_map.onHumanFinishedPickingUpResource.Subscribe(
             OnHumanPickedUpResource));
         hooks.Add(_map.onHumanStartedPlacingResource.Subscribe(
             OnHumanStartedPlacingResource));
@@ -366,16 +366,12 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    void OnHumanStartedPlacingResource(
-        E_HumanStartedPlacingResource data
-    ) {
+    void OnHumanStartedPlacingResource(E_HumanStartedPlacingResource data) {
         var (_, go, _) = _humans[data.Human.ID];
         go.OnStartedPlacingResource(data.Resource.Scriptable);
     }
 
-    void OnHumanStartedPickingUpResource(
-        E_HumanStartedPickingUpResource data
-    ) {
+    void OnHumanStartedPickingUpResource(E_HumanStartedPickingUpResource data) {
         var (_, go, _) = _humans[data.Human.ID];
         go.OnStartedPickingUpResource(data.Resource.Scriptable);
 

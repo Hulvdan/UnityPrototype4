@@ -140,7 +140,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         for (var i = 0; i < 15; i++) {
-            AddMapResource(cityHall, _planksResource);
+            var res = CreateMapResource(cityHall.pos, _planksResource);
+            EnplaceMapResource(res);
         }
 
         _resourceTransportation = new(this, this);
@@ -183,8 +184,13 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
     }
 
-    void AddMapResource(Building building, ScriptableResource scriptable) {
-        mapResources[building.posY][building.posX].Add(new(cityHall.pos, scriptable));
+    public MapResource CreateMapResource(Vector2Int pos, ScriptableResource scriptable) {
+        return new(pos, scriptable);
+    }
+
+    void EnplaceMapResource(MapResource res) {
+        var pos = res.Pos;
+        mapResources[pos.y][pos.x].Add(res);
     }
 
     public void InitDependencies(GameManager gameManager) {
@@ -838,7 +844,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public Subject<E_HumanStartedPickingUpResource>
         onHumanStartedPickingUpResource { get; } = new();
 
-    public Subject<E_HumanPickedUpResource> onHumanPickedUpResource { get; } =
+    public Subject<E_HumanPickedUpResource> onHumanFinishedPickingUpResource { get; } =
         new();
 
     public Subject<E_HumanStartedPlacingResource>

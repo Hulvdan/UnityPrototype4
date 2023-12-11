@@ -23,7 +23,7 @@ public interface IMap {
     Subject<E_HumanMovedToTheNextTile> onHumanMovedToTheNextTile { get; }
 
     Subject<E_HumanStartedPickingUpResource> onHumanStartedPickingUpResource { get; }
-    Subject<E_HumanPickedUpResource> onHumanPickedUpResource { get; }
+    Subject<E_HumanPickedUpResource> onHumanFinishedPickingUpResource { get; }
     Subject<E_HumanStartedPlacingResource> onHumanStartedPlacingResource { get; }
     Subject<E_HumanPlacedResource> onHumanPlacedResource { get; }
 
@@ -36,6 +36,8 @@ public interface IMap {
     bool CanBePlaced(Vector2Int pos, ItemToBuildType itemType);
     bool IsBuildable(int x, int y);
     bool IsBuildable(Vector2Int pos);
+
+    MapResource CreateMapResource(Vector2Int pos, ScriptableResource scriptable);
 
     PathFindResult FindPath(
         Vector2Int source,

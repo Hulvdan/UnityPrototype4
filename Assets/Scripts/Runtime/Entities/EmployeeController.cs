@@ -41,7 +41,7 @@ public class EmployeeController {
 
     public void Update(Human human, HumanData data, float dt) {
         var beh = human.BehaviourSet.behaviours[human.currentBehaviourId];
-        beh.UpdateDt(human, _bdb, _db, dt);
+        beh.UpdateDt(human, _bdb, _db, data, dt);
     }
 
     readonly BuildingDatabase _bdb;
