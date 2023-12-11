@@ -38,6 +38,11 @@ public class Building {
         posY = pos.y;
 
         this.constructionElapsed = constructionElapsed;
+        WorkingAreaBottomLeftPos = -Vector2Int.one;
+
+        if (scriptable.type is BuildingType.Fish or BuildingType.Harvest or BuildingType.Plant) {
+            WorkingAreaBottomLeftPos = pos - scriptable.WorkingAreaSize / 2;
+        }
     }
 
     public Guid id {
@@ -52,7 +57,7 @@ public class Building {
 
     public RectInt rect => new(posX, posY, scriptable.size.x, scriptable.size.y);
     public Human? SpawnedHuman;
-    public bool employeeIsInside;
+    public bool EmployeeIsInside;
 
     public readonly List<MapResource> PlacedResourcesForConstruction = new();
 
@@ -67,22 +72,18 @@ public class Building {
                && y < pos.y + scriptable.size.y;
     }
 
-    public void Update(BuildingDatabase db, float dt) {
-        if (scriptable.type is BuildingType.Harvest or BuildingType.Produce) {
-            if (CurrentBehaviourIndex >= 0) {
-                Behaviours[CurrentBehaviourIndex].UpdateDt(this, db, dt);
-            }
-        }
-    }
-
     #region BuildingData
 
     public bool CanStartProcessingCycle(BuildingDatabase bdb) {
-        if (CurrentBehaviourIndex == -1) {
+        if (CurrentBehaviourIndex != -1) {
             return false;
         }
 
-        foreach (var beh in Behaviours) {
+        if (!EmployeeIsInside) {
+            return false;
+        }
+
+        foreach (var beh in scriptable.behaviours) {
             if (!beh.CanBeRun(this, bdb)) {
                 return false;
             }
@@ -94,14 +95,14 @@ public class Building {
     public void StartProcessingCycle(BuildingDatabase bdb) {
         Assert.AreEqual(CurrentBehaviourIndex, -1);
 
-        foreach (var beh in Behaviours) {
+        foreach (var beh in scriptable.behaviours) {
             beh.BookRequiredTiles(this, bdb);
         }
 
         CurrentBehaviourIndex = 0;
     }
 
-    public Vector2Int workingAreaBottomLeftPos;
+    public Vector2Int WorkingAreaBottomLeftPos;
 
     public float takingResourceElapsed;
     public float processingElapsed;
@@ -110,7 +111,6 @@ public class Building {
 
     // CurrentBehaviourIndex = -1 = building is idle right now
     public int CurrentBehaviourIndex = -1;
-    public List<BuildingBehaviour> Behaviours = new();
     public List<(int, Vector2Int)> BookedTiles = new();
 
     #endregion

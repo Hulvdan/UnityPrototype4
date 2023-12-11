@@ -16,12 +16,12 @@ public class EmployeeController {
         var building = human.building!;
 
         if (human.currentBehaviourId >= 0) {
-            var beh = human.BehaviourSet.Behaviours[human.currentBehaviourId];
+            var beh = human.BehaviourSet.behaviours[human.currentBehaviourId];
             beh.OnExit(human.currentBehaviourId, building, _bdb, human, _db);
         }
 
         human.currentBehaviourId++;
-        if (human.currentBehaviourId >= human.BehaviourSet.Behaviours.Count) {
+        if (human.currentBehaviourId >= human.BehaviourSet.behaviours.Count) {
             human.currentBehaviourId = -1;
 
             // TODO: Event human finished processing cycle
@@ -29,7 +29,7 @@ public class EmployeeController {
             return;
         }
 
-        var newBeh = human.BehaviourSet.Behaviours[human.currentBehaviourId];
+        var newBeh = human.BehaviourSet.behaviours[human.currentBehaviourId];
         newBeh.OnEnter(human.currentBehaviourId, building, _bdb, human, _db);
     }
 

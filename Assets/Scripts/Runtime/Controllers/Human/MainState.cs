@@ -67,6 +67,8 @@ public class MainController {
                 case MainState.Building:
                     _constructionController.OnExit(human, _data);
                     break;
+                case MainState.Employee:
+                    break;
                 default:
                     throw new NotSupportedException();
             }

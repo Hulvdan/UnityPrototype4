@@ -12,13 +12,17 @@ public sealed class OutsourceEmployeeBuildingBehaviour : BuildingBehaviour {
 
     public override void OnEnter(Building building, BuildingDatabase bdb) {
         bdb.Controller.OutsourceEmployee(building, _employeeBehaviourSet);
-        building.employeeIsInside = false;
+        building.EmployeeIsInside = false;
     }
 
     public override void OnExit(Building building, BuildingDatabase bdb) {
         // TODO: Remove employee properly
         building.SpawnedHuman = null;
-        building.employeeIsInside = true;
+        building.EmployeeIsInside = true;
+    }
+
+    public override void BookRequiredTiles(Building building, BuildingDatabase bdb) {
+        _employeeBehaviourSet.BookRequiredTiles(building, bdb);
     }
 
     readonly EmployeeBehaviourSet _employeeBehaviourSet;
