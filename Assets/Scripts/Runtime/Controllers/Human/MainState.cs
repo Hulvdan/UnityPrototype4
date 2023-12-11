@@ -22,6 +22,8 @@ public enum MainState {
 }
 
 public class MainController {
+    readonly BuildingDatabase _bdb;
+    readonly HumanDatabase _db;
     readonly MovingInTheWorld _movingInTheWorld;
     readonly MovingInsideSegment _movingInsideSegment;
     readonly MovingResources _movingResources;
@@ -37,6 +39,8 @@ public class MainController {
         BuildingDatabase bdb,
         HumanDatabase db
     ) {
+        _bdb = bdb;
+        _db = db;
         _movingInTheWorld = new(this);
         _movingInsideSegment = new(this);
         _movingResources = new(this);
@@ -109,6 +113,9 @@ public class MainController {
             case MainState.Building:
                 _constructionController.Update(human, _data, dt);
                 break;
+            case MainState.Employee:
+                _employeeController.Update(human, _data, dt);
+                break;
             default:
                 throw new NotSupportedException();
         }
@@ -153,6 +160,9 @@ public class MainController {
                 break;
             case MainState.MovingResource:
                 _movingResources.OnHumanMovedToTheNextTile(human, _data);
+                break;
+            case MainState.Employee:
+                _employeeController.OnHumanMovedToTheNextTile(human, _data);
                 break;
             case MainState.Building:
                 throw new NotSupportedException();

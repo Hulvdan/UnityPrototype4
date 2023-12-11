@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using BFG.Runtime.Controllers.Human;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -41,13 +42,15 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
     }
 
     public override void OnEnter(
-        int behaviourId,
-        Building building,
-        BuildingDatabase bdb,
         Human human,
+        BuildingDatabase bdb,
         HumanDatabase db
     ) {
-        Assert.IsTrue(CanBeRun(behaviourId, building, bdb));
+        Assert.AreNotEqual(human.building, null);
+        Assert.IsTrue(human.currentBehaviourId >= 0);
+        var building = human.building!;
+
+        Assert.IsTrue(CanBeRun(human.currentBehaviourId, building, bdb));
 
         if (_type == HumanDestinationType.Building) {
             return;
@@ -61,6 +64,12 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
 
         Assert.AreEqual(human.moving.Path.Count, 0);
         human.moving.AddPath(path.Value);
+    }
+
+    public override void OnHumanMovedToTheNextTile(Human human, HumanData data, HumanDatabase db) {
+        if (human.moving.to == null) {
+            db.Controller.SwitchToTheNextBehaviour(human);
+        }
     }
 
     static Vector2Int? VisitTilesAroundWorkingArea(
