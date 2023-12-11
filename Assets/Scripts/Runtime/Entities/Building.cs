@@ -92,16 +92,6 @@ public class Building {
         return true;
     }
 
-    public void StartProcessingCycle(BuildingDatabase bdb) {
-        Assert.AreEqual(CurrentBehaviourIndex, -1);
-
-        foreach (var beh in scriptable.behaviours) {
-            beh.BookRequiredTiles(this, bdb);
-        }
-
-        CurrentBehaviourIndex = 0;
-    }
-
     public Vector2Int WorkingAreaBottomLeftPos;
 
     public float takingResourceElapsed;

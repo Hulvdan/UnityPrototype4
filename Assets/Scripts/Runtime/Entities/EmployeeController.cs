@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using BFG.Runtime.Controllers.Human;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
@@ -17,7 +18,7 @@ public class EmployeeController {
 
         if (human.currentBehaviourId >= 0) {
             var beh = human.BehaviourSet.behaviours[human.currentBehaviourId];
-            beh.OnExit(human.currentBehaviourId, building, _bdb, human, _db);
+            beh.OnExit(human, _bdb, _db);
         }
 
         human.currentBehaviourId++;
@@ -30,7 +31,17 @@ public class EmployeeController {
         }
 
         var newBeh = human.BehaviourSet.behaviours[human.currentBehaviourId];
-        newBeh.OnEnter(human.currentBehaviourId, building, _bdb, human, _db);
+        newBeh.OnEnter(human, _bdb, _db);
+    }
+
+    public void OnHumanMovedToTheNextTile(Human human, HumanData data) {
+        var beh = human.BehaviourSet.behaviours[human.currentBehaviourId];
+        beh.OnHumanMovedToTheNextTile(human, data, _db);
+    }
+
+    public void Update(Human human, HumanData data, float dt) {
+        var beh = human.BehaviourSet.behaviours[human.currentBehaviourId];
+        beh.UpdateDt(human, _bdb, _db, dt);
     }
 
     readonly BuildingDatabase _bdb;

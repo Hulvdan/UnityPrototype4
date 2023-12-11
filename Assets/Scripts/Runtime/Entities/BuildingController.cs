@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using UnityEngine.Assertions;
+
 namespace BFG.Runtime.Entities {
 public class BuildingController {
     public BuildingController(BuildingDatabase bdb) {
@@ -36,7 +38,13 @@ public class BuildingController {
         }
 
         if (building.CanStartProcessingCycle(_bdb)) {
-            building.StartProcessingCycle(_bdb);
+            Assert.AreEqual(building.CurrentBehaviourIndex, -1);
+
+            foreach (var beh in building.scriptable.behaviours) {
+                beh.BookRequiredTiles(building, _bdb);
+            }
+
+            SwitchToTheNextBehaviour(building);
         }
 
         if (building.CurrentBehaviourIndex != -1) {

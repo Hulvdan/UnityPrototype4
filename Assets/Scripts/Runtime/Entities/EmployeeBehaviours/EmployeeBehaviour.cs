@@ -1,5 +1,8 @@
 ﻿#nullable enable
 
+using System;
+using BFG.Runtime.Controllers.Human;
+
 namespace BFG.Runtime.Entities {
 public abstract class EmployeeBehaviour {
     public virtual bool CanBeRun(int behaviourId, Building building, BuildingDatabase bdb) {
@@ -14,34 +17,28 @@ public abstract class EmployeeBehaviour {
     }
 
     public virtual void OnEnter(
-        int behaviourId,
-        Building building,
-        BuildingDatabase bdb,
         Human human,
+        BuildingDatabase bdb,
         HumanDatabase db
     ) {
     }
 
     public virtual void OnExit(
-        int behaviourId,
-        Building building,
-        BuildingDatabase bdb,
         Human human,
+        BuildingDatabase bdb,
         HumanDatabase db
     ) {
     }
 
     public virtual void UpdateDt(
-        int behaviourId,
-        Building building,
-        BuildingDatabase bdb,
         Human human,
+        BuildingDatabase bdb,
         HumanDatabase db,
         float dt
     ) {
-        if (human.moving.to == null) {
-            db.Controller.SwitchToTheNextBehaviour(human);
-        }
+    }
+
+    public virtual void OnHumanMovedToTheNextTile(Human human, HumanData data, HumanDatabase db) {
     }
 }
 }

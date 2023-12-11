@@ -755,6 +755,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
             else if (reason == HumanRemovalReason.EmployeeReachedBuilding) {
                 onEmployeeReachedBuilding.OnNext(new() { Human = human });
+                Assert.AreNotEqual(human.building, null);
+                human.building!.employee = null;
             }
 
             _humans.RemoveAt(_humans.IndexOf(human));

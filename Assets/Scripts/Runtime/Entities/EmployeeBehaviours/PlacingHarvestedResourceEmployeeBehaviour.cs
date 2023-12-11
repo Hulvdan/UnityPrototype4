@@ -19,20 +19,16 @@ public sealed class PlacingHarvestedResourceEmployeeBehaviour : EmployeeBehaviou
     }
 
     public override void OnEnter(
-        int behaviourId,
-        Building building,
-        BuildingDatabase bdb,
         Human human,
+        BuildingDatabase bdb,
         HumanDatabase db
     ) {
         // TODO: Event on started placing the resource
     }
 
     public override void OnExit(
-        int behaviourId,
-        Building building,
-        BuildingDatabase bdb,
         Human human,
+        BuildingDatabase bdb,
         HumanDatabase db
     ) {
         // TODO: Event on finished placing the resource
