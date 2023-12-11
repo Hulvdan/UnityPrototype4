@@ -1,4 +1,6 @@
 ﻿#nullable enable
+using UnityEngine.Assertions;
+
 namespace BFG.Runtime.Entities {
 public class EmployeeController {
     public EmployeeController(BuildingDatabase bdb, HumanDatabase db) {
@@ -7,19 +9,28 @@ public class EmployeeController {
         db.Controller = this;
     }
 
-    public void SwitchToTheNextBehaviour(int behaviourId, Building building, Human human) {
-        human.BehaviourSet.Behaviours[behaviourId].OnExit(behaviourId, building, _bdb, human, _db);
+    public void SwitchToTheNextBehaviour(Human human) {
+        Assert.AreEqual(human.type, Human.Type.Employee);
+        Assert.AreNotEqual(human.building, null);
+
+        var building = human.building!;
+
+        if (human.currentBehaviourId >= 0) {
+            var beh = human.BehaviourSet.Behaviours[human.currentBehaviourId];
+            beh.OnExit(human.currentBehaviourId, building, _bdb, human, _db);
+        }
 
         human.currentBehaviourId++;
-        if (behaviourId >= human.BehaviourSet.Behaviours.Count) {
+        if (human.currentBehaviourId >= human.BehaviourSet.Behaviours.Count) {
             human.currentBehaviourId = -1;
+
             // TODO: Event human finished processing cycle
             _bdb.Controller.SwitchToTheNextBehaviour(building);
             return;
         }
 
-        var newBeh = human.BehaviourSet.Behaviours[behaviourId];
-        newBeh.OnEnter(behaviourId, building, _bdb, human, _db);
+        var newBeh = human.BehaviourSet.Behaviours[human.currentBehaviourId];
+        newBeh.OnEnter(human.currentBehaviourId, building, _bdb, human, _db);
     }
 
     readonly BuildingDatabase _bdb;

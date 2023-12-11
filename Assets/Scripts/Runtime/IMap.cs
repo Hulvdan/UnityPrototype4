@@ -18,6 +18,7 @@ public interface IMap {
     Subject<E_HumanCreated> onHumanCreated { get; }
     Subject<E_CityHallCreatedHuman> onCityHallCreatedHuman { get; }
     Subject<E_HumanReachedCityHall> onHumanReachedCityHall { get; }
+    Subject<E_EmployeeReachedBuilding> onEmployeeReachedBuilding { get; }
 
     Subject<E_HumanMovedToTheNextTile> onHumanMovedToTheNextTile { get; }
 
@@ -46,7 +47,12 @@ public interface IMap {
     void OnBuildingConstructed(Building building, Human constructor);
 
     IBookedTiles bookedTiles { get; }
-    void CreateEmployee(Building building, EmployeeBehaviourSet behaviourSet);
+
+    void CreateHuman_Employee_ForTheNextProcessingCycle(
+        Building building,
+        EmployeeBehaviourSet behaviourSet
+    );
+
     void EmployeeReachedBuildingCallback(Human human);
 }
 }

@@ -119,7 +119,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public void Init() {
         _initialMapProvider.Init(this, this);
-        _buildingController = new(new(this, this));
 
         foreach (var building in buildings) {
             building.constructionElapsed = building.scriptable.ConstructionDuration;
@@ -145,7 +144,12 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
 
         _resourceTransportation = new(this, this);
-        _humanController = new(this, this, cityHall, _resourceTransportation);
+        var buildingDatabase = new BuildingDatabase(this, this);
+        var humanDatabase = new HumanDatabase(this, this);
+        _buildingController = new(buildingDatabase);
+        _humanController = new(
+            this, this, cityHall, _resourceTransportation, buildingDatabase, humanDatabase
+        );
 
         if (Application.isPlaying) {
             // TryBuild(new(8, 8), new() { Type = SelectedItemType.Road });
@@ -636,21 +640,25 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     #region HumanSystem
 
-    public float humanMovingOneTileDuration => _humanMovingOneTileDuration;
+    float humanMovingOneTileDuration => _humanMovingOneTileDuration;
     public IBookedTiles bookedTiles { get; } = new BookedTilesSet();
 
-    public void CreateEmployee(Building building, EmployeeBehaviourSet behaviourSet) {
+    public void CreateHuman_Employee_ForTheNextProcessingCycle(
+        Building building,
+        EmployeeBehaviourSet behaviourSet
+    ) {
         Assert.AreEqual(building.scriptable.type, BuildingType.Harvest);
 
         var human = Human.Employee(Guid.NewGuid(), building.pos, building);
         human.BehaviourSet = behaviourSet;
+        human.state = MainState.Employee;
 
         Assert.AreEqual(building.employee, null);
         building.employee = human;
 
         _humansToAdd.Add(human);
 
-        FinalizeNewHuman(building, human);
+        FinalizeNewHuman(building, human, MainState.Employee);
     }
 
     public void EmployeeReachedBuildingCallback(Human human) {
@@ -685,7 +693,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         segment.AssignedHuman = human;
         _humans.Add(human);
 
-        FinalizeNewHuman(cityHall, human);
+        FinalizeNewHuman(cityHall, human, MainState.MovingInTheWorld);
     }
 
     void CreateHuman_Constructor(Building cityHall, Building building) {
@@ -693,7 +701,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         building.constructor = human;
         _humansToAdd.Add(human);
 
-        FinalizeNewHuman(cityHall, human);
+        FinalizeNewHuman(cityHall, human, MainState.MovingInTheWorld);
     }
 
     void CreateHuman_Employee(Building cityHall, Building building) {
@@ -706,11 +714,11 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         _humansToAdd.Add(human);
 
-        FinalizeNewHuman(cityHall, human);
+        FinalizeNewHuman(cityHall, human, MainState.MovingInTheWorld);
     }
 
-    void FinalizeNewHuman(Building building, Human human) {
-        _humanController.SetState(human, MainState.Employee);
+    void FinalizeNewHuman(Building building, Human human, MainState state) {
+        _humanController.SetState(human, state);
 
         onHumanCreated.OnNext(new() { Human = human });
 
@@ -746,9 +754,14 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             if (reason == HumanRemovalReason.TransporterReturnedCityHall) {
                 onHumanReachedCityHall.OnNext(new() { Human = human });
             }
+            else if (reason == HumanRemovalReason.EmployeeReachedBuilding) {
+                onEmployeeReachedBuilding.OnNext(new() { Human = human });
+            }
 
-            _humans.RemoveAt(_humans.FindIndex(i => i == human));
+            _humans.RemoveAt(_humans.IndexOf(human));
         }
+
+        _humansToRemove.Clear();
     }
 
     void UpdateHuman(float dt, Human human, List<(HumanRemovalReason, Human)> humansToRemove) {
@@ -816,6 +829,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     public Subject<E_CityHallCreatedHuman> onCityHallCreatedHuman { get; } = new();
 
     public Subject<E_HumanReachedCityHall> onHumanReachedCityHall { get; } = new();
+    public Subject<E_EmployeeReachedBuilding> onEmployeeReachedBuilding { get; } = new();
 
     public Subject<E_HumanMovedToTheNextTile>
         onHumanMovedToTheNextTile { get; } = new();

@@ -40,7 +40,7 @@ public abstract class EmployeeBehaviour {
         float dt
     ) {
         if (human.moving.to == null) {
-            db.Controller.SwitchToTheNextBehaviour(behaviourId, building, human);
+            db.Controller.SwitchToTheNextBehaviour(human);
         }
     }
 }

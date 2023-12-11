@@ -26,18 +26,22 @@ public class MainController {
     readonly MovingInsideSegment _movingInsideSegment;
     readonly MovingResources _movingResources;
     readonly ConstructionController _constructionController;
+    readonly EmployeeController _employeeController;
     readonly HumanData _data;
 
     public MainController(
         IMap map,
         IMapSize mapSize,
         Building cityHall,
-        ResourceTransportation resourceTransportation
+        ResourceTransportation resourceTransportation,
+        BuildingDatabase bdb,
+        HumanDatabase db
     ) {
         _movingInTheWorld = new(this);
         _movingInsideSegment = new(this);
         _movingResources = new(this);
         _constructionController = new(this);
+        _employeeController = new(bdb, db);
 
         _data = new(map, mapSize, cityHall, resourceTransportation, 1f, 1f, 2f, 1f);
     }
@@ -80,6 +84,9 @@ public class MainController {
                 break;
             case MainState.Building:
                 _constructionController.OnEnter(human, _data);
+                break;
+            case MainState.Employee:
+                _employeeController.SwitchToTheNextBehaviour(human);
                 break;
             default:
                 throw new NotSupportedException();
