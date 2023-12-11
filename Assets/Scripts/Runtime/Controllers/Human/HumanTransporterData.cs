@@ -1,4 +1,5 @@
-﻿using BFG.Runtime.Entities;
+﻿using System;
+using BFG.Runtime.Entities;
 using BFG.Runtime.Systems;
 
 namespace BFG.Runtime.Controllers.Human {

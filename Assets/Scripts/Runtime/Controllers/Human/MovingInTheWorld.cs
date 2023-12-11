@@ -78,6 +78,17 @@ public class MovingInTheWorld {
         ) {
             _controller.SetState(human, MainState.Building);
         }
+
+        if (human.type == Entities.Human.Type.Employee) {
+            Assert.AreNotEqual(human.building, null);
+
+            if (human.moving.pos == human.building!.pos) {
+                Assert.AreEqual(human.moving.to, null);
+
+                // TODO: Event Employee reached building. Delete him
+                data.map.EmployeeReachedBuildingCallback(human);
+            }
+        }
     }
 
     void UpdateStates(

@@ -22,7 +22,7 @@ public class HumanBinding {
     public List<AnimationCurve> CurvePerFeedback = new();
 
     [NonSerialized]
-    public List<Vector2Int> MovementPathSplitIntoCells = new();
+    public List<Vector2Int> MovementPathSplitIntoTiles = new();
 
     [NonSerialized]
     public int CurrentIndex;
@@ -38,7 +38,7 @@ public class HumanBinding {
             var b = path[i + 1];
 
             foreach (var tile in GetFromToTiles(a, b)) {
-                MovementPathSplitIntoCells.Add(tile);
+                MovementPathSplitIntoTiles.Add(tile);
             }
         }
 
@@ -47,26 +47,26 @@ public class HumanBinding {
             var b = path[i - 1];
 
             foreach (var tile in GetFromToTiles(a, b)) {
-                MovementPathSplitIntoCells.Add(tile);
+                MovementPathSplitIntoTiles.Add(tile);
             }
         }
     }
 
     public Vector2Int UpdateNextTileInPath() {
         CurrentIndex++;
-        while (CurrentIndex >= MovementPathSplitIntoCells.Count) {
-            CurrentIndex -= MovementPathSplitIntoCells.Count;
+        while (CurrentIndex >= MovementPathSplitIntoTiles.Count) {
+            CurrentIndex -= MovementPathSplitIntoTiles.Count;
         }
 
         return Vector2Int.zero;
     }
 
     public Vector2Int GetMovingFrom() {
-        return MovementPathSplitIntoCells[CurrentIndex];
+        return MovementPathSplitIntoTiles[CurrentIndex];
     }
 
     public Vector2Int GetMovingTo() {
-        return MovementPathSplitIntoCells[(CurrentIndex + 1) % MovementPathSplitIntoCells.Count];
+        return MovementPathSplitIntoTiles[(CurrentIndex + 1) % MovementPathSplitIntoTiles.Count];
     }
 
     List<Vector2Int> GetFromToTiles(Vector2Int from, Vector2Int to) {

@@ -1,5 +1,4 @@
 ﻿#nullable enable
-using UnityEngine;
 
 namespace BFG.Runtime.Entities {
 public class BuildingController {
@@ -8,8 +7,8 @@ public class BuildingController {
         bdb.Controller = this;
     }
 
-    public Human CreateEmployee(EmployeeBehaviourSet behaviourSet, Vector2Int pos) {
-        return _bdb.Map.CreateEmployee(behaviourSet, pos);
+    public void OutsourceEmployee(Building building, EmployeeBehaviourSet behaviourSet) {
+        _bdb.Map.CreateEmployee(building, behaviourSet);
     }
 
     public void SwitchToTheNextBehaviour(Building building) {
