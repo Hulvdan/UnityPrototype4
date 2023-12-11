@@ -18,76 +18,26 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
         return VisitTilesAroundWorkingArea(building, bdb, function) != null;
     }
 
-    // Must be called upon building starting its processing cycle
     public override void BookRequiredTiles(
         int behaviourId,
         Building building,
         BuildingDatabase bdb
     ) {
-        switch (building.scriptable.type) {
-            case BuildingType.Harvest:
-                BookHarvestTile(behaviourId, building, bdb);
-                break;
-            case BuildingType.Plant:
-                BookPlantTile(behaviourId, building, bdb);
-                break;
-            case BuildingType.Fish:
-                // TODO(Hulvdan): Implement fishing
-                throw new NotImplementedException();
-            case BuildingType.Produce:
-            case BuildingType.SpecialCityHall:
-                throw new NotSupportedException();
-            default:
-                throw new NotImplementedException();
-        }
-    }
-
-    void BookHarvestTile(int behaviourIndex, Building building, BuildingDatabase bdb) {
-        var bottomLeft = building.workingAreaBottomLeftPos;
-        var size = building.scriptable.WorkingAreaSize;
-
-        // TODO(Hulvdan): Randomization
-        for (var y = bottomLeft.y; y < size.y; y++) {
-            for (var x = bottomLeft.x; x < size.x; x++) {
-                if (!bdb.MapSize.Contains(x, y)) {
-                    continue;
-                }
-
-                var pos = new Vector2Int(x, y);
-                if (!CanHarvestAt(building, bdb, pos)) {
-                    continue;
-                }
-
-                building.BookedTiles.Add(new(behaviourIndex, pos));
-                bdb.Map.bookedTiles.Add(pos);
-                return;
-            }
+        if (
+            _type is not (
+            HumanDestinationType.Fishing
+            or HumanDestinationType.Harvesting
+            or HumanDestinationType.Planting
+            )
+        ) {
+            return;
         }
 
-        Assert.IsTrue(false);
-    }
+        var pos = VisitTilesAroundWorkingArea(building, bdb, GetVisitFunction());
+        Assert.AreNotEqual(pos, null);
 
-    static void BookPlantTile(int behaviourIndex, Building building, BuildingDatabase bdb) {
-        var bottomLeft = building.workingAreaBottomLeftPos;
-        var size = building.scriptable.WorkingAreaSize;
-
-        // TODO(Hulvdan): Randomization
-        for (var y = bottomLeft.y; y < size.y; y++) {
-            for (var x = bottomLeft.x; x < size.x; x++) {
-                if (!bdb.MapSize.Contains(x, y)) {
-                    continue;
-                }
-
-                if (!CanPlantAt(building, bdb, new(x, y))) {
-                    continue;
-                }
-
-                var tilePos = new Vector2Int(x, y);
-                building.BookedTiles.Add(new(behaviourIndex, tilePos));
-                bdb.Map.bookedTiles.Add(tilePos);
-                return;
-            }
-        }
+        building.BookedTiles.Add(new(behaviourId, pos!.Value));
+        bdb.Map.bookedTiles.Add(pos.Value);
     }
 
     public override void OnEnter(
@@ -118,11 +68,11 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
         BuildingDatabase bdb,
         Func<Building, BuildingDatabase, Vector2Int, bool> function
     ) {
-        var bottomLeft = building.workingAreaBottomLeftPos;
+        var bottomLeft = building.WorkingAreaBottomLeftPos;
         var size = building.scriptable.WorkingAreaSize;
 
-        for (var y = bottomLeft.y; y < size.y; y++) {
-            for (var x = bottomLeft.x; x < size.x; x++) {
+        for (var y = bottomLeft.y; y < bottomLeft.y + size.y; y++) {
+            for (var x = bottomLeft.x; x < bottomLeft.x + size.x; x++) {
                 var pos = new Vector2Int(x, y);
                 if (!bdb.MapSize.Contains(pos)) {
                     continue;

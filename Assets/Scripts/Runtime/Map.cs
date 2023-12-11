@@ -651,7 +651,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
         var human = Human.Employee(Guid.NewGuid(), building.pos, building);
         human.BehaviourSet = behaviourSet;
-        human.state = MainState.Employee;
 
         Assert.AreEqual(building.employee, null);
         building.employee = human;

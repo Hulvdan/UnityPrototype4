@@ -13,22 +13,24 @@ public class BuildingController {
 
     public void SwitchToTheNextBehaviour(Building building) {
         building.CurrentBehaviourIndex++;
-        if (building.CurrentBehaviourIndex >= building.scriptable.buildingBehaviours.Count) {
+        if (building.CurrentBehaviourIndex >= building.scriptable.behaviours.Count) {
             building.CurrentBehaviourIndex = -1;
             // TODO: Event building finished processing cycle
             return;
         }
 
-        var newBeh = building.scriptable.buildingBehaviours[building.CurrentBehaviourIndex];
+        var newBeh = building.scriptable.behaviours[building.CurrentBehaviourIndex];
         newBeh.OnEnter(building, _bdb);
     }
 
     public void Update(Building building, float dt) {
         if (
             building.scriptable.type
-            is BuildingType.Fish
+            is not (
+            BuildingType.Fish
             or BuildingType.Harvest
             or BuildingType.Plant
+            )
         ) {
             return;
         }
@@ -38,7 +40,7 @@ public class BuildingController {
         }
 
         if (building.CurrentBehaviourIndex != -1) {
-            var beh = building.scriptable.buildingBehaviours[building.CurrentBehaviourIndex];
+            var beh = building.scriptable.behaviours[building.CurrentBehaviourIndex];
             beh.UpdateDt(building, _bdb, dt);
         }
     }

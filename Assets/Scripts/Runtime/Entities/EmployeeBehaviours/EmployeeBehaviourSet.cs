@@ -1,15 +1,18 @@
 ﻿#nullable enable
 using System.Collections.Generic;
+using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
 public sealed class EmployeeBehaviourSet {
     public EmployeeBehaviourSet(List<EmployeeBehaviour> behaviours) {
-        _behaviours = behaviours;
+        this.behaviours = behaviours;
     }
 
     public bool CanBeRun(Building building, BuildingDatabase bdb) {
-        for (var i = 0; i < _behaviours.Count; i++) {
-            if (!_behaviours[i].CanBeRun(i, building, bdb)) {
+        Assert.IsTrue(behaviours.Count > 0);
+
+        for (var i = 0; i < behaviours.Count; i++) {
+            if (!behaviours[i].CanBeRun(i, building, bdb)) {
                 return false;
             }
         }
@@ -17,14 +20,13 @@ public sealed class EmployeeBehaviourSet {
         return true;
     }
 
-    public void BookRequiredTiles(int behaviourId, Building building, BuildingDatabase bdb) {
-        foreach (var beh in _behaviours) {
-            beh.BookRequiredTiles(behaviourId, building, bdb);
+    public void BookRequiredTiles(Building building, BuildingDatabase bdb) {
+        for (var i = 0; i < behaviours.Count; i++) {
+            var beh = behaviours[i];
+            beh.BookRequiredTiles(i, building, bdb);
         }
     }
 
-    readonly List<EmployeeBehaviour> _behaviours;
-
-    public List<EmployeeBehaviour> Behaviours => _behaviours;
+    public List<EmployeeBehaviour> behaviours { get; }
 }
 }

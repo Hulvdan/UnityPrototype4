@@ -19,6 +19,7 @@ public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
         }
 
         Assert.IsTrue(foundIndex >= 0);
+        db.Map.bookedTiles.Remove(building.BookedTiles[foundIndex].Item2);
         building.BookedTiles.RemoveAt(foundIndex);
     }
 }

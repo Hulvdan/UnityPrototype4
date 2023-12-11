@@ -41,7 +41,7 @@ public class MovingInTheWorld {
 
         if (human.type == Entities.Human.Type.Employee) {
             Assert.AreNotEqual(human.building, null);
-            human.building!.employeeIsInside = true;
+            human.building!.EmployeeIsInside = true;
             // TODO: Somehow remove this human
         }
     }
@@ -85,8 +85,8 @@ public class MovingInTheWorld {
             if (human.moving.pos == human.building!.pos) {
                 Assert.AreEqual(human.moving.to, null);
 
-                // TODO: Event Employee reached building. Delete him
                 data.map.EmployeeReachedBuildingCallback(human);
+                human.building.EmployeeIsInside = true;
             }
         }
     }

@@ -71,7 +71,7 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     float _buildingDuration = 4f;
 
     [SerializeField]
-    Vector2Int? _workingAreaSize;
+    Vector2Int _workingAreaSize = -Vector2Int.one;
 
     [Header("Behaviour")]
     [SerializeField]
@@ -122,8 +122,9 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
                 case BuildingType.Harvest:
                 case BuildingType.Plant:
                 case BuildingType.Fish:
-                    Assert.AreNotEqual(_workingAreaSize, null);
-                    return _workingAreaSize!.Value;
+                    Assert.IsTrue(_workingAreaSize.x > 0);
+                    Assert.IsTrue(_workingAreaSize.y > 0);
+                    return _workingAreaSize;
                 case BuildingType.Produce:
                 case BuildingType.SpecialCityHall:
                 default:
@@ -134,7 +135,7 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
 
     List<BuildingBehaviour> _buildingBehaviours;
 
-    public List<BuildingBehaviour> buildingBehaviours {
+    public List<BuildingBehaviour> behaviours {
         get {
             if (_buildingBehaviours == null) {
                 _buildingBehaviours = new();
