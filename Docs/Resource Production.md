@@ -27,9 +27,9 @@ Building can start a `processing cycle` if there is no one in progress and preco
 
 Examples of building processing cycle `specific preconditions`:
 
-- `Lumberjack's Hut`. There is an unbooked terrain tile in specified area around the building that contains forest.
-- `Forester's Hut`. There is an unbooked terrain tile in specified area around the building that forest can be planted onto.
-- `Fisherman's Hut`. There is an unbooked solid terrain tile in specified are around the building that is adjacent to a lake that is also not booked
+- `Lumberjack's Hut`. There is an unbooked terrain tile in the specified area around the building that contains forest.
+- `Forester's Hut`. There is an unbooked terrain tile in the specified area around the building that forest can be planted onto.
+- `Fisherman's Hut`. There is an unbooked solid terrain tile in the specified are around the building that is adjacent to a lake that's also not booked
 - `Mine`. There's a specific food on the building's tile.
 
 Examples of building processing cycle `common preconditions`:
@@ -37,27 +37,26 @@ Examples of building processing cycle `common preconditions`:
 - If building produces resources:
   - There is less than `4` resources that building produces on the tile where building creates them
 
+That leads us to the concepts of `Building Behaviour` and `Human Behaviour`.
 
-That leads us to concepts of `Building Behaviour` and `Human Behaviour`.
-
-`Building Behaviour` is a set of specific tasks that building performs. Examples of these include:
+`Building Behaviour` is a set of specific tasks that building can perform. Examples of these include:
 
 - Idle
 - Processing
   - Consume a resource
   - Processing
   - Produce a resource
-- Create an `employee` with a specific set of behaviours.
-- Book tile
+- Create an `employee` with a specific set of behaviours & wait for his cycle's completion
+- Book a tile
 
 `Employee` contains a set of behaviours:
 
 - Choose a destination
   - Choose a building
   - Choose a terrain tile with a resource that can be harvested
-  - Choose a tile where sapling can be planted
+  - Choose a tile where a sapling can be planted
   - Choose a tile where a resource can be picked up
-  - Choose a tile whwre resource can be placed
+  - Choose a tile where a resource can be placed
 - Go to the destination
 - Processing
 - Pick up a resource
@@ -65,4 +64,8 @@ That leads us to concepts of `Building Behaviour` and `Human Behaviour`.
 
 ### Code samples
 
+TBD
+
 ## Conclusion
+
+TBD
