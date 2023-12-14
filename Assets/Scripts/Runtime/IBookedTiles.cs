@@ -31,6 +31,7 @@ public class BookedTilesSparseList : IBookedTiles {
 
         if (_tiles[^1] == tile) {
             _tiles.RemoveAt(_tiles.Count - 1);
+            return;
         }
 
         for (var i = 0; i < _tiles.Count; i++) {
