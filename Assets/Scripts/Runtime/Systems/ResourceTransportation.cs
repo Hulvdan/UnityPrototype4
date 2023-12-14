@@ -5,7 +5,6 @@ using BFG.Core;
 using BFG.Graphs;
 using BFG.Runtime.Entities;
 using BFG.Runtime.Graphs;
-using Foundation.Architecture;
 using Priority_Queue;
 using UnityEngine;
 using UnityEngine.Assertions;
