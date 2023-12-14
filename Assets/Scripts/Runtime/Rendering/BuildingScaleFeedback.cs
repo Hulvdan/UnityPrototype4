@@ -29,7 +29,7 @@ internal class BuildingScaleFeedback : BuildingFeedback {
 
         var t = _curve.Evaluate(progress);
         var scale = Vector2.one + Vector2.Lerp(-_scaleAmplitude, _scaleAmplitude, t);
-        data.Scale = scale;
+        data.scale = scale;
     }
 }
 }

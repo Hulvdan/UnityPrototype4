@@ -16,7 +16,7 @@ public class GStringKeyDrawer : PropertyDrawer {
         EditorGUI.indentLevel = 0;
 
         var labelRect = new Rect(position.x, position.y, 240, position.height);
-        var keyProperty = property.FindPropertyRelative(nameof(GStringKey.Key));
+        var keyProperty = property.FindPropertyRelative(nameof(GStringKey.key));
         EditorGUI.DelayedTextField(labelRect, keyProperty, GUIContent.none);
 
         if (GUILayout.Button("Change")) {

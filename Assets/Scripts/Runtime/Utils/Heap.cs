@@ -54,7 +54,7 @@ public class Heap<T> {
         }
     }
 
-    public int Count => _list.Count;
+    public int count => _list.Count;
 
     void HeapifyUp(int index) {
         while (index > 0) {

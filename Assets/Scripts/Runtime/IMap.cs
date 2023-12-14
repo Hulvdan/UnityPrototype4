@@ -29,8 +29,8 @@ public interface IMap {
 
     Subject<E_BuildingPlaced> onBuildingPlaced { get; }
 
-    Subject<E_HumanStartedConstructingBuilding> OnHumanStartedConstructingBuilding { get; }
-    Subject<E_HumanConstructedBuilding> OnHumanConstructedBuilding { get; }
+    Subject<E_HumanStartedConstructingBuilding> onHumanStartedConstructingBuilding { get; }
+    Subject<E_HumanConstructedBuilding> onHumanConstructedBuilding { get; }
 
     void TryBuild(Vector2Int pos, ItemToBuild item);
     bool CanBePlaced(Vector2Int pos, ItemToBuildType itemType);

@@ -26,8 +26,8 @@ public class LocalizationDatabaseLoader {
             var records = csv.GetRecords<LocalizationRecordRaw>();
             foreach (var rec in records) {
                 translations.Add(rec.key, new() {
-                    En = rec.en,
-                    Ru = rec.ru,
+                    en = rec.en,
+                    ru = rec.ru,
                 });
             }
         }

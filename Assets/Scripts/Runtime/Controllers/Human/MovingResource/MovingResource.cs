@@ -13,8 +13,8 @@ public class MovingResource {
 
         Assert.AreNotEqual(human.movingResources, MRState.MovingResource);
         Assert.AreNotEqual(human.movingResources_targetedResource, null);
-        Assert.AreEqual(human.movingResources_targetedResource!.TargetedHuman, human);
-        Assert.AreEqual(human.movingResources_targetedResource!.CarryingHuman, human);
+        Assert.AreEqual(human.movingResources_targetedResource!.targetedHuman, human);
+        Assert.AreEqual(human.movingResources_targetedResource!.carryingHuman, human);
 
         human.movingResources = MRState.MovingResource;
     }

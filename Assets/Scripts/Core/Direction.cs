@@ -26,7 +26,7 @@ public static class DirectionExtensions {
 }
 
 public static class DirectionOffsets {
-    public static readonly Vector2Int[] Offsets = {
+    public static readonly Vector2Int[] OFFSETS = {
         new(1, 0),
         new(0, 1),
         new(-1, 0),

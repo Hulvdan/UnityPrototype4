@@ -18,7 +18,6 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     [ShowIf("_type", BuildingType.Harvest)]
     ScriptableResource _harvestableResource;
 
-    [FormerlySerializedAs("_cellsRadius")]
     [SerializeField]
     [ShowIf("_type", BuildingType.Harvest)]
     [Min(0)]
@@ -79,7 +78,7 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
 
     public BuildingType type => _type;
 
-    public float ConstructionDuration => _buildingDuration;
+    public float constructionDuration => _buildingDuration;
 
     public ScriptableResource harvestableResource {
         get {
@@ -108,7 +107,7 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
 
     public List<ScriptableResource> takes => _takes;
     public ScriptableResource produces => _produces;
-    public float ItemProcessingDuration => _itemProcessingDuration;
+    public float itemProcessingDuration => _itemProcessingDuration;
 
     public TileBase tile => _tile;
     public Vector2Int size => _size;
@@ -116,7 +115,7 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
 
     public List<RequiredResourceToBuild> requiredResourcesToBuild => _requiredResourcesToBuild;
 
-    public Vector2Int WorkingAreaSize {
+    public Vector2Int workingAreaSize {
         get {
             switch (type) {
                 case BuildingType.Harvest:

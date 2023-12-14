@@ -1,6 +1,6 @@
 ﻿namespace BFG.Runtime.Localization {
 public enum Language {
-    EN = 0,
-    RU = 1,
+    En = 0,
+    Ru = 1,
 }
 }

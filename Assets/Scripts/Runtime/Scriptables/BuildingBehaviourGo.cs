@@ -14,11 +14,9 @@ public enum BuildingBehaviourGoType {
 
 [Serializable]
 public class BuildingBehaviourGo {
-    [FormerlySerializedAs("Type")]
     [SerializeField]
     BuildingBehaviourGoType _type;
 
-    [FormerlySerializedAs("EmployeeBehaviours")]
     [SerializeField]
     [ShowIf("_type", BuildingBehaviourGoType.OutsourceEmployee)]
     List<EmployeeBehaviourGo> _employeeBehaviours;

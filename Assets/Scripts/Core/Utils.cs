@@ -65,7 +65,7 @@ public static class Utils {
         return true;
     }
 
-    public static readonly Direction[] Directions = {
+    public static readonly Direction[] DIRECTIONS = {
         Core.Direction.Right,
         Core.Direction.Up,
         Core.Direction.Left,

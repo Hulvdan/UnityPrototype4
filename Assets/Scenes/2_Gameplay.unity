@@ -931,70 +931,70 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _sounds:
-  - Event:
+  - ev:
       Guid:
         Data1: 946250835
         Data2: 1187869595
         Data3: 813410196
         Data4: -1241333025
       Path: event:/UI/ButtonSelected
-    Sound: 0
-  - Event:
+    sound: 0
+  - ev:
       Guid:
         Data1: -1993055290
         Data2: 1279163592
         Data3: -1221641311
         Data4: -1530510038
       Path: event:/UI/ButtonDeselected
-    Sound: 1
-  - Event:
+    sound: 1
+  - ev:
       Guid:
         Data1: 1279280097
         Data2: 1272053035
         Data3: 388051627
         Data4: 812272074
       Path: event:/Gameplay/Resource Placements/BuildingPlaced
-    Sound: 3
-  - Event:
+    sound: 3
+  - ev:
       Guid:
         Data1: 1639265599
         Data2: 1198976220
         Data3: 2048674978
         Data4: 340129965
       Path: event:/Gameplay/Resource Placements/CityHallSpawnedHuman
-    Sound: 5
-  - Event:
+    sound: 5
+  - ev:
       Guid:
         Data1: 218103772
         Data2: 1138624726
         Data3: -80801115
         Data4: 1595428509
       Path: event:/Gameplay/Resource Placements/FlagPlaced
-    Sound: 4
-  - Event:
+    sound: 4
+  - ev:
       Guid:
         Data1: 392891251
         Data2: 1168555912
         Data3: -1100099947
         Data4: -254381693
       Path: event:/Gameplay/Resource Placements/RoadPlaced
-    Sound: 2
-  - Event:
+    sound: 2
+  - ev:
       Guid:
         Data1: -1223601413
         Data2: 1206275127
         Data3: 112857221
         Data4: -1701108188
       Path: event:/Gameplay/Humans/Footsteps
-    Sound: 6
-  - Event:
+    sound: 6
+  - ev:
       Guid:
         Data1: -1664409130
         Data2: 1204178310
         Data3: -2044484969
         Data4: -825206866
       Path: event:/Gameplay/Buildings/ResourcePlacedInside
-    Sound: 7
+    sound: 7
 --- !u!1001 &445830223
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2667,6 +2667,10 @@ PrefabInstance:
       propertyPath: _building
       value: 
       objectReference: {fileID: 11400000, guid: 59b7b8a76de0c50428e3ddae6cbf039b, type: 2}
+    - target: {fileID: 1962483450866880944, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
+      propertyPath: _itemType
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 4402270601040282001, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
       propertyPath: m_Name
       value: Buildable (3).1
@@ -2876,7 +2880,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 2.9921875
+  orthographic size: 3.59375
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -5276,7 +5280,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 930130d6a7514d13839c28844e5eca5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PrintTrace: 0
+  printTrace: 0
 --- !u!1 &1291946405
 GameObject:
   m_ObjectHideFlags: 0
@@ -8973,7 +8977,7 @@ MonoBehaviour:
   _forestThreshold: 0.732
   _maxForestAmount: 3
   _maxHeight: 2
-  OnTerrainTilesRegenerated:
+  onTerrainTilesRegenerated:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1879392621}
@@ -8995,10 +8999,6 @@ MonoBehaviour:
     _buildingProgress: 1
   _logResource: {fileID: 11400000, guid: 361152873045e084892d56e677d6d740, type: 2}
   _planksResource: {fileID: 11400000, guid: 10745982271be284fb0df31da327cdba, type: 2}
-  _topBarResources:
-  - {fileID: 11400000, guid: 10745982271be284fb0df31da327cdba, type: 2}
-  - {fileID: 11400000, guid: 45af1427840af3a4a98b31727bdd67b4, type: 2}
-  - {fileID: 11400000, guid: ae832cc99114055458e3b3270e527dd6, type: 2}
   _initialMapProvider: {fileID: 795772558}
   _hideEditorLogs: 0
   _humanSpawningDelay: 0.6
@@ -9031,34 +9031,9 @@ MonoBehaviour:
   _itemsLayer: {fileID: 2040351865}
   _itemPrefab: {fileID: 8175125910645311947, guid: bcf84f38c6b6e414db8990ba390ed555, type: 3}
   _scaleFeedback: {fileID: 1031849578}
-  _buildingMovingItemToTheWarehouseDuration: 0.3
-  _buildingMovingItemToTheWarehouseDurationCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
   _sinCosScale: 8
   _movementPattern:
-    Feedbacks:
+    feedbacks:
     - {fileID: 18081502}
     - {fileID: 1291946407}
     - {fileID: 469993244}
@@ -9527,6 +9502,10 @@ PrefabInstance:
       propertyPath: _building
       value: 
       objectReference: {fileID: 11400000, guid: 59b7b8a76de0c50428e3ddae6cbf039b, type: 2}
+    - target: {fileID: 1962483450866880944, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
+      propertyPath: _itemType
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 4402270601040282001, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
       propertyPath: m_Name
       value: Buildable (3).2

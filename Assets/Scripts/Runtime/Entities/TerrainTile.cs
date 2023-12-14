@@ -5,13 +5,13 @@ namespace BFG.Runtime.Entities {
 ///     Is it a grass, a cliff?
 /// </summary>
 public class TerrainTile {
-    public int Height;
-    public bool IsBooked;
-    public string Name;
+    public int height;
+    public bool isBooked;
+    public string name;
 
     [CanBeNull]
-    public ScriptableResource Resource;
+    public ScriptableResource resource;
 
-    public int ResourceAmount;
+    public int resourceAmount;
 }
 }

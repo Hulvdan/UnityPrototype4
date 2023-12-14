@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace BFG.Runtime {
 public class E_ItemPlaced {
-    public ItemToBuildType Item;
-    public Vector2Int Pos;
+    public ItemToBuildType item;
+    public Vector2Int pos;
 }
 }

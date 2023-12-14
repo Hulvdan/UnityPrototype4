@@ -2,6 +2,6 @@
 
 namespace BFG.Runtime {
 public class E_HumanCreated {
-    public Human Human;
+    public Human human;
 }
 }

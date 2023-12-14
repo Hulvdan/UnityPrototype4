@@ -18,8 +18,8 @@ public class ConstructionController {
         Assert.AreEqual(human.segment, null, "human.segment == null");
 
         Assert.AreEqual(human.moving.to, null, "human.movingTo == null");
-        Assert.AreEqual(human.moving.Path.Count, 0, "human.movingPath.Count == 0");
-        Assert.AreEqual(human.building.pos, human.moving.pos);
+        Assert.AreEqual(human.moving.path.Count, 0, "human.movingPath.Count == 0");
+        Assert.AreEqual(human.building!.pos, human.moving.pos);
 
         Assert.IsFalse(human.building.isConstructed);
     }
@@ -42,8 +42,8 @@ public class ConstructionController {
         Assert.AreNotEqual(building, null);
 
         building!.constructionElapsed += dt;
-        if (building.constructionElapsed > building.scriptable.ConstructionDuration) {
-            building.constructionElapsed = building.scriptable.ConstructionDuration;
+        if (building.constructionElapsed > building.scriptable.constructionDuration) {
+            building.constructionElapsed = building.scriptable.constructionDuration;
         }
 
         if (building.constructionProgress >= 1) {

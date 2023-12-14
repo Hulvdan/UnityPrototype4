@@ -7,36 +7,36 @@ using UnityEngine;
 
 namespace BFG.Runtime.Entities {
 public class MapResource : IEquatable<MapResource> {
-    public readonly Guid ID;
-    public readonly ScriptableResource Scriptable;
+    public readonly Guid id;
+    public readonly ScriptableResource scriptable;
 
-    public Vector2Int Pos;
-    public MapResourceType Type;
+    public Vector2Int pos;
+    public MapResourceType type;
 
-    public MapResourceBooking? Booking;
+    public MapResourceBooking? booking;
 
-    public readonly List<GraphSegment> TransportationSegments;
-    public readonly UniqueList<Vector2Int> TransportationVertices;
+    public readonly List<GraphSegment> transportationSegments;
+    public readonly UniqueList<Vector2Int> transportationVertices;
 
-    public Human? TargetedHuman;
-    public Human? CarryingHuman;
+    public Human? targetedHuman;
+    public Human? carryingHuman;
 
     public MapResource(
-        Vector2Int pos,
-        ScriptableResource scriptable,
-        MapResourceType type = MapResourceType.CityHallItem
+        Vector2Int pos_,
+        ScriptableResource scriptable_,
+        MapResourceType type_ = MapResourceType.CityHallItem
     ) {
-        ID = Guid.NewGuid();
-        Pos = pos;
-        Scriptable = scriptable;
-        Booking = null;
-        Type = type;
-        TransportationSegments = new();
-        TransportationVertices = new();
+        id = Guid.NewGuid();
+        pos = pos_;
+        scriptable = scriptable_;
+        booking = null;
+        type = type_;
+        transportationSegments = new();
+        transportationVertices = new();
     }
 
     public bool Equals(MapResource other) {
-        return ID.Equals(other.ID);
+        return id.Equals(other.id);
     }
 
     public override bool Equals(object? obj) {
@@ -44,7 +44,7 @@ public class MapResource : IEquatable<MapResource> {
     }
 
     public override int GetHashCode() {
-        return ID.GetHashCode();
+        return id.GetHashCode();
     }
 }
 }

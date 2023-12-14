@@ -26,34 +26,34 @@ public class Human {
     }
 
     Human(
-        Guid id,
-        Type type,
+        Guid id_,
+        Type type_,
         Vector2Int currentPos,
-        GraphSegment? segment,
-        Building? building
+        GraphSegment? segment_,
+        Building? building_
     ) {
-        switch (type) {
+        switch (type_) {
             case Type.Transporter:
-                Assert.AreNotEqual(segment, null);
-                Assert.AreEqual(building, null);
+                Assert.AreNotEqual(segment_, null);
+                Assert.AreEqual(building_, null);
                 break;
             case Type.Constructor:
             case Type.Employee:
-                Assert.AreNotEqual(building, null);
-                Assert.AreEqual(segment, null);
+                Assert.AreNotEqual(building_, null);
+                Assert.AreEqual(segment_, null);
                 break;
             default:
                 throw new NotSupportedException();
         }
 
-        ID = id;
-        this.segment = segment;
-        this.building = building;
-        this.type = type;
+        id = id_;
+        segment = segment_;
+        building = building_;
+        type = type_;
         moving = new(currentPos);
     }
 
-    public Guid ID { get; }
+    public Guid id { get; }
     public HumanMovingComponent moving { get; }
 
     public GraphSegment? segment { get; set; }
@@ -82,12 +82,11 @@ public class Human {
 
     #region Employee
 
-    public float Employee_TimeSinceLastWork;
     public float harvestingElapsed;
     public HumanDestination? destination { get; set; }
     public int currentBehaviourId = -1;
 
-    public EmployeeBehaviourSet BehaviourSet;
+    public EmployeeBehaviourSet behaviourSet;
 
     #endregion
 }

@@ -13,7 +13,6 @@ public class HumanGO : MonoBehaviour {
     [SerializeField]
     AnimationCurve _itemPickupCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
-    [FormerlySerializedAs("_itemDropCurve")]
     [SerializeField]
     AnimationCurve _itemPlacingCurve = AnimationCurve.Linear(0, 0, 1, 1);
 

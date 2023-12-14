@@ -22,10 +22,10 @@ public class MovingInTheWorld {
 
         if (human.segment != null) {
             Tracing.Log(
-                $"human.segment.resourcesToTransport.Count = {human.segment.ResourcesToTransport.Count}");
+                $"human.segment.resourcesToTransport.Count = {human.segment.resourcesToTransport.Count}");
         }
 
-        human.moving.Path.Clear();
+        human.moving.path.Clear();
         UpdateStates(human, data, null, null);
     }
 
@@ -37,11 +37,11 @@ public class MovingInTheWorld {
 
         human.stateMovingInTheWorld = null;
         human.moving.to = null;
-        human.moving.Path.Clear();
+        human.moving.path.Clear();
 
         if (human.type == Entities.Human.Type.Employee) {
             Assert.AreNotEqual(human.building, null);
-            human.building!.EmployeeIsInside = true;
+            human.building!.employeeIsInside = true;
             // TODO: Somehow remove this human
         }
     }
@@ -67,10 +67,7 @@ public class MovingInTheWorld {
         UpdateStates(human, data, oldSegment, null);
     }
 
-    public void OnHumanMovedToTheNextTile(
-        Entities.Human human,
-        HumanData data
-    ) {
+    public void OnHumanMovedToTheNextTile(Entities.Human human, HumanData data) {
         if (
             human.type == Entities.Human.Type.Constructor
             && human.building != null
@@ -86,7 +83,7 @@ public class MovingInTheWorld {
                 Assert.AreEqual(human.moving.to, null);
 
                 data.map.EmployeeReachedBuildingCallback(human);
-                human.building.EmployeeIsInside = true;
+                human.building.employeeIsInside = true;
             }
         }
     }
@@ -108,10 +105,10 @@ public class MovingInTheWorld {
             // We don't need to keep the path anymore
             if (
                 human.moving.to != null
-                && human.segment.Graph.Contains(human.moving.to.Value)
-                && human.segment.Graph.Node(human.moving.to.Value) != 0
+                && human.segment.graph.Contains(human.moving.to.Value)
+                && human.segment.graph.Node(human.moving.to.Value) != 0
             ) {
-                human.moving.Path.Clear();
+                human.moving.path.Clear();
                 return;
             }
 
@@ -119,8 +116,8 @@ public class MovingInTheWorld {
             // Starting MovingInsideSegment
             if (
                 human.moving.to == null
-                && human.segment.Graph.Contains(human.moving.pos)
-                && human.segment.Graph.Node(human.moving.pos) != 0
+                && human.segment.graph.Contains(human.moving.pos)
+                && human.segment.graph.Node(human.moving.pos) != 0
             ) {
                 Tracing.Log("_controller.SetState(human, HumanState.MovingInsideSegment)");
                 _controller.SetState(human, MainState.MovingInsideSegment);
@@ -134,11 +131,11 @@ public class MovingInTheWorld {
                 Tracing.Log("Setting human.stateMovingInTheWorld = State.MovingToSegment");
                 human.stateMovingInTheWorld = State.MovingToDestination;
 
-                var center = human.segment.Graph.GetCenters()[0];
+                var center = human.segment.graph.GetCenters()[0];
                 var path = data.map.FindPath(human.moving.to ?? human.moving.pos, center, true);
 
-                Assert.IsTrue(path.Success);
-                human.moving.AddPath(path.Value);
+                Assert.IsTrue(path.success);
+                human.moving.AddPath(path.value);
             }
         }
         else if (human.building != null) {
@@ -155,14 +152,14 @@ public class MovingInTheWorld {
             }
 
             if (!ReferenceEquals(oldBuilding, human.building)) {
-                human.moving.Path.Clear();
+                human.moving.path.Clear();
 
                 var path = data.map.FindPath(
                     human.moving.to ?? human.moving.pos, human.building.pos, true
                 );
 
-                Assert.IsTrue(path.Success);
-                human.moving.AddPath(path.Value);
+                Assert.IsTrue(path.success);
+                human.moving.AddPath(path.value);
             }
         }
         else if (human.stateMovingInTheWorld != State.MovingToTheCityHall) {
@@ -173,8 +170,8 @@ public class MovingInTheWorld {
                 human.moving.to ?? human.moving.pos, data.cityHall.pos, true
             );
 
-            Assert.IsTrue(path.Success);
-            human.moving.AddPath(path.Value);
+            Assert.IsTrue(path.success);
+            human.moving.AddPath(path.value);
         }
     }
 

@@ -49,13 +49,13 @@ public class InitialMapProvider : MonoBehaviour {
 
                 ElementTile tile;
                 if (tilemapTile == _roadTile) {
-                    tile = ElementTile.Road;
+                    tile = ElementTile.ROAD;
                 }
                 else if (isCityHall) {
                     tile = new(ElementTileType.Building, foundBuilding);
                 }
                 else {
-                    tile = ElementTile.None;
+                    tile = ElementTile.NONE;
                 }
 
                 row.Add(tile);
