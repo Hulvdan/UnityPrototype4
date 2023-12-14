@@ -9,34 +9,24 @@ using UnityEngine.Serialization;
 
 namespace BFG.Prototyping {
 public class HumansMovement : MonoBehaviour {
-    [FormerlySerializedAs("OneTileMovementDuration")]
     public float oneTileMovementDuration = 1f;
 
-    [FormerlySerializedAs("Bindings")]
     public List<HumanBinding> bindings = new();
 
-    [FormerlySerializedAs("Rows")]
     public int rows = 9;
 
-    [FormerlySerializedAs("Columns")]
     public int columns = 4;
 
-    [FormerlySerializedAs("ColumnsGap")]
     public int columnsGap = 1;
 
-    [FormerlySerializedAs("RowsGap")]
     public int rowsGap = 1;
 
-    [FormerlySerializedAs("StartingRow")]
     public int startingRow;
 
-    [FormerlySerializedAs("StartingColumn")]
     public int startingColumn;
 
-    [FormerlySerializedAs("TravelDistanceX")]
     public int travelDistanceX = 2;
 
-    [FormerlySerializedAs("TravelDistanceY")]
     public int travelDistanceY;
 
     public Transform humansContainer;

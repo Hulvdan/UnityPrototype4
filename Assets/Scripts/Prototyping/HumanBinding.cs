@@ -10,14 +10,11 @@ using UnityEngine.Serialization;
 namespace BFG.Prototyping {
 [Serializable]
 public class HumanBinding {
-    [FormerlySerializedAs("Human")]
     [ReadOnly]
     public GameObject human;
 
-    [FormerlySerializedAs("Pattern")]
     public MovementPattern pattern;
 
-    [FormerlySerializedAs("Path")]
     [HideInInspector]
     public List<Vector2Int> path = new();
 

@@ -52,8 +52,6 @@ public enum ButtonState {
 }
 
 public class BuildableButton : MonoBehaviour {
-    [FormerlySerializedAs("ItemType")]
-    [FormerlySerializedAs("_item")]
     [SerializeField]
     [Required]
     ItemToBuildType _itemType;

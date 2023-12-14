@@ -214,7 +214,6 @@ public class SingletonMB<T> : MonoBehaviour where T : MonoBehaviour {
     /// <summary>
     ///  Set this to true either by code or in the inspector to print trace log messages
     /// </summary>
-    [FormerlySerializedAs("PrintTrace")]
     [Header("Debug")]
     public bool printTrace;
 

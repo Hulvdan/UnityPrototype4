@@ -6,7 +6,6 @@ using Random = UnityEngine.Random;
 
 namespace BFG.Runtime.Rendering {
 public abstract class MovementFeedback : MonoBehaviour {
-    [FormerlySerializedAs("RandomCurves")]
     [SerializeField]
     List<AnimationCurve> _randomCurves = new();
 

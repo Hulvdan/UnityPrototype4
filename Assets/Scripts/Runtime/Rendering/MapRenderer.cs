@@ -106,7 +106,6 @@ public class MapRenderer : MonoBehaviour {
     [Required]
     Tilemap _debugTilemap;
 
-    [FormerlySerializedAs("_debugTileUnwalkable")]
     [SerializeField]
     [Required]
     TileBase _debugTileUnbuildable;

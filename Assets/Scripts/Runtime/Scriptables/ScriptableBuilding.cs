@@ -18,7 +18,6 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     [ShowIf("_type", BuildingType.Harvest)]
     ScriptableResource _harvestableResource;
 
-    [FormerlySerializedAs("_cellsRadius")]
     [SerializeField]
     [ShowIf("_type", BuildingType.Harvest)]
     [Min(0)]

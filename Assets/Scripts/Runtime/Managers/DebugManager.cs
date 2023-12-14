@@ -20,7 +20,6 @@ public class DebugManager : MonoBehaviour {
     [SerializeField]
     GameObject _movementSystemPaths;
 
-    [FormerlySerializedAs("_unwalkableCells")]
     [SerializeField]
     GameObject _unwalkableTiles;
 

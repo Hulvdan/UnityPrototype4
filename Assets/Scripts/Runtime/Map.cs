@@ -65,12 +65,10 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [Min(0)]
     int _maxHeight = 1;
 
-    [FormerlySerializedAs("OnTerrainTilesRegenerated")]
     [FoldoutGroup("Setup", true)]
     [SerializeField]
     public UnityEvent onTerrainTilesRegenerated = null!;
 
-    [FormerlySerializedAs("_buildings")]
     [FoldoutGroup("Setup", true)]
     [SerializeField]
     List<BuildingGo> _buildingGameObjects = null!;

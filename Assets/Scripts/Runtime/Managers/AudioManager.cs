@@ -22,10 +22,8 @@ public enum Sound {
 
 [Serializable]
 public class SoundBinding {
-    [FormerlySerializedAs("Event")]
     public EventReference ev;
 
-    [FormerlySerializedAs("Sound")]
     public Sound sound;
 }
 
