@@ -6,6 +6,7 @@ using FMODUnity;
 using Foundation.Architecture;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Serialization;
 
 namespace BFG.Runtime {
 public enum Sound {
@@ -21,8 +22,9 @@ public enum Sound {
 
 [Serializable]
 public class SoundBinding {
-    public EventReference Event;
-    public Sound Sound;
+    public EventReference ev;
+
+    public Sound sound;
 }
 
 public class AudioManager : MonoBehaviour {
@@ -36,7 +38,7 @@ public class AudioManager : MonoBehaviour {
 
         _state = LoadAudioSettings();
         foreach (var sound in _sounds) {
-            _bindings.Add(sound.Sound, sound.Event);
+            _bindings.Add(sound.sound, sound.ev);
         }
 
         _masterBus = RuntimeManager.GetBus("bus:/");
@@ -50,7 +52,7 @@ public class AudioManager : MonoBehaviour {
         DomainEvents<E_ButtonSelected>.Subscribe(_ => PlaySound(Sound.UI_ButtonSelected));
         DomainEvents<E_ButtonDeselected>.Subscribe(_ => PlaySound(Sound.UI_ButtonDeselected));
         DomainEvents<E_ItemPlaced>.Subscribe(data => {
-            switch (data.Item) {
+            switch (data.item) {
                 case ItemToBuildType.Road:
                     PlaySound(Sound.GP_RoadPlaced);
                     break;
@@ -73,16 +75,16 @@ public class AudioManager : MonoBehaviour {
 
     AudioState LoadAudioSettings() {
         return new() {
-            masterVolume = PlayerPrefs.GetFloat(AudioState.Key_MasterVolume, .5f),
-            sfxVolume = PlayerPrefs.GetFloat(AudioState.Key_SfxVolume, .5f),
-            musicVolume = PlayerPrefs.GetFloat(AudioState.Key_MusicVolume, .5f),
+            masterVolume = PlayerPrefs.GetFloat(AudioState.KEY_MASTER_VOLUME, .5f),
+            sfxVolume = PlayerPrefs.GetFloat(AudioState.KEY_SFX_VOLUME, .5f),
+            musicVolume = PlayerPrefs.GetFloat(AudioState.KEY_MUSIC_VOLUME, .5f),
         };
     }
 
     void SaveAudioSettings() {
-        PlayerPrefs.SetFloat(AudioState.Key_MasterVolume, _state.masterVolume);
-        PlayerPrefs.SetFloat(AudioState.Key_SfxVolume, _state.sfxVolume);
-        PlayerPrefs.SetFloat(AudioState.Key_MusicVolume, _state.musicVolume);
+        PlayerPrefs.SetFloat(AudioState.KEY_MASTER_VOLUME, _state.masterVolume);
+        PlayerPrefs.SetFloat(AudioState.KEY_SFX_VOLUME, _state.sfxVolume);
+        PlayerPrefs.SetFloat(AudioState.KEY_MUSIC_VOLUME, _state.musicVolume);
     }
 
     void PlaySound(Sound sound) {
@@ -103,9 +105,9 @@ public class AudioManager : MonoBehaviour {
 }
 
 internal class AudioState {
-    public const string Key_MasterVolume = "Key_IsActive_MasterVolume";
-    public const string Key_SfxVolume = "Key_IsActive_SFXVolume";
-    public const string Key_MusicVolume = "Key_IsActive_MusicVolume";
+    public const string KEY_MASTER_VOLUME = "Key_IsActive_MasterVolume";
+    public const string KEY_SFX_VOLUME = "Key_IsActive_SFXVolume";
+    public const string KEY_MUSIC_VOLUME = "Key_IsActive_MusicVolume";
 
     public float masterVolume { get; set; }
     public float sfxVolume { get; set; }

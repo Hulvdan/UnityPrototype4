@@ -1,44 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
 using BFG.Core;
-using BFG.Runtime;
 using BFG.Runtime.Rendering;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Serialization;
 
 namespace BFG.Prototyping {
 [Serializable]
 public class HumanBinding {
     [ReadOnly]
-    public GameObject Human;
+    public GameObject human;
 
-    public MovementPattern Pattern;
+    public MovementPattern pattern;
 
     [HideInInspector]
-    public List<Vector2Int> Path = new();
+    public List<Vector2Int> path = new();
 
     [NonSerialized]
-    public List<AnimationCurve> CurvePerFeedback = new();
+    public List<AnimationCurve> curvePerFeedback = new();
 
     [NonSerialized]
-    public List<Vector2Int> MovementPathSplitIntoTiles = new();
+    public List<Vector2Int> movementPathSplitIntoTiles = new();
 
     [NonSerialized]
-    public int CurrentIndex;
+    public int currentIndex;
 
     public void Init() {
-        foreach (var feedback in Pattern.Feedbacks) {
-            CurvePerFeedback.Add(feedback.GetRandomCurve());
+        foreach (var feedback in pattern.feedbacks) {
+            curvePerFeedback.Add(feedback.GetRandomCurve());
         }
 
-        var path = Path;
         for (var i = 0; i < path.Count - 1; i++) {
             var a = path[i];
             var b = path[i + 1];
 
             foreach (var tile in GetFromToTiles(a, b)) {
-                MovementPathSplitIntoTiles.Add(tile);
+                movementPathSplitIntoTiles.Add(tile);
             }
         }
 
@@ -47,26 +46,26 @@ public class HumanBinding {
             var b = path[i - 1];
 
             foreach (var tile in GetFromToTiles(a, b)) {
-                MovementPathSplitIntoTiles.Add(tile);
+                movementPathSplitIntoTiles.Add(tile);
             }
         }
     }
 
     public Vector2Int UpdateNextTileInPath() {
-        CurrentIndex++;
-        while (CurrentIndex >= MovementPathSplitIntoTiles.Count) {
-            CurrentIndex -= MovementPathSplitIntoTiles.Count;
+        currentIndex++;
+        while (currentIndex >= movementPathSplitIntoTiles.Count) {
+            currentIndex -= movementPathSplitIntoTiles.Count;
         }
 
         return Vector2Int.zero;
     }
 
     public Vector2Int GetMovingFrom() {
-        return MovementPathSplitIntoTiles[CurrentIndex];
+        return movementPathSplitIntoTiles[currentIndex];
     }
 
     public Vector2Int GetMovingTo() {
-        return MovementPathSplitIntoTiles[(CurrentIndex + 1) % MovementPathSplitIntoTiles.Count];
+        return movementPathSplitIntoTiles[(currentIndex + 1) % movementPathSplitIntoTiles.Count];
     }
 
     List<Vector2Int> GetFromToTiles(Vector2Int from, Vector2Int to) {

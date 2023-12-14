@@ -2,9 +2,9 @@
 
 namespace BFG.Runtime.Entities {
 public class ItemToBuild {
-    public ItemToBuildType Type;
+    public ItemToBuildType type;
 
     [CanBeNull]
-    public ScriptableBuilding Building;
+    public ScriptableBuilding building;
 }
 }

@@ -2,8 +2,6 @@
 using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEngine.Serialization;
 
 namespace BFG.Runtime.Entities {
 public enum EmployeeBehaviourGoType {

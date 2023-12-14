@@ -3,6 +3,6 @@ using UnityEngine;
 
 namespace BFG.Runtime.Rendering {
 public class HumanBinding {
-    public List<AnimationCurve> CurvePerFeedback = new();
+    public List<AnimationCurve> curvePerFeedback = new();
 }
 }

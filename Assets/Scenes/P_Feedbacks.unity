@@ -1657,7 +1657,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41f49d243ff44941bde35be2f011bdb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomCurves:
+  _randomCurves:
   - serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -1928,9 +1928,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 2109072339}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -2039,9 +2036,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1284163573}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -2586,9 +2580,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1496390683}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -2781,9 +2772,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1737601504}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -2892,9 +2880,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 33493646}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -3003,9 +2988,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1069992070}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -3114,9 +3096,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1465812916}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -3477,9 +3456,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 36124384}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -3848,9 +3824,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 694744940}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -3989,7 +3962,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41f49d243ff44941bde35be2f011bdb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomCurves:
+  _randomCurves:
   - serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -4120,9 +4093,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 442347742}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -4361,9 +4331,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 591276715}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -4556,9 +4523,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1503551058}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -4667,9 +4631,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 156533602}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -4778,9 +4739,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 230470609}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -4935,9 +4893,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1971887273}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -5344,9 +5299,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 531814981}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -6073,7 +6025,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ebf42591ddb4116bc3cff54ac785285, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomCurves:
+  _randomCurves:
   - serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -6177,9 +6129,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 240078323}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -6578,7 +6527,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41f49d243ff44941bde35be2f011bdb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomCurves:
+  _randomCurves:
   - serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -6933,9 +6882,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1301806727}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -7128,9 +7074,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1594905226}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -7406,7 +7349,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fcaa5af5c0543d8903d25f6627290a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomCurves:
+  _randomCurves:
   - serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -7936,9 +7879,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 642045269}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -8345,9 +8285,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1080908715}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -8816,7 +8753,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fcaa5af5c0543d8903d25f6627290a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomCurves: []
+  _randomCurves: []
 --- !u!1 &1213430433
 GameObject:
   m_ObjectHideFlags: 0
@@ -9565,9 +9502,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 2104755004}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -10264,9 +10198,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1215100822}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -10375,9 +10306,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1685552878}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -10532,9 +10460,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 576681791}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -10941,9 +10866,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 395811709}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -11550,9 +11472,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1322583368}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -11745,9 +11664,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 589746850}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -12070,9 +11986,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1961141958}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -12165,7 +12078,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a67b616dd6409a9292d0654e281c9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomCurves:
+  _randomCurves:
   - serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -12653,9 +12566,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1349642357}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -12810,9 +12720,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 67793365}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -13219,7 +13126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fcaa5af5c0543d8903d25f6627290a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomCurves:
+  _randomCurves:
   - serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -13303,9 +13210,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 61475306}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -13485,9 +13389,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1226547721}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -13680,9 +13581,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 2110575056}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -14051,309 +13949,309 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a503f7857ed64b76b97a9646d938d84d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OneTileMovementDuration: 1
-  Bindings:
-  - Human: {fileID: 2096743050}
-    Pattern:
-      Feedbacks:
+  oneTileMovementDuration: 1
+  bindings:
+  - human: {fileID: 2096743050}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: -8, y: -5}
     - {x: -6, y: -5}
-  - Human: {fileID: 2096878271}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 2096878271}
+    pattern:
+      feedbacks:
       - {fileID: 961032054}
-    Path:
+    path:
     - {x: -8, y: -4}
     - {x: -6, y: -4}
-  - Human: {fileID: 1713683934}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1713683934}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
       - {fileID: 650526231}
-    Path:
+    path:
     - {x: -8, y: -3}
     - {x: -6, y: -3}
-  - Human: {fileID: 193541338}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 193541338}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
       - {fileID: 362111626}
-    Path:
+    path:
     - {x: -8, y: -2}
     - {x: -6, y: -2}
-  - Human: {fileID: 2041525671}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 2041525671}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
       - {fileID: 764657634}
-    Path:
+    path:
     - {x: -8, y: -1}
     - {x: -6, y: -1}
-  - Human: {fileID: 867511827}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 867511827}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
       - {fileID: 1960561847}
-    Path:
+    path:
     - {x: -8, y: 0}
     - {x: -6, y: 0}
-  - Human: {fileID: 1145381053}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1145381053}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
       - {fileID: 1642523830}
-    Path:
+    path:
     - {x: -8, y: 1}
     - {x: -6, y: 1}
-  - Human: {fileID: 1409600018}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1409600018}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
       - {fileID: 1960561847}
       - {fileID: 1642523830}
-    Path:
+    path:
     - {x: -8, y: 2}
     - {x: -6, y: 2}
-  - Human: {fileID: 200811807}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 200811807}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
       - {fileID: 1960561847}
       - {fileID: 1642523830}
       - {fileID: 32739056}
-    Path:
+    path:
     - {x: -8, y: 3}
     - {x: -6, y: 3}
-  - Human: {fileID: 650783159}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 650783159}
+    pattern:
+      feedbacks:
       - {fileID: 1785557573}
       - {fileID: 1960561847}
       - {fileID: 1642523830}
       - {fileID: 32739056}
-    Path:
+    path:
     - {x: -8, y: 4}
     - {x: -6, y: 4}
-  - Human: {fileID: 1591329054}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1591329054}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: -4, y: -5}
     - {x: -2, y: -5}
-  - Human: {fileID: 168473919}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 168473919}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: -4, y: -4}
     - {x: -2, y: -4}
-  - Human: {fileID: 203695974}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 203695974}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: -4, y: -3}
     - {x: -2, y: -3}
-  - Human: {fileID: 447502586}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 447502586}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: -4, y: -2}
     - {x: -2, y: -2}
-  - Human: {fileID: 1335059090}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1335059090}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: -4, y: -1}
     - {x: -2, y: -1}
-  - Human: {fileID: 443779942}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 443779942}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: -4, y: 0}
     - {x: -2, y: 0}
-  - Human: {fileID: 1800387115}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1800387115}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: -4, y: 1}
     - {x: -2, y: 1}
-  - Human: {fileID: 1465930067}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1465930067}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: -4, y: 2}
     - {x: -2, y: 2}
-  - Human: {fileID: 42657781}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 42657781}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: -4, y: 3}
     - {x: -2, y: 3}
-  - Human: {fileID: 1795381717}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1795381717}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: -4, y: 4}
     - {x: -2, y: 4}
-  - Human: {fileID: 436523766}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 436523766}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 0, y: -5}
     - {x: 2, y: -5}
-  - Human: {fileID: 1995733374}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1995733374}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 0, y: -4}
     - {x: 2, y: -4}
-  - Human: {fileID: 264035203}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 264035203}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 0, y: -3}
     - {x: 2, y: -3}
-  - Human: {fileID: 1698858637}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1698858637}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 0, y: -2}
     - {x: 2, y: -2}
-  - Human: {fileID: 1913897455}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1913897455}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 0, y: -1}
     - {x: 2, y: -1}
-  - Human: {fileID: 1403343512}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1403343512}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 0, y: 0}
     - {x: 2, y: 0}
-  - Human: {fileID: 343924067}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 343924067}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 0, y: 1}
     - {x: 2, y: 1}
-  - Human: {fileID: 1828681519}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1828681519}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 0, y: 2}
     - {x: 2, y: 2}
-  - Human: {fileID: 447178253}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 447178253}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 0, y: 3}
     - {x: 2, y: 3}
-  - Human: {fileID: 370811124}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 370811124}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 0, y: 4}
     - {x: 2, y: 4}
-  - Human: {fileID: 1568976796}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1568976796}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 4, y: -5}
     - {x: 6, y: -5}
-  - Human: {fileID: 835251402}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 835251402}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 4, y: -4}
     - {x: 6, y: -4}
-  - Human: {fileID: 1893699023}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1893699023}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 4, y: -3}
     - {x: 6, y: -3}
-  - Human: {fileID: 51976585}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 51976585}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 4, y: -2}
     - {x: 6, y: -2}
-  - Human: {fileID: 227288474}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 227288474}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 4, y: -1}
     - {x: 6, y: -1}
-  - Human: {fileID: 1038061879}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1038061879}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 4, y: 0}
     - {x: 6, y: 0}
-  - Human: {fileID: 524128532}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 524128532}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 4, y: 1}
     - {x: 6, y: 1}
-  - Human: {fileID: 1445664276}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1445664276}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 4, y: 2}
     - {x: 6, y: 2}
-  - Human: {fileID: 468021462}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 468021462}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 4, y: 3}
     - {x: 6, y: 3}
-  - Human: {fileID: 1637378839}
-    Pattern:
-      Feedbacks:
+  - human: {fileID: 1637378839}
+    pattern:
+      feedbacks:
       - {fileID: 1189792569}
-    Path:
+    path:
     - {x: 4, y: 4}
     - {x: 6, y: 4}
-  Rows: 10
-  Columns: 4
-  ColumnsGap: 3
-  RowsGap: 0
-  StartingRow: -5
-  StartingColumn: -8
-  TravelDistanceX: 2
-  TravelDistanceY: 0
+  rows: 10
+  columns: 4
+  columnsGap: 3
+  rowsGap: 0
+  startingRow: -5
+  startingColumn: -8
+  travelDistanceX: 2
+  travelDistanceY: 0
   humansContainer: {fileID: 1797112644}
   humanPrefab: {fileID: 3002592055168235560, guid: a0701c25212629e43b39f51cf8637b3b, type: 3}
   defaultMovementFeedbacks:
@@ -14418,9 +14316,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 596985664}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -14621,9 +14516,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1380739836}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -14800,7 +14692,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a67b616dd6409a9292d0654e281c9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomCurves:
+  _randomCurves:
   - serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -15418,9 +15310,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1820889947}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -15659,9 +15548,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1052856884}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -16274,9 +16160,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 1510215796}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:
@@ -16385,9 +16268,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _resourceSpriteRenderer: {fileID: 2040325870}
   _verticalOffset: {x: 0, y: 0.35}
-  _placingVerticalOffset: {x: 0, y: 0}
-  _itemPickupDuration: 0.3
-  _itemPlacingDuration: 0.3
   _itemPickupCurve:
     serializedVersion: 2
     m_Curve:

@@ -12,13 +12,13 @@ public sealed class PickingUpHarvestedResourceEmployeeBehaviour : EmployeeBehavi
         Assert.AreEqual(human.movingResources_pickingUpResourceProgress, 0);
         Assert.AreNotEqual(human.building, null);
 
-        var res = db.Map.CreateMapResource(
+        var res = db.map.CreateMapResource(
             human.moving.pos, human.building!.scriptable.harvestableResource
         );
         human.movingResources_targetedResource = res;
-        db.Map.onHumanStartedPickingUpResource.OnNext(new() {
-            Human = human,
-            Resource = res,
+        db.map.onHumanStartedPickingUpResource.OnNext(new() {
+            human = human,
+            resource = res,
         });
     }
 
@@ -31,9 +31,9 @@ public sealed class PickingUpHarvestedResourceEmployeeBehaviour : EmployeeBehavi
 
         human.movingResources_pickingUpResourceElapsed = 0;
         human.movingResources_pickingUpResourceProgress = 0;
-        db.Map.onHumanFinishedPickingUpResource.OnNext(new() {
-            Human = human,
-            Resource = human.movingResources_targetedResource!,
+        db.map.onHumanFinishedPickingUpResource.OnNext(new() {
+            human = human,
+            resource = human.movingResources_targetedResource!,
         });
     }
 
@@ -46,12 +46,12 @@ public sealed class PickingUpHarvestedResourceEmployeeBehaviour : EmployeeBehavi
     ) {
         human.movingResources_pickingUpResourceElapsed += dt;
         human.movingResources_pickingUpResourceProgress =
-            human.movingResources_pickingUpResourceElapsed / data.PickingUpResourceDuration;
+            human.movingResources_pickingUpResourceElapsed / data.pickingUpResourceDuration;
 
-        if (human.movingResources_pickingUpResourceElapsed >= data.PickingUpResourceDuration) {
-            human.movingResources_pickingUpResourceElapsed = data.PickingUpResourceDuration;
+        if (human.movingResources_pickingUpResourceElapsed >= data.pickingUpResourceDuration) {
+            human.movingResources_pickingUpResourceElapsed = data.pickingUpResourceDuration;
             human.movingResources_pickingUpResourceProgress = 1;
-            db.Controller.SwitchToTheNextBehaviour(human);
+            db.controller.SwitchToTheNextBehaviour(human);
         }
     }
 }

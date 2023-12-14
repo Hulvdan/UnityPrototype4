@@ -10,7 +10,7 @@ using Debug = UnityEngine.Debug;
 
 namespace BFG.Runtime {
 public static class Tracing {
-    static readonly bool TracingEnabled = Debug.isDebugBuild;
+    static readonly bool _TRACING_ENABLED = Debug.isDebugBuild;
     static TextWriter? _writer;
     static bool _closing;
     static int _collapseNumber;
@@ -56,7 +56,7 @@ public static class Tracing {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IDisposable Scope() {
-        if (!TracingEnabled) {
+        if (!_TRACING_ENABLED) {
             return Disposable.Empty;
         }
 
@@ -112,7 +112,7 @@ public static class Tracing {
     }
 
     static void Log(LogType type, string text) {
-        if (!TracingEnabled) {
+        if (!_TRACING_ENABLED) {
             return;
         }
 

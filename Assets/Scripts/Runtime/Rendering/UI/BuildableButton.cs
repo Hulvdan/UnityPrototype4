@@ -52,14 +52,12 @@ public enum ButtonState {
 }
 
 public class BuildableButton : MonoBehaviour {
-    [FormerlySerializedAs("ItemType")]
-    [FormerlySerializedAs("_item")]
     [SerializeField]
     [Required]
     ItemToBuildType _itemType;
 
     [SerializeField]
-    [ShowIf("ItemType", ItemToBuildType.Building)]
+    [ShowIf("_itemType", ItemToBuildType.Building)]
     [Required]
     [CanBeNull]
     ScriptableBuilding _building;
@@ -91,11 +89,11 @@ public class BuildableButton : MonoBehaviour {
 
     public ItemToBuild itemToBuild {
         get {
-            var item = new ItemToBuild { Type = _itemType };
+            var item = new ItemToBuild { type = _itemType };
 
             if (_itemType == ItemToBuildType.Building) {
                 Assert.IsNotNull(_building);
-                item.Building = _building;
+                item.building = _building;
             }
 
             return item;

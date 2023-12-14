@@ -16,24 +16,24 @@ public class MovingToResource {
         human.movingResources = MRState.MovingToResource;
 
         var segment = human.segment;
-        var res = segment!.ResourcesToTransport.First;
-        Assert.AreNotEqual(null, res.Booking);
+        var res = segment!.resourcesToTransport.First;
+        Assert.AreNotEqual(null, res.booking);
 
         human.movingResources_targetedResource = res;
-        res.TargetedHuman = human;
-        if (res.Pos == human.moving.pos && human.moving.to == null) {
+        res.targetedHuman = human;
+        if (res.pos == human.moving.pos && human.moving.to == null) {
             _controller.SetState(human, data, MRState.PickingUpResource);
             return;
         }
 
         Assert.AreEqual(null, human.moving.to, "human.movingTo == null");
-        Assert.AreEqual(0, human.moving.Path.Count, "human.movingPath.Count == 0");
+        Assert.AreEqual(0, human.moving.path.Count, "human.movingPath.Count == 0");
 
-        var graphContains = segment.Graph.Contains(human.moving.pos);
-        var nodeIsWalkable = segment.Graph.Node(human.moving.pos) != 0;
+        var graphContains = segment.graph.Contains(human.moving.pos);
+        var nodeIsWalkable = segment.graph.Node(human.moving.pos) != 0;
 
-        if (res.Pos != human.moving.pos && graphContains && nodeIsWalkable) {
-            human.moving.AddPath(segment.Graph.GetShortestPath(human.moving.pos, res.Pos));
+        if (res.pos != human.moving.pos && graphContains && nodeIsWalkable) {
+            human.moving.AddPath(segment.graph.GetShortestPath(human.moving.pos, res.pos));
         }
         else if (!graphContains || !nodeIsWalkable) {
             _controller.NestedState_Exit(human, data);
@@ -43,7 +43,7 @@ public class MovingToResource {
     public void OnExit(Entities.Human human, HumanData data) {
         using var _ = Tracing.Scope();
 
-        human.moving.Path.Clear();
+        human.moving.path.Clear();
     }
 
     public void Update(Entities.Human human, HumanData data, float dt) {
@@ -71,7 +71,7 @@ public class MovingToResource {
             return;
         }
 
-        if (human.moving.pos == human.movingResources_targetedResource.Pos) {
+        if (human.moving.pos == human.movingResources_targetedResource.pos) {
             _controller.SetState(human, data, MRState.PickingUpResource);
         }
     }

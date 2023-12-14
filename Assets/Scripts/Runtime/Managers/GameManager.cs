@@ -187,9 +187,9 @@ public class GameManager : MonoBehaviour {
         }
 
         if (_actionChangeLanguage.WasReleasedThisFrame()) {
-            var newLanguage = (int)LocalizationDatabase.Instance.CurrentLanguage + 1;
-            newLanguage %= (int)(Language.RU + 1);
-            LocalizationDatabase.Instance.ChangeLanguage((Language)newLanguage);
+            var newLanguage = (int)LocalizationDatabase.instance.currentLanguage + 1;
+            newLanguage %= (int)(Language.Ru + 1);
+            LocalizationDatabase.instance.ChangeLanguage((Language)newLanguage);
         }
     }
 

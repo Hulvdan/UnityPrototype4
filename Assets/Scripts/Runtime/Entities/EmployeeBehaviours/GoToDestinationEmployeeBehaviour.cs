@@ -47,8 +47,8 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
         var pos = VisitTilesAroundWorkingArea(building, bdb, GetVisitFunction(), null);
         Assert.AreNotEqual(pos, null);
 
-        building.BookedTiles.Add(new(_books!.Value, pos!.Value));
-        bdb.Map.bookedTiles.Add(pos.Value);
+        building.bookedTiles.Add(new(_books!.Value, pos!.Value));
+        bdb.map.bookedTiles.Add(pos.Value);
     }
 
     public override void OnEnter(
@@ -67,16 +67,16 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
             Assert.AreNotEqual(tilePos, null);
         }
 
-        var path = bdb.Map.FindPath(human.moving.pos, tilePos!.Value, false);
-        Assert.IsTrue(path.Success);
+        var path = bdb.map.FindPath(human.moving.pos, tilePos!.Value, false);
+        Assert.IsTrue(path.success);
 
-        Assert.AreEqual(human.moving.Path.Count, 0);
-        human.moving.AddPath(path.Value);
+        Assert.AreEqual(human.moving.path.Count, 0);
+        human.moving.AddPath(path.value);
     }
 
     public override void OnHumanMovedToTheNextTile(Human human, HumanData data, HumanDatabase db) {
         if (human.moving.to == null) {
-            db.Controller.SwitchToTheNextBehaviour(human);
+            db.controller.SwitchToTheNextBehaviour(human);
         }
     }
 
@@ -86,13 +86,13 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
         Func<Building, BuildingDatabase, Vector2Int, bool> function,
         List<Vector2Int>? tempBookedTiles
     ) {
-        var bottomLeft = building.WorkingAreaBottomLeftPos;
-        var size = building.scriptable.WorkingAreaSize;
+        var bottomLeft = building.workingAreaBottomLeftPos;
+        var size = building.scriptable.workingAreaSize;
 
         for (var y = bottomLeft.y; y < bottomLeft.y + size.y; y++) {
             for (var x = bottomLeft.x; x < bottomLeft.x + size.x; x++) {
                 var pos = new Vector2Int(x, y);
-                if (!bdb.MapSize.Contains(pos)) {
+                if (!bdb.mapSize.Contains(pos)) {
                     continue;
                 }
 
@@ -127,19 +127,19 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
             return false;
         }
 
-        var tile = bdb.Map.terrainTiles[pos.y][pos.x];
-        var tileBelow = bdb.Map.terrainTiles[pos.y - 1][pos.x];
+        var tile = bdb.map.terrainTiles[pos.y][pos.x];
+        var tileBelow = bdb.map.terrainTiles[pos.y - 1][pos.x];
 
         // `tile` is a cliff
-        if (tileBelow.Height < tile.Height) {
+        if (tileBelow.height < tile.height) {
             return false;
         }
 
-        if (tile.Resource != null) {
+        if (tile.resource != null) {
             return false;
         }
 
-        foreach (var b in bdb.Map.buildings) {
+        foreach (var b in bdb.map.buildings) {
             if (b.Contains(pos.x, pos.y)) {
                 return false;
             }
@@ -149,8 +149,8 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
     }
 
     static bool CanHarvestAt(Building building, BuildingDatabase bdb, Vector2Int pos) {
-        var tile = bdb.Map.terrainTiles[pos.y][pos.x];
-        return tile.Resource == building.scriptable.harvestableResource;
+        var tile = bdb.map.terrainTiles[pos.y][pos.x];
+        return tile.resource == building.scriptable.harvestableResource;
     }
 
     static bool CanFishAt(Building building, BuildingDatabase bdb, Vector2Int pos) {

@@ -4,30 +4,30 @@ using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
 public struct ResourceToBook : IEquatable<ResourceToBook> {
-    public Guid ID;
-    public ScriptableResource Scriptable;
-    public int Priority;
+    public Guid id;
+    public ScriptableResource scriptable;
+    public int priority;
 
-    public MapResourceBookingType BookingType;
-    public Building Building;
+    public MapResourceBookingType bookingType;
+    public Building building;
 
-    public MapResource? Debug_PreviousResource;
+    public MapResource? debug_previousResource;
 
     public static ResourceToBook FromMapResource(MapResource res) {
-        Assert.IsTrue(res.Booking != null);
-        var booking = res.Booking.Value;
+        Assert.IsTrue(res.booking != null);
+        var booking = res.booking.Value;
         return new() {
-            ID = Guid.NewGuid(),
-            Scriptable = res.Scriptable,
-            Priority = booking.Priority,
-            BookingType = booking.Type,
-            Building = booking.Building,
-            Debug_PreviousResource = res,
+            id = Guid.NewGuid(),
+            scriptable = res.scriptable,
+            priority = booking.priority,
+            bookingType = booking.type,
+            building = booking.building,
+            debug_previousResource = res,
         };
     }
 
     public bool Equals(ResourceToBook other) {
-        return ID.Equals(other.ID);
+        return id.Equals(other.id);
     }
 
     public override bool Equals(object? obj) {
@@ -35,7 +35,7 @@ public struct ResourceToBook : IEquatable<ResourceToBook> {
     }
 
     public override int GetHashCode() {
-        return ID.GetHashCode();
+        return id.GetHashCode();
     }
 }
 }

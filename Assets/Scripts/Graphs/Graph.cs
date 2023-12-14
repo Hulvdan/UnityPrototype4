@@ -10,7 +10,7 @@ using UnityEngine.Assertions;
 
 namespace BFG.Graphs {
 public sealed class Graph : IEquatable<Graph> {
-    const int DEV_NUMBER_OF_BUILD_PATH_ITERATIONS = 256;
+    const int _DEV_NUMBER_OF_BUILD_PATH_ITERATIONS = 256;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte Node(Vector2Int pos) {
@@ -104,9 +104,9 @@ public sealed class Graph : IEquatable<Graph> {
         //         v ← prev[u][v]
         //         path.prepend(v)
         //     return path
-        var nodeIndex2Pos = data.NodeIndex2Pos;
-        var pos2NodeIndex = data.Pos2NodeIndex;
-        var prev = data.Prev;
+        var nodeIndex2Pos = data.nodeIndex2Pos;
+        var pos2NodeIndex = data.pos2NodeIndex;
+        var prev = data.prev;
 
         Assert.IsTrue(pos2NodeIndex.ContainsKey(originPos - offset));
         Assert.IsTrue(pos2NodeIndex.ContainsKey(destinationPos - offset));
@@ -116,7 +116,7 @@ public sealed class Graph : IEquatable<Graph> {
         var path = new List<Vector2Int> { destinationPos };
         var currentIteration = 0;
         while (
-            currentIteration++ < DEV_NUMBER_OF_BUILD_PATH_ITERATIONS
+            currentIteration++ < _DEV_NUMBER_OF_BUILD_PATH_ITERATIONS
             && originNodeIndex != destinationNodeIndex
         ) {
             var i = prev[originNodeIndex][destinationNodeIndex];
@@ -126,7 +126,7 @@ public sealed class Graph : IEquatable<Graph> {
             path.Add(nodeIndex2Pos[destinationNodeIndex] + offset);
         }
 
-        Assert.IsTrue(currentIteration < DEV_NUMBER_OF_BUILD_PATH_ITERATIONS);
+        Assert.IsTrue(currentIteration < _DEV_NUMBER_OF_BUILD_PATH_ITERATIONS);
 
         path.Reverse();
         return path;
@@ -155,8 +155,8 @@ public sealed class Graph : IEquatable<Graph> {
         }
 
         var data = GetData();
-        var dist = data.Dist;
-        var nodeIndex2Pos = data.NodeIndex2Pos;
+        var dist = data.dist;
+        var nodeIndex2Pos = data.nodeIndex2Pos;
 
         // Counting values of eccentricity
         var nodeEccentricities = new int[_nodesCount];
@@ -209,7 +209,7 @@ public sealed class Graph : IEquatable<Graph> {
     bool AdjacentTilesAreConnected(int x, int y) {
         var node = nodes[y][x];
 
-        foreach (var dir in Utils.Directions) {
+        foreach (var dir in Utils.DIRECTIONS) {
             if (!GraphNode.Has(node, dir)) {
                 continue;
             }
@@ -435,10 +435,10 @@ public sealed class Graph : IEquatable<Graph> {
         Assert.AreNotEqual(Node(destination), (byte)0);
 
         var data = GetData();
-        var iOrigin = data.Pos2NodeIndex[origin];
-        var iDestination = data.Pos2NodeIndex[destination];
+        var iOrigin = data.pos2NodeIndex[origin];
+        var iDestination = data.pos2NodeIndex[destination];
 
-        return data.Dist[iOrigin][iDestination];
+        return data.dist[iOrigin][iDestination];
     }
 
     CalculatedGraphPathData RecalculateData() {
@@ -492,7 +492,7 @@ public sealed class Graph : IEquatable<Graph> {
                     continue;
                 }
 
-                foreach (var dir in Utils.Directions) {
+                foreach (var dir in Utils.DIRECTIONS) {
                     if (!GraphNode.Has(node, dir)) {
                         continue;
                     }
@@ -557,21 +557,21 @@ public sealed class Graph : IEquatable<Graph> {
 }
 
 internal class CalculatedGraphPathData {
-    public readonly int[][] Dist;
-    public readonly int[][] Prev;
-    public readonly Dictionary<int, Vector2Int> NodeIndex2Pos;
-    public readonly Dictionary<Vector2Int, int> Pos2NodeIndex;
+    public readonly int[][] dist;
+    public readonly int[][] prev;
+    public readonly Dictionary<int, Vector2Int> nodeIndex2Pos;
+    public readonly Dictionary<Vector2Int, int> pos2NodeIndex;
 
     public CalculatedGraphPathData(
-        int[][] dist,
-        int[][] prev,
-        Dictionary<int, Vector2Int> nodeIndex2Pos,
-        Dictionary<Vector2Int, int> pos2NodeIndex
+        int[][] dist_,
+        int[][] prev_,
+        Dictionary<int, Vector2Int> nodeIndex2Pos_,
+        Dictionary<Vector2Int, int> pos2NodeIndex_
     ) {
-        Dist = dist;
-        Prev = prev;
-        NodeIndex2Pos = nodeIndex2Pos;
-        Pos2NodeIndex = pos2NodeIndex;
+        dist = dist_;
+        prev = prev_;
+        nodeIndex2Pos = nodeIndex2Pos_;
+        pos2NodeIndex = pos2NodeIndex_;
     }
 }
 }

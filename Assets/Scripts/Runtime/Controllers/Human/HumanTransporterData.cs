@@ -1,5 +1,4 @@
-﻿using System;
-using BFG.Runtime.Entities;
+﻿using BFG.Runtime.Entities;
 using BFG.Runtime.Systems;
 
 namespace BFG.Runtime.Controllers.Human {
@@ -9,30 +8,30 @@ public class HumanData {
     public IMapSize mapSize { get; }
     public Building cityHall { get; }
 
-    public readonly float PickingUpResourceDuration;
-    public readonly float PlacingResourceDuration;
+    public readonly float pickingUpResourceDuration;
+    public readonly float placingResourceDuration;
 
-    public readonly float HarvestingDelay;
-    public readonly float ForestHarvestingDuration;
+    public readonly float harvestingDelay;
+    public readonly float forestHarvestingDuration;
 
     public HumanData(
-        IMap map,
-        IMapSize mapSize,
-        Building cityHall,
-        ResourceTransportation transportation,
-        float pickingUpResourceDuration,
-        float placingResourceDuration,
-        float harvestingDelay,
-        float forestHarvestingDuration
+        IMap map_,
+        IMapSize mapSize_,
+        Building cityHall_,
+        ResourceTransportation transportation_,
+        float pickingUpResourceDuration_,
+        float placingResourceDuration_,
+        float harvestingDelay_,
+        float forestHarvestingDuration_
     ) {
-        this.map = map;
-        this.mapSize = mapSize;
-        this.cityHall = cityHall;
-        PickingUpResourceDuration = pickingUpResourceDuration;
-        PlacingResourceDuration = placingResourceDuration;
-        HarvestingDelay = harvestingDelay;
-        ForestHarvestingDuration = forestHarvestingDuration;
-        this.transportation = transportation;
+        map = map_;
+        mapSize = mapSize_;
+        cityHall = cityHall_;
+        pickingUpResourceDuration = pickingUpResourceDuration_;
+        placingResourceDuration = placingResourceDuration_;
+        harvestingDelay = harvestingDelay_;
+        forestHarvestingDuration = forestHarvestingDuration_;
+        transportation = transportation_;
     }
 }
 }

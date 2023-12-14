@@ -3,10 +3,10 @@ using JetBrains.Annotations;
 
 namespace BFG.Runtime {
 public class E_HumanPlacedResource {
-    public Human Human;
-    public MapResource Resource;
+    public Human human;
+    public MapResource resource;
 
     [CanBeNull]
-    public Building Building;
+    public Building building;
 }
 }

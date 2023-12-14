@@ -2,7 +2,7 @@
 
 namespace BFG.Runtime {
 public class E_HumanStartedPickingUpResource {
-    public Human Human;
-    public MapResource Resource;
+    public Human human;
+    public MapResource resource;
 }
 }

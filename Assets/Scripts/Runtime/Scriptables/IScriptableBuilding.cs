@@ -13,14 +13,14 @@ public interface IScriptableBuilding {
     List<Vector2> producedItemsPositions { get; }
     List<ScriptableResource> takes { get; }
     ScriptableResource produces { get; }
-    float ItemProcessingDuration { get; }
+    float itemProcessingDuration { get; }
     TileBase tile { get; }
     Vector2Int size { get; }
     Vector2Int pickupableItemsCellOffset { get; }
     string name { get; }
     List<RequiredResourceToBuild> requiredResourcesToBuild { get; }
-    float ConstructionDuration { get; }
-    Vector2Int WorkingAreaSize { get; }
+    float constructionDuration { get; }
+    Vector2Int workingAreaSize { get; }
     List<BuildingBehaviour> behaviours { get; }
 }
 }

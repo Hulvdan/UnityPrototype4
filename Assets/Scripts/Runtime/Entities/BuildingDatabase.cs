@@ -2,15 +2,15 @@
 
 namespace BFG.Runtime.Entities {
 public class BuildingDatabase {
-    public BuildingDatabase(IMap map, IMapSize mapSize) {
-        Map = map;
-        MapSize = mapSize;
+    public BuildingDatabase(IMap map_, IMapSize mapSize_) {
+        map = map_;
+        mapSize = mapSize_;
     }
 
-    public readonly IMap Map;
-    public readonly IMapSize MapSize;
-    public BuildingController Controller;
+    public readonly IMap map;
+    public readonly IMapSize mapSize;
+    public BuildingController controller;
 
-    public int MaxHarvestableBuildingSameResourcesOnTheTile = 8;
+    public int maxHarvestableBuildingSameResourcesOnTheTile = 8;
 }
 }

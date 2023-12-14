@@ -2,12 +2,11 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
 public class Building {
-    public bool isConstructed => constructionElapsed >= scriptable.ConstructionDuration;
-    public float constructionProgress => constructionElapsed / scriptable.ConstructionDuration;
+    public bool isConstructed => constructionElapsed >= scriptable.constructionDuration;
+    public float constructionProgress => constructionElapsed / scriptable.constructionDuration;
     public float constructionElapsed { get; set; }
 
     public Human? constructor { get; set; }
@@ -24,24 +23,24 @@ public class Building {
 
     Guid _id;
 
-    public readonly List<ResourceToBook> ResourcesToBook = new();
+    public readonly List<ResourceToBook> resourcesToBook = new();
 
     public Building(
         Guid id,
-        IScriptableBuilding scriptable,
+        IScriptableBuilding scriptable_,
         Vector2Int pos,
-        float constructionElapsed
+        float constructionElapsed_
     ) {
         _id = id;
-        this.scriptable = scriptable;
+        scriptable = scriptable_;
         posX = pos.x;
         posY = pos.y;
 
-        this.constructionElapsed = constructionElapsed;
-        WorkingAreaBottomLeftPos = -Vector2Int.one;
+        constructionElapsed = constructionElapsed_;
+        workingAreaBottomLeftPos = -Vector2Int.one;
 
-        if (scriptable.type is BuildingType.Fish or BuildingType.Harvest or BuildingType.Plant) {
-            WorkingAreaBottomLeftPos = pos - scriptable.WorkingAreaSize / 2;
+        if (scriptable_.type is BuildingType.Fish or BuildingType.Harvest or BuildingType.Plant) {
+            workingAreaBottomLeftPos = pos - scriptable_.workingAreaSize / 2;
         }
     }
 
@@ -56,13 +55,13 @@ public class Building {
     }
 
     public RectInt rect => new(posX, posY, scriptable.size.x, scriptable.size.y);
-    public Human? SpawnedHuman;
-    public bool EmployeeIsInside;
+    public Human? spawnedHuman;
+    public bool employeeIsInside;
 
-    public readonly List<MapResource> PlacedResourcesForConstruction = new();
+    public readonly List<MapResource> placedResourcesForConstruction = new();
 
-    public bool Contains(Vector2Int pos) {
-        return Contains(pos.x, pos.y);
+    public bool Contains(Vector2Int pos_) {
+        return Contains(pos_.x, pos_.y);
     }
 
     public bool Contains(int x, int y) {
@@ -75,11 +74,11 @@ public class Building {
     #region BuildingData
 
     public bool CanStartProcessingCycle(BuildingDatabase bdb) {
-        if (CurrentBehaviourIndex != -1) {
+        if (currentBehaviourIndex != -1) {
             return false;
         }
 
-        if (!EmployeeIsInside) {
+        if (!employeeIsInside) {
             return false;
         }
 
@@ -92,7 +91,7 @@ public class Building {
         return true;
     }
 
-    public Vector2Int WorkingAreaBottomLeftPos;
+    public Vector2Int workingAreaBottomLeftPos;
 
     public float takingResourceElapsed;
     public float processingElapsed;
@@ -100,8 +99,8 @@ public class Building {
     public Human? createdHuman;
 
     // CurrentBehaviourIndex = -1 = building is idle right now
-    public int CurrentBehaviourIndex = -1;
-    public List<(int, Vector2Int)> BookedTiles = new();
+    public int currentBehaviourIndex = -1;
+    public readonly List<(int, Vector2Int)> bookedTiles = new();
 
     #endregion
 }

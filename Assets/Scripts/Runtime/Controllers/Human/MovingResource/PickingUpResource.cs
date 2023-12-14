@@ -17,18 +17,18 @@ public class PickingUpResource {
 
         Assert.AreNotEqual(human.movingResources_targetedResource, null);
 
-        var res = human.segment!.ResourcesToTransport.Dequeue();
-        Assert.AreNotEqual(res.Booking, null);
+        var res = human.segment!.resourcesToTransport.Dequeue();
+        Assert.AreNotEqual(res.booking, null);
         Assert.AreEqual(res, human.movingResources_targetedResource);
-        Assert.AreEqual(human.movingResources_targetedResource!.CarryingHuman, null);
-        Assert.AreEqual(human.movingResources_targetedResource!.TargetedHuman, human);
+        Assert.AreEqual(human.movingResources_targetedResource!.carryingHuman, null);
+        Assert.AreEqual(human.movingResources_targetedResource!.targetedHuman, human);
 
-        res!.CarryingHuman = human;
+        res!.carryingHuman = human;
 
         data.transportation.OnHumanStartedPickingUpResource(res);
         data.map.onHumanStartedPickingUpResource.OnNext(new() {
-            Human = human,
-            Resource = res,
+            human = human,
+            resource = res,
         });
     }
 
@@ -45,23 +45,23 @@ public class PickingUpResource {
 
         human.movingResources_pickingUpResourceElapsed += dt;
         human.movingResources_pickingUpResourceProgress =
-            human.movingResources_pickingUpResourceElapsed / data.PickingUpResourceDuration;
+            human.movingResources_pickingUpResourceElapsed / data.pickingUpResourceDuration;
 
         if (human.movingResources_pickingUpResourceProgress < 1) {
             return;
         }
 
-        human.movingResources_pickingUpResourceElapsed = data.PickingUpResourceDuration;
+        human.movingResources_pickingUpResourceElapsed = data.pickingUpResourceDuration;
         human.movingResources_pickingUpResourceProgress = 1;
 
         data.map.onHumanFinishedPickingUpResource.OnNext(new() {
-            Human = human,
-            Resource = res,
+            human = human,
+            resource = res,
         });
 
-        if (res!.TransportationVertices.Count > 0) {
-            var path = human.segment!.Graph.GetShortestPath(
-                human.moving.pos, res!.TransportationVertices[0]
+        if (res!.transportationVertices.Count > 0) {
+            var path = human.segment!.graph.GetShortestPath(
+                human.moving.pos, res!.transportationVertices[0]
             );
             human.moving.AddPath(path);
             _controller.SetState(human, data, MRState.MovingResource);

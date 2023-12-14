@@ -22,7 +22,6 @@ public class CursorController : MonoBehaviour {
     [Required]
     MapRenderer _mapRenderer;
 
-    [FormerlySerializedAs("_pairs")]
     [SerializeField]
     List<CursorPair> _cursors = new();
 

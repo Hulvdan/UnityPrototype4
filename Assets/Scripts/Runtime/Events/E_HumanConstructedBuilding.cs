@@ -2,7 +2,7 @@
 
 namespace BFG.Runtime {
 public class E_HumanConstructedBuilding {
-    public Human Human;
-    public Building Building;
+    public Human human;
+    public Building building;
 }
 }

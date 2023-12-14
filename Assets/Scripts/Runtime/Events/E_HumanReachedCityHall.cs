@@ -2,6 +2,6 @@
 
 namespace BFG.Runtime {
 public class E_HumanReachedCityHall {
-    public Human Human;
+    public Human human;
 }
 }

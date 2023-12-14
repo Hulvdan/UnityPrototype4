@@ -6,13 +6,12 @@ using Random = UnityEngine.Random;
 
 namespace BFG.Runtime.Rendering {
 public abstract class MovementFeedback : MonoBehaviour {
-    [FormerlySerializedAs("RandomCurves")]
     [SerializeField]
     List<AnimationCurve> _randomCurves = new();
 
     public AnimationCurve GetRandomCurve() {
         if (_randomCurves.Count == 0) {
-            return LinearCurve;
+            return _LINEAR_CURVE;
         }
 
         var index = Math.Min((int)(Random.value * _randomCurves.Count), _randomCurves.Count - 1);
@@ -28,6 +27,6 @@ public abstract class MovementFeedback : MonoBehaviour {
         GameObject human
     );
 
-    static readonly AnimationCurve LinearCurve = AnimationCurve.Linear(0, 0, 1, 1);
+    static readonly AnimationCurve _LINEAR_CURVE = AnimationCurve.Linear(0, 0, 1, 1);
 }
 }

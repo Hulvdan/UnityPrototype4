@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BFG.Runtime;
 using BFG.Runtime.Localization;
 using UnityEditor;
 using UnityEngine;
@@ -40,7 +39,7 @@ public class GStringKeySelectorWindow : ScriptableWizard {
 
     void Load() {
         _strings = new LocalizationDatabaseLoader().Load();
-        _stringsHuman = _strings.Select(i => $"{i.Key} (ex. {i.Value.En})").ToList();
+        _stringsHuman = _strings.Select(i => $"{i.Key} (ex. {i.Value.en})").ToList();
 
         _selected = -1;
         if (!string.IsNullOrEmpty(InitialKey)) {
