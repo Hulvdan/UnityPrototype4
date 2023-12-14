@@ -35,7 +35,7 @@ public class HumanDestination {
         }
     }
 
-    Vector2Int? _fishingTile;
-    Vector2Int? _buildingTile;
+    readonly Vector2Int? _fishingTile;
+    readonly Vector2Int? _buildingTile;
 }
 }
