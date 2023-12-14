@@ -38,7 +38,12 @@ public sealed class EmployeeBehaviourGo {
                     _bookingTileBehaviourId == -1 ? null : _bookingTileBehaviourId
                 );
             case EmployeeBehaviourGoType.Processing:
-                return new ProcessingEmployeeBehaviour(_unbookingTileBehaviourId);
+                int? unbookingId = null;
+                if (_unbookingTileBehaviourId == -1) {
+                    unbookingId = _unbookingTileBehaviourId;
+                }
+
+                return new ProcessingEmployeeBehaviour(unbookingId);
             case EmployeeBehaviourGoType.PickingUpHarvestedResource:
                 return new PickingUpHarvestedResourceEmployeeBehaviour();
             case EmployeeBehaviourGoType.PlacingHarvestedResource:

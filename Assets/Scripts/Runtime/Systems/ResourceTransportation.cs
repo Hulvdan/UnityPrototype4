@@ -11,8 +11,7 @@ using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Systems {
 public class ResourceTransportation {
-    // ReSharper disable once InconsistentNaming
-    const int DEV_MAX_ITERATIONS = 256;
+    const int _DEV_MAX_ITERATIONS = 256;
 
     readonly byte[,] _visitedTiles;
     readonly Queue<(Direction, Vector2Int)> _queue = new();
@@ -73,7 +72,7 @@ public class ResourceTransportation {
 
             var iteration = 0;
             while (
-                iteration++ < 10 * DEV_MAX_ITERATIONS
+                iteration++ < 10 * _DEV_MAX_ITERATIONS
                 && foundResource == null
                 && _queue.Count > 0
             ) {
@@ -144,8 +143,8 @@ public class ResourceTransportation {
                 }
             }
 
-            Assert.IsTrue(iteration < 10 * DEV_MAX_ITERATIONS);
-            if (iteration >= DEV_MAX_ITERATIONS && !iterationWarningEmitted) {
+            Assert.IsTrue(iteration < 10 * _DEV_MAX_ITERATIONS);
+            if (iteration >= _DEV_MAX_ITERATIONS && !iterationWarningEmitted) {
                 iterationWarningEmitted = true;
                 Debug.LogWarning("WTF?");
             }
@@ -158,7 +157,7 @@ public class ResourceTransportation {
 
                 var iteration2 = 0;
                 while (
-                    iteration2++ < 10 * DEV_MAX_ITERATIONS
+                    iteration2++ < 10 * _DEV_MAX_ITERATIONS
                     && _map.elementTiles[destination.y][destination.x].bfs_parent != null
                 ) {
                     iteration2++;
@@ -172,8 +171,8 @@ public class ResourceTransportation {
                     destination = _map.elementTiles[destination.y][destination.x].bfs_parent!.Value;
                 }
 
-                Assert.IsTrue(iteration2 < 10 * DEV_MAX_ITERATIONS);
-                if (iteration2 >= DEV_MAX_ITERATIONS && !iteration2WarningEmitted) {
+                Assert.IsTrue(iteration2 < 10 * _DEV_MAX_ITERATIONS);
+                if (iteration2 >= _DEV_MAX_ITERATIONS && !iteration2WarningEmitted) {
                     Debug.LogWarning("WTF?");
                     iteration2WarningEmitted = true;
                 }

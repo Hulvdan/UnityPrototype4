@@ -112,7 +112,7 @@ public class MapRenderer : MonoBehaviour {
 
     readonly List<IDisposable> _dependencyHooks = new();
 
-    readonly Dictionary<Guid, (Human, HumanGO, HumanBinding)> _humans = new();
+    readonly Dictionary<Guid, (Human, HumanGo, HumanBinding)> _humans = new();
 
     readonly Dictionary<Guid, ItemGo> _storedItems = new();
 
@@ -652,7 +652,7 @@ public class MapRenderer : MonoBehaviour {
 
     void OnHumanCreated(E_HumanCreated data) {
         var go = Instantiate(_humanPrefab, _grid.transform);
-        var humanGo = go.GetComponent<HumanGO>();
+        var humanGo = go.GetComponent<HumanGo>();
 
         var movementBinding = new HumanBinding {
             curvePerFeedback = new() { Capacity = _movementPattern.feedbacks.Count },
@@ -681,7 +681,7 @@ public class MapRenderer : MonoBehaviour {
         }
     }
 
-    void UpdateHuman(Human human, HumanGO go, HumanBinding binding) {
+    void UpdateHuman(Human human, HumanGo go, HumanBinding binding) {
         if (human.moving.to == null) {
             go.transform.localPosition = human.moving.from;
         }

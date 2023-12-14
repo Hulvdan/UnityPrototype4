@@ -15,7 +15,6 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
 
 namespace BFG.Runtime {
 public class Map : MonoBehaviour, IMap, IMapSize {
@@ -393,19 +392,15 @@ public class Map : MonoBehaviour, IMap, IMapSize {
                 var g2 = segments[j].graph;
                 for (var y = 0; y < g1.height; y++) {
                     for (var x = 0; x < g1.width; x++) {
-                        // ReSharper disable once InconsistentNaming
-                        var g1x = x + g1.offset.x;
-                        // ReSharper disable once InconsistentNaming
-                        var g1y = y + g1.offset.y;
-                        if (!g2.Contains(g1x, g1y)) {
+                        var g1X = x + g1.offset.x;
+                        var g1Y = y + g1.offset.y;
+                        if (!g2.Contains(g1X, g1Y)) {
                             continue;
                         }
 
-                        // ReSharper disable once InconsistentNaming
-                        var g2y = g1y - g2.offset.y;
-                        // ReSharper disable once InconsistentNaming
-                        var g2x = g1x - g2.offset.x;
-                        var node = g2.nodes[g2y][g2x];
+                        var g2Y = g1Y - g2.offset.y;
+                        var g2X = g1X - g2.offset.x;
+                        var node = g2.nodes[g2Y][g2X];
 
                         Assert.AreEqual(node & g1.nodes[y][x], 0);
                     }
@@ -475,7 +470,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
                 if (newPos == destination) {
                     var res = BuildPath(elementTiles, newPos);
-                    ClearBFSCache(minY, maxY, minX, maxX);
+                    ClearPathfindingCache(minY, maxY, minX, maxX);
                     return res;
                 }
 
@@ -483,7 +478,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             }
         }
 
-        ClearBFSCache(minY, maxY, minX, maxX);
+        ClearPathfindingCache(minY, maxY, minX, maxX);
         return new(false, null);
     }
 
@@ -531,8 +526,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         }
     }
 
-    // ReSharper disable once InconsistentNaming
-    void ClearBFSCache(int minY, int maxY, int minX, int maxX) {
+    void ClearPathfindingCache(int minY, int maxY, int minX, int maxX) {
         for (var y = minY; y <= maxY; y++) {
             for (var x = minX; x <= maxX; x++) {
                 var node = elementTiles[y][x];
@@ -790,15 +784,12 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void UpdateHumanMovingComponent(float dt, Human human) {
-        // ReSharper disable once InconsistentNaming
-        const int GUARD_MAX_MOVING_TILES_PER_FRAME = 4;
-
         var moving = human.moving;
         moving.elapsed += dt;
 
         var iteration = 0;
         while (
-            iteration < 10 * GUARD_MAX_MOVING_TILES_PER_FRAME
+            iteration < 10 * _GUARD_MAX_MOVING_TILES_PER_FRAME
             && moving.to != null
             && moving.elapsed > humanMovingOneTileDuration
         ) {
@@ -819,8 +810,8 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             });
         }
 
-        Assert.IsTrue(iteration < 10 * GUARD_MAX_MOVING_TILES_PER_FRAME);
-        if (iteration >= GUARD_MAX_MOVING_TILES_PER_FRAME) {
+        Assert.IsTrue(iteration < 10 * _GUARD_MAX_MOVING_TILES_PER_FRAME);
+        if (iteration >= _GUARD_MAX_MOVING_TILES_PER_FRAME) {
             Debug.LogWarning("WTF?");
         }
 
@@ -932,5 +923,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     #endregion
+
+    const int _GUARD_MAX_MOVING_TILES_PER_FRAME = 4;
 }
 }

@@ -3,8 +3,9 @@ using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
 public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
-    public ProcessingEmployeeBehaviour(int unbooksBehaviourId) {
+    public ProcessingEmployeeBehaviour(int? unbooksBehaviourId) {
         Assert.IsTrue(unbooksBehaviourId >= 0);
+
         _unbooksBehaviourId = unbooksBehaviourId;
     }
 
@@ -21,10 +22,19 @@ public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
         Assert.AreNotEqual(human.building, null);
         var building = human.building!;
 
+        if (_unbooksBehaviourId != null) {
+            UnbookTilesThatWereBookedBy(db, building, _unbooksBehaviourId.Value);
+        }
+
+        human.harvestingElapsed = 0;
+    }
+
+    void UnbookTilesThatWereBookedBy(HumanDatabase db, Building building, int behaviourId) {
         var foundIndex = -1;
+
         for (var i = 0; i < building.bookedTiles.Count; i++) {
             var (tileBehaviourId, _) = building.bookedTiles[i];
-            if (tileBehaviourId == _unbooksBehaviourId) {
+            if (tileBehaviourId == behaviourId) {
                 foundIndex = i;
                 break;
             }
@@ -33,8 +43,6 @@ public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
         Assert.IsTrue(foundIndex >= 0);
         db.map.bookedTiles.Remove(building.bookedTiles[foundIndex].Item2);
         building.bookedTiles.RemoveAt(foundIndex);
-
-        human.harvestingElapsed = 0;
     }
 
     public override void UpdateDt(
@@ -55,6 +63,6 @@ public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
         }
     }
 
-    readonly int _unbooksBehaviourId;
+    readonly int? _unbooksBehaviourId;
 }
 }

@@ -6,7 +6,6 @@ namespace BFG.Runtime.Entities {
 /// </summary>
 public class TerrainTile {
     public int height;
-    public bool isBooked;
     public string name;
 
     [CanBeNull]
