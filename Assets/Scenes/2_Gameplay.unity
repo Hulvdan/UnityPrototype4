@@ -2667,6 +2667,10 @@ PrefabInstance:
       propertyPath: _building
       value: 
       objectReference: {fileID: 11400000, guid: 59b7b8a76de0c50428e3ddae6cbf039b, type: 2}
+    - target: {fileID: 1962483450866880944, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
+      propertyPath: _itemType
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 4402270601040282001, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
       propertyPath: m_Name
       value: Buildable (3).1
@@ -2876,7 +2880,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 2.9921875
+  orthographic size: 3.59375
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -9498,6 +9502,10 @@ PrefabInstance:
       propertyPath: _building
       value: 
       objectReference: {fileID: 11400000, guid: 59b7b8a76de0c50428e3ddae6cbf039b, type: 2}
+    - target: {fileID: 1962483450866880944, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
+      propertyPath: _itemType
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 4402270601040282001, guid: 9b2588974ec001a42b85460aeb40c230, type: 3}
       propertyPath: m_Name
       value: Buildable (3).2

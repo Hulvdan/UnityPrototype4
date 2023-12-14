@@ -57,7 +57,7 @@ public class BuildableButton : MonoBehaviour {
     ItemToBuildType _itemType;
 
     [SerializeField]
-    [ShowIf("ItemType", ItemToBuildType.Building)]
+    [ShowIf("_itemType", ItemToBuildType.Building)]
     [Required]
     [CanBeNull]
     ScriptableBuilding _building;
