@@ -4,7 +4,7 @@ using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
 /// <summary>
-///     Is it a road or lumberjack's hut?
+///     Is it a road, a flag, or a lumberjack's hut?
 /// </summary>
 public struct ElementTile {
     public ElementTileType type { get; set; }

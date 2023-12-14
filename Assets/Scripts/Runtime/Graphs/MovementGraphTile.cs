@@ -8,11 +8,9 @@ public class MovementGraphTile {
     /// </summary>
     public readonly bool[] directions = new bool[4];
 
-    // ReSharper disable once InconsistentNaming
-    public Vector2Int? BFS_Parent;
+    public Vector2Int? bfs_parent;
 
-    // ReSharper disable once InconsistentNaming
-    public bool BFS_Visited;
+    public bool bfs_visited;
 
     public MovementGraphTile(bool right, bool up, bool left, bool down) {
         directions[0] = right;
@@ -23,7 +21,6 @@ public class MovementGraphTile {
 
     public int Count() {
         var i = 0;
-        // ReSharper disable once LoopCanBeConvertedToQuery
         foreach (var d in directions) {
             if (d) {
                 i++;

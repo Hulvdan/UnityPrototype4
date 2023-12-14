@@ -11,7 +11,6 @@ public class MapResource : IEquatable<MapResource> {
     public readonly ScriptableResource scriptable;
 
     public Vector2Int pos;
-    public MapResourceType type;
 
     public MapResourceBooking? booking;
 
@@ -21,16 +20,11 @@ public class MapResource : IEquatable<MapResource> {
     public Human? targetedHuman;
     public Human? carryingHuman;
 
-    public MapResource(
-        Vector2Int pos_,
-        ScriptableResource scriptable_,
-        MapResourceType type_ = MapResourceType.CityHallItem
-    ) {
+    public MapResource(Vector2Int pos_, ScriptableResource scriptable_) {
         id = Guid.NewGuid();
         pos = pos_;
         scriptable = scriptable_;
         booking = null;
-        type = type_;
         transportationSegments = new();
         transportationVertices = new();
     }

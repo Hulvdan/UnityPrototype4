@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace BFG.Runtime.Entities {
+// Hulvdan: Mb it should not be a class?
 public class HumanMovingComponent {
     public Vector2Int pos { get; set; }
     public float elapsed { get; set; }

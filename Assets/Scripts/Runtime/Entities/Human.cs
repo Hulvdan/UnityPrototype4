@@ -83,10 +83,9 @@ public class Human {
     #region Employee
 
     public float harvestingElapsed;
-    public HumanDestination? destination { get; set; }
     public int currentBehaviourId = -1;
 
-    public EmployeeBehaviourSet behaviourSet;
+    public EmployeeBehaviourSet? behaviourSet;
 
     #endregion
 }

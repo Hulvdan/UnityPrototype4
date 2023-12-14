@@ -13,16 +13,17 @@ public class EmployeeController {
     public void SwitchToTheNextBehaviour(Human human) {
         Assert.AreEqual(human.type, Human.Type.Employee);
         Assert.AreNotEqual(human.building, null);
+        Assert.AreNotEqual(human.behaviourSet, null);
 
         var building = human.building!;
 
         if (human.currentBehaviourId >= 0) {
-            var beh = human.behaviourSet.behaviours[human.currentBehaviourId];
+            var beh = human.behaviourSet!.behaviours[human.currentBehaviourId];
             beh.OnExit(human, _bdb, _db);
         }
 
         human.currentBehaviourId++;
-        if (human.currentBehaviourId >= human.behaviourSet.behaviours.Count) {
+        if (human.currentBehaviourId >= human.behaviourSet!.behaviours.Count) {
             human.currentBehaviourId = -1;
 
             _db.map.EmployeeReachedBuildingCallback(human);
@@ -38,12 +39,16 @@ public class EmployeeController {
     }
 
     public void OnHumanMovedToTheNextTile(Human human, HumanData data) {
-        var beh = human.behaviourSet.behaviours[human.currentBehaviourId];
+        Assert.AreNotEqual(human.behaviourSet, null);
+
+        var beh = human.behaviourSet!.behaviours[human.currentBehaviourId];
         beh.OnHumanMovedToTheNextTile(human, data, _db);
     }
 
     public void Update(Human human, HumanData data, float dt) {
-        var beh = human.behaviourSet.behaviours[human.currentBehaviourId];
+        Assert.AreNotEqual(human.behaviourSet, null);
+
+        var beh = human.behaviourSet!.behaviours[human.currentBehaviourId];
         beh.UpdateDt(human, _bdb, _db, data, dt);
     }
 

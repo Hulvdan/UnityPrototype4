@@ -1,9 +1,7 @@
 ﻿using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace BFG.Runtime.Rendering {
-// ReSharper disable once InconsistentNaming
-public class HumanGO : MonoBehaviour {
+public class HumanGo : MonoBehaviour {
     [SerializeField]
     SpriteRenderer _resourceSpriteRenderer;
 
