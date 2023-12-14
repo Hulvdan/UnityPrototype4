@@ -60,7 +60,7 @@ public static class ItemTransportationGraph {
                     AddWithoutDuplication(vertices, pos);
                 }
 
-                foreach (var dirIndex in Utils.Directions) {
+                foreach (var dirIndex in Utils.DIRECTIONS) {
                     if ((isCityHall || isFlag) && dirIndex != dir) {
                         continue;
                     }
@@ -165,7 +165,7 @@ public static class ItemTransportationGraph {
                     bigFukenQueue.Enqueue(new(Direction.Down, tilePos));
                     break;
                 case TileUpdatedType.RoadRemoved:
-                    foreach (var dir in Utils.Directions) {
+                    foreach (var dir in Utils.DIRECTIONS) {
                         var newPos = tilePos + dir.AsOffset();
                         if (!mapSize.Contains(newPos)) {
                             continue;
@@ -183,7 +183,7 @@ public static class ItemTransportationGraph {
 
                     break;
                 case TileUpdatedType.BuildingPlaced:
-                    foreach (var dir in Utils.Directions) {
+                    foreach (var dir in Utils.DIRECTIONS) {
                         var newPos = tilePos + dir.AsOffset();
                         if (!mapSize.Contains(newPos)) {
                             continue;
@@ -212,7 +212,7 @@ public static class ItemTransportationGraph {
                 case TileUpdatedType.BuildingRemoved:
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new NotImplementedException();
             }
         }
 
@@ -241,7 +241,7 @@ public static class ItemTransportationGraph {
                     AddWithoutDuplication(vertices, pos);
                 }
 
-                foreach (var dirIndex in Utils.Directions) {
+                foreach (var dirIndex in Utils.DIRECTIONS) {
                     if ((isCityHall || isFlag) && dirIndex != dir) {
                         continue;
                     }
@@ -272,13 +272,6 @@ public static class ItemTransportationGraph {
                         continue;
                     }
 
-                    if (newIsFlag) {
-                        // bigFukenQueue.Enqueue(new(Direction.Up, newPos));
-                        // bigFukenQueue.Enqueue(new(Direction.Right, newPos));
-                        // bigFukenQueue.Enqueue(new(Direction.Left, newPos));
-                        // bigFukenQueue.Enqueue(new(Direction.Down, newPos));
-                    }
-
                     visited[pos.y][pos.x] = GraphNode.Mark(visited[pos.y][pos.x], dirIndex);
                     visited[newPos.y][newPos.x] = GraphNode.Mark(
                         visited[newPos.y][newPos.x], oppositeDirIndex
@@ -304,8 +297,8 @@ public static class ItemTransportationGraph {
         }
 
         return new() {
-            AddedSegments = graphSegments,
-            DeletedSegments = segmentsToDelete.ToList(),
+            addedSegments = graphSegments,
+            deletedSegments = segmentsToDelete.ToList(),
         };
     }
 
@@ -319,14 +312,14 @@ public static class ItemTransportationGraph {
         switch (updatedType) {
             case TileUpdatedType.RoadPlaced:
             case TileUpdatedType.BuildingPlaced:
-                foreach (var dir in Utils.Directions) {
+                foreach (var dir in Utils.DIRECTIONS) {
                     var newPos = tilePos + dir.AsOffset();
-                    if (!mapSize.Contains(newPos) || !segment.Graph.Contains(newPos)) {
+                    if (!mapSize.Contains(newPos) || !segment.graph.Contains(newPos)) {
                         continue;
                     }
 
-                    var graphPos = newPos - segment.Graph.offset;
-                    if (segment.Graph.nodes[graphPos.y][graphPos.x] == 0) {
+                    var graphPos = newPos - segment.graph.offset;
+                    if (segment.graph.nodes[graphPos.y][graphPos.x] == 0) {
                         continue;
                     }
 
@@ -341,19 +334,19 @@ public static class ItemTransportationGraph {
             case TileUpdatedType.FlagRemoved:
             case TileUpdatedType.RoadRemoved:
             case TileUpdatedType.BuildingRemoved:
-                if (!segment.Graph.Contains(tilePos)) {
+                if (!segment.graph.Contains(tilePos)) {
                     break;
                 }
 
-                var graphPos1 = tilePos - segment.Graph.offset;
-                if (segment.Graph.nodes[graphPos1.y][graphPos1.x] == 0) {
+                var graphPos1 = tilePos - segment.graph.offset;
+                if (segment.graph.nodes[graphPos1.y][graphPos1.x] == 0) {
                     break;
                 }
 
                 return true;
 
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new NotImplementedException();
         }
 
         return false;
@@ -384,7 +377,7 @@ public static class ItemTransportationGraph {
     static void AddWithoutDuplication(List<GraphVertex> list, Vector2Int pos) {
         var found = false;
         foreach (var v in list) {
-            if (v.Pos == pos) {
+            if (v.pos == pos) {
                 found = true;
             }
         }
@@ -408,8 +401,8 @@ public static class ItemTransportationGraph {
     }
 
     public struct OnTilesUpdatedResult {
-        public List<GraphSegment> AddedSegments;
-        public List<GraphSegment> DeletedSegments;
+        public List<GraphSegment> addedSegments;
+        public List<GraphSegment> deletedSegments;
     }
 }
 }

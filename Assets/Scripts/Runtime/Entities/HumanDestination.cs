@@ -5,13 +5,13 @@ using UnityEngine.Assertions;
 namespace BFG.Runtime.Entities {
 public class HumanDestination {
     public HumanDestination(
-        HumanDestinationType type,
-        Vector2Int pos,
+        HumanDestinationType type_,
+        Vector2Int pos_,
         Vector2Int? fishingTile,
         Vector2Int? buildingTile
     ) {
-        this.type = type;
-        this.pos = pos;
+        type = type_;
+        pos = pos_;
         _fishingTile = fishingTile;
         _buildingTile = buildingTile;
     }

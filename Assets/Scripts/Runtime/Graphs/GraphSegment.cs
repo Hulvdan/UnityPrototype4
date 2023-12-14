@@ -9,57 +9,57 @@ using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Graphs {
 public sealed class GraphSegment : IEquatable<GraphSegment> {
-    public readonly Guid ID = Guid.NewGuid();
+    public readonly Guid id = Guid.NewGuid();
 
-    public readonly List<GraphVertex> Vertices;
-    public readonly Graph Graph;
-    public readonly List<Vector2Int> MovementTiles;
-    public Human AssignedHuman;
-    public readonly UniqueList<MapResource> LinkedResources;
-    public readonly SimplePriorityQueue<MapResource> ResourcesToTransport;
+    public readonly List<GraphVertex> vertices;
+    public readonly Graph graph;
+    public readonly List<Vector2Int> movementTiles;
+    public Human assignedHuman;
+    public readonly UniqueList<MapResource> linkedResources;
+    public readonly SimplePriorityQueue<MapResource> resourcesToTransport;
 
     public GraphSegment(
-        List<GraphVertex> vertices,
-        List<Vector2Int> movementTiles,
-        Graph graph
+        List<GraphVertex> vertices_,
+        List<Vector2Int> movementTiles_,
+        Graph graph_
     ) {
-        Assert.IsNotNull(vertices);
-        Assert.IsNotNull(movementTiles);
-        Assert.IsNotNull(graph);
+        Assert.IsNotNull(vertices_);
+        Assert.IsNotNull(movementTiles_);
+        Assert.IsNotNull(graph_);
 
-        Vertices = vertices;
-        MovementTiles = movementTiles;
-        Graph = graph;
-        LinkedResources = new();
-        ResourcesToTransport = new();
+        vertices = vertices_;
+        movementTiles = movementTiles_;
+        graph = graph_;
+        linkedResources = new();
+        resourcesToTransport = new();
 
         // Duplication Checks
-        for (var i = 0; i < vertices.Count; i++) {
-            for (var j = 0; j < vertices.Count; j++) {
+        for (var i = 0; i < vertices_.Count; i++) {
+            for (var j = 0; j < vertices_.Count; j++) {
                 if (i == j) {
                     continue;
                 }
 
-                Assert.AreNotEqual(vertices[i], vertices[j]);
+                Assert.AreNotEqual(vertices_[i], vertices_[j]);
             }
         }
 
-        for (var i = 0; i < movementTiles.Count; i++) {
-            for (var j = 0; j < movementTiles.Count; j++) {
+        for (var i = 0; i < movementTiles_.Count; i++) {
+            for (var j = 0; j < movementTiles_.Count; j++) {
                 if (i == j) {
                     continue;
                 }
 
-                Assert.AreNotEqual(movementTiles[i], movementTiles[j]);
+                Assert.AreNotEqual(movementTiles_[i], movementTiles_[j]);
             }
         }
     }
 
-    public List<GraphSegment> LinkedSegments { get; } = new();
+    public List<GraphSegment> linkedSegments { get; } = new();
 
     public bool HasSomeOfTheSameVertices(GraphSegment other) {
-        foreach (var otherVertex in other.Vertices) {
-            foreach (var vertex in Vertices) {
+        foreach (var otherVertex in other.vertices) {
+            foreach (var vertex in vertices) {
                 if (otherVertex == vertex) {
                     return true;
                 }
@@ -70,11 +70,11 @@ public sealed class GraphSegment : IEquatable<GraphSegment> {
     }
 
     public void Link(GraphSegment other) {
-        LinkedSegments.Add(other);
+        linkedSegments.Add(other);
     }
 
     public void Unlink(GraphSegment other) {
-        LinkedSegments.Remove(other);
+        linkedSegments.Remove(other);
     }
 
     public static bool operator ==(GraphSegment obj1, GraphSegment obj2) {
@@ -110,9 +110,9 @@ public sealed class GraphSegment : IEquatable<GraphSegment> {
             return true;
         }
 
-        var verticesEqual = Utils.GoodFukenListEquals(Vertices, other.Vertices);
-        var movementTilesEqual = Utils.GoodFukenListEquals(MovementTiles, other.MovementTiles);
-        var graphEqual = Graph.Equals(other.Graph);
+        var verticesEqual = Utils.GoodFukenListEquals(vertices, other.vertices);
+        var movementTilesEqual = Utils.GoodFukenListEquals(movementTiles, other.movementTiles);
+        var graphEqual = graph.Equals(other.graph);
         return verticesEqual
                && movementTilesEqual
                && graphEqual;
@@ -135,14 +135,14 @@ public sealed class GraphSegment : IEquatable<GraphSegment> {
     }
 
     public override int GetHashCode() {
-        return HashCode.Combine(Vertices, MovementTiles, Graph);
+        return HashCode.Combine(vertices, movementTiles, graph);
     }
 
     public override string ToString() {
         var str = "(Vertices: [";
-        str += string.Join(", ", Vertices);
+        str += string.Join(", ", vertices);
         str += "], MovementTiles: [";
-        str += string.Join(", ", MovementTiles);
+        str += string.Join(", ", movementTiles);
         str += "])";
         return str;
     }

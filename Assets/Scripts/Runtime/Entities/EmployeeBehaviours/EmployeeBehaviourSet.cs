@@ -5,23 +5,23 @@ using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
 public sealed class EmployeeBehaviourSet {
-    static readonly List<Vector2Int> TempBookedTiles = new();
+    static readonly List<Vector2Int> _TEMP_BOOKED_TILES = new();
 
-    public EmployeeBehaviourSet(List<EmployeeBehaviour> behaviours) {
-        this.behaviours = behaviours;
+    public EmployeeBehaviourSet(List<EmployeeBehaviour> behaviours_) {
+        behaviours = behaviours_;
     }
 
     public bool CanBeRun(Building building, BuildingDatabase bdb) {
         Assert.IsTrue(behaviours.Count > 0);
 
         for (var i = 0; i < behaviours.Count; i++) {
-            if (!behaviours[i].CanBeRun(i, building, bdb, TempBookedTiles)) {
-                TempBookedTiles.Clear();
+            if (!behaviours[i].CanBeRun(i, building, bdb, _TEMP_BOOKED_TILES)) {
+                _TEMP_BOOKED_TILES.Clear();
                 return false;
             }
         }
 
-        TempBookedTiles.Clear();
+        _TEMP_BOOKED_TILES.Clear();
         return true;
     }
 

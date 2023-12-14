@@ -14,16 +14,16 @@ public sealed class PlacingHarvestedResourceEmployeeBehaviour : EmployeeBehaviou
     ) {
         var res = building.scriptable.harvestableResource;
         Assert.AreNotEqual(res, null);
-        var resources = bdb.Map.mapResources[building.posY][building.posX];
+        var resources = bdb.map.mapResources[building.posY][building.posX];
 
         var count = 0;
         foreach (var resource in resources) {
-            if (resource.Scriptable == res) {
+            if (resource.scriptable == res) {
                 count++;
             }
         }
 
-        return count < bdb.MaxHarvestableBuildingSameResourcesOnTheTile;
+        return count < bdb.maxHarvestableBuildingSameResourcesOnTheTile;
     }
 
     public override void OnEnter(
@@ -35,9 +35,9 @@ public sealed class PlacingHarvestedResourceEmployeeBehaviour : EmployeeBehaviou
         Assert.AreEqual(human.movingResources_placingResourceProgress, 0);
         Assert.AreNotEqual(human.building, null);
 
-        db.Map.onHumanStartedPlacingResource.OnNext(new() {
-            Human = human,
-            Resource = human.movingResources_targetedResource,
+        db.map.onHumanStartedPlacingResource.OnNext(new() {
+            human = human,
+            resource = human.movingResources_targetedResource,
         });
     }
 
@@ -52,11 +52,11 @@ public sealed class PlacingHarvestedResourceEmployeeBehaviour : EmployeeBehaviou
         human.movingResources_placingResourceProgress = 0;
 
         var pos = human.moving.pos;
-        db.Map.mapResources[pos.y][pos.x].Add(human.movingResources_targetedResource);
+        db.map.mapResources[pos.y][pos.x].Add(human.movingResources_targetedResource);
 
-        db.Map.onHumanFinishedPlacingResource.OnNext(new() {
-            Human = human,
-            Resource = human.movingResources_targetedResource!,
+        db.map.onHumanFinishedPlacingResource.OnNext(new() {
+            human = human,
+            resource = human.movingResources_targetedResource!,
         });
     }
 
@@ -69,12 +69,12 @@ public sealed class PlacingHarvestedResourceEmployeeBehaviour : EmployeeBehaviou
     ) {
         human.movingResources_placingResourceElapsed += dt;
         human.movingResources_placingResourceProgress =
-            human.movingResources_placingResourceElapsed / data.PlacingResourceDuration;
+            human.movingResources_placingResourceElapsed / data.placingResourceDuration;
 
-        if (human.movingResources_placingResourceElapsed >= data.PlacingResourceDuration) {
-            human.movingResources_placingResourceElapsed = data.PlacingResourceDuration;
+        if (human.movingResources_placingResourceElapsed >= data.placingResourceDuration) {
+            human.movingResources_placingResourceElapsed = data.placingResourceDuration;
             human.movingResources_placingResourceProgress = 1;
-            db.Controller.SwitchToTheNextBehaviour(human);
+            db.controller.SwitchToTheNextBehaviour(human);
         }
     }
 }

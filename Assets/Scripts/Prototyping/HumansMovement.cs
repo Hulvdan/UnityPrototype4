@@ -5,21 +5,39 @@ using BFG.Runtime.Rendering;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Serialization;
 
 namespace BFG.Prototyping {
 public class HumansMovement : MonoBehaviour {
-    public float OneTileMovementDuration = 1f;
+    [FormerlySerializedAs("OneTileMovementDuration")]
+    public float oneTileMovementDuration = 1f;
 
-    public List<HumanBinding> Bindings = new();
+    [FormerlySerializedAs("Bindings")]
+    public List<HumanBinding> bindings = new();
 
-    public int Rows = 9;
-    public int Columns = 4;
-    public int ColumnsGap = 1;
-    public int RowsGap = 1;
-    public int StartingRow;
-    public int StartingColumn;
-    public int TravelDistanceX = 2;
-    public int TravelDistanceY;
+    [FormerlySerializedAs("Rows")]
+    public int rows = 9;
+
+    [FormerlySerializedAs("Columns")]
+    public int columns = 4;
+
+    [FormerlySerializedAs("ColumnsGap")]
+    public int columnsGap = 1;
+
+    [FormerlySerializedAs("RowsGap")]
+    public int rowsGap = 1;
+
+    [FormerlySerializedAs("StartingRow")]
+    public int startingRow;
+
+    [FormerlySerializedAs("StartingColumn")]
+    public int startingColumn;
+
+    [FormerlySerializedAs("TravelDistanceX")]
+    public int travelDistanceX = 2;
+
+    [FormerlySerializedAs("TravelDistanceY")]
+    public int travelDistanceY;
 
     public Transform humansContainer;
     public GameObject humanPrefab;
@@ -29,33 +47,33 @@ public class HumansMovement : MonoBehaviour {
     float _movementElapsed;
 
     public void Start() {
-        foreach (var binding in Bindings) {
+        foreach (var binding in bindings) {
             binding.Init();
         }
     }
 
     public void Update() {
         _movementElapsed += Time.deltaTime;
-        while (_movementElapsed > OneTileMovementDuration) {
-            _movementElapsed -= OneTileMovementDuration;
+        while (_movementElapsed > oneTileMovementDuration) {
+            _movementElapsed -= oneTileMovementDuration;
 
-            foreach (var binding in Bindings) {
+            foreach (var binding in bindings) {
                 binding.UpdateNextTileInPath();
 
-                for (var i = 0; i < binding.CurvePerFeedback.Count; i++) {
-                    binding.CurvePerFeedback[i] = binding.Pattern.Feedbacks[i].GetRandomCurve();
+                for (var i = 0; i < binding.curvePerFeedback.Count; i++) {
+                    binding.curvePerFeedback[i] = binding.pattern.feedbacks[i].GetRandomCurve();
                 }
             }
         }
 
-        var progress = _movementElapsed / OneTileMovementDuration;
+        var progress = _movementElapsed / oneTileMovementDuration;
         Assert.IsTrue(progress <= 1);
-        Assert.IsTrue(_movementElapsed <= OneTileMovementDuration);
+        Assert.IsTrue(_movementElapsed <= oneTileMovementDuration);
 
-        foreach (var binding in Bindings) {
-            for (var i = 0; i < binding.Pattern.Feedbacks.Count; i++) {
-                var feedback = binding.Pattern.Feedbacks[i];
-                var curve = binding.CurvePerFeedback[i];
+        foreach (var binding in bindings) {
+            for (var i = 0; i < binding.pattern.feedbacks.Count; i++) {
+                var feedback = binding.pattern.feedbacks[i];
+                var curve = binding.curvePerFeedback[i];
                 var t = curve.Evaluate(progress);
 
                 feedback.UpdateData(
@@ -64,7 +82,7 @@ public class HumansMovement : MonoBehaviour {
                     t,
                     binding.GetMovingFrom(),
                     binding.GetMovingTo(),
-                    binding.Human
+                    binding.human
                 );
             }
         }
@@ -76,13 +94,13 @@ public class HumansMovement : MonoBehaviour {
             human.gameObject.SetActive(false);
         }
 
-        Bindings.Clear();
+        bindings.Clear();
 
         var index = 0;
-        var x = StartingColumn;
-        for (var column = 0; column < Columns; column++) {
-            var y = StartingRow;
-            for (var row = 0; row < Rows; row++) {
+        var x = startingColumn;
+        for (var column = 0; column < columns; column++) {
+            var y = startingRow;
+            for (var row = 0; row < rows; row++) {
                 var human = Instantiate(humanPrefab, humansContainer);
                 human.name = $"Human.{index++}";
 
@@ -90,21 +108,21 @@ public class HumansMovement : MonoBehaviour {
 
                 var path = new List<Vector2Int> {
                     new(x, y),
-                    new Vector2Int(x, y) + new Vector2Int(TravelDistanceX, TravelDistanceY),
+                    new Vector2Int(x, y) + new Vector2Int(travelDistanceX, travelDistanceY),
                 };
 
-                Bindings.Add(new() {
-                    Human = human,
-                    Path = path,
-                    Pattern = new() {
-                        Feedbacks = defaultMovementFeedbacks.Select(i => i).ToList(),
+                bindings.Add(new() {
+                    human = human,
+                    path = path,
+                    pattern = new() {
+                        feedbacks = defaultMovementFeedbacks.Select(i => i).ToList(),
                     },
                 });
 
-                y += RowsGap + 1;
+                y += rowsGap + 1;
             }
 
-            x += ColumnsGap + 1;
+            x += columnsGap + 1;
         }
     }
 }

@@ -7,7 +7,7 @@ public class EmployeeController {
     public EmployeeController(BuildingDatabase bdb, HumanDatabase db) {
         _bdb = bdb;
         _db = db;
-        db.Controller = this;
+        db.controller = this;
     }
 
     public void SwitchToTheNextBehaviour(Human human) {
@@ -17,33 +17,33 @@ public class EmployeeController {
         var building = human.building!;
 
         if (human.currentBehaviourId >= 0) {
-            var beh = human.BehaviourSet.behaviours[human.currentBehaviourId];
+            var beh = human.behaviourSet.behaviours[human.currentBehaviourId];
             beh.OnExit(human, _bdb, _db);
         }
 
         human.currentBehaviourId++;
-        if (human.currentBehaviourId >= human.BehaviourSet.behaviours.Count) {
+        if (human.currentBehaviourId >= human.behaviourSet.behaviours.Count) {
             human.currentBehaviourId = -1;
 
-            _db.Map.EmployeeReachedBuildingCallback(human);
-            building.EmployeeIsInside = true;
+            _db.map.EmployeeReachedBuildingCallback(human);
+            building.employeeIsInside = true;
 
-            _bdb.Controller.SwitchToTheNextBehaviour(building);
+            _bdb.controller.SwitchToTheNextBehaviour(building);
 
             return;
         }
 
-        var newBeh = human.BehaviourSet.behaviours[human.currentBehaviourId];
+        var newBeh = human.behaviourSet.behaviours[human.currentBehaviourId];
         newBeh.OnEnter(human, _bdb, _db);
     }
 
     public void OnHumanMovedToTheNextTile(Human human, HumanData data) {
-        var beh = human.BehaviourSet.behaviours[human.currentBehaviourId];
+        var beh = human.behaviourSet.behaviours[human.currentBehaviourId];
         beh.OnHumanMovedToTheNextTile(human, data, _db);
     }
 
     public void Update(Human human, HumanData data, float dt) {
-        var beh = human.BehaviourSet.behaviours[human.currentBehaviourId];
+        var beh = human.behaviourSet.behaviours[human.currentBehaviourId];
         beh.UpdateDt(human, _bdb, _db, data, dt);
     }
 

@@ -3,9 +3,9 @@ using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
 public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
-    public ProcessingEmployeeBehaviour(int unbooks) {
-        Assert.IsTrue(unbooks >= 0);
-        _unbooks = unbooks;
+    public ProcessingEmployeeBehaviour(int unbooksBehaviourId) {
+        Assert.IsTrue(unbooksBehaviourId >= 0);
+        _unbooksBehaviourId = unbooksBehaviourId;
     }
 
     public override void OnEnter(Human human, BuildingDatabase bdb, HumanDatabase db) {
@@ -22,17 +22,17 @@ public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
         var building = human.building!;
 
         var foundIndex = -1;
-        for (var i = 0; i < building.BookedTiles.Count; i++) {
-            var (tileBehaviourId, _) = building.BookedTiles[i];
-            if (tileBehaviourId == _unbooks) {
+        for (var i = 0; i < building.bookedTiles.Count; i++) {
+            var (tileBehaviourId, _) = building.bookedTiles[i];
+            if (tileBehaviourId == _unbooksBehaviourId) {
                 foundIndex = i;
                 break;
             }
         }
 
         Assert.IsTrue(foundIndex >= 0);
-        db.Map.bookedTiles.Remove(building.BookedTiles[foundIndex].Item2);
-        building.BookedTiles.RemoveAt(foundIndex);
+        db.map.bookedTiles.Remove(building.bookedTiles[foundIndex].Item2);
+        building.bookedTiles.RemoveAt(foundIndex);
 
         human.harvestingElapsed = 0;
     }
@@ -51,10 +51,10 @@ public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
 
         if (human.harvestingElapsed >= harvestingDuration) {
             human.harvestingElapsed = harvestingDuration;
-            db.Controller.SwitchToTheNextBehaviour(human);
+            db.controller.SwitchToTheNextBehaviour(human);
         }
     }
 
-    readonly int _unbooks;
+    readonly int _unbooksBehaviourId;
 }
 }

@@ -5,15 +5,15 @@ public enum MapResourceBookingType {
 }
 
 public struct MapResourceBooking {
-    public MapResourceBookingType Type;
-    public Building Building;
-    public int Priority;
+    public MapResourceBookingType type;
+    public Building building;
+    public int priority;
 
     public static MapResourceBooking FromResourceToBook(ResourceToBook resourceToBook) {
         return new() {
-            Building = resourceToBook.Building,
-            Priority = resourceToBook.Priority,
-            Type = resourceToBook.BookingType,
+            building = resourceToBook.building,
+            priority = resourceToBook.priority,
+            type = resourceToBook.bookingType,
         };
     }
 }

@@ -39,7 +39,7 @@ public class GStringKeySelectorWindow : ScriptableWizard {
 
     void Load() {
         _strings = new LocalizationDatabaseLoader().Load();
-        _stringsHuman = _strings.Select(i => $"{i.Key} (ex. {i.Value.En})").ToList();
+        _stringsHuman = _strings.Select(i => $"{i.Key} (ex. {i.Value.en})").ToList();
 
         _selected = -1;
         if (!string.IsNullOrEmpty(InitialKey)) {

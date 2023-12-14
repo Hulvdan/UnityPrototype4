@@ -14,16 +14,16 @@ public class PlacingResource {
 
         Assert.AreNotEqual(human.movingResources, MRState.PlacingResource);
         Assert.AreNotEqual(human.movingResources_targetedResource, null);
-        Assert.AreEqual(human.movingResources_targetedResource!.TargetedHuman, human);
-        Assert.AreEqual(human.movingResources_targetedResource!.CarryingHuman, human);
+        Assert.AreEqual(human.movingResources_targetedResource!.targetedHuman, human);
+        Assert.AreEqual(human.movingResources_targetedResource!.carryingHuman, human);
         Assert.AreEqual(0, human.movingResources_placingResourceElapsed);
         Assert.AreEqual(0, human.movingResources_placingResourceProgress);
 
         human.movingResources = MRState.PlacingResource;
 
         data.map.onHumanStartedPlacingResource.OnNext(new() {
-            Human = human,
-            Resource = human.movingResources_targetedResource,
+            human = human,
+            resource = human.movingResources_targetedResource,
         });
     }
 
@@ -38,20 +38,20 @@ public class PlacingResource {
     public void Update(Entities.Human human, HumanData data, float dt) {
         human.movingResources_placingResourceElapsed += dt;
         human.movingResources_placingResourceProgress =
-            human.movingResources_placingResourceElapsed / data.PlacingResourceDuration;
+            human.movingResources_placingResourceElapsed / data.placingResourceDuration;
 
         if (human.movingResources_placingResourceProgress < 1) {
             return;
         }
 
-        human.movingResources_placingResourceElapsed = data.PlacingResourceDuration;
+        human.movingResources_placingResourceElapsed = data.placingResourceDuration;
         human.movingResources_placingResourceProgress = 1;
 
         var res = human.movingResources_targetedResource;
 
         Building building = null;
-        if (res!.Booking != null) {
-            var b = res!.Booking.Value.Building;
+        if (res!.booking != null) {
+            var b = res!.booking.Value.building;
             if (b.pos == human.moving.pos) {
                 building = b;
             }
@@ -61,9 +61,9 @@ public class PlacingResource {
 
         data.transportation.OnHumanPlacedResource(human.moving.pos, human.segment, res!);
         data.map.onHumanFinishedPlacingResource.OnNext(new() {
-            Human = human,
-            Resource = res!,
-            Building = building,
+            human = human,
+            resource = res!,
+            building = building,
         });
 
         _controller.NestedState_Exit(human, data);

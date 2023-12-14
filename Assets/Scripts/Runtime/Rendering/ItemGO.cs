@@ -1,7 +1,7 @@
 using UnityEngine;
 
 namespace BFG.Runtime.Rendering {
-public class ItemGO : MonoBehaviour {
+public class ItemGo : MonoBehaviour {
     [SerializeField]
     SpriteRenderer _spriteRenderer;
 

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace BFG.Runtime {
 /// <summary>
@@ -23,27 +24,27 @@ public class SingletonMB<T> : MonoBehaviour where T : MonoBehaviour {
     ///     <c>true</c> if this Singleton Awake() method has already been called by Unity; otherwise,
     ///     <c>false</c>.
     /// </summary>
-    public static bool IsAwakened { get; private set; }
+    public static bool isAwakened { get; private set; }
 
     /// <summary>
     ///     <c>true</c> if this Singleton Start() method has already been called by Unity; otherwise,
     ///     <c>false</c>.
     /// </summary>
-    public static bool IsStarted { get; private set; }
+    public static bool isStarted { get; private set; }
 
     /// <summary>
     ///     <c>true</c> if this Singleton OnDestroy() method has already been called by Unity; otherwise,
     ///     <c>false</c>.
     /// </summary>
-    public static bool IsDestroyed { get; private set; }
+    public static bool isDestroyed { get; private set; }
 
     /// <summary>
     ///     Global access point to the unique instance of this class.
     /// </summary>
-    public static T Instance {
+    public static T instance {
         get {
             if (_instance == null) {
-                if (IsDestroyed) {
+                if (isDestroyed) {
                     return null;
                 }
 
@@ -80,8 +81,8 @@ public class SingletonMB<T> : MonoBehaviour where T : MonoBehaviour {
     ///     and adds T to it.
     /// </summary>
     static T CreateNewInstance() {
-        var containerGO = new GameObject("__" + typeof(T).Name + " (Singleton)");
-        return containerGO.AddComponent<T>();
+        var containerGo = new GameObject("__" + typeof(T).Name + " (Singleton)");
+        return containerGo.AddComponent<T>();
     }
 
     #endregion
@@ -159,19 +160,19 @@ public class SingletonMB<T> : MonoBehaviour where T : MonoBehaviour {
             return;
         }
 
-        if (!IsAwakened) {
+        if (!isAwakened) {
             PrintLog(string.Format(
                 "Awake() Singleton with type {0} in the GameObject {1}",
                 GetType(), gameObject.name));
 
             SingletonAwakened();
-            IsAwakened = true;
+            isAwakened = true;
         }
     }
 
     void Start() {
         // do not start it twice
-        if (IsStarted) {
+        if (isStarted) {
             return;
         }
 
@@ -180,7 +181,7 @@ public class SingletonMB<T> : MonoBehaviour where T : MonoBehaviour {
             GetType(), gameObject.name));
 
         SingletonStarted();
-        IsStarted = true;
+        isStarted = true;
     }
 
     void OnDestroy() {
@@ -198,7 +199,7 @@ public class SingletonMB<T> : MonoBehaviour where T : MonoBehaviour {
         // However as this is happening during the Unity app shutdown for some reason the newly created GO
         // is kept in the scene instead of being discarded after the game exists play mode.
         // (Unity bug?)
-        IsDestroyed = true;
+        isDestroyed = true;
 
         PrintLog(string.Format(
             "Destroy() Singleton with type {0} in the GameObject {1}",
@@ -210,22 +211,23 @@ public class SingletonMB<T> : MonoBehaviour where T : MonoBehaviour {
 
     #region Debug Methods (available in child classes)
 
-    [Header("Debug")]
     /// <summary>
     ///  Set this to true either by code or in the inspector to print trace log messages
     /// </summary>
-    public bool PrintTrace;
+    [FormerlySerializedAs("PrintTrace")]
+    [Header("Debug")]
+    public bool printTrace;
 
     protected void PrintLog(string str, params object[] args) {
-        Print(Debug.Log, PrintTrace, str, args);
+        Print(Debug.Log, printTrace, str, args);
     }
 
     protected void PrintWarn(string str, params object[] args) {
-        Print(Debug.LogWarning, PrintTrace, str, args);
+        Print(Debug.LogWarning, printTrace, str, args);
     }
 
     protected void PrintError(string str, params object[] args) {
-        Print(Debug.LogError, PrintTrace, str, args);
+        Print(Debug.LogError, printTrace, str, args);
     }
 
     void Print(Action<string> call, bool doPrint, string str, params object[] args) {

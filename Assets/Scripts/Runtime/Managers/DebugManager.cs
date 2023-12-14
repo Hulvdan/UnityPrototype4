@@ -4,13 +4,13 @@ using UnityEngine.Serialization;
 
 namespace BFG.Runtime {
 public class DebugState {
-    public const string Key_IsActive_Debug = "Debug_IsActive_Debug";
-    public const string Key_IsActive_MovementSystemPaths = "Debug_IsActive_MovementSystemPaths";
-    public const string Key_IsActive_UnwalkableTiles = "Debug_IsActive_UnwalkableTiles";
+    public const string KEY_IS_ACTIVE_DEBUG = "Debug_IsActive_Debug";
+    public const string KEY_IS_ACTIVE_MOVEMENT_SYSTEM_PATHS = "Debug_IsActive_MovementSystemPaths";
+    public const string KEY_IS_ACTIVE_UNWALKABLE_TILES = "Debug_IsActive_UnwalkableTiles";
 
-    public bool IsActive_Debug;
-    public bool IsActive_MovementSystemPaths;
-    public bool IsActive_UnwalkableTiles;
+    public bool isActive_debug;
+    public bool isActive_movementSystemPaths;
+    public bool isActive_unwalkableTiles;
 }
 
 public class DebugManager : MonoBehaviour {
@@ -26,13 +26,13 @@ public class DebugManager : MonoBehaviour {
 
     InputActionMap _map;
 
-    DebugState _prefs;
+    DebugState _preferences;
     InputAction _toggleBuildableTilesAction;
     InputAction _toggleDebugAction;
     InputAction _toggleMovementSystemPathsAction;
 
     void Awake() {
-        _prefs = LoadPrefs();
+        _preferences = LoadPreferences();
 
         _map = _inputActionAsset.FindActionMap("Debug");
         _toggleDebugAction = _map.FindAction("Toggle");
@@ -50,20 +50,20 @@ public class DebugManager : MonoBehaviour {
 
     void Update() {
         if (_toggleDebugAction.WasReleasedThisFrame()) {
-            _prefs.IsActive_Debug = !_prefs.IsActive_Debug;
-            DumpPrefs(_prefs);
+            _preferences.isActive_debug = !_preferences.isActive_debug;
+            DumpPreferences(_preferences);
             UpdateDebugView();
         }
 
         if (_toggleMovementSystemPathsAction.WasReleasedThisFrame()) {
-            _prefs.IsActive_MovementSystemPaths = !_prefs.IsActive_MovementSystemPaths;
-            DumpPrefs(_prefs);
+            _preferences.isActive_movementSystemPaths = !_preferences.isActive_movementSystemPaths;
+            DumpPreferences(_preferences);
             UpdateDebugView();
         }
 
         if (_toggleBuildableTilesAction.WasReleasedThisFrame()) {
-            _prefs.IsActive_UnwalkableTiles = !_prefs.IsActive_UnwalkableTiles;
-            DumpPrefs(_prefs);
+            _preferences.isActive_unwalkableTiles = !_preferences.isActive_unwalkableTiles;
+            DumpPreferences(_preferences);
             UpdateDebugView();
         }
     }
@@ -77,32 +77,32 @@ public class DebugManager : MonoBehaviour {
     }
 
     void UpdateDebugView() {
-        if (!_prefs.IsActive_Debug) {
+        if (!_preferences.isActive_debug) {
             _movementSystemPaths.SetActive(false);
             _unwalkableTiles.SetActive(false);
             return;
         }
 
-        _movementSystemPaths.SetActive(_prefs.IsActive_MovementSystemPaths);
-        _unwalkableTiles.SetActive(_prefs.IsActive_UnwalkableTiles);
+        _movementSystemPaths.SetActive(_preferences.isActive_movementSystemPaths);
+        _unwalkableTiles.SetActive(_preferences.isActive_unwalkableTiles);
     }
 
-    void DumpPrefs(DebugState prefs) {
-        PlayerPrefs.SetInt(DebugState.Key_IsActive_Debug, prefs.IsActive_Debug ? 1 : 0);
-        PlayerPrefs.SetInt(DebugState.Key_IsActive_MovementSystemPaths,
-            prefs.IsActive_MovementSystemPaths ? 1 : 0);
-        PlayerPrefs.SetInt(DebugState.Key_IsActive_UnwalkableTiles,
-            prefs.IsActive_UnwalkableTiles ? 1 : 0);
+    void DumpPreferences(DebugState preferences) {
+        PlayerPrefs.SetInt(DebugState.KEY_IS_ACTIVE_DEBUG, preferences.isActive_debug ? 1 : 0);
+        PlayerPrefs.SetInt(DebugState.KEY_IS_ACTIVE_MOVEMENT_SYSTEM_PATHS,
+            preferences.isActive_movementSystemPaths ? 1 : 0);
+        PlayerPrefs.SetInt(DebugState.KEY_IS_ACTIVE_UNWALKABLE_TILES,
+            preferences.isActive_unwalkableTiles ? 1 : 0);
         PlayerPrefs.Save();
     }
 
-    DebugState LoadPrefs() {
+    DebugState LoadPreferences() {
         return new() {
-            IsActive_Debug = PlayerPrefs.GetInt(DebugState.Key_IsActive_Debug, 0) > 0,
-            IsActive_MovementSystemPaths =
-                PlayerPrefs.GetInt(DebugState.Key_IsActive_MovementSystemPaths, 0) > 0,
-            IsActive_UnwalkableTiles =
-                PlayerPrefs.GetInt(DebugState.Key_IsActive_UnwalkableTiles, 0) > 0,
+            isActive_debug = PlayerPrefs.GetInt(DebugState.KEY_IS_ACTIVE_DEBUG, 0) > 0,
+            isActive_movementSystemPaths =
+                PlayerPrefs.GetInt(DebugState.KEY_IS_ACTIVE_MOVEMENT_SYSTEM_PATHS, 0) > 0,
+            isActive_unwalkableTiles =
+                PlayerPrefs.GetInt(DebugState.KEY_IS_ACTIVE_UNWALKABLE_TILES, 0) > 0,
         };
     }
 }

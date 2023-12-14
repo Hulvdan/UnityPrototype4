@@ -4,14 +4,14 @@ using UnityEngine.Serialization;
 
 namespace BFG.Runtime {
 public struct PathFindResult {
-    public bool Success;
+    public bool success;
 
     [FormerlySerializedAs("Path")]
-    public List<Vector2Int> Value;
+    public List<Vector2Int> value;
 
-    public PathFindResult(bool success, List<Vector2Int> value) {
-        Success = success;
-        Value = value;
+    public PathFindResult(bool success_, List<Vector2Int> value_) {
+        success = success_;
+        value = value_;
     }
 }
 }

@@ -402,18 +402,18 @@ public class TestItemTransportationGraph {
             "Cr"
         );
 
-        Assert.IsTrue(elementTiles.ElementTiles[1][0].type == ElementTileType.None);
-        elementTiles.ElementTiles[1][0] = ElementTile.Road;
+        Assert.IsTrue(elementTiles.elementTiles[1][0].type == ElementTileType.None);
+        elementTiles.elementTiles[1][0] = ElementTile.ROAD;
 
         var result = ItemTransportationGraph.OnTilesUpdated(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings,
+            elementTiles.elementTiles,
+            MockMapSize_FromElementTiles(elementTiles.elementTiles),
+            elementTiles.buildings,
             new() { new(TileUpdatedType.RoadPlaced, new(0, 1)) },
             segments
         );
-        Assert.AreEqual(0, result.DeletedSegments.Count);
-        Assert.AreEqual(1, result.AddedSegments.Count);
+        Assert.AreEqual(0, result.deletedSegments.Count);
+        Assert.AreEqual(1, result.addedSegments.Count);
     }
 
     [Test]
@@ -423,18 +423,18 @@ public class TestItemTransportationGraph {
             "Cr"
         );
 
-        Assert.IsTrue(elementTiles.ElementTiles[1][0].type == ElementTileType.None);
-        elementTiles.ElementTiles[1][0] = ElementTile.Road;
+        Assert.IsTrue(elementTiles.elementTiles[1][0].type == ElementTileType.None);
+        elementTiles.elementTiles[1][0] = ElementTile.ROAD;
 
         var result = ItemTransportationGraph.OnTilesUpdated(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings,
+            elementTiles.elementTiles,
+            MockMapSize_FromElementTiles(elementTiles.elementTiles),
+            elementTiles.buildings,
             new() { new(TileUpdatedType.RoadPlaced, new(0, 1)) },
             segments
         );
-        Assert.AreEqual(0, result.DeletedSegments.Count);
-        Assert.AreEqual(1, result.AddedSegments.Count);
+        Assert.AreEqual(0, result.deletedSegments.Count);
+        Assert.AreEqual(1, result.addedSegments.Count);
     }
 
     [Test]
@@ -444,18 +444,18 @@ public class TestItemTransportationGraph {
             "CF"
         );
 
-        Assert.IsTrue(elementTiles.ElementTiles[1][0].type == ElementTileType.None);
-        elementTiles.ElementTiles[1][0] = ElementTile.Road;
+        Assert.IsTrue(elementTiles.elementTiles[1][0].type == ElementTileType.None);
+        elementTiles.elementTiles[1][0] = ElementTile.ROAD;
 
         var result = ItemTransportationGraph.OnTilesUpdated(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings,
+            elementTiles.elementTiles,
+            MockMapSize_FromElementTiles(elementTiles.elementTiles),
+            elementTiles.buildings,
             new() { new(TileUpdatedType.RoadPlaced, new(0, 1)) },
             segments
         );
-        Assert.AreEqual(0, result.DeletedSegments.Count);
-        Assert.AreEqual(1, result.AddedSegments.Count);
+        Assert.AreEqual(0, result.deletedSegments.Count);
+        Assert.AreEqual(1, result.addedSegments.Count);
     }
 
     [Test]
@@ -465,46 +465,46 @@ public class TestItemTransportationGraph {
             "Crr"
         );
 
-        var mapSizeMock = MockMapSize_FromElementTiles(elementTiles.ElementTiles);
+        var mapSizeMock = MockMapSize_FromElementTiles(elementTiles.elementTiles);
         {
-            elementTiles.ElementTiles[0][1] = ElementTile.Flag;
+            elementTiles.elementTiles[0][1] = ElementTile.FLAG;
             var result = ItemTransportationGraph.OnTilesUpdated(
-                elementTiles.ElementTiles,
+                elementTiles.elementTiles,
                 mapSizeMock,
-                elementTiles.Buildings,
+                elementTiles.buildings,
                 new() { new(TileUpdatedType.FlagPlaced, new(1, 0)) },
                 segments
             );
-            Assert.AreEqual(0, result.DeletedSegments.Count);
-            Assert.AreEqual(1, result.AddedSegments.Count);
+            Assert.AreEqual(0, result.deletedSegments.Count);
+            Assert.AreEqual(1, result.addedSegments.Count);
             UpdateSegments(result, segments);
         }
 
         {
-            elementTiles.ElementTiles[1][2] = ElementTile.Flag;
+            elementTiles.elementTiles[1][2] = ElementTile.FLAG;
             var result = ItemTransportationGraph.OnTilesUpdated(
-                elementTiles.ElementTiles,
+                elementTiles.elementTiles,
                 mapSizeMock,
-                elementTiles.Buildings,
+                elementTiles.buildings,
                 new() { new(TileUpdatedType.FlagPlaced, new(2, 1)) },
                 segments
             );
-            Assert.AreEqual(0, result.DeletedSegments.Count);
-            Assert.AreEqual(2, result.AddedSegments.Count);
+            Assert.AreEqual(0, result.deletedSegments.Count);
+            Assert.AreEqual(2, result.addedSegments.Count);
             UpdateSegments(result, segments);
         }
 
         {
-            elementTiles.ElementTiles[1][0] = ElementTile.Road;
+            elementTiles.elementTiles[1][0] = ElementTile.ROAD;
             var result = ItemTransportationGraph.OnTilesUpdated(
-                elementTiles.ElementTiles,
+                elementTiles.elementTiles,
                 mapSizeMock,
-                elementTiles.Buildings,
+                elementTiles.buildings,
                 new() { new(TileUpdatedType.RoadPlaced, new(0, 1)) },
                 segments
             );
-            Assert.AreEqual(1, result.DeletedSegments.Count);
-            Assert.AreEqual(1, result.AddedSegments.Count);
+            Assert.AreEqual(1, result.deletedSegments.Count);
+            Assert.AreEqual(1, result.addedSegments.Count);
             UpdateSegments(result, segments);
         }
     }
@@ -513,11 +513,11 @@ public class TestItemTransportationGraph {
         ItemTransportationGraph.OnTilesUpdatedResult result,
         List<GraphSegment> segments
     ) {
-        foreach (var segment in result.DeletedSegments) {
-            segments.RemoveAt(segments.FindIndex(i => i.ID == segment.ID));
+        foreach (var segment in result.deletedSegments) {
+            segments.RemoveAt(segments.FindIndex(i => i.id == segment.id));
         }
 
-        foreach (var segment in result.AddedSegments) {
+        foreach (var segment in result.addedSegments) {
             segments.Add(segment);
         }
     }
@@ -530,17 +530,17 @@ public class TestItemTransportationGraph {
             "Cr"
         );
 
-        elementTiles.ElementTiles[1][1] = ElementTile.Flag;
+        elementTiles.elementTiles[1][1] = ElementTile.FLAG;
 
         var result = ItemTransportationGraph.OnTilesUpdated(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings,
+            elementTiles.elementTiles,
+            MockMapSize_FromElementTiles(elementTiles.elementTiles),
+            elementTiles.buildings,
             new() { new(TileUpdatedType.FlagPlaced, new(1, 1)) },
             segments
         );
-        Assert.AreEqual(1, result.DeletedSegments.Count);
-        Assert.AreEqual(2, result.AddedSegments.Count);
+        Assert.AreEqual(1, result.deletedSegments.Count);
+        Assert.AreEqual(2, result.addedSegments.Count);
     }
 
     [Test]
@@ -551,17 +551,17 @@ public class TestItemTransportationGraph {
             "CF"
         );
 
-        elementTiles.ElementTiles[1][1] = ElementTile.Flag;
+        elementTiles.elementTiles[1][1] = ElementTile.FLAG;
 
         var result = ItemTransportationGraph.OnTilesUpdated(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings,
+            elementTiles.elementTiles,
+            MockMapSize_FromElementTiles(elementTiles.elementTiles),
+            elementTiles.buildings,
             new() { new(TileUpdatedType.FlagPlaced, new(1, 1)) },
             segments
         );
-        Assert.AreEqual(1, result.DeletedSegments.Count);
-        Assert.AreEqual(2, result.AddedSegments.Count);
+        Assert.AreEqual(1, result.deletedSegments.Count);
+        Assert.AreEqual(2, result.addedSegments.Count);
     }
 
     [Test]
@@ -571,17 +571,17 @@ public class TestItemTransportationGraph {
             "CF"
         );
 
-        elementTiles.ElementTiles[1][0] = ElementTile.Flag;
+        elementTiles.elementTiles[1][0] = ElementTile.FLAG;
 
         var result = ItemTransportationGraph.OnTilesUpdated(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings,
+            elementTiles.elementTiles,
+            MockMapSize_FromElementTiles(elementTiles.elementTiles),
+            elementTiles.buildings,
             new() { new(TileUpdatedType.FlagPlaced, new(0, 1)) },
             segments
         );
-        Assert.AreEqual(0, result.DeletedSegments.Count);
-        Assert.AreEqual(2, result.AddedSegments.Count);
+        Assert.AreEqual(0, result.deletedSegments.Count);
+        Assert.AreEqual(2, result.addedSegments.Count);
     }
 
     [Test]
@@ -592,18 +592,18 @@ public class TestItemTransportationGraph {
         );
 
         var building = MakeBuilding(BuildingType.Produce, new(0, 1));
-        elementTiles.Buildings.Add(building);
-        elementTiles.ElementTiles[1][0] = new(ElementTileType.Building, building);
+        elementTiles.buildings.Add(building);
+        elementTiles.elementTiles[1][0] = new(ElementTileType.Building, building);
 
         var result = ItemTransportationGraph.OnTilesUpdated(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings,
+            elementTiles.elementTiles,
+            MockMapSize_FromElementTiles(elementTiles.elementTiles),
+            elementTiles.buildings,
             new() { new(TileUpdatedType.BuildingPlaced, new(0, 1)) },
             segments
         );
-        Assert.AreEqual(0, result.DeletedSegments.Count);
-        Assert.AreEqual(0, result.AddedSegments.Count);
+        Assert.AreEqual(0, result.deletedSegments.Count);
+        Assert.AreEqual(0, result.addedSegments.Count);
     }
 
     [Test]
@@ -614,18 +614,18 @@ public class TestItemTransportationGraph {
         );
 
         var building = MakeBuilding(BuildingType.Produce, new(1, 1));
-        elementTiles.Buildings.Add(building);
-        elementTiles.ElementTiles[1][1] = new(ElementTileType.Building, building);
+        elementTiles.buildings.Add(building);
+        elementTiles.elementTiles[1][1] = new(ElementTileType.Building, building);
 
         var result = ItemTransportationGraph.OnTilesUpdated(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings,
+            elementTiles.elementTiles,
+            MockMapSize_FromElementTiles(elementTiles.elementTiles),
+            elementTiles.buildings,
             new() { new(TileUpdatedType.BuildingPlaced, new(1, 1)) },
             segments
         );
-        Assert.AreEqual(0, result.DeletedSegments.Count);
-        Assert.AreEqual(1, result.AddedSegments.Count);
+        Assert.AreEqual(0, result.deletedSegments.Count);
+        Assert.AreEqual(1, result.addedSegments.Count);
     }
 
     [Test]
@@ -635,23 +635,23 @@ public class TestItemTransportationGraph {
             "CF"
         );
 
-        elementTiles.Buildings.RemoveAt(1);
-        elementTiles.ElementTiles[1][1] = ElementTile.None;
+        elementTiles.buildings.RemoveAt(1);
+        elementTiles.elementTiles[1][1] = ElementTile.NONE;
 
         var result = ItemTransportationGraph.OnTilesUpdated(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings,
+            elementTiles.elementTiles,
+            MockMapSize_FromElementTiles(elementTiles.elementTiles),
+            elementTiles.buildings,
             new() { new(TileUpdatedType.BuildingRemoved, new(1, 1)) },
             segments
         );
-        Assert.AreEqual(1, result.DeletedSegments.Count);
-        Assert.AreEqual(0, result.AddedSegments.Count);
+        Assert.AreEqual(1, result.deletedSegments.Count);
+        Assert.AreEqual(0, result.addedSegments.Count);
     }
 
     struct ParsedElementTiles {
-        public List<Building> Buildings;
-        public List<List<ElementTile>> ElementTiles;
+        public List<Building> buildings;
+        public List<List<ElementTile>> elementTiles;
     }
 
     ParsedElementTiles ParseAsElementTiles(params string[] strings) {
@@ -692,13 +692,13 @@ public class TestItemTransportationGraph {
                         tile = new(ElementTileType.Building, buildingSawmill);
                         break;
                     case 'r':
-                        tile = ElementTile.Road;
+                        tile = ElementTile.ROAD;
                         break;
                     case 'F':
-                        tile = ElementTile.Flag;
+                        tile = ElementTile.FLAG;
                         break;
                     case '.':
-                        tile = ElementTile.None;
+                        tile = ElementTile.NONE;
                         break;
                     default:
                         Assert.IsTrue(false);
@@ -712,8 +712,8 @@ public class TestItemTransportationGraph {
         }
 
         return new() {
-            Buildings = buildings,
-            ElementTiles = tiles,
+            buildings = buildings,
+            elementTiles = tiles,
         };
     }
 
@@ -723,9 +723,9 @@ public class TestItemTransportationGraph {
         var elementTiles = ParseAsElementTiles(strings);
 
         var segments = ItemTransportationGraph.BuildGraphSegments(
-            elementTiles.ElementTiles,
-            MockMapSize_FromElementTiles(elementTiles.ElementTiles),
-            elementTiles.Buildings
+            elementTiles.elementTiles,
+            MockMapSize_FromElementTiles(elementTiles.elementTiles),
+            elementTiles.buildings
         );
 
         return new(elementTiles, segments);
@@ -737,9 +737,9 @@ public class TestItemTransportationGraph {
         List<GraphSegment> expectedGraphSegments = null
     ) {
         var result = ItemTransportationGraph.BuildGraphSegments(
-            data.ElementTiles,
-            MockMapSize_FromElementTiles(data.ElementTiles),
-            data.Buildings
+            data.elementTiles,
+            MockMapSize_FromElementTiles(data.elementTiles),
+            data.buildings
         );
 
         Assert.AreEqual(expectedSegmentsCount, result.Count);

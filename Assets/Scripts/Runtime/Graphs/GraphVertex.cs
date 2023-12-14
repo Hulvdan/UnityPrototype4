@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace BFG.Runtime.Graphs {
 public sealed class GraphVertex : IEquatable<GraphVertex> {
-    public Vector2Int Pos;
+    public Vector2Int pos;
 
-    public GraphVertex(Vector2Int pos) {
-        Pos = pos;
+    public GraphVertex(Vector2Int pos_) {
+        pos = pos_;
     }
 
     public override string ToString() {
-        return Pos.ToString();
+        return pos.ToString();
     }
 
     public static bool operator ==(GraphVertex obj1, GraphVertex obj2) {
@@ -46,7 +46,7 @@ public sealed class GraphVertex : IEquatable<GraphVertex> {
             return true;
         }
 
-        if (!Pos.Equals(other.Pos)) {
+        if (!pos.Equals(other.pos)) {
             return false;
         }
 
@@ -70,7 +70,7 @@ public sealed class GraphVertex : IEquatable<GraphVertex> {
     }
 
     public override int GetHashCode() {
-        return HashCode.Combine(Pos);
+        return HashCode.Combine(pos);
     }
 }
 }

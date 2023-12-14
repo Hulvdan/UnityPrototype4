@@ -12,42 +12,42 @@ public struct ElementTile {
     [CanBeNull]
     public Building building { get; }
 
-    public ElementTile(ElementTileType type, [CanBeNull] Building building) {
+    public ElementTile(ElementTileType type_, [CanBeNull] Building building_) {
         Assert.IsTrue(
-            type is ElementTileType.Building
+            type_ is ElementTileType.Building
                 or ElementTileType.Road
                 or ElementTileType.Flag
                 or ElementTileType.None
         );
 
-        if (type == ElementTileType.Building) {
-            Assert.IsNotNull(building);
+        if (type_ == ElementTileType.Building) {
+            Assert.IsNotNull(building_);
         }
         else {
-            Assert.IsNull(building);
+            Assert.IsNull(building_);
         }
 
-        this.type = type;
-        this.building = building;
+        type = type_;
+        building = building_;
 
-        BFS_Visited = false;
-        BFS_Parent = null;
+        bfs_visited = false;
+        bfs_parent = null;
     }
 
-    ElementTile(ElementTileType type) {
+    ElementTile(ElementTileType type_) {
         building = null;
-        this.type = type;
+        type = type_;
 
-        BFS_Visited = false;
-        BFS_Parent = null;
+        bfs_visited = false;
+        bfs_parent = null;
     }
 
-    public static readonly ElementTile None = new(ElementTileType.None);
-    public static readonly ElementTile Road = new(ElementTileType.Road);
-    public static readonly ElementTile Flag = new(ElementTileType.Flag);
+    public static readonly ElementTile NONE = new(ElementTileType.None);
+    public static readonly ElementTile ROAD = new(ElementTileType.Road);
+    public static readonly ElementTile FLAG = new(ElementTileType.Flag);
 
-    public Vector2Int? BFS_Parent { get; set; }
-    public bool BFS_Visited { get; set; }
+    public Vector2Int? bfs_parent { get; set; }
+    public bool bfs_visited { get; set; }
 
     public override string ToString() {
         if (type == ElementTileType.Building) {

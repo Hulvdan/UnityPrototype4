@@ -1,12 +1,18 @@
 ﻿#nullable enable
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace BFG.Runtime.Entities {
 [Serializable]
 public class HumanDestinationData {
-    public HumanDestinationType Type;
-    public Vector2Int? FishingTile;
-    public Vector2Int? BuildingTile;
+    [FormerlySerializedAs("Type")]
+    public HumanDestinationType type;
+
+    [FormerlySerializedAs("FishingTile")]
+    public Vector2Int? fishingTile;
+
+    [FormerlySerializedAs("BuildingTile")]
+    public Vector2Int? buildingTile;
 }
 }

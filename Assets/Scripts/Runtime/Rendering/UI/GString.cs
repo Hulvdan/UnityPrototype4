@@ -19,11 +19,11 @@ public class GString : MonoBehaviour {
         _text = GetComponent<TMP_Text>();
 
         _onDestroy?.Dispose();
-        _onDestroy = LocalizationDatabase.Instance.onLanguageChanged.Subscribe(OnLanguageChanged);
+        _onDestroy = LocalizationDatabase.instance.onLanguageChanged.Subscribe(OnLanguageChanged);
     }
 
     void Start() {
-        _text.SetText(LocalizationDatabase.Instance.GetText(_key));
+        _text.SetText(LocalizationDatabase.instance.GetText(_key));
     }
 
     void OnDestroy() {
@@ -31,7 +31,7 @@ public class GString : MonoBehaviour {
     }
 
     void OnLanguageChanged(Language _) {
-        _text.SetText(LocalizationDatabase.Instance.GetText(_key));
+        _text.SetText(LocalizationDatabase.instance.GetText(_key));
     }
 }
 }
