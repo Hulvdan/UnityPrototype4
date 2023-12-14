@@ -14,9 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _type: 2
   _harvestableResource: {fileID: 0}
-  _cellsRadius: 0
-  _storeItemsAmount: 1
+  _tilesRadius: 0
+  _storedItemPositions: []
   _takes:
   - {fileID: 11400000, guid: 5e7ffec402aa6424cbb3ce22cbefbe8c, type: 2}
   _produces: {fileID: 11400000, guid: 45af1427840af3a4a98b31727bdd67b4, type: 2}
+  _produceItemsAmount: 1
+  _producedItemsPositions: []
+  _pickupableItemsCellOffset: {x: 0, y: 0}
+  _itemProcessingDuration: 1
   _tile: {fileID: 11400000, guid: b91fc5a57a5826d459f84d5b70a4d826, type: 2}
+  _size: {x: 1, y: 1}
+  _requiredResourcesToBuild: []
+  _buildingDuration: 4
+  _workingAreaSize: {x: -1, y: -1}
+  _buildingBehaviourGos: []
