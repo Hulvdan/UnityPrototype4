@@ -82,7 +82,6 @@ public class Human {
 
     #region Employee
 
-    public float Employee_TimeSinceLastWork;
     public float harvestingElapsed;
     public HumanDestination? destination { get; set; }
     public int currentBehaviourId = -1;
