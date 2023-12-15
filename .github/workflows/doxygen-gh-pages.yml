@@ -50,7 +50,7 @@ jobs:
           # GitHub Action output files
           source-directory: Docs/doxygen/html
           target-directory: docs/roads-of-horses
-          destination-github-username: RoadsOfHorses
+          destination-github-username: Hulvdan
           destination-repository-name: hulvdan.github.io
           user-email: bot@github.com
           target-branch: "main"
