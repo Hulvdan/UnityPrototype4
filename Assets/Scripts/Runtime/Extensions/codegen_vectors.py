@@ -5,7 +5,7 @@ from jinja2 import Template, StrictUndefined
 
 SCRIPT_PATH = Path(__file__).relative_to(Path.cwd()).as_posix()
 FILENAME_TEMPLATE = "{}Extensions.cs"
-TEMPLATE_PATH = "vectors.jinja"
+TEMPLATE_PATH = "vectors.j2"
 
 
 DATA = [

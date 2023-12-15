@@ -1,5 +1,5 @@
 poetry run watchmedo shell-command^
-    --patterns="*.py;*.jinja"^
+    --patterns="*.py;*.j2"^
     --ignore-directories^
     --recursive^
     --verbose^
