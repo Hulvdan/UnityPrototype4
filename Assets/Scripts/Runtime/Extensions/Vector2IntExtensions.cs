@@ -7,8 +7,8 @@ using UnityEngine;
 
 namespace BFG.Runtime.Extensions {
 public static class Vector2IntExtensions {
-    public static Vector3 With(
-        this Vector3 vector,
+    public static Vector2Int With(
+        this Vector2Int vector,
         int? x = null,
         int? y = null
     ) {
@@ -18,8 +18,8 @@ public static class Vector2IntExtensions {
         );
     }
 
-    public static Vector3 Add(
-        this Vector3 vector,
+    public static Vector2Int Add(
+        this Vector2Int vector,
         int? x = null,
         int? y = null
     ) {

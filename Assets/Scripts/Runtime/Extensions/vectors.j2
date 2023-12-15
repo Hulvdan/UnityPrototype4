@@ -19,8 +19,8 @@ using UnityEngine;
 
 namespace BFG.Runtime.Extensions {
 public static class {{classname}}Extensions {
-    public static Vector3 With(
-        this Vector3 vector,
+    public static {{classname}} With(
+        this {{classname}} vector,
 {%- for coord in coords %}
         {{vartype}}? {{coord}} = null
         {{- comma(loop) -}}
@@ -34,8 +34,8 @@ public static class {{classname}}Extensions {
         );
     }
 
-    public static Vector3 Add(
-        this Vector3 vector,
+    public static {{classname}} Add(
+        this {{classname}} vector,
 {%- for coord in coords %}
         {{vartype}}? {{coord}} = null
         {{- comma(loop) -}}
