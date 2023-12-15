@@ -1,4 +1,4 @@
-﻿// Generated automatically by codegen_vectors.py
+﻿// Generated via Assets/Scripts/Runtime/Extensions/codegen_vectors.py
 //
 // From YouTube by git-amend. Easy and Powerful Extension Methods | Unity C#.
 // https://youtu.be/Nk49EUf7yyU
@@ -12,12 +12,13 @@ public static class Vector3IntExtensions {
         int? y = null
         int? z = null
         
-        ) {
+    ) {
         return new(
             x ?? vector.x,
             y ?? vector.y,
             z ?? vector.z,
-            );
+            
+        );
     }
 
     public static Vector3 Add(
@@ -25,12 +26,14 @@ public static class Vector3IntExtensions {
         int? x = null,
         int? y = null,
         int? z = null,
-        ) {
+        
+    ) {
         return new(
             vector.x + (x ?? 0),
             vector.y + (y ?? 0),
             vector.z + (z ?? 0),
-            );
+            
+        );
     }
 }
 }

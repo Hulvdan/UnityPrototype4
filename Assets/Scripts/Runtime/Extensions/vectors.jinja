@@ -1,4 +1,4 @@
-﻿// Generated automatically by codegen_vectors.py
+﻿// Generated via {{generated_via}}
 //
 // From YouTube by git-amend. Easy and Powerful Extension Methods | Unity C#.
 // https://youtu.be/Nk49EUf7yyU
@@ -10,19 +10,22 @@ public static class {{classname}}Extensions {
         this Vector3 vector,
         {% for coord in coords %}{{vartype}}? {{coord}} = null
         {% endfor %}
-        ) {
+    ) {
         return new(
             {% for coord in coords %}{{coord}} ?? vector.{{coord}},
-            {% endfor %});
+            {% endfor %}
+        );
     }
 
     public static Vector3 Add(
         this Vector3 vector,
         {% for coord in coords %}{{vartype}}? {{coord}} = null,
-        {% endfor %}) {
+        {% endfor %}
+    ) {
         return new(
             {% for coord in coords %}vector.{{coord}} + ({{coord}} ?? 0),
-            {% endfor %});
+            {% endfor %}
+        );
     }
 }
 }

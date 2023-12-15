@@ -1,9 +1,12 @@
-from jinja2 import Template, StrictUndefined
 from pathlib import Path
 
+from jinja2 import Template, StrictUndefined
 
+
+SCRIPT_PATH = Path(__file__).relative_to(Path.cwd()).as_posix()
 FILENAME_TEMPLATE = "{}Extensions.cs"
 TEMPLATE_PATH = "vectors.jinja"
+
 
 DATA = [
     ("Vector2", ("x", "y"), "float"),
@@ -19,7 +22,12 @@ def main():
         template = Template(in_file.read(), undefined=StrictUndefined)
 
     for classname, coords, vartype in DATA:
-        data = template.render(classname=classname, coords=coords, vartype=vartype)
+        data = template.render(
+            generated_via=SCRIPT_PATH,
+            classname=classname,
+            coords=coords,
+            vartype=vartype,
+        )
 
         out_file = Path(__file__).parent / FILENAME_TEMPLATE.format(classname)
         with open(out_file, "w") as out_file:
