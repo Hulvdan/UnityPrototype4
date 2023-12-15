@@ -55,7 +55,7 @@ I used `python` + `jinja` for generating QoL code for `Vector2`, `Vector2Int`, `
 
 ### Setting Up The Machine
 
-Due to licensing issues `3.1.14.3` version of `Odin Inspector and Serializer` must be installed manually at `Assets/Vendor/Odin Inspector/`.
+Due to licensing issues `3.1.14.3` version of `Odin Inspector and Serializer` must be installed manually at `Assets/VendorLicensed/Odin Inspector/`.
 
 Unity Version: `2022.3.13f1`
 
