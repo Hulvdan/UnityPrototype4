@@ -681,7 +681,7 @@ INLINE_INFO            = YES
 # name. If set to NO, the members will appear in declaration order.
 # The default value is: YES.
 
-SORT_MEMBER_DOCS       = YES
+SORT_MEMBER_DOCS       = NO
 
 # If the SORT_BRIEF_DOCS tag is set to YES then doxygen will sort the brief
 # descriptions of file, namespace and class members alphabetically by member
@@ -784,7 +784,7 @@ SHOW_USED_FILES        = YES
 # (if specified).
 # The default value is: YES.
 
-SHOW_FILES             = YES
+SHOW_FILES             = NO
 
 # Set the SHOW_NAMESPACES tag to NO to disable the generation of the Namespaces
 # page. This will remove the Namespaces entry from the Quick Index and from the
@@ -901,7 +901,7 @@ WARN_IF_UNDOC_ENUM_VAL = NO
 # Possible values are: NO, YES, FAIL_ON_WARNINGS and FAIL_ON_WARNINGS_PRINT.
 # The default value is: NO.
 
-WARN_AS_ERROR          = NO
+WARN_AS_ERROR          = YES
 
 # The WARN_FORMAT tag determines the format of the warning messages that doxygen
 # can produce. The string should contain the $file, $line, and $text tags, which
@@ -1418,7 +1418,7 @@ HTML_EXTRA_STYLESHEET  = Docs/doxygen/doxygen-awesome-css/doxygen-awesome.css \
 HTML_EXTRA_FILES       = Docs/doxygen/doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js \
                          Docs/doxygen/doxygen-awesome-css/doxygen-awesome-fragment-copy-button.js \
                          Docs/doxygen/doxygen-awesome-css/doxygen-awesome-paragraph-link.js \
-                         Docs/doxygen/doxygen-awesome-css/doxygen-awesome-css/doxygen-custom/toggle-alternative-theme.js \
+                         Docs/doxygen/doxygen-awesome-css/doxygen-custom/toggle-alternative-theme.js \
                          Docs/doxygen/doxygen-awesome-css/doxygen-awesome-interactive-toc.js \
                          Docs/doxygen/doxygen-awesome-css/doxygen-awesome-tabs.js
 
@@ -2527,7 +2527,7 @@ HIDE_UNDOC_RELATIONS   = YES
 # set to NO
 # The default value is: NO.
 
-HAVE_DOT               = YES
+HAVE_DOT               = NO
 
 # The DOT_NUM_THREADS specifies the number of dot invocations doxygen is allowed
 # to run in parallel. When set to 0 doxygen will base this on the number of
@@ -2726,7 +2726,7 @@ GRAPHICAL_HIERARCHY    = YES
 # The default value is: YES.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-DIRECTORY_GRAPH        = YES
+DIRECTORY_GRAPH        = NO
 
 # The DIR_GRAPH_MAX_DEPTH tag can be used to limit the maximum number of levels
 # of child directories generated in directory dependency graphs by dot.
