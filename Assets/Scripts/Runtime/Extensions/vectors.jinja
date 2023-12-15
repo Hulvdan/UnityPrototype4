@@ -1,4 +1,16 @@
-﻿// Generated via {{generated_via}}
+﻿{%- macro comma(loop) -%}
+    {{- "," if not loop.last else "" -}}
+{%- endmacro -%}
+
+{%- macro comman(loop) -%}
+    {{- ",\n" if not loop.last else "" -}}
+{%- endmacro -%}
+
+{%- macro commas(loop) -%}
+    {{- ", " if not loop.last else "" -}}
+{%- endmacro -%}
+
+// Generated via {{generated_via}}
 //
 // From YouTube by git-amend. Easy and Powerful Extension Methods | Unity C#.
 // https://youtu.be/Nk49EUf7yyU
@@ -9,19 +21,31 @@ namespace BFG.Runtime.Extensions {
 public static class {{classname}}Extensions {
     public static Vector3 With(
         this Vector3 vector,
-{% for coord in coords %}        {{vartype}}? {{coord}} = null{{ "" if loop.last else ",\n" }}{% endfor %}
+{%- for coord in coords %}
+        {{vartype}}? {{coord}} = null
+        {{- comma(loop) -}}
+{%- endfor %}
     ) {
         return new(
-{% for coord in coords %}            {{coord}} ?? vector.{{coord}}{{ "" if loop.last else ",\n" }}{% endfor %}
+{%- for coord in coords %}
+            {{coord}} ?? vector.{{coord}}
+            {{- comma(loop) -}}
+{%- endfor %}
         );
     }
 
     public static Vector3 Add(
         this Vector3 vector,
-{% for coord in coords %}        {{vartype}}? {{coord}} = null{{ "" if loop.last else ",\n" }}{% endfor %}
+{%- for coord in coords %}
+        {{vartype}}? {{coord}} = null
+        {{- comma(loop) -}}
+{%- endfor %}
     ) {
         return new(
-{% for coord in coords %}            vector.{{coord}} + ({{coord}} ?? 0){{ "" if loop.last else ",\n" }}{% endfor %}
+{%- for coord in coords %}
+            vector.{{coord}} + ({{coord}} ?? 0)
+            {{- comma(loop) -}}
+{%- endfor %}
         );
     }
 }
