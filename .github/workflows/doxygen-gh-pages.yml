@@ -3,7 +3,7 @@ name: Doxygen Deploy
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
