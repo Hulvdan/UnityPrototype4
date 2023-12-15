@@ -4,6 +4,14 @@ This is a gamedev project in Unity, C# with a primary goal of honing my developm
 
 Preview can be found at [hulvdan.github.io](https://hulvdan.github.io/).
 
+## Applied Skills / Fun Things
+
+### Code Generation
+
+Having read "The Pragmatic Programmer", I started exploring ways of reducing amount of time needed for code maintenance.
+
+I used `python` + `jinja` for generating QoL code for `Vector2`, `Vector2Int`, `Vector3`, `Vector3Int` at `Assets/Scripts/Runtime/Extensions`.
+
 ## Coding Styleguide
 
 ### Terms
