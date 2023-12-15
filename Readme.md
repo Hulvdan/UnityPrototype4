@@ -4,6 +4,8 @@ This is a gamedev project in Unity, C# with a primary goal of honing my developm
 
 Preview can be found at [hulvdan.github.io](https://hulvdan.github.io/).
 
+Documentation can be found at [hulvdan.github.io/roads-of-horses](https://hulvdan.github.io/roads-of-horses/).
+
 ## Applied Skills / Fun Programming Things
 
 ### Tracing
