@@ -52,5 +52,6 @@ jobs:
           target-directory: docs/roads-of-horses
           destination-github-username: Hulvdan
           destination-repository-name: hulvdan.github.io
+          user-name: RoadsOfHorses
           user-email: bot@github.com
           target-branch: "main"
