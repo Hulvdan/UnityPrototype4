@@ -9,8 +9,52 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: DenverCoder1/doxygen-github-pages-action@v1.3.0
+      # - uses: DenverCoder1/doxygen-github-pages-action@v1.3.0
+      #   with:
+      #     github_token: ${{ secrets.HULVDAN_PAGES_GITHUB_TOKEN }}
+      #     config_file: Docs/doxygen/Doxyfile
+      #     folder: Docs/doxygen/html
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: "true"
+
+      - name: Install Doxygen
+        run: sudo apt-get install doxygen graphviz -y
+        shell: bash
+
+      - name: Generate Doxygen Documentation
+        run: doxygen ${{ inputs.config_file }}
+        shell: bash
+        with:
           config_file: Docs/doxygen/Doxyfile
+
+      - name: Create .nojekyll (ensures pages with underscores work on gh pages)
+        run: touch ${{ inputs.folder }}/.nojekyll
+        shell: bash
+        with:
           folder: Docs/doxygen/html
+
+      - name: Deploy to external repository
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          # 🏗️ <internal repository>, run GitHub Action.
+          # 🎁 <external repository>, receiving Artifacts.
+          #
+          # Way 1: using Personal Access Token
+          # @see https://cpina.github.io/push-to-another-repository-docs/setup-using-personal-access-token.html#setup-personal-access-token
+          # 1.1 Generate Personal Access Token: <external repository>/<Avatar>/Settings/Developer settings/Personal access tokens/Generate new token
+          #     Select `No expiration` and Check `✅️ repo    Full control of private repositories`, Generate and then Copy the Token
+          # 1.2 Then make the token available to the GitHub Action: <internal repository>/Settings/Secrets/Actions/New repository secret
+          #     Name: EXTERNAL_REPOSITORY_PERSONAL_ACCESS_TOKEN, Value Paste the Token
+          API_TOKEN_GITHUB: ${{ secrets.EXTERNAL_REPOSITORY_PERSONAL_ACCESS_TOKEN }}
+
+        with:
+          # GitHub Action output files
+          source-directory: Docs/doxygen/html
+          target-directory: docs/roads-of-horses
+          destination-github-username: RoadsOfHorses
+          destination-repository-name: hulvdan.github.io
+          user-email: bot@github.com
+          target-branch: "main"
