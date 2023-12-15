@@ -327,7 +327,7 @@ public class ResourceTransportation {
         _map.mapResources[res.pos.y][res.pos.x].Remove(res);
     }
 
-    public void OnHumanPlacedResource(Vector2Int pos, GraphSegment? seg, MapResource res) {
+    public void OnHumanFinishedPlacedResource(Vector2Int pos, GraphSegment? seg, MapResource res) {
         using var _ = Tracing.Scope();
 
         Assert.AreEqual(
