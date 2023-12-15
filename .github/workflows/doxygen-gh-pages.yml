@@ -25,16 +25,12 @@ jobs:
         shell: bash
 
       - name: Generate Doxygen Documentation
-        run: doxygen ${{ inputs.config_file }}
+        run: doxygen Docs/doxygen/Doxyfile
         shell: bash
-        with:
-          config_file: Docs/doxygen/Doxyfile
 
       - name: Create .nojekyll (ensures pages with underscores work on gh pages)
-        run: touch ${{ inputs.folder }}/.nojekyll
+        run: touch Docs/doxygen/html/.nojekyll
         shell: bash
-        with:
-          folder: Docs/doxygen/html
 
       - name: Deploy to external repository
         uses: cpina/github-action-push-to-another-repository@main
