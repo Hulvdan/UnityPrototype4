@@ -1404,7 +1404,8 @@ HTML_EXTRA_STYLESHEET  = Docs/doxygen/doxygen-awesome-css/doxygen-awesome.css \
                          Docs/doxygen/doxygen-awesome-css/doxygen-custom/custom.css \
                          Docs/doxygen/doxygen-awesome-css/doxygen-awesome-sidebar-only.css \
                          Docs/doxygen/doxygen-awesome-css/doxygen-awesome-sidebar-only-darkmode-toggle.css \
-                         Docs/doxygen/doxygen-awesome-css/doxygen-custom/custom-alternative.css
+                         Docs/doxygen/doxygen-awesome-css/doxygen-custom/custom-alternative.css \
+                         Docs/doxygen/override.css
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note
