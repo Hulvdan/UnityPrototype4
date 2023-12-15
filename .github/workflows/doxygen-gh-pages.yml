@@ -1,0 +1,40 @@
+name: Doxygen Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: "true"
+
+      - name: Install Doxygen
+        run: sudo apt-get install doxygen graphviz -y
+        shell: bash
+
+      - name: Generate Doxygen Documentation
+        run: doxygen Docs/doxygen/Doxyfile
+        shell: bash
+
+      - name: Create .nojekyll (ensures pages with underscores work on gh pages)
+        run: touch Docs/doxygen/html/.nojekyll
+        shell: bash
+
+      - name: Deploy to external repository
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.EXTERNAL_REPOSITORY_PERSONAL_ACCESS_TOKEN }}
+        with:
+          source-directory: Docs/doxygen/html
+          target-directory: docs/roads-of-horses
+          destination-github-username: Hulvdan
+          destination-repository-name: hulvdan.github.io
+          user-name: RoadsOfHorses
+          user-email: bot@github.com
+          target-branch: "main"

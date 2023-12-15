@@ -4,7 +4,40 @@ This is a gamedev project in Unity, C# with a primary goal of honing my developm
 
 Preview can be found at [hulvdan.github.io](https://hulvdan.github.io/).
 
-## Applied Skills / Fun Things
+Documentation can be found at [hulvdan.github.io/roads-of-horses](https://hulvdan.github.io/roads-of-horses/).
+
+## Applied Skills / Fun Programming Things
+
+### Tracing
+
+I found a huge (HUGE) benefit of tracing logs that indent log statements ~ based on the call stack's depth. Debugging state machines became a breeze after I applied this approach.
+
+A simplified example of what am I talking about:
+
+```js
+// THE PROGRAM
+function outer() {
+  var _ = Tracing.Scope()
+
+  Tracing.Log("Trace from outer() before inner()")
+  inner()
+  Tracing.Log("Trace from outer() after inner()")
+
+function inner() {
+  var _ = Tracing.Scope()
+
+  Tracing.Log("Trace from inner()")
+}
+```
+
+```
+// TRACING OUTPUT - Tracing.log
+[outer]
+Trace from outer() before inner()
+  [inner]
+  Trace from inner()
+Trace from outer() after inner()
+```
 
 ### Code Generation
 
@@ -24,7 +57,7 @@ I used `python` + `jinja` for generating QoL code for `Vector2`, `Vector2Int`, `
 
 ### Setting Up The Machine
 
-Due to licensing issues `3.1.14.3` version of `Odin Inspector and Serializer` must be installed manually at `Assets/Vendor/Odin Inspector/`.
+Due to licensing issues `3.1.14.3` version of `Odin Inspector and Serializer` must be installed manually at `Assets/VendorLicensed/Odin Inspector/`.
 
 Unity Version: `2022.3.13f1`
 

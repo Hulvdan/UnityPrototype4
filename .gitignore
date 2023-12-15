@@ -212,3 +212,7 @@ Assets/Wwise/Editor/ProjectData.meta
 /Assets/Scripts/Editor/Personal
 /Assets/Scripts/Editor/Personal.meta
 /Assets/Packages
+/Assets/VendorLicensed
+
+/Docs/doxygen/html
+/Docs/doxygen/latex
