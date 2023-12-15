@@ -2,29 +2,26 @@
 //
 // From YouTube by git-amend. Easy and Powerful Extension Methods | Unity C#.
 // https://youtu.be/Nk49EUf7yyU
+
 using UnityEngine;
 
 namespace BFG.Runtime.Extensions {
 public static class {{classname}}Extensions {
     public static Vector3 With(
         this Vector3 vector,
-        {% for coord in coords %}{{vartype}}? {{coord}} = null
-        {% endfor %}
+{% for coord in coords %}        {{vartype}}? {{coord}} = null{{ "" if loop.last else ",\n" }}{% endfor %}
     ) {
         return new(
-            {% for coord in coords %}{{coord}} ?? vector.{{coord}},
-            {% endfor %}
+{% for coord in coords %}            {{coord}} ?? vector.{{coord}}{{ "" if loop.last else ",\n" }}{% endfor %}
         );
     }
 
     public static Vector3 Add(
         this Vector3 vector,
-        {% for coord in coords %}{{vartype}}? {{coord}} = null,
-        {% endfor %}
+{% for coord in coords %}        {{vartype}}? {{coord}} = null{{ "" if loop.last else ",\n" }}{% endfor %}
     ) {
         return new(
-            {% for coord in coords %}vector.{{coord}} + ({{coord}} ?? 0),
-            {% endfor %}
+{% for coord in coords %}            vector.{{coord}} + ({{coord}} ?? 0){{ "" if loop.last else ",\n" }}{% endfor %}
         );
     }
 }
