@@ -39,7 +39,7 @@ public sealed class EmployeeBehaviourGo {
                 );
             case EmployeeBehaviourGoType.Processing:
                 int? unbookingId = null;
-                if (_unbookingTileBehaviourId == -1) {
+                if (_unbookingTileBehaviourId != -1) {
                     unbookingId = _unbookingTileBehaviourId;
                 }
 

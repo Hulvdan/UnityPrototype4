@@ -34,12 +34,12 @@ MonoBehaviour:
     _employeeBehaviours:
     - _type: 1
       _destinationType: 0
-      _bookingTileBehaviourId: -1
+      _bookingTileBehaviourId: 0
       _unbookingTileBehaviourId: -1
     - _type: 2
       _destinationType: 0
       _bookingTileBehaviourId: -1
-      _unbookingTileBehaviourId: -1
+      _unbookingTileBehaviourId: 0
     - _type: 3
       _destinationType: 0
       _bookingTileBehaviourId: -1

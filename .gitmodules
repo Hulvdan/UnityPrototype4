@@ -1,3 +1,4 @@
+
 [submodule "Assets/Vendor/Odin Inspector"]
 	path = Assets/Vendor/Odin Inspector
 	url = git@github.com:Hulvdan/odin-inspector-v3.1.14.3-personal.git
