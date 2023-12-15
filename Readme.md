@@ -1,4 +1,8 @@
-# UnityPrototype4
+# Roads of Horses
+
+This is a gamedev project in Unity, C# with a primary goal of honing my development skills.
+
+Preview can be found at [hulvdan.github.io](https://hulvdan.github.io/).
 
 ## Coding Styleguide
 
@@ -11,6 +15,8 @@
 ## Development
 
 ### Setting Up The Machine
+
+Due to licensing issues `3.1.14.3` version of `Odin Inspector and Serializer` must be installed manually at `Assets/Vendor/Odin Inspector/`.
 
 Unity Version: `2022.3.13f1`
 
