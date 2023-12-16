@@ -2,3 +2,7 @@ html {
     --side-nav-arrow-opacity: 1 !important;
     --side-nav-arrow-hover-opacity: 1 !important;
 }
+
+html.dark-mode {
+    --code-background: #4d4812 !important;
+}
