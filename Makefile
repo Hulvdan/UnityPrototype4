@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := all
 
 all:
-	poetry run python Cmd/make.py
+	poetry run python Cmd/make.py --help
 
 code:
 	poetry run python Cmd/make.py code
