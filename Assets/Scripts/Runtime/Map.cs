@@ -17,6 +17,11 @@ using UnityEngine.Assertions;
 using UnityEngine.Events;
 
 namespace BFG.Runtime {
+// TODO(Hulvdan): Rewrite it without MonoBehaviour and Interfaces.
+// Make a code generation script that creates
+// MapData + MapDataProvider (MonoBehaviour).
+// Map must not know about this MonoBehaviour.
+// It will make us able to run tests with "real" Map.
 public class Map : MonoBehaviour, IMap, IMapSize {
     // Layers:
     // 1 - Terrain (depends on height)
