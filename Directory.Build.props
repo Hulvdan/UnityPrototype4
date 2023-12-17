@@ -1,8 +1,10 @@
-﻿<Project>
+﻿<!-- Generated via Cmd/Rider/codegen_rider.py -->
+<Project>
     <ItemGroup Condition="$(AssemblyName) == 'Assembly-CSharp'">
         <ContentFiles Include=".github/**/*.*"/>
         <ContentFiles Include=".vscode/**/*.*"/>
         <ContentFiles Include="Assets/Scripts/**/*.py"/>
+        <ContentFiles Include="Assets/Scripts/**/*.j2"/>
         <ContentFiles Include="Cmd/**/*.*"/>
         <ContentFiles Include="Docs/**/*.*"/>
         <ContentFiles Include="Logs/**/*.*"/>
