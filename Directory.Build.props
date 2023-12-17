@@ -1,0 +1,14 @@
+<Project>
+    <ItemGroup Condition="$(AssemblyName) == 'Assembly-CSharp'">
+        <Content Include="Docs~\**"/>
+        <Content Include="Cmd~\**"/>
+        <Content Include=".editorconfig"/>
+        <Content Include=".gitattributes"/>
+        <Content Include=".gitignore"/>
+        <Content Include=".gitmodules"/>
+        <Content Include="Makefile"/>
+        <Content Include="poetry.lock"/>
+        <Content Include="README.md"/>
+        <Content Include="pyproject.toml"/>
+    </ItemGroup>
+</Project>
