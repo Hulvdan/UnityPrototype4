@@ -11,3 +11,6 @@ code-watch:
 
 doc:
 	poetry run python Cmd/make.py doc
+
+rider:
+	poetry run python Cmd/make.py rider

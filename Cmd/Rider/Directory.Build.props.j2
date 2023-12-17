@@ -6,17 +6,9 @@
         <ContentFiles Include="Cmd/**/*.*"/>
         <ContentFiles Include="Docs/**/*.*"/>
         <ContentFiles Include="Logs/**/*.*"/>
-
-        <ContentFiles Include=".editorconfig" />
-        <ContentFiles Include=".gitattributes" />
-        <ContentFiles Include=".gitignore" />
-        <ContentFiles Include=".gitmodules" />
-        <ContentFiles Include="Directory.Build.props" />
-        <ContentFiles Include="fmod_editor.log" />
-        <ContentFiles Include="Makefile" />
-        <ContentFiles Include="poetry.lock" />
-        <ContentFiles Include="pyproject.toml" />
-        <ContentFiles Include="README.md" />
+{% for root_file in root_files %}
+        <ContentFiles Include="{{root_file}}" />
+{%- endfor %}
     </ItemGroup>
 
     <ItemGroup Condition="$(AssemblyName) == 'Assembly-CSharp'">

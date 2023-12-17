@@ -1,6 +1,6 @@
 import os
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 import typer
 
@@ -9,12 +9,11 @@ app = typer.Typer()
 CMD_ROOT = Path("Cmd")
 
 
-
 @app.command()
 def code(watch: bool = False):
     """Run all code generation scripts."""
     if os.name != "nt":
-        raise ValueError(f"os '{os.name}' is to be implemented!")
+        raise ValueError(f"os '{os.name}' is yet to be implemented!")
 
     if watch:
         executable = CMD_ROOT / "codegen-watch.bat"
@@ -28,12 +27,27 @@ def code(watch: bool = False):
 def doc():
     """Generate docs."""
     if os.name != "nt":
-        raise ValueError(f"os '{os.name}' is to be implemented!")
+        raise ValueError(f"os '{os.name}' is yet to be implemented!")
 
-    executable = CMD_ROOT / "doc.bat"
-    subprocess.run([executable], shell=True, check=True)
+    subprocess.run(
+        ["doxygen", Path("Docs") / "doxygen" / "Doxyfile"],
+        shell=True,
+        check=True,
+    )
+
+
+@app.command()
+def rider():
+    """Make the fuken Rider be aware of useful files in the root directory."""
+    if os.name != "nt":
+        raise ValueError(f"os '{os.name}' is yet to be implemented!")
+
+    subprocess.run(
+        ["poetry", "run", "python", "Cmd/Rider/codegen_rider.py"],
+        shell=True,
+        check=True,
+    )
 
 
 if __name__ == "__main__":
     app()
-

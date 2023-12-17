@@ -1,7 +1,6 @@
 from pathlib import Path
 
-from jinja2 import Template, StrictUndefined
-
+from jinja2 import StrictUndefined, Template
 
 SCRIPT_PATH = Path(__file__).relative_to(Path.cwd()).as_posix()
 FILENAME_TEMPLATE = "{}Extensions.cs"
