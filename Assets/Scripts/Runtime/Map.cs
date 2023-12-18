@@ -679,6 +679,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     [Min(0)]
     float _humanSpawningDelay = 1f;
 
+    // TODO(Hulvdan): Figure out the best way of making it a list of structures. Not pointers
     readonly List<Human> _humans = new();
     readonly List<Human> _humansToAdd = new();
     readonly List<(HumanRemovalReason, Human)> _humansToRemove = new();
