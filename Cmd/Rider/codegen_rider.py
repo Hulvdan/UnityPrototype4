@@ -76,6 +76,7 @@ def main() -> None:
 
     with open(OUT_FILE_PATH, "w") as out_file:
         out_file.write(data)
+        out_file.write("\n")
 
 
 if __name__ == "__main__":

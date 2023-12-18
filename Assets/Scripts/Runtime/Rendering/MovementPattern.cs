@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine.Serialization;
 
 namespace BFG.Runtime.Rendering {
 [Serializable]

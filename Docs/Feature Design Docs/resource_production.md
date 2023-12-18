@@ -10,7 +10,10 @@ It is done through making buildings be able to employ humans to do these things.
 
 - `Building`
   - `City Hall` is a building that creates Humans
-  - `Processing Cycle` is a cycle during which building does it's primary task. For example, `Lumberjack's Hut` will check the surrounding for an `unbooked` terrain tile that contains forest. If succeed, building `books` this tile and starts a cycle during which it sends an `employee` who moves to the tile, harvests forest, returns to the building, places the resource, finalizing the `cycle`.
+  - `Processing Cycle` is a cycle during which building does it's primary task. For example, `Lumberjack's Hut` will
+    check the surrounding for an `unbooked` terrain tile that contains forest. If succeed, building `books` this tile
+    and starts a cycle during which it sends an `employee` who moves to the tile, harvests forest, returns to the
+    building, places the resource, finalizing the `cycle`.
 - `Human`
   - `Constructors` are humans that `construct` buildings
   - `Employees` are humans that are `employed` by buildings
@@ -28,8 +31,10 @@ Building can start a `processing cycle` if there is no one in progress and preco
 Examples of building processing cycle `specific preconditions`:
 
 - `Lumberjack's Hut`. There is an unbooked terrain tile in the specified area around the building that contains forest.
-- `Forester's Hut`. There is an unbooked terrain tile in the specified area around the building that forest can be planted onto.
-- `Fisherman's Hut`. There is an unbooked solid terrain tile in the specified are around the building that is adjacent to a lake that's also not booked
+- `Forester's Hut`. There is an unbooked terrain tile in the specified area around the building that forest can be
+  planted onto.
+- `Fisherman's Hut`. There is an unbooked solid terrain tile in the specified are around the building that is adjacent
+  to a lake that's also not booked
 - `Mine`. There's a specific food on the building's tile.
 
 Examples of building processing cycle `common preconditions`:

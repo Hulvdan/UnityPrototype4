@@ -9,16 +9,16 @@
         <ContentFiles Include="Docs/**/*.*"/>
         <ContentFiles Include="Logs/**/*.*"/>
 
-        <ContentFiles Include=".editorconfig" />
-        <ContentFiles Include=".gitattributes" />
-        <ContentFiles Include=".gitignore" />
-        <ContentFiles Include=".gitmodules" />
-        <ContentFiles Include="Directory.Build.props" />
-        <ContentFiles Include="fmod_editor.log" />
-        <ContentFiles Include="Makefile" />
-        <ContentFiles Include="poetry.lock" />
-        <ContentFiles Include="pyproject.toml" />
-        <ContentFiles Include="README.md" />
+        <ContentFiles Include=".editorconfig"/>
+        <ContentFiles Include=".gitattributes"/>
+        <ContentFiles Include=".gitignore"/>
+        <ContentFiles Include=".gitmodules"/>
+        <ContentFiles Include="Directory.Build.props"/>
+        <ContentFiles Include="fmod_editor.log"/>
+        <ContentFiles Include="Makefile"/>
+        <ContentFiles Include="poetry.lock"/>
+        <ContentFiles Include="pyproject.toml"/>
+        <ContentFiles Include="README.md"/>
     </ItemGroup>
 
     <ItemGroup Condition="$(AssemblyName) == 'Assembly-CSharp'">

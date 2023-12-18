@@ -5,7 +5,6 @@ using BFG.Runtime.Rendering;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEngine.Serialization;
 
 namespace BFG.Prototyping {
 [Serializable]

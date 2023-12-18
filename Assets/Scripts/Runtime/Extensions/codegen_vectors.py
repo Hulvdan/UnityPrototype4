@@ -6,7 +6,6 @@ SCRIPT_PATH = Path(__file__).relative_to(Path.cwd()).as_posix()
 FILENAME_TEMPLATE = "{}Extensions.cs"
 TEMPLATE_PATH = "vectors.j2"
 
-
 DATA = [
     ("Vector2", ("x", "y"), "float"),
     ("Vector2Int", ("x", "y"), "int"),
@@ -31,6 +30,7 @@ def main():
         out_file = Path(__file__).parent / FILENAME_TEMPLATE.format(classname)
         with open(out_file, "w") as out_file:
             out_file.write(data)
+            out_file.write("\n")
 
 
 if __name__ == "__main__":

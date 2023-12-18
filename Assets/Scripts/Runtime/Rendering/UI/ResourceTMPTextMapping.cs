@@ -1,6 +1,5 @@
 ﻿using System;
 using TMPro;
-using UnityEngine.Serialization;
 
 namespace BFG.Runtime.Rendering.UI {
 [Serializable]

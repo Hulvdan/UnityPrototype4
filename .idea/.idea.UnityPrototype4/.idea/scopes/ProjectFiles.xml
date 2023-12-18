@@ -1,3 +1,3 @@
 ﻿<component name="DependencyValidationManager">
-  <scope name="ProjectFiles" pattern="(file:Assets/Scripts//*||file:*)&amp;&amp;!file:*.csproj&amp;&amp;!file:*.sln&amp;&amp;!file:*.DotSettings&amp;&amp;!file:*.DotSettings.user&amp;&amp;!file:Assets/Scripts/NavMeshPlus//*||file:Cmd//*||file:Docs//*||file:.github//*" />
+  <scope name="ProjectFiles" pattern="((file:Assets/Scripts//*||file:*)&amp;&amp;!file:*.csproj&amp;&amp;!file:*.sln&amp;&amp;!file:*.DotSettings&amp;&amp;!file:*.DotSettings.user&amp;&amp;!file:Assets/Scripts/NavMeshPlus//*||file:Cmd//*||file:Docs//*||file:.github//*)&amp;&amp;!file:Docs/doxygen/html//*&amp;&amp;!file:Docs/doxygen/doxygen-awesome-css//*" />
 </component>

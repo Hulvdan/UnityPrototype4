@@ -6,7 +6,6 @@ using FMODUnity;
 using Foundation.Architecture;
 using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEngine.Serialization;
 
 namespace BFG.Runtime {
 public enum Sound {

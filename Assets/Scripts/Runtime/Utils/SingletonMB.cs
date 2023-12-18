@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace BFG.Runtime {
 /// <summary>
@@ -212,7 +211,7 @@ public class SingletonMB<T> : MonoBehaviour where T : MonoBehaviour {
     #region Debug Methods (available in child classes)
 
     /// <summary>
-    ///  Set this to true either by code or in the inspector to print trace log messages
+    ///     Set this to true either by code or in the inspector to print trace log messages
     /// </summary>
     [Header("Debug")]
     public bool printTrace;

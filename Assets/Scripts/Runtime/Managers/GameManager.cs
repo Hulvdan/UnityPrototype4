@@ -6,7 +6,6 @@ using BFG.Runtime.Rendering;
 using BFG.Runtime.Rendering.UI;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
