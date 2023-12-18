@@ -21,6 +21,14 @@ public enum MainState {
     Employee,
 }
 
+/// <remarks>
+///     Hulvdan: Why isn't it a static class?
+///     Because it's a bit easier to edit code - you need to make less edits in the code
+///     (for example, when another dependency is introduced).
+///
+///     TODO(Hulvdan): Investigate the ways of applying code generation
+///     for making this and every dependent controller static
+/// </remarks>
 public class MainController {
     readonly BuildingDatabase _bdb;
     readonly HumanDatabase _db;
