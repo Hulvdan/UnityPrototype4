@@ -70,6 +70,9 @@ public class ResourceTransportation {
 
             MapResource? foundResource = null;
 
+            // TODO(Hulvdan): Investigate ways of refactoring pathfinding algorithms
+            // using some kind of sets of rules that differ depending on use cases.
+            // Preferably without a performance hit.
             var iteration = 0;
             while (
                 iteration++ < 10 * _DEV_MAX_ITERATIONS
