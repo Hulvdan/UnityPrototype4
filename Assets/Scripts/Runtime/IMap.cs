@@ -12,6 +12,8 @@ public interface IMap {
     Subject<Vector2Int> onElementTileChanged { get; }
 
     List<Building> buildings { get; }
+
+    // TODO(Hulvdan): Investigate whether or not it should be a QuadTree
     List<GraphSegment> segments { get; }
     List<List<List<MapResource>>> mapResources { get; }
 
