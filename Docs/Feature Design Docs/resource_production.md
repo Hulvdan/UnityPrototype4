@@ -2,7 +2,7 @@
 
 ## The problem or a point of improvement
 
-Category: @Logic
+Category: Logic
 
 Having completed resource transportation system, we need to create a system of resources harvesting / processing.
 
