@@ -2,6 +2,8 @@
 
 ## The problem or a point of improvement
 
+Category: @Logic
+
 Having completed resource transportation system, we need to create a system of resources harvesting / processing.
 
 It is done through making buildings be able to employ humans to do these things.
