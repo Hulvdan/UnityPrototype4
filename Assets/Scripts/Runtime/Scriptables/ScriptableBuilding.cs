@@ -53,6 +53,15 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     [Min(0.1f)]
     float _itemProcessingDuration = 1f;
 
+    [ShowIf("_type", BuildingType.Plant)]
+    [SerializeField]
+    ScriptableResource _plantableResource;
+
+    [ShowIf("_type", BuildingType.Plant)]
+    [SerializeField]
+    [Min(1)]
+    int _plantableResourceAmount;
+
     [SerializeField]
     [PreviewField]
     TileBase _tile;
@@ -107,6 +116,9 @@ public class ScriptableBuilding : ScriptableObject, IScriptableBuilding {
     public List<ScriptableResource> takes => _takes;
     public ScriptableResource produces => _produces;
     public float itemProcessingDuration => _itemProcessingDuration;
+
+    public ScriptableResource plantableResource => _plantableResource;
+    public int plantableResourceAmount => _plantableResourceAmount;
 
     public TileBase tile => _tile;
     public Vector2Int size => _size;

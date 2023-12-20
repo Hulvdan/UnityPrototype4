@@ -17,7 +17,7 @@ public class BuildingController {
         building.currentBehaviourIndex++;
         if (building.currentBehaviourIndex >= building.scriptable.behaviours.Count) {
             building.currentBehaviourIndex = -1;
-            // TODO: Event building finished processing cycle
+            // TODO(Hulvdan): Event building finished processing cycle
             return;
         }
 

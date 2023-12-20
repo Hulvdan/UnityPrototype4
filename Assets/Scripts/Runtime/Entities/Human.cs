@@ -86,6 +86,7 @@ public class Human {
     public int currentBehaviourId = -1;
 
     public EmployeeBehaviourSet? behaviourSet;
+    public float processingElapsed;
 
     #endregion
 }

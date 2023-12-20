@@ -52,6 +52,8 @@ public sealed class PlacingHarvestedResourceEmployeeBehaviour : EmployeeBehaviou
         human.movingResources_placingResourceProgress = 0;
 
         var pos = human.moving.pos;
+
+        // TODO(Hulvdan): Move as a callback to `Map`
         db.map.mapResources[pos.y][pos.x].Add(human.movingResources_targetedResource);
 
         db.map.onHumanFinishedPlacingResource.OnNext(new() {

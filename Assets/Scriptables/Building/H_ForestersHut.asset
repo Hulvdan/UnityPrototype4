@@ -22,29 +22,30 @@ MonoBehaviour:
   _producedItemsPositions: []
   _pickupableItemsCellOffset: {x: 0, y: 0}
   _itemProcessingDuration: 1
+  _plantableResource: {fileID: 11400000, guid: 361152873045e084892d56e677d6d740, type: 2}
+  _plantableResourceAmount: 1
   _tile: {fileID: 11400000, guid: 045a550af9e3e9f42b049c15cc331cbf, type: 2}
   _size: {x: 1, y: 1}
   _requiredResourcesToBuild:
   - number: 2
     scriptable: {fileID: 11400000, guid: 10745982271be284fb0df31da327cdba, type: 2}
   _buildingDuration: 4
-  _workingAreaSize: {x: -1, y: -1}
+  _workingAreaSize: {x: 3, y: 3}
   _buildingBehaviourGos:
   - _type: 0
     _employeeBehaviours:
     - _type: 1
-      _destinationType: 0
+      _destinationType: 1
       _bookingTileBehaviourId: 0
       _unbookingTileBehaviourId: -1
+      _processingType: 0
     - _type: 2
       _destinationType: 0
       _bookingTileBehaviourId: -1
       _unbookingTileBehaviourId: 0
-    - _type: 3
-      _destinationType: 0
-      _bookingTileBehaviourId: -1
-      _unbookingTileBehaviourId: -1
+      _processingType: 1
     - _type: 1
       _destinationType: 3
       _bookingTileBehaviourId: -1
       _unbookingTileBehaviourId: -1
+      _processingType: 0

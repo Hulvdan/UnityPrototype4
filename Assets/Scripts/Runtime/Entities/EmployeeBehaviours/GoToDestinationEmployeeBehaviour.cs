@@ -22,8 +22,8 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
             return true;
         }
 
-        var function = GetVisitFunction();
-        return VisitTilesAroundWorkingArea(building, bdb, function, tempBookedTiles) != null;
+        var pos = VisitTilesAroundWorkingArea(building, bdb, GetVisitFunction(), tempBookedTiles);
+        return pos != null;
     }
 
     public override void BookRequiredTiles(
@@ -110,6 +110,7 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
         return null;
     }
 
+    // TODO(Hulvdan): Investigate the ways of rewriting it as a macros / codegen
     Func<Building, BuildingDatabase, Vector2Int, bool> GetVisitFunction() {
         Assert.AreNotEqual(_type, HumanDestinationType.Building);
 
@@ -130,7 +131,7 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
         var tile = bdb.map.terrainTiles[pos.y][pos.x];
         var tileBelow = bdb.map.terrainTiles[pos.y - 1][pos.x];
 
-        // `tile` is a cliff
+        // It's a cliff
         if (tileBelow.height < tile.height) {
             return false;
         }
@@ -139,10 +140,8 @@ public sealed class GoToDestinationEmployeeBehaviour : EmployeeBehaviour {
             return false;
         }
 
-        foreach (var b in bdb.map.buildings) {
-            if (b.Contains(pos.x, pos.y)) {
-                return false;
-            }
+        if (bdb.map.elementTiles[pos.y][pos.x].type != ElementTileType.None) {
+            return false;
         }
 
         return true;

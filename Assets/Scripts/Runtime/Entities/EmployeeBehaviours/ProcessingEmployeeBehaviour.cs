@@ -1,12 +1,14 @@
-﻿using BFG.Runtime.Controllers.Human;
+﻿using System;
+using BFG.Runtime.Controllers.Human;
 using UnityEngine.Assertions;
 
 namespace BFG.Runtime.Entities {
 public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
-    public ProcessingEmployeeBehaviour(int? unbooksBehaviourId) {
-        Assert.IsTrue(unbooksBehaviourId >= 0);
+    public ProcessingEmployeeBehaviour(int? unbookingBehaviourId, HumanProcessingType type) {
+        Assert.IsTrue(unbookingBehaviourId >= 0);
 
-        _unbooksBehaviourId = unbooksBehaviourId;
+        _unbookingBehaviourId = unbookingBehaviourId;
+        _type = type;
     }
 
     public override void OnEnter(Human human, BuildingDatabase bdb, HumanDatabase db) {
@@ -22,8 +24,9 @@ public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
         Assert.AreNotEqual(human.building, null);
         var building = human.building!;
 
-        if (_unbooksBehaviourId != null) {
-            UnbookTilesThatWereBookedBy(db, building, _unbooksBehaviourId.Value);
+        if (_unbookingBehaviourId != null) {
+            UnbookTilesThatWereBookedBy(db, building, _unbookingBehaviourId.Value);
+            db.map.EmployeeFinishedProcessingCallback(human, _type);
         }
 
         human.harvestingElapsed = 0;
@@ -53,16 +56,30 @@ public sealed class ProcessingEmployeeBehaviour : EmployeeBehaviour {
         float dt
     ) {
         Assert.AreNotEqual(human.building, null);
-        human.harvestingElapsed += dt;
 
-        var harvestingDuration = human.building!.scriptable.harvestableResource.harvestingDuration;
+        human.processingElapsed += dt;
 
-        if (human.harvestingElapsed >= harvestingDuration) {
-            human.harvestingElapsed = harvestingDuration;
+        var processingDuration = GetProcessingDuration(human.building!.scriptable);
+
+        if (human.processingElapsed >= processingDuration) {
+            human.processingElapsed = processingDuration;
             db.controller.SwitchToTheNextBehaviour(human);
         }
     }
 
-    readonly int? _unbooksBehaviourId;
+    float GetProcessingDuration(IScriptableBuilding building) {
+        if (building.type == BuildingType.Harvest) {
+            return building.harvestableResource.harvestingDuration;
+        }
+
+        if (building.type == BuildingType.Plant) {
+            return building.plantableResource.plantingDuration;
+        }
+
+        throw new NotImplementedException();
+    }
+
+    readonly int? _unbookingBehaviourId;
+    readonly HumanProcessingType _type;
 }
 }

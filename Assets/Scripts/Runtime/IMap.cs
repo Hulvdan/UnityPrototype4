@@ -9,6 +9,7 @@ public interface IMap {
     List<List<ElementTile>> elementTiles { get; }
     List<List<TerrainTile>> terrainTiles { get; }
 
+    Subject<Vector2Int> onTerrainTileChanged { get; }
     Subject<Vector2Int> onElementTileChanged { get; }
 
     List<Building> buildings { get; }
@@ -58,5 +59,6 @@ public interface IMap {
     );
 
     void EmployeeReachedBuildingCallback(Human human);
+    void EmployeeFinishedProcessingCallback(Human human, HumanProcessingType processingType);
 }
 }

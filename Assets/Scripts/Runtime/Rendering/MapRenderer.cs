@@ -283,6 +283,8 @@ public class MapRenderer : MonoBehaviour {
     void InitializeDependencyHooks() {
         var hooks = _dependencyHooks;
 
+        hooks.Add(_map.onTerrainTileChanged.Subscribe(
+            OnTerrainTileChanged));
         hooks.Add(_map.onElementTileChanged.Subscribe(
             OnElementTileChanged));
 
@@ -413,6 +415,25 @@ public class MapRenderer : MonoBehaviour {
             prevData.scale = Vector2.one;
             _buildingFeedbacks[building.id] = new(buildingData, feedbacks);
             SetBuilding(building, buildingData.scale.x, buildingData.scale.y, color);
+        }
+    }
+
+    void OnTerrainTileChanged(Vector2Int pos) {
+        var terrainTile = _map.terrainTiles[pos.y][pos.x];
+
+        if (terrainTile.resource == null) {
+            Assert.AreEqual(terrainTile.resourceAmount, 0);
+
+            _resourceTilemap.SetTile(new(pos.x, pos.y), null);
+            _resourceTilemap.SetTile(new(pos.x, pos.y, -1), null);
+        }
+        else {
+            Assert.AreNotEqual(terrainTile.resourceAmount, 0);
+            Assert.IsTrue(terrainTile.resource!.canBePlacedOnTheMap);
+
+            // TODO(Hulvdan): Generalize it, so that it's possible to plant other resources
+            _resourceTilemap.SetTile(new(pos.x, pos.y, 0), _tileForest);
+            _resourceTilemap.SetTile(new(pos.x, pos.y, -1), _tileForestTop);
         }
     }
 

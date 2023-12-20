@@ -107,6 +107,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         UpdateBuildings(dt);
     }
 
+    public Subject<Vector2Int> onTerrainTileChanged { get; } = new();
     public Subject<Vector2Int> onElementTileChanged { get; } = new();
     public Subject<E_BuildingPlaced> onBuildingPlaced { get; } = new();
 
@@ -526,7 +527,12 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             human = constructor,
         });
 
-        if (building.scriptable.type == BuildingType.Harvest) {
+        if (
+            building.scriptable.type
+            is BuildingType.Harvest
+            or BuildingType.Plant
+            or BuildingType.Fish
+        ) {
             CreateHuman_Employee(cityHall, building);
         }
     }
@@ -642,6 +648,13 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     Building cityHall => buildings.Find(i => i.scriptable.type == BuildingType.SpecialCityHall);
 
+    void PlantResource(Vector2Int pos, ScriptableResource res, int amount) {
+        terrainTiles[pos.y][pos.x].resource = res;
+        terrainTiles[pos.y][pos.x].resourceAmount = amount;
+
+        onTerrainTileChanged.OnNext(pos);
+    }
+
     #region HumanSystem
 
     float humanMovingOneTileDuration => _humanMovingOneTileDuration;
@@ -651,8 +664,6 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         Building building,
         EmployeeBehaviourSet behaviourSet
     ) {
-        Assert.AreEqual(building.scriptable.type, BuildingType.Harvest);
-
         var human = Human.Employee(Guid.NewGuid(), building.pos, building);
         human.behaviourSet = behaviourSet;
 
@@ -666,6 +677,29 @@ public class Map : MonoBehaviour, IMap, IMapSize {
 
     public void EmployeeReachedBuildingCallback(Human human) {
         _humansToRemove.Add(new(HumanRemovalReason.EmployeeReachedBuilding, human));
+    }
+
+    public void EmployeeFinishedProcessingCallback(
+        Human human,
+        HumanProcessingType processingType
+    ) {
+        switch (processingType) {
+            case HumanProcessingType.Harvesting:
+                // TODO(Hulvdan): Remove resource count from terrainTiles
+                break;
+            case HumanProcessingType.Planting:
+                Assert.AreNotEqual(human.building, null);
+                PlantResource(
+                    human.moving.pos,
+                    human.building!.scriptable.plantableResource,
+                    human.building!.scriptable.plantableResourceAmount
+                );
+                break;
+            case HumanProcessingType.Fishing:
+                break;
+            default:
+                throw new NotImplementedException();
+        }
     }
 
     [FoldoutGroup("Humans", true)]
@@ -709,7 +743,12 @@ public class Map : MonoBehaviour, IMap, IMapSize {
     }
 
     void CreateHuman_Employee(Building cityHall_, Building building) {
-        Assert.AreEqual(building.scriptable.type, BuildingType.Harvest);
+        Assert.IsTrue(
+            building.scriptable.type
+                is BuildingType.Harvest
+                or BuildingType.Plant
+                or BuildingType.Fish
+        );
 
         var human = Human.Employee(Guid.NewGuid(), cityHall_.pos, building);
 
@@ -740,14 +779,16 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         RemoveHumans();
 
         foreach (var human in _humans) {
-            UpdateHuman(dt, human, _humansToRemove);
+            UpdateHuman(dt, human);
         }
 
+        var prevCount = _humansToAdd.Count;
         foreach (var human in _humansToAdd) {
             _humans.Add(human);
-            UpdateHuman(dt, human, _humansToRemove);
+            UpdateHuman(dt, human);
         }
 
+        Assert.AreEqual(prevCount, _humansToAdd.Count);
         _humansToAdd.Clear();
 
         RemoveHumans();
@@ -770,9 +811,13 @@ public class Map : MonoBehaviour, IMap, IMapSize {
         _humansToRemove.Clear();
     }
 
-    void UpdateHuman(float dt, Human human, List<(HumanRemovalReason, Human)> humansToRemove) {
+    void UpdateHuman(float dt, Human human) {
         if (human.moving.to != null) {
             UpdateHumanMovingComponent(dt, human);
+        }
+
+        if (_humansToRemove.Count > 0 && _humansToRemove[^1].Item2.id == human.id) {
+            return;
         }
 
         _humanController.Update(human, dt);
@@ -782,7 +827,7 @@ public class Map : MonoBehaviour, IMap, IMapSize {
             && human.moving.pos == cityHall.pos
             && human.moving.to == null
         ) {
-            humansToRemove.Add((
+            _humansToRemove.Add((
                 HumanRemovalReason.TransporterReturnedCityHall,
                 human
             ));

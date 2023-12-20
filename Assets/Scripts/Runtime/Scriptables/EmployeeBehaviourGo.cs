@@ -30,6 +30,10 @@ public sealed class EmployeeBehaviourGo {
     [Min(-1)]
     int _unbookingTileBehaviourId = -1;
 
+    [SerializeField]
+    [ShowIf("_type", EmployeeBehaviourGoType.Processing)]
+    HumanProcessingType _processingType;
+
     public EmployeeBehaviour ToEmployeeBehaviour() {
         switch (_type) {
             case EmployeeBehaviourGoType.GoToDestination:
@@ -43,7 +47,7 @@ public sealed class EmployeeBehaviourGo {
                     unbookingId = _unbookingTileBehaviourId;
                 }
 
-                return new ProcessingEmployeeBehaviour(unbookingId);
+                return new ProcessingEmployeeBehaviour(unbookingId, _processingType);
             case EmployeeBehaviourGoType.PickingUpHarvestedResource:
                 return new PickingUpHarvestedResourceEmployeeBehaviour();
             case EmployeeBehaviourGoType.PlacingHarvestedResource:

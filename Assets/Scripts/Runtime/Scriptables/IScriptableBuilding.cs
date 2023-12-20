@@ -22,5 +22,7 @@ public interface IScriptableBuilding {
     float constructionDuration { get; }
     Vector2Int workingAreaSize { get; }
     List<BuildingBehaviour> behaviours { get; }
+    ScriptableResource plantableResource { get; }
+    int plantableResourceAmount { get; }
 }
 }

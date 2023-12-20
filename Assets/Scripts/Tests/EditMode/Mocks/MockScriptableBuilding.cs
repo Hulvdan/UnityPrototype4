@@ -27,6 +27,8 @@ internal class MockScriptableBuilding : IScriptableBuilding {
     public float constructionDuration { get; }
     public Vector2Int workingAreaSize { get; }
     public List<BuildingBehaviour> behaviours { get; }
+    public ScriptableResource plantableResource { get; }
+    public int plantableResourceAmount { get; }
     public List<BuildingBehaviour> buildingBehaviours { get; }
 }
 }
