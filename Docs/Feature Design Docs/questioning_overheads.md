@@ -138,10 +138,13 @@ public:
         E_HumanFinishedProcessing,
     }
 
+    // NOTE: It can be refactored into an array of bytes where reading
+    // the leading byte determines which event was fired, thus, making
+    // us able to store differrenly sized event structs in the queue.
+    // However, it's not the point of this document
     superduper::Queue<EventType> _queue;
 
     superduper::Queue<E_HumanFinishedProcessing> _eventSpecificQueue;
-    // WARNING: There will be a lot of these queues!
     // superduper::Queue<E_HumanStartedProcessing> _eventSpecificQueue2;
     // superduper::Queue<E_HumanStartedWalking> _eventSpecificQueue3;
     // superduper::Queue<E_HumanStoppedWalking> _eventSpecificQueue4;
