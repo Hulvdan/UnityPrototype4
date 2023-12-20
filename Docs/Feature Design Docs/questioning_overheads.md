@@ -4,7 +4,11 @@
 
 Category: Speed
 
-Hulvdan believes that at the moment performance overheads happen in the way the MapRenderer get's notified about the changes in the `Human`, `Building` behaviours. Several different approaches need to be investigated in order to find the best ways of scructuring a CPU-friendly reaction to the Humans' state changes.
+Hulvdan believes that at the moment performance overheads happen in the way the MapRenderer gets notified about the
+changes in the `Human` and `Building` behaviours.
+
+Several different approaches need to be investigated in order to find the best ways of structuring a CPU-friendly
+reaction to the Humans' state changes.
 
 ## Draft 1. Firing events through observers immediately (the current approach)
 
@@ -64,17 +68,19 @@ private:
 }
 ```
 
-Questions:
+Is it a problem that there's an immediate end-to-end call happening from the Human's behaviour down to the MapRenderer?
 
-1) Is it a problem that there's an immediate end-to-end call happening from the Human's behaviour down to the MapRenderer?
+I mean, is it bad that `HumanProcessingBehaviour.OnExit()` calls `Map.OnHumanFinishedProcessing()` that goes through a
+list of function-pointers in the `onHumanFinishedProcessing` observer that
+calls `MapRenderer.OnHumanFinishedProcessing()`?
 
-   I mean, is it bad that `HumanProcessingBehaviour.OnExit()` calls `Map.OnHumanFinishedProcessing()` that goes through a list of function-pointers in the `onHumanFinishedProcessing` observer that calls `MapRenderer.OnHumanFinishedProcessing()`?
+Hulvdan assumes that there could be huge overheads:
 
-   Hulvdan assumes that there could be huge overheads:
+If there is a lot of things that get cached during the calls to the MapRenderer, could the processor just drop the Map's
+cache of the `for` loop and make the program 100x slower?
 
-   If there is a lot of things that get cached during the calls to the MapRenderer, could the processor just drop the Map's cache of the `for` loop and make the program 100x slower?
-
-   Do people just use the queues for that reason? 🤔 I imagine it requiring some memory for queues pre-allocation, but not for the operation, which is a good thing
+Do people just use the queues for that reason? 🤔 I imagine it requiring some memory for queues pre-allocation, but not
+for the operation, which is a good thing
 
 ## Draft 2. Firing events through observers after the simulation
 
@@ -167,11 +173,17 @@ private:
 }
 ```
 
-Hulvdan thinks that using queues of events and going through observers AFTER the simulation won't spontaneously decrease the speed of simulation because of the MapRenderer's demanding CPU requirements that could override the CPU cache.
+Hulvdan thinks that using queues of events and going through observers AFTER the simulation won't spontaneously decrease
+the speed of simulation because of the MapRenderer's demanding CPU requirements that could override the CPU cache.
 
-Questions:
+Is it correct?
 
-1) Is it correct?
+## 3. More Questions
+
+Let's imagine that we still use the same approach as in Ex. 1. Event gets handled by the renderer that takes requires
+heavy computation and erases the CPU cache of the simnulation's logic.
+
+Is there any way to do this but prevent renderer from messing with CPU cache of the simulation?
 
 ## Conclusion. TBD
 
