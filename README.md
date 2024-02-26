@@ -1,5 +1,7 @@
 # Roads of Horses
 
+> There is [a WIP C++ port of this repo](https://github.com/Hulvdan/handmade-cpp-game)
+
 ## Overview
 
 This is a gamedev project in Unity, C# with a primary goal of honing my development skills.
